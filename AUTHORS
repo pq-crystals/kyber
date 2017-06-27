@@ -1,13 +1,13 @@
 
 kyber-20170627
 Public Domain
-Authors: Joppe Bos
+Authors: Joppe Bos,
          Léo Ducas,
-         Eike Kiltz 
-         Tancrède Lepoint
-         Vadim Lyubashevsky
-         John Schanck
-         Peter Schwabe
+         Eike Kiltz ,
+         Tancrède Lepoint,
+         Vadim Lyubashevsky,
+         John Schanck,
+         Peter Schwabe,
          Damien Stehlé
 
 For Keccak and AES we are using public-domain
