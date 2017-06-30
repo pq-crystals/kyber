@@ -119,7 +119,7 @@ int main()
   for(i=0; i<NTESTS; i++)
   {
     t[i] = cpucycles();
-    crypto_kem_dec(key_a, sk_a, sendb+i*KYBER_BYTES);
+    crypto_kem_dec(key_a, sendb+i*KYBER_BYTES, sk_a);
   }
   print_results("kyber_decaps:  ", t, NTESTS);
  
@@ -147,7 +147,7 @@ int main()
   for(i=0; i<NTESTS; i++)
   {
     t[i] = cpucycles();
-    crypto_kem_dec(key_a, sk_a, sendb+i*KYBER_BYTES);
+    crypto_kem_dec(key_a, sendb+i*KYBER_BYTES, sk_a);
     kyber_uake_sharedA(key_a, kexsendb+i*KYBER_AKE_SENDBBYTES, tk, eska); // Run by Alice
   }
   print_results("kyber_uake_sharedA:  ", t, NTESTS);
@@ -171,15 +171,16 @@ int main()
   for(i=0; i<NTESTS; i++)
   {
     t[i] = cpucycles();
-    crypto_kem_dec(key_a, sk_a, sendb+i*KYBER_BYTES);
+    crypto_kem_dec(key_a, sendb+i*KYBER_BYTES, sk_a);
     kyber_ake_sharedA(key_a, kexsendb+i*KYBER_AKE_SENDBBYTES, tk, eska, sk_a); // Run by Alice
   }
   print_results("kyber_ake_sharedA:  ", t, NTESTS);
  
-
-
+  // Cleaning
   free(senda);
   free(sendb);
+  free(kexsenda);
+  free(kexsendb);
   
   return 0;
 }
