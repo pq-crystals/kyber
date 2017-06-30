@@ -1,0 +1,23 @@
+sudo: required
+
+language: c
+
+os:
+  - linux
+
+compiler:
+  - gcc
+
+install:
+  - sudo apt-get update
+  - sudo apt-get install -y lcov
+  - gem install coveralls-lcov
+
+script:
+  - cd ref
+  - make test/test_kex CFLAGS="-std=gnu99 -fPIC -fprofile-arcs -ftest-coverage -g -O0 -Wall -Wextra -fomit-frame-pointer -march=native" CLANG="clang -march=native -g -O0 -fomit-frame-pointer -fwrapv -Qunused-arguments"
+  - ./test/test_kex
+
+after_success:
+  - lcov -d . -d test --capture --output-file coverage.info
+  - coveralls-lcov coverage.info
