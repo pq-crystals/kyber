@@ -1,13 +1,14 @@
 #include "../kyber.h"
 #include "../kex.h"
 #include "../poly.h"
+#include "../polyvec.h"
 #include "../cpucycles.h"
 #include <stdlib.h>
 #include <stdio.h>
 
 #define NTESTS 10000
 
-//extern void gen_matrix(polyvec *a, const unsigned char *seed, int transposed);
+extern void gen_matrix(polyvec *a, const unsigned char *seed, int transposed);
 
 static int cmp_llu(const void *a, const void*b)
 {
@@ -71,6 +72,7 @@ int main()
 
 
   poly ap;
+  polyvec matrix[KYBER_D];
   int i;
 
   for(i=0; i<NTESTS; i++)
@@ -87,14 +89,12 @@ int main()
   }
   print_results("INVNTT:        ", t, NTESTS);
  
-  /*
   for(i=0; i<NTESTS; i++)
   {
     t[i] = cpucycles();
     gen_matrix(matrix, seed, 0);
   }
   print_results("gen_a:         ", t, NTESTS);
-  */
  
   for(i=0; i<NTESTS; i++)
   {
@@ -119,7 +119,7 @@ int main()
   for(i=0; i<NTESTS; i++)
   {
     t[i] = cpucycles();
-    crypto_kem_dec(key_a, sk_a, sendb+i*KYBER_BYTES);
+    crypto_kem_dec(key_a, sendb+i*KYBER_BYTES, sk_a);
   }
   print_results("kyber_decaps:  ", t, NTESTS);
  
@@ -147,7 +147,6 @@ int main()
   for(i=0; i<NTESTS; i++)
   {
     t[i] = cpucycles();
-    crypto_kem_dec(key_a, sk_a, sendb+i*KYBER_BYTES);
     kyber_uake_sharedA(key_a, kexsendb+i*KYBER_AKE_SENDBBYTES, tk, eska); // Run by Alice
   }
   print_results("kyber_uake_sharedA:  ", t, NTESTS);
@@ -171,15 +170,15 @@ int main()
   for(i=0; i<NTESTS; i++)
   {
     t[i] = cpucycles();
-    crypto_kem_dec(key_a, sk_a, sendb+i*KYBER_BYTES);
     kyber_ake_sharedA(key_a, kexsendb+i*KYBER_AKE_SENDBBYTES, tk, eska, sk_a); // Run by Alice
   }
   print_results("kyber_ake_sharedA:  ", t, NTESTS);
  
-
-
+  // Cleaning
   free(senda);
   free(sendb);
+  free(kexsenda);
+  free(kexsendb);
   
   return 0;
 }
