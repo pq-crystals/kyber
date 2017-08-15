@@ -80,154 +80,154 @@ mov  $256,%rdx
 ._looptop:
 
 # qhasm:   r  = mem256[input_1 + 0]
-# asm 1: vmovupd   0(<input_1=int64#2),>r=reg256#1
-# asm 2: vmovupd   0(<input_1=%rsi),>r=%ymm0
-vmovupd   0(%rsi),%ymm0
+# asm 1: vmovupd   0(<input_1=int64#2),>r=reg256#4
+# asm 2: vmovupd   0(<input_1=%rsi),>r=%ymm3
+vmovupd   0(%rsi),%ymm3
 
-# qhasm:   a = r & _mask11
-# asm 1: vpand _mask11,<r=reg256#1,>a=reg256#2
-# asm 2: vpand _mask11,<r=%ymm0,>a=%ymm1
-vpand _mask11,%ymm0,%ymm1
-
-# qhasm:   16x r unsigned>>= 1
-# asm 1: vpsrlw $1,<r=reg256#1,>r=reg256#1
-# asm 2: vpsrlw $1,<r=%ymm0,>r=%ymm0
-vpsrlw $1,%ymm0,%ymm0
-
-# qhasm:   t = r & _mask11
-# asm 1: vpand _mask11,<r=reg256#1,>t=reg256#4
-# asm 2: vpand _mask11,<r=%ymm0,>t=%ymm3
-vpand _mask11,%ymm0,%ymm3
-
-# qhasm:   32x a += t
-# asm 1: vpaddb <t=reg256#4,<a=reg256#2,>a=reg256#2
-# asm 2: vpaddb <t=%ymm3,<a=%ymm1,>a=%ymm1
-vpaddb %ymm3,%ymm1,%ymm1
+# qhasm:   a = r & mask11
+# asm 1: vpand <r=reg256#4,<mask11=reg256#1,>a=reg256#5
+# asm 2: vpand <r=%ymm3,<mask11=%ymm0,>a=%ymm4
+vpand %ymm3,%ymm0,%ymm4
 
 # qhasm:   16x r unsigned>>= 1
-# asm 1: vpsrlw $1,<r=reg256#1,>r=reg256#1
-# asm 2: vpsrlw $1,<r=%ymm0,>r=%ymm0
-vpsrlw $1,%ymm0,%ymm0
+# asm 1: vpsrlw $1,<r=reg256#4,>r=reg256#4
+# asm 2: vpsrlw $1,<r=%ymm3,>r=%ymm3
+vpsrlw $1,%ymm3,%ymm3
 
-# qhasm:   t = r & _mask11
-# asm 1: vpand _mask11,<r=reg256#1,>t=reg256#4
-# asm 2: vpand _mask11,<r=%ymm0,>t=%ymm3
-vpand _mask11,%ymm0,%ymm3
+# qhasm:   t = r & mask11
+# asm 1: vpand <r=reg256#4,<mask11=reg256#1,>t=reg256#6
+# asm 2: vpand <r=%ymm3,<mask11=%ymm0,>t=%ymm5
+vpand %ymm3,%ymm0,%ymm5
 
 # qhasm:   32x a += t
-# asm 1: vpaddb <t=reg256#4,<a=reg256#2,>a=reg256#2
-# asm 2: vpaddb <t=%ymm3,<a=%ymm1,>a=%ymm1
-vpaddb %ymm3,%ymm1,%ymm1
+# asm 1: vpaddb <t=reg256#6,<a=reg256#5,>a=reg256#5
+# asm 2: vpaddb <t=%ymm5,<a=%ymm4,>a=%ymm4
+vpaddb %ymm5,%ymm4,%ymm4
 
 # qhasm:   16x r unsigned>>= 1
-# asm 1: vpsrlw $1,<r=reg256#1,>r=reg256#1
-# asm 2: vpsrlw $1,<r=%ymm0,>r=%ymm0
-vpsrlw $1,%ymm0,%ymm0
+# asm 1: vpsrlw $1,<r=reg256#4,>r=reg256#4
+# asm 2: vpsrlw $1,<r=%ymm3,>r=%ymm3
+vpsrlw $1,%ymm3,%ymm3
 
-# qhasm:   t = r & _mask11
-# asm 1: vpand _mask11,<r=reg256#1,>t=reg256#1
-# asm 2: vpand _mask11,<r=%ymm0,>t=%ymm0
-vpand _mask11,%ymm0,%ymm0
+# qhasm:   t = r & mask11
+# asm 1: vpand <r=reg256#4,<mask11=reg256#1,>t=reg256#6
+# asm 2: vpand <r=%ymm3,<mask11=%ymm0,>t=%ymm5
+vpand %ymm3,%ymm0,%ymm5
 
 # qhasm:   32x a += t
-# asm 1: vpaddb <t=reg256#1,<a=reg256#2,>a=reg256#1
-# asm 2: vpaddb <t=%ymm0,<a=%ymm1,>a=%ymm0
-vpaddb %ymm0,%ymm1,%ymm0
+# asm 1: vpaddb <t=reg256#6,<a=reg256#5,>a=reg256#5
+# asm 2: vpaddb <t=%ymm5,<a=%ymm4,>a=%ymm4
+vpaddb %ymm5,%ymm4,%ymm4
+
+# qhasm:   16x r unsigned>>= 1
+# asm 1: vpsrlw $1,<r=reg256#4,>r=reg256#4
+# asm 2: vpsrlw $1,<r=%ymm3,>r=%ymm3
+vpsrlw $1,%ymm3,%ymm3
+
+# qhasm:   t = r & mask11
+# asm 1: vpand <r=reg256#4,<mask11=reg256#1,>t=reg256#4
+# asm 2: vpand <r=%ymm3,<mask11=%ymm0,>t=%ymm3
+vpand %ymm3,%ymm0,%ymm3
+
+# qhasm:   32x a += t
+# asm 1: vpaddb <t=reg256#4,<a=reg256#5,>a=reg256#4
+# asm 2: vpaddb <t=%ymm3,<a=%ymm4,>a=%ymm3
+vpaddb %ymm3,%ymm4,%ymm3
 
 # qhasm:   16x b = a unsigned>> 4
-# asm 1: vpsrlw $4,<a=reg256#1,>b=reg256#2
-# asm 2: vpsrlw $4,<a=%ymm0,>b=%ymm1
-vpsrlw $4,%ymm0,%ymm1
+# asm 1: vpsrlw $4,<a=reg256#4,>b=reg256#5
+# asm 2: vpsrlw $4,<a=%ymm3,>b=%ymm4
+vpsrlw $4,%ymm3,%ymm4
 
-# qhasm:   a = a & _mask0f
-# asm 1: vpand _mask0f,<a=reg256#1,>a=reg256#1
-# asm 2: vpand _mask0f,<a=%ymm0,>a=%ymm0
-vpand _mask0f,%ymm0,%ymm0
+# qhasm:   a = a & mask0f
+# asm 1: vpand <a=reg256#4,<mask0f=reg256#2,>a=reg256#4
+# asm 2: vpand <a=%ymm3,<mask0f=%ymm1,>a=%ymm3
+vpand %ymm3,%ymm1,%ymm3
 
-# qhasm:   b = b & _mask0f
-# asm 1: vpand _mask0f,<b=reg256#2,>b=reg256#2
-# asm 2: vpand _mask0f,<b=%ymm1,>b=%ymm1
-vpand _mask0f,%ymm1,%ymm1
+# qhasm:   b = b & mask0f
+# asm 1: vpand <b=reg256#5,<mask0f=reg256#2,>b=reg256#5
+# asm 2: vpand <b=%ymm4,<mask0f=%ymm1,>b=%ymm4
+vpand %ymm4,%ymm1,%ymm4
 
 # qhasm:   32x a -= b
-# asm 1: vpsubb <b=reg256#2,<a=reg256#1,>a=reg256#1
-# asm 2: vpsubb <b=%ymm1,<a=%ymm0,>a=%ymm0
-vpsubb %ymm1,%ymm0,%ymm0
+# asm 1: vpsubb <b=reg256#5,<a=reg256#4,>a=reg256#4
+# asm 2: vpsubb <b=%ymm4,<a=%ymm3,>a=%ymm3
+vpsubb %ymm4,%ymm3,%ymm3
 
 # qhasm:   b = vpmovsxbd a
-# asm 1: vpmovsxbd <a=reg256#1dq,>b=reg256#2
-# asm 2: vpmovsxbd <a=%xmm0,>b=%ymm1
-vpmovsxbd %xmm0,%ymm1
+# asm 1: vpmovsxbd <a=reg256#4dq,>b=reg256#5
+# asm 2: vpmovsxbd <a=%xmm3,>b=%ymm4
+vpmovsxbd %xmm3,%ymm4
 
 # qhasm:   8x b += q8x
-# asm 1: vpaddd <q8x=reg256#3,<b=reg256#2,>b=reg256#2
-# asm 2: vpaddd <q8x=%ymm2,<b=%ymm1,>b=%ymm1
-vpaddd %ymm2,%ymm1,%ymm1
+# asm 1: vpaddd <q8x=reg256#3,<b=reg256#5,>b=reg256#5
+# asm 2: vpaddd <q8x=%ymm2,<b=%ymm4,>b=%ymm4
+vpaddd %ymm2,%ymm4,%ymm4
 
 # qhasm:   mem256[input_0 +  0] = b
-# asm 1: vmovupd   <b=reg256#2,0(<input_0=int64#1)
-# asm 2: vmovupd   <b=%ymm1,0(<input_0=%rdi)
-vmovupd   %ymm1,0(%rdi)
+# asm 1: vmovupd   <b=reg256#5,0(<input_0=int64#1)
+# asm 2: vmovupd   <b=%ymm4,0(<input_0=%rdi)
+vmovupd   %ymm4,0(%rdi)
 
 # qhasm:   a[0,1,2,3] = a[1,0,2,3]
-# asm 1: vpermilpd $0x9,<a=reg256#1,>a=reg256#1
-# asm 2: vpermilpd $0x9,<a=%ymm0,>a=%ymm0
-vpermilpd $0x9,%ymm0,%ymm0
+# asm 1: vpermilpd $0x9,<a=reg256#4,>a=reg256#4
+# asm 2: vpermilpd $0x9,<a=%ymm3,>a=%ymm3
+vpermilpd $0x9,%ymm3,%ymm3
 
 # qhasm:   b = vpmovsxbd a
-# asm 1: vpmovsxbd <a=reg256#1dq,>b=reg256#2
-# asm 2: vpmovsxbd <a=%xmm0,>b=%ymm1
-vpmovsxbd %xmm0,%ymm1
+# asm 1: vpmovsxbd <a=reg256#4dq,>b=reg256#5
+# asm 2: vpmovsxbd <a=%xmm3,>b=%ymm4
+vpmovsxbd %xmm3,%ymm4
 
 # qhasm:   8x b += q8x
-# asm 1: vpaddd <q8x=reg256#3,<b=reg256#2,>b=reg256#2
-# asm 2: vpaddd <q8x=%ymm2,<b=%ymm1,>b=%ymm1
-vpaddd %ymm2,%ymm1,%ymm1
+# asm 1: vpaddd <q8x=reg256#3,<b=reg256#5,>b=reg256#5
+# asm 2: vpaddd <q8x=%ymm2,<b=%ymm4,>b=%ymm4
+vpaddd %ymm2,%ymm4,%ymm4
 
 # qhasm:   mem256[input_0 + 32] = b
-# asm 1: vmovupd   <b=reg256#2,32(<input_0=int64#1)
-# asm 2: vmovupd   <b=%ymm1,32(<input_0=%rdi)
-vmovupd   %ymm1,32(%rdi)
+# asm 1: vmovupd   <b=reg256#5,32(<input_0=int64#1)
+# asm 2: vmovupd   <b=%ymm4,32(<input_0=%rdi)
+vmovupd   %ymm4,32(%rdi)
 
 # qhasm:   a[0,1,2,3] = a[2,3],a[0,1]
-# asm 1: vperm2f128 $0x21,<a=reg256#1,<a=reg256#1,>a=reg256#1
-# asm 2: vperm2f128 $0x21,<a=%ymm0,<a=%ymm0,>a=%ymm0
-vperm2f128 $0x21,%ymm0,%ymm0,%ymm0
+# asm 1: vperm2f128 $0x21,<a=reg256#4,<a=reg256#4,>a=reg256#4
+# asm 2: vperm2f128 $0x21,<a=%ymm3,<a=%ymm3,>a=%ymm3
+vperm2f128 $0x21,%ymm3,%ymm3,%ymm3
 
 # qhasm:   b = vpmovsxbd a
-# asm 1: vpmovsxbd <a=reg256#1dq,>b=reg256#2
-# asm 2: vpmovsxbd <a=%xmm0,>b=%ymm1
-vpmovsxbd %xmm0,%ymm1
+# asm 1: vpmovsxbd <a=reg256#4dq,>b=reg256#5
+# asm 2: vpmovsxbd <a=%xmm3,>b=%ymm4
+vpmovsxbd %xmm3,%ymm4
 
 # qhasm:   8x b += q8x
-# asm 1: vpaddd <q8x=reg256#3,<b=reg256#2,>b=reg256#2
-# asm 2: vpaddd <q8x=%ymm2,<b=%ymm1,>b=%ymm1
-vpaddd %ymm2,%ymm1,%ymm1
+# asm 1: vpaddd <q8x=reg256#3,<b=reg256#5,>b=reg256#5
+# asm 2: vpaddd <q8x=%ymm2,<b=%ymm4,>b=%ymm4
+vpaddd %ymm2,%ymm4,%ymm4
 
 # qhasm:   mem256[input_0 + 64] = b
-# asm 1: vmovupd   <b=reg256#2,64(<input_0=int64#1)
-# asm 2: vmovupd   <b=%ymm1,64(<input_0=%rdi)
-vmovupd   %ymm1,64(%rdi)
+# asm 1: vmovupd   <b=reg256#5,64(<input_0=int64#1)
+# asm 2: vmovupd   <b=%ymm4,64(<input_0=%rdi)
+vmovupd   %ymm4,64(%rdi)
 
 # qhasm:   a[0,1,2,3] = a[1,0,2,3]
-# asm 1: vpermilpd $0x9,<a=reg256#1,>a=reg256#1
-# asm 2: vpermilpd $0x9,<a=%ymm0,>a=%ymm0
-vpermilpd $0x9,%ymm0,%ymm0
+# asm 1: vpermilpd $0x9,<a=reg256#4,>a=reg256#4
+# asm 2: vpermilpd $0x9,<a=%ymm3,>a=%ymm3
+vpermilpd $0x9,%ymm3,%ymm3
 
 # qhasm:   b = vpmovsxbd a
-# asm 1: vpmovsxbd <a=reg256#1dq,>b=reg256#1
-# asm 2: vpmovsxbd <a=%xmm0,>b=%ymm0
-vpmovsxbd %xmm0,%ymm0
+# asm 1: vpmovsxbd <a=reg256#4dq,>b=reg256#4
+# asm 2: vpmovsxbd <a=%xmm3,>b=%ymm3
+vpmovsxbd %xmm3,%ymm3
 
 # qhasm:   8x b += q8x
-# asm 1: vpaddd <q8x=reg256#3,<b=reg256#1,>b=reg256#1
-# asm 2: vpaddd <q8x=%ymm2,<b=%ymm0,>b=%ymm0
-vpaddd %ymm2,%ymm0,%ymm0
+# asm 1: vpaddd <q8x=reg256#3,<b=reg256#4,>b=reg256#4
+# asm 2: vpaddd <q8x=%ymm2,<b=%ymm3,>b=%ymm3
+vpaddd %ymm2,%ymm3,%ymm3
 
 # qhasm:   mem256[input_0 + 96] = b
-# asm 1: vmovupd   <b=reg256#1,96(<input_0=int64#1)
-# asm 2: vmovupd   <b=%ymm0,96(<input_0=%rdi)
-vmovupd   %ymm0,96(%rdi)
+# asm 1: vmovupd   <b=reg256#4,96(<input_0=int64#1)
+# asm 2: vmovupd   <b=%ymm3,96(<input_0=%rdi)
+vmovupd   %ymm3,96(%rdi)
 
 # qhasm:   input_0 += 128
 # asm 1: add  $128,<input_0=int64#1
