@@ -8,7 +8,6 @@
 
 #ifdef SYS_getrandom
 
-#include <unistd.h>
 #include <sys/syscall.h>
 #include <linux/random.h>
 

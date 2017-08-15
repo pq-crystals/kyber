@@ -4,9 +4,6 @@
 #define _GNU_SOURCE
 
 #include <unistd.h>
-#include <sys/syscall.h>
-#include <linux/random.h>
-
 
 void randombytes(unsigned char *x, size_t xlen);
 
