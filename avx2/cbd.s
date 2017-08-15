@@ -57,19 +57,19 @@ add $0,%r11
 sub %r11,%rsp
 
 # qhasm: mask11 = mem256[_mask11]
-# asm 1: vmovdqu _mask11,>mask11=reg256#1
-# asm 2: vmovdqu _mask11,>mask11=%ymm0
-vmovdqu _mask11,%ymm0
+# asm 1: vmovupd _mask11(%rip),>mask11=reg256#1
+# asm 2: vmovupd _mask11(%rip),>mask11=%ymm0
+vmovupd _mask11(%rip),%ymm0
 
 # qhasm: mask0f = mem256[_mask0f]
-# asm 1: vmovdqu _mask0f,>mask0f=reg256#2
-# asm 2: vmovdqu _mask0f,>mask0f=%ymm1
-vmovdqu _mask0f,%ymm1
+# asm 1: vmovupd _mask0f(%rip),>mask0f=reg256#2
+# asm 2: vmovupd _mask0f(%rip),>mask0f=%ymm1
+vmovupd _mask0f(%rip),%ymm1
 
 # qhasm: q8x   = mem256[_q8x]
-# asm 1: vmovdqu _q8x,>q8x=reg256#3
-# asm 2: vmovdqu _q8x,>q8x=%ymm2
-vmovdqu _q8x,%ymm2
+# asm 1: vmovupd _q8x(%rip),>q8x=reg256#3
+# asm 2: vmovupd _q8x(%rip),>q8x=%ymm2
+vmovupd _q8x(%rip),%ymm2
 
 # qhasm: ctr = 256
 # asm 1: mov  $256,>ctr=int64#3

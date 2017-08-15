@@ -65,6 +65,8 @@
 
 # qhasm: reg256 q
 
+# qhasm: reg256 one
+
 # qhasm: reg256 c
 
 # qhasm: reg256 t
@@ -94,14 +96,14 @@ sub %r11,%rsp
 mov  $128,%rcx
 
 # qhasm: qinv = mem256[_qinv]
-# asm 1: vmovdqu _qinv,>qinv=reg256#1
-# asm 2: vmovdqu _qinv,>qinv=%ymm0
-vmovdqu _qinv,%ymm0
+# asm 1: vmovupd _qinv(%rip),>qinv=reg256#1
+# asm 2: vmovupd _qinv(%rip),>qinv=%ymm0
+vmovupd _qinv(%rip),%ymm0
 
 # qhasm: q    = mem256[_q]
-# asm 1: vmovdqu _q,>q=reg256#2
-# asm 2: vmovdqu _q,>q=%ymm1
-vmovdqu _q,%ymm1
+# asm 1: vmovupd _q(%rip),>q=reg256#2
+# asm 2: vmovupd _q(%rip),>q=%ymm1
+vmovupd _q(%rip),%ymm1
 
 # qhasm: omega51 = 4x mem64[input_2 + 24]
 # asm 1: vbroadcastsd 24(<input_2=int64#3),>omega51=reg256#3
@@ -351,15 +353,10 @@ vmulpd %ymm5,%ymm0,%ymm13
 # asm 2: vroundpd $9,<c=%ymm13,>c=%ymm13
 vroundpd $9,%ymm13,%ymm13
 
-# qhasm: 4x c approx*= q
-# asm 1: vmulpd <q=reg256#2,<c=reg256#14,>c=reg256#14
-# asm 2: vmulpd <q=%ymm1,<c=%ymm13,>c=%ymm13
-vmulpd %ymm1,%ymm13,%ymm13
-
-# qhasm: 4x a0123 approx-= c
-# asm 1: vsubpd <c=reg256#14,<a0123=reg256#6,>a0123=reg256#6
-# asm 2: vsubpd <c=%ymm13,<a0123=%ymm5,>a0123=%ymm5
-vsubpd %ymm13,%ymm5,%ymm5
+# qhasm: 4x a0123 approx-= c * q
+# asm 1: vfnmadd231pd <c=reg256#14,<q=reg256#2,<a0123=reg256#6
+# asm 2: vfnmadd231pd <c=%ymm13,<q=%ymm1,<a0123=%ymm5
+vfnmadd231pd %ymm13,%ymm1,%ymm5
 
 # qhasm: 4x c = approx b0123 * qinv
 # asm 1: vmulpd <b0123=reg256#7,<qinv=reg256#1,>c=reg256#14
@@ -371,15 +368,10 @@ vmulpd %ymm6,%ymm0,%ymm13
 # asm 2: vroundpd $9,<c=%ymm13,>c=%ymm13
 vroundpd $9,%ymm13,%ymm13
 
-# qhasm: 4x c approx*= q
-# asm 1: vmulpd <q=reg256#2,<c=reg256#14,>c=reg256#14
-# asm 2: vmulpd <q=%ymm1,<c=%ymm13,>c=%ymm13
-vmulpd %ymm1,%ymm13,%ymm13
-
-# qhasm: 4x b0123 approx-= c
-# asm 1: vsubpd <c=reg256#14,<b0123=reg256#7,>b0123=reg256#7
-# asm 2: vsubpd <c=%ymm13,<b0123=%ymm6,>b0123=%ymm6
-vsubpd %ymm13,%ymm6,%ymm6
+# qhasm: 4x b0123 approx-= c *q
+# asm 1: vfnmadd231pd <c=reg256#14,<q=reg256#2,<b0123=reg256#7
+# asm 2: vfnmadd231pd <c=%ymm13,<q=%ymm1,<b0123=%ymm6
+vfnmadd231pd %ymm13,%ymm1,%ymm6
 
 # qhasm: 4x c = approx c0123 * qinv
 # asm 1: vmulpd <c0123=reg256#8,<qinv=reg256#1,>c=reg256#14
@@ -391,15 +383,10 @@ vmulpd %ymm7,%ymm0,%ymm13
 # asm 2: vroundpd $9,<c=%ymm13,>c=%ymm13
 vroundpd $9,%ymm13,%ymm13
 
-# qhasm: 4x c approx*= q
-# asm 1: vmulpd <q=reg256#2,<c=reg256#14,>c=reg256#14
-# asm 2: vmulpd <q=%ymm1,<c=%ymm13,>c=%ymm13
-vmulpd %ymm1,%ymm13,%ymm13
-
-# qhasm: 4x c0123 approx-= c
-# asm 1: vsubpd <c=reg256#14,<c0123=reg256#8,>c0123=reg256#8
-# asm 2: vsubpd <c=%ymm13,<c0123=%ymm7,>c0123=%ymm7
-vsubpd %ymm13,%ymm7,%ymm7
+# qhasm: 4x c0123 approx-= c *q
+# asm 1: vfnmadd231pd <c=reg256#14,<q=reg256#2,<c0123=reg256#8
+# asm 2: vfnmadd231pd <c=%ymm13,<q=%ymm1,<c0123=%ymm7
+vfnmadd231pd %ymm13,%ymm1,%ymm7
 
 # qhasm: 4x c = approx d0123 * qinv
 # asm 1: vmulpd <d0123=reg256#9,<qinv=reg256#1,>c=reg256#14
@@ -411,15 +398,10 @@ vmulpd %ymm8,%ymm0,%ymm13
 # asm 2: vroundpd $9,<c=%ymm13,>c=%ymm13
 vroundpd $9,%ymm13,%ymm13
 
-# qhasm: 4x c approx*= q
-# asm 1: vmulpd <q=reg256#2,<c=reg256#14,>c=reg256#14
-# asm 2: vmulpd <q=%ymm1,<c=%ymm13,>c=%ymm13
-vmulpd %ymm1,%ymm13,%ymm13
-
-# qhasm: 4x d0123 approx-= c
-# asm 1: vsubpd <c=reg256#14,<d0123=reg256#9,>d0123=reg256#9
-# asm 2: vsubpd <c=%ymm13,<d0123=%ymm8,>d0123=%ymm8
-vsubpd %ymm13,%ymm8,%ymm8
+# qhasm: 4x d0123 approx-= c * q
+# asm 1: vfnmadd231pd <c=reg256#14,<q=reg256#2,<d0123=reg256#9
+# asm 2: vfnmadd231pd <c=%ymm13,<q=%ymm1,<d0123=%ymm8
+vfnmadd231pd %ymm13,%ymm1,%ymm8
 
 # qhasm: 4x c = approx e0123 * qinv
 # asm 1: vmulpd <e0123=reg256#10,<qinv=reg256#1,>c=reg256#14
@@ -431,15 +413,10 @@ vmulpd %ymm9,%ymm0,%ymm13
 # asm 2: vroundpd $9,<c=%ymm13,>c=%ymm13
 vroundpd $9,%ymm13,%ymm13
 
-# qhasm: 4x c approx*= q
-# asm 1: vmulpd <q=reg256#2,<c=reg256#14,>c=reg256#14
-# asm 2: vmulpd <q=%ymm1,<c=%ymm13,>c=%ymm13
-vmulpd %ymm1,%ymm13,%ymm13
-
-# qhasm: 4x e0123 approx-= c
-# asm 1: vsubpd <c=reg256#14,<e0123=reg256#10,>e0123=reg256#10
-# asm 2: vsubpd <c=%ymm13,<e0123=%ymm9,>e0123=%ymm9
-vsubpd %ymm13,%ymm9,%ymm9
+# qhasm: 4x e0123 approx-= c * q
+# asm 1: vfnmadd231pd <c=reg256#14,<q=reg256#2,<e0123=reg256#10
+# asm 2: vfnmadd231pd <c=%ymm13,<q=%ymm1,<e0123=%ymm9
+vfnmadd231pd %ymm13,%ymm1,%ymm9
 
 # qhasm: 4x c = approx f0123 * qinv
 # asm 1: vmulpd <f0123=reg256#11,<qinv=reg256#1,>c=reg256#14
@@ -451,15 +428,10 @@ vmulpd %ymm10,%ymm0,%ymm13
 # asm 2: vroundpd $9,<c=%ymm13,>c=%ymm13
 vroundpd $9,%ymm13,%ymm13
 
-# qhasm: 4x c approx*= q
-# asm 1: vmulpd <q=reg256#2,<c=reg256#14,>c=reg256#14
-# asm 2: vmulpd <q=%ymm1,<c=%ymm13,>c=%ymm13
-vmulpd %ymm1,%ymm13,%ymm13
-
-# qhasm: 4x f0123 approx-= c
-# asm 1: vsubpd <c=reg256#14,<f0123=reg256#11,>f0123=reg256#11
-# asm 2: vsubpd <c=%ymm13,<f0123=%ymm10,>f0123=%ymm10
-vsubpd %ymm13,%ymm10,%ymm10
+# qhasm: 4x f0123 approx-= c * q
+# asm 1: vfnmadd231pd <c=reg256#14,<q=reg256#2,<f0123=reg256#11
+# asm 2: vfnmadd231pd <c=%ymm13,<q=%ymm1,<f0123=%ymm10
+vfnmadd231pd %ymm13,%ymm1,%ymm10
 
 # qhasm: 4x c = approx g0123 * qinv
 # asm 1: vmulpd <g0123=reg256#12,<qinv=reg256#1,>c=reg256#14
@@ -471,15 +443,10 @@ vmulpd %ymm11,%ymm0,%ymm13
 # asm 2: vroundpd $9,<c=%ymm13,>c=%ymm13
 vroundpd $9,%ymm13,%ymm13
 
-# qhasm: 4x c approx*= q
-# asm 1: vmulpd <q=reg256#2,<c=reg256#14,>c=reg256#14
-# asm 2: vmulpd <q=%ymm1,<c=%ymm13,>c=%ymm13
-vmulpd %ymm1,%ymm13,%ymm13
-
-# qhasm: 4x g0123 approx-= c
-# asm 1: vsubpd <c=reg256#14,<g0123=reg256#12,>g0123=reg256#12
-# asm 2: vsubpd <c=%ymm13,<g0123=%ymm11,>g0123=%ymm11
-vsubpd %ymm13,%ymm11,%ymm11
+# qhasm: 4x g0123 approx-= c * q
+# asm 1: vfnmadd231pd <c=reg256#14,<q=reg256#2,<g0123=reg256#12
+# asm 2: vfnmadd231pd <c=%ymm13,<q=%ymm1,<g0123=%ymm11
+vfnmadd231pd %ymm13,%ymm1,%ymm11
 
 # qhasm: 4x c = approx h0123 * qinv
 # asm 1: vmulpd <h0123=reg256#13,<qinv=reg256#1,>c=reg256#14
@@ -491,15 +458,10 @@ vmulpd %ymm12,%ymm0,%ymm13
 # asm 2: vroundpd $9,<c=%ymm13,>c=%ymm13
 vroundpd $9,%ymm13,%ymm13
 
-# qhasm: 4x c approx*= q
-# asm 1: vmulpd <q=reg256#2,<c=reg256#14,>c=reg256#14
-# asm 2: vmulpd <q=%ymm1,<c=%ymm13,>c=%ymm13
-vmulpd %ymm1,%ymm13,%ymm13
-
-# qhasm: 4x h0123 approx-= c
-# asm 1: vsubpd <c=reg256#14,<h0123=reg256#13,>h0123=reg256#13
-# asm 2: vsubpd <c=%ymm13,<h0123=%ymm12,>h0123=%ymm12
-vsubpd %ymm13,%ymm12,%ymm12
+# qhasm: 4x h0123 approx-= c * q
+# asm 1: vfnmadd231pd <c=reg256#14,<q=reg256#2,<h0123=reg256#13
+# asm 2: vfnmadd231pd <c=%ymm13,<q=%ymm1,<h0123=%ymm12
+vfnmadd231pd %ymm13,%ymm1,%ymm12
 
 # qhasm: a0123 = (4x int32)(4x double) a0123,0,0,0,0
 # asm 1: vcvtpd2dq <a0123=reg256#6,>a0123=reg256#6dq

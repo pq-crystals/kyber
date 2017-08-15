@@ -82,9 +82,9 @@ mov  %rsi,%rsi
 mov  $64,%rcx
 
 # qhasm: neg2 = mem256[_neg2]
-# asm 1: vmovdqu _neg2,>neg2=reg256#1
-# asm 2: vmovdqu _neg2,>neg2=%ymm0
-vmovdqu _neg2,%ymm0
+# asm 1: vmovupd _neg2(%rip),>neg2=reg256#1
+# asm 2: vmovupd _neg2(%rip),>neg2=%ymm0
+vmovupd _neg2(%rip),%ymm0
 
 # qhasm: neg4[0,1,2,3] =  neg2[0,0,3,3]
 # asm 1: vpermilpd $0xc,<neg2=reg256#1,>neg4=reg256#2
@@ -92,14 +92,14 @@ vmovdqu _neg2,%ymm0
 vpermilpd $0xc,%ymm0,%ymm1
 
 # qhasm: qinv = mem256[_qinv]
-# asm 1: vmovdqu _qinv,>qinv=reg256#3
-# asm 2: vmovdqu _qinv,>qinv=%ymm2
-vmovdqu _qinv,%ymm2
+# asm 1: vmovupd _qinv(%rip),>qinv=reg256#3
+# asm 2: vmovupd _qinv(%rip),>qinv=%ymm2
+vmovupd _qinv(%rip),%ymm2
 
 # qhasm: q    = mem256[_q]
-# asm 1: vmovdqu _q,>q=reg256#4
-# asm 2: vmovdqu _q,>q=%ymm3
-vmovdqu _q,%ymm3
+# asm 1: vmovupd _q(%rip),>q=reg256#4
+# asm 2: vmovupd _q(%rip),>q=%ymm3
+vmovupd _q(%rip),%ymm3
 
 # qhasm: looptop:
 ._looptop:

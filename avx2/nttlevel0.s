@@ -56,9 +56,9 @@ sub %r11,%rsp
 mov  $64,%rdx
 
 # qhasm: neg2 = mem256[_neg2]
-# asm 1: vmovdqu _neg2,>neg2=reg256#1
-# asm 2: vmovdqu _neg2,>neg2=%ymm0
-vmovdqu _neg2,%ymm0
+# asm 1: vmovupd _neg2(%rip),>neg2=reg256#1
+# asm 2: vmovupd _neg2(%rip),>neg2=%ymm0
+vmovupd _neg2(%rip),%ymm0
 
 # qhasm: looptop:
 ._looptop:

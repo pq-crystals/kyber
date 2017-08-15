@@ -56,14 +56,14 @@ sub %r11,%rsp
 mov  $256,%rdx
 
 # qhasm: qinv = mem256[_qinv]
-# asm 1: vmovdqu _qinv,>qinv=reg256#1
-# asm 2: vmovdqu _qinv,>qinv=%ymm0
-vmovdqu _qinv,%ymm0
+# asm 1: vmovupd _qinv(%rip),>qinv=reg256#1
+# asm 2: vmovupd _qinv(%rip),>qinv=%ymm0
+vmovupd _qinv(%rip),%ymm0
 
 # qhasm: q    = mem256[_q]
-# asm 1: vmovdqu _q,>q=reg256#2
-# asm 2: vmovdqu _q,>q=%ymm1
-vmovdqu _q,%ymm1
+# asm 1: vmovupd _q(%rip),>q=reg256#2
+# asm 2: vmovupd _q(%rip),>q=%ymm1
+vmovupd _q(%rip),%ymm1
 
 # qhasm: looptop:
 ._looptop:
