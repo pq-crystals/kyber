@@ -3,10 +3,30 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include "randombytes.h"
+#include <sys/syscall.h>
+
+#define _GNU_SOURCE
+
+#ifdef SYS_getrandom
+
+void randombytes(unsigned char *buf,size_t buflen)
+{
+  size_t d = 0;
+  int r;
+
+  while(d<buflen)
+  {
+    r = syscall(SYS_getrandom, buf, buflen, 0); 
+    buf += r;
+    d += r;
+  }
+}
+
+#else
 
 static int fd = -1;
 
-void randombytes(unsigned char *x,unsigned long long xlen)
+void randombytes(unsigned char *x, size_t xlen)
 {
   int i;
 
@@ -32,3 +52,4 @@ void randombytes(unsigned char *x,unsigned long long xlen)
   }
 }
 
+#endif

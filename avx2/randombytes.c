@@ -3,13 +3,11 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include "randombytes.h"
+#include <sys/syscall.h>
 
 #define _GNU_SOURCE
 
 #ifdef SYS_getrandom
-
-#include <sys/syscall.h>
-#include <linux/random.h>
 
 void randombytes(unsigned char *buf,size_t buflen)
 {
