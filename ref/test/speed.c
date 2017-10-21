@@ -1,4 +1,4 @@
-#include "../kyber.h"
+#include "../api.h"
 #include "../kex.h"
 #include "../poly.h"
 #include "../polyvec.h"
@@ -65,7 +65,7 @@ int main()
 
   unsigned char key_a[32], key_b[32];
   unsigned char* senda = (unsigned char*) malloc(NTESTS*KYBER_PUBLICKEYBYTES);
-  unsigned char* sendb = (unsigned char*) malloc(NTESTS*KYBER_BYTES);
+  unsigned char* sendb = (unsigned char*) malloc(NTESTS*KYBER_CIPHERTEXTBYTES);
 
   unsigned char* kexsenda = (unsigned char*) malloc(NTESTS*KYBER_AKE_SENDABYTES);
   unsigned char* kexsendb = (unsigned char*) malloc(NTESTS*KYBER_AKE_SENDBBYTES);
@@ -112,14 +112,14 @@ int main()
   for(i=0; i<NTESTS; i++)
   {
     t[i] = cpucycles();
-    crypto_kem_enc(key_b, sendb+i*KYBER_BYTES, senda+i*KYBER_PUBLICKEYBYTES);
+    crypto_kem_enc(key_b, sendb+i*KYBER_CIPHERTEXTBYTES, senda+i*KYBER_PUBLICKEYBYTES);
   }
   print_results("kyber_encaps:  ", t, NTESTS);
 
   for(i=0; i<NTESTS; i++)
   {
     t[i] = cpucycles();
-    crypto_kem_dec(key_a, sendb+i*KYBER_BYTES, sk_a);
+    crypto_kem_dec(key_a, sendb+i*KYBER_CIPHERTEXTBYTES, sk_a);
   }
   print_results("kyber_decaps:  ", t, NTESTS);
  

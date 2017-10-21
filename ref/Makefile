@@ -1,34 +1,38 @@
 CC 		  = /usr/bin/cc
-CFLAGS  = -g -Wall -Wextra -O3 -fomit-frame-pointer -march=native
+CFLAGS  = -g -Wall -Wextra -O3 -fomit-frame-pointer -march=native -fPIC
 CLANG   = clang -march=native -O3 -fomit-frame-pointer -fwrapv -Qunused-arguments
 RM 		  = /bin/rm
-ifneq ($(shell uname -s),Darwin) # Add static if not on Darwin
-	CFLAGS += -static
-endif
+#ifneq ($(shell uname -s),Darwin) # Add static if not on Darwin
+#	CFLAGS += -static
+#endif
 
 
 all: test/test_kyber \
 		 test/test_kex \
 		 test/testvectors \
+     test/PQCgenKAT_kem \
 		 test/speed
 
-SOURCES = kyber.c poly.c polyvec.c fips202.o reduce.c cbd.c precomp.c ntt.c verify.c indcpa.c kex.c
-HEADERS = params.h poly.h polyvec.h randombytes.h reduce.h cbd.h ntt.h verify.h indcpa.h kex.h
+SOURCES = kem.c poly.c polyvec.c fips202.o reduce.c cbd.c precomp.c ntt.c verify.c indcpa.c kex.c
+HEADERS = params.h poly.h polyvec.h reduce.h cbd.h ntt.h verify.h indcpa.h kex.h
 
-test/test_kyber: $(SOURCES) $(HEADERS) test/test_kyber.c randombytes.c
+test/test_kyber: $(SOURCES) $(HEADERS) test/test_kyber.c randombytes.c randombytes.h
 	$(CC) $(CFLAGS) -o $@ $(SOURCES) randombytes.c test/test_kyber.c
 
-test/test_kex: $(SOURCES) $(HEADERS) test/test_kex.c randombytes.c
+test/PQCgenKAT_kem: $(SOURCES) $(HEADERS) test/PQCgenKAT_kem.c randombytes.c nistrng/rng.c nistrng/rng.h
+	$(CC) $(CFLAGS) -o $@ $(SOURCES) -Inistrng -I. nistrng/rng.c test/PQCgenKAT_kem.c -lcrypto
+
+test/test_kex: $(SOURCES) $(HEADERS) test/test_kex.c randombytes.c randombytes.h
 	$(CC) $(CFLAGS) -o $@ $(SOURCES) randombytes.c test/test_kex.c
 
-test/testvectors: $(SOURCES) $(HEADERS) cpucycles.h cpucycles.c test/testvectors.c
+test/testvectors: $(SOURCES) $(HEADERS) cpucycles.h cpucycles.c test/testvectors.c randombytes.h
 	$(CC) $(CFLAGS) -o $@ $(SOURCES) cpucycles.c test/testvectors.c
 
-test/speed: $(SOURCES) $(HEADERS) cpucycles.h cpucycles.c test/speed.c randombytes.c
+test/speed: $(SOURCES) $(HEADERS) cpucycles.h cpucycles.c test/speed.c randombytes.c randombytes.h
 	$(CC) $(CFLAGS) -o $@ $(SOURCES) randombytes.c cpucycles.c test/speed.c
 
 fips202.o: fips202.c
-	$(CLANG) -c $^ -o $@
+	$(CLANG) -c -fPIC $^ -o $@
 
 .PHONY: clean test
 
