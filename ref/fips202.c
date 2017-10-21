@@ -339,6 +339,9 @@ static void keccak_absorb(uint64_t *s,
   unsigned long long i;
   unsigned char t[200];
 
+  // Zero state
+  for (i = 0; i < 25; ++i)
+    s[i] = 0;
  
   while (mlen >= r) 
   {
@@ -380,6 +383,7 @@ static void keccak_squeezeblocks(unsigned char *h, unsigned long long int nblock
 
 
 
+
 void shake128_absorb(uint64_t *s, const unsigned char *input, unsigned int inputByteLen)
 {
   keccak_absorb(s, SHAKE128_RATE, input, inputByteLen, 0x1F);
@@ -398,9 +402,6 @@ void shake256(unsigned char *output, unsigned long long outlen,
   unsigned long long nblocks = outlen/SHAKE128_RATE;
   size_t i;
 
-  for (i = 0; i < 25; ++i)
-    s[i] = 0;
-  
   /* Absorb input */
   keccak_absorb(s, SHAKE256_RATE, input, inlen, 0x1F);
 

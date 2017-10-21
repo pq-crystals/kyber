@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#define NTESTS 100000
+#define NTESTS 100
 
 
 int test_keys()
