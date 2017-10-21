@@ -44,7 +44,8 @@ test:
 
 clean:
 	-$(RM) *.o
-	-$(RM) -r test/test_kyber{,.dSYM}
-	-$(RM) -r test/test_kex{,.dSYM}
-	-$(RM) -r test/testvectors{,.dSYM}
-	-$(RM) -r test/speed{,.dSYM}
+	-$(RM) -r test/test_kyber
+	-$(RM) -r test/test_kex
+	-$(RM) -r test/testvectors
+	-$(RM) -r test/speed
+	-$(RM) -r test/PQCgenKAT_kem
