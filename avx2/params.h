@@ -3,7 +3,7 @@
 
 #define KYBER_N 256
 #define KYBER_D 3
-#define KYBER_K 4 /* used in sampler */
+#define KYBER_ETA 4 /* used in sampler */
 #define KYBER_Q 7681
 
 #define KYBER_SEEDBYTES       32

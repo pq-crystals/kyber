@@ -72,7 +72,7 @@ int main()
 
 
   poly ap;
-  polyvec matrix[KYBER_D];
+  polyvec matrix[KYBER_K];
   int i;
 
   for(i=0; i<NTESTS; i++)

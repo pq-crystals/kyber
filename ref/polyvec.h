@@ -5,7 +5,7 @@
 #include "poly.h"
 
 typedef struct{
-  poly vec[KYBER_D];
+  poly vec[KYBER_K];
 } polyvec;
 
 void polyvec_compress(unsigned char *r, const polyvec *a);

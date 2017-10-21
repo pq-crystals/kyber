@@ -66,9 +66,9 @@ void gen_matrix(polyvec *a, const unsigned char *seed, int transposed) //XXX: No
     extseed[i] = seed[i];
 
 
-  for(i=0;i<KYBER_D;i++)
+  for(i=0;i<KYBER_K;i++)
   {
-    for(j=0;j<KYBER_D;j++)
+    for(j=0;j<KYBER_K;j++)
     {
       ctr = pos = 0;
       if(transposed) 
@@ -109,7 +109,7 @@ void gen_matrix(polyvec *a, const unsigned char *seed, int transposed) //XXX: No
 void indcpa_keypair(unsigned char *pk, 
                    unsigned char *sk)
 {
-  polyvec a[KYBER_D], e, pkpv, skpv;
+  polyvec a[KYBER_K], e, pkpv, skpv;
   unsigned char seed[KYBER_SEEDBYTES];
   unsigned char noiseseed[KYBER_COINBYTES];
   int i;
@@ -121,16 +121,16 @@ void indcpa_keypair(unsigned char *pk,
 
   gen_a(a, seed);
 
-  for(i=0;i<KYBER_D;i++)
+  for(i=0;i<KYBER_K;i++)
     poly_getnoise(skpv.vec+i,noiseseed,nonce++);
 
   polyvec_ntt(&skpv);
   
-  for(i=0;i<KYBER_D;i++)
+  for(i=0;i<KYBER_K;i++)
     poly_getnoise(e.vec+i,noiseseed,nonce++);
 
   // matrix-vector multiplication
-  for(i=0;i<KYBER_D;i++)
+  for(i=0;i<KYBER_K;i++)
     polyvec_pointwise_acc(&pkpv.vec[i],&skpv,a+i);
 
   polyvec_invntt(&pkpv);
@@ -146,7 +146,7 @@ void indcpa_enc(unsigned char *c,
                const unsigned char *pk,
                const unsigned char *coins)
 {
-  polyvec sp, pkpv, ep, at[KYBER_D], bp;
+  polyvec sp, pkpv, ep, at[KYBER_K], bp;
   poly v, k, epp;
   unsigned char seed[KYBER_SEEDBYTES];
   int i;
@@ -157,22 +157,22 @@ void indcpa_enc(unsigned char *c,
 
   poly_frommsg(&k, m);
 
-  for(i=0;i<KYBER_D;i++)
+  for(i=0;i<KYBER_K;i++)
     bitrev_vector(pkpv.vec[i].coeffs);
   polyvec_ntt(&pkpv);
 
   gen_at(at, seed);
 
-  for(i=0;i<KYBER_D;i++)
+  for(i=0;i<KYBER_K;i++)
     poly_getnoise(sp.vec+i,coins,nonce++);
 
   polyvec_ntt(&sp);
 
-  for(i=0;i<KYBER_D;i++)
+  for(i=0;i<KYBER_K;i++)
     poly_getnoise(ep.vec+i,coins,nonce++);
 
   // matrix-vector multiplication
-  for(i=0;i<KYBER_D;i++)
+  for(i=0;i<KYBER_K;i++)
     polyvec_pointwise_acc(&bp.vec[i],&sp,at+i);
 
   polyvec_invntt(&bp);
@@ -201,7 +201,7 @@ void indcpa_dec(unsigned char *m,
   unpack_ciphertext(&bp, &v, c);
   unpack_sk(&skpv, sk);
 
-  for(i=0;i<KYBER_D;i++)
+  for(i=0;i<KYBER_K;i++)
     bitrev_vector(bp.vec[i].coeffs);
   polyvec_ntt(&bp);
 

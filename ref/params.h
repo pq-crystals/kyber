@@ -1,10 +1,18 @@
 #ifndef PARAMS_H
 #define PARAMS_H
 
+#define KYBER_K 3
 #define KYBER_N 256
-#define KYBER_D 3
-#define KYBER_K 4 /* used in sampler */
 #define KYBER_Q 7681
+
+
+#if (KYBER_K == 2)   /* KYBER512 */
+#define KYBER_ETA 5
+#elif (KYBER_K == 4) /*KYBER1024 */
+#define KYBER_ETA 3
+#else                /*KYBER768 */
+#define KYBER_ETA 4
+#endif
 
 #define KYBER_SEEDBYTES       32
 #define KYBER_NOISESEEDBYTES  32
@@ -13,8 +21,8 @@
 
 #define KYBER_POLYBYTES              416 
 #define KYBER_POLYCOMPRESSEDBYTES    96 
-#define KYBER_POLYVECBYTES           (KYBER_D * KYBER_POLYBYTES)   
-#define KYBER_POLYVECCOMPRESSEDBYTES (KYBER_D * 352) 
+#define KYBER_POLYVECBYTES           (KYBER_K * KYBER_POLYBYTES)   
+#define KYBER_POLYVECCOMPRESSEDBYTES (KYBER_K * 352) 
 
 #define KYBER_INDCPA_MSGBYTES       32
 #define KYBER_INDCPA_PUBLICKEYBYTES (KYBER_POLYVECCOMPRESSEDBYTES + KYBER_SEEDBYTES)

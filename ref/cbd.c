@@ -8,7 +8,7 @@ static uint32_t load_littleendian(const unsigned char *x)
 
 void cbd(poly *r, const unsigned char *buf)
 {
-#if KYBER_K != 4
+#if KYBER_ETA != 4
 #error "poly_getnoise in poly.c only supports k=4"
 #endif
 
