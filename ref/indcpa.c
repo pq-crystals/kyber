@@ -59,8 +59,11 @@ void gen_matrix(polyvec *a, const unsigned char *seed, int transposed) //XXX: No
   unsigned int nblocks=4;
   uint8_t buf[SHAKE128_RATE*nblocks];
   int i,j;
-  uint16_t dsep;
   uint64_t state[25]; // CSHAKE state
+  unsigned char extseed[KYBER_SEEDBYTES+2];
+
+  for(i=0;i<KYBER_SEEDBYTES;i++)
+    extseed[i] = seed[i];
 
 
   for(i=0;i<KYBER_D;i++)
@@ -68,11 +71,19 @@ void gen_matrix(polyvec *a, const unsigned char *seed, int transposed) //XXX: No
     for(j=0;j<KYBER_D;j++)
     {
       ctr = pos = 0;
-      if(transposed) dsep = j + (i<<8);
-      else           dsep = i + (j<<8);
-
-      cshake128_simple_absorb(state,dsep,seed,KYBER_SEEDBYTES);
-      cshake128_simple_squeezeblocks(buf,nblocks,state);
+      if(transposed) 
+      {
+        extseed[KYBER_SEEDBYTES]   = i;
+        extseed[KYBER_SEEDBYTES+1] = j;
+      }
+      else
+      {
+        extseed[KYBER_SEEDBYTES]   = j;
+        extseed[KYBER_SEEDBYTES+1] = i;
+      }
+        
+      shake128_absorb(state,extseed,KYBER_SEEDBYTES+2);
+      shake128_squeezeblocks(buf,nblocks,state);
 
       while(ctr < KYBER_N)
       {
@@ -86,7 +97,7 @@ void gen_matrix(polyvec *a, const unsigned char *seed, int transposed) //XXX: No
         if(pos > SHAKE128_RATE*nblocks-2)
         {
           nblocks = 1;
-          cshake128_simple_squeezeblocks(buf,nblocks,state);
+          shake128_squeezeblocks(buf,nblocks,state);
           pos = 0;
         }
       }
@@ -105,7 +116,7 @@ void indcpa_keypair(unsigned char *pk,
   unsigned char nonce=0;
 
   randombytes(seed, KYBER_SEEDBYTES);
-  shake128(seed, KYBER_SEEDBYTES, seed, KYBER_SEEDBYTES); /* Don't send output of system RNG */
+  shake256(seed, KYBER_SEEDBYTES, seed, KYBER_SEEDBYTES); /* Don't send output of system RNG */
   randombytes(noiseseed, KYBER_COINBYTES);
 
   gen_a(a, seed);

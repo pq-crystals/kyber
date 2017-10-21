@@ -88,8 +88,14 @@ void poly_frombytes(poly *r, const unsigned char *a)
 void poly_getnoise(poly *r,const unsigned char *seed, unsigned char nonce)
 {
   unsigned char buf[KYBER_N];
+  unsigned char extseed[KYBER_NOISESEEDBYTES+1];
+  int i;
 
-  cshake128_simple(buf,KYBER_N,nonce,seed,KYBER_NOISESEEDBYTES);
+  for(i=0;i<KYBER_NOISESEEDBYTES;i++)
+    extseed[i] = seed[i];
+  extseed[KYBER_NOISESEEDBYTES] = nonce;
+     
+  shake256(buf,KYBER_N,extseed,KYBER_NOISESEEDBYTES+1);
 
   cbd(r, buf);
 }
