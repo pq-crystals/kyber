@@ -1,17 +1,19 @@
 #ifndef PARAMS_H
 #define PARAMS_H
 
-#define KYBER_K 3
+#define KYBER_K 2 /* Change this for different security strengths */
 #define KYBER_N 256
 #define KYBER_Q 7681
 
 
-#if (KYBER_K == 2)   /* KYBER512 */
+#if   (KYBER_K == 2) /* Kyber512 */
 #define KYBER_ETA 5
+#elif (KYBER_K == 3) /* Kyber768 */
+#define KYBER_ETA 4
 #elif (KYBER_K == 4) /*KYBER1024 */
 #define KYBER_ETA 3
-#else                /*KYBER768 */
-#define KYBER_ETA 4
+#else
+#error "KYBER_K must be in {2,3,4}"
 #endif
 
 #define KYBER_SEEDBYTES       32

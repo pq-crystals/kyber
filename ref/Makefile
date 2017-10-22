@@ -1,7 +1,8 @@
-CC 		  = /usr/bin/cc
-CFLAGS  = -g -Wall -Wextra -O3 -fomit-frame-pointer -march=native -fPIC
-CLANG   = clang -march=native -O3 -fomit-frame-pointer -fwrapv -Qunused-arguments
-RM 		  = /bin/rm
+CC 		    = /usr/bin/cc
+CFLAGS    = -g -Wall -Wextra -O3 -fomit-frame-pointer -march=native -fPIC
+NISTFLAGS = -O3 -fomit-frame-pointer -march=native -fPIC
+CLANG     = clang -march=native -O3 -fomit-frame-pointer -fwrapv -Qunused-arguments
+RM 		    = /bin/rm
 #ifneq ($(shell uname -s),Darwin) # Add static if not on Darwin
 #	CFLAGS += -static
 #endif
@@ -20,7 +21,7 @@ test/test_kyber: $(SOURCES) $(HEADERS) test/test_kyber.c randombytes.c randombyt
 	$(CC) $(CFLAGS) -o $@ $(SOURCES) randombytes.c test/test_kyber.c
 
 test/PQCgenKAT_kem: $(SOURCES) $(HEADERS) test/PQCgenKAT_kem.c randombytes.c nistrng/rng.c nistrng/rng.h
-	$(CC) $(CFLAGS) -o $@ $(SOURCES) -Inistrng -I. nistrng/rng.c test/PQCgenKAT_kem.c -lcrypto
+	$(CC) $(NISTFLAGS) -o $@ $(SOURCES) -Inistrng -I. nistrng/rng.c test/PQCgenKAT_kem.c -lcrypto
 
 test/test_kex: $(SOURCES) $(HEADERS) test/test_kex.c randombytes.c randombytes.h
 	$(CC) $(CFLAGS) -o $@ $(SOURCES) randombytes.c test/test_kex.c

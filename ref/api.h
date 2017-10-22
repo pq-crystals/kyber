@@ -8,7 +8,15 @@
 #define CRYPTO_CIPHERTEXTBYTES KYBER_CIPHERTEXTBYTES
 #define CRYPTO_BYTES           KYBER_SHAREDKEYBYTES
 
+#if   (KYBER_K == 2)
+#define CRYPTO_ALGNAME "Kyber512"
+#elif (KYBER_K == 3)
 #define CRYPTO_ALGNAME "Kyber768"
+#elif (KYBER_K == 4)
+#define CRYPTO_ALGNAME "Kyber1024"
+#else
+#error "KYBER_K must be in {2,3,4}"
+#endif
 
 int crypto_kem_keypair(unsigned char *pk, unsigned char *sk);
 
