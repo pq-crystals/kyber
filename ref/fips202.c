@@ -398,8 +398,8 @@ void shake256(unsigned char *output, unsigned long long outlen,
               const unsigned char *input,  unsigned long long inlen)
 {
   uint64_t s[25];
-  unsigned char t[SHAKE128_RATE];
-  unsigned long long nblocks = outlen/SHAKE128_RATE;
+  unsigned char t[SHAKE256_RATE];
+  unsigned long long nblocks = outlen/SHAKE256_RATE;
   size_t i;
 
   /* Absorb input */
