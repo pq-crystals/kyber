@@ -4,7 +4,7 @@
 #include <stdint.h>
 
 #define SHAKE128_RATE 168
-#define SHAKE256_RATE 168
+#define SHAKE256_RATE 136
 
 void shake128_absorb(uint64_t *s, const unsigned char *input, unsigned int inputByteLen);
 void shake128_squeezeblocks(unsigned char *output, unsigned long long nblocks, uint64_t *s);
