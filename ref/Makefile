@@ -20,8 +20,8 @@ HEADERS = params.h poly.h polyvec.h reduce.h cbd.h ntt.h verify.h indcpa.h kex.h
 test/test_kyber: $(SOURCES) $(HEADERS) test/test_kyber.c randombytes.c randombytes.h
 	$(CC) $(CFLAGS) -o $@ $(SOURCES) randombytes.c test/test_kyber.c
 
-test/PQCgenKAT_kem: $(SOURCES) $(HEADERS) test/PQCgenKAT_kem.c randombytes.c nistrng/rng.c nistrng/rng.h
-	$(CC) $(NISTFLAGS) -o $@ $(SOURCES) -Inistrng -I. nistrng/rng.c test/PQCgenKAT_kem.c -lcrypto
+test/PQCgenKAT_kem: $(SOURCES) $(HEADERS) test/PQCgenKAT_kem.c randombytes.c rng.c rng.h
+	$(CC) $(NISTFLAGS) -o $@ $(SOURCES) -I. rng.c test/PQCgenKAT_kem.c -lcrypto
 
 test/test_kex: $(SOURCES) $(HEADERS) test/test_kex.c randombytes.c randombytes.h
 	$(CC) $(CFLAGS) -o $@ $(SOURCES) randombytes.c test/test_kex.c
