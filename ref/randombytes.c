@@ -1,4 +1,6 @@
+#include <stdio.h>
 #include <sys/types.h>
+#include <errno.h>
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <unistd.h>
@@ -9,6 +11,8 @@
 
 #ifdef SYS_getrandom
 
+void randombytes_fallback(unsigned char *x, size_t xlen);
+
 void randombytes(unsigned char *buf,size_t buflen)
 {
   size_t d = 0;
@@ -17,19 +21,26 @@ void randombytes(unsigned char *buf,size_t buflen)
   while(d<buflen)
   {
     r = syscall(SYS_getrandom, buf, buflen, 0); 
+    if(r < 0) 
+    {
+      randombytes_fallback(buf, buflen);
+      return;
+    }
     buf += r;
     d += r;
   }
 }
 
 #else
+  #define randombytes randombytes_fallback
+#endif
 
 static int fd = -1;
 
-void randombytes(unsigned char *x, size_t xlen)
+void randombytes_fallback(unsigned char *x, size_t xlen)
 {
   int i;
-
+  
   if (fd == -1) {
     for (;;) {
       fd = open("/dev/urandom",O_RDONLY);
@@ -51,5 +62,3 @@ void randombytes(unsigned char *x, size_t xlen)
     xlen -= i;
   }
 }
-
-#endif
