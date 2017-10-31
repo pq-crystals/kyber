@@ -157,8 +157,8 @@ void indcpa_enc(unsigned char *c,
 
   poly_frommsg(&k, m);
 
-  for(i=0;i<KYBER_K;i++)
-    bitrev_vector(pkpv.vec[i].coeffs);
+//  for(i=0;i<KYBER_K;i++)
+//    bitrev_vector(pkpv.vec[i].coeffs);
   polyvec_ntt(&pkpv);
 
   gen_at(at, seed);
@@ -201,8 +201,8 @@ void indcpa_dec(unsigned char *m,
   unpack_ciphertext(&bp, &v, c);
   unpack_sk(&skpv, sk);
 
-  for(i=0;i<KYBER_K;i++)
-    bitrev_vector(bp.vec[i].coeffs);
+//  for(i=0;i<KYBER_K;i++)
+//    bitrev_vector(bp.vec[i].coeffs);
   polyvec_ntt(&bp);
 
   polyvec_pointwise_acc(&mp,&skpv,&bp);
