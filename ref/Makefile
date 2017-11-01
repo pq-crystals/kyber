@@ -3,10 +3,6 @@ CFLAGS    = -g -Wall -Wextra -O3 -fomit-frame-pointer -march=native -fPIC
 NISTFLAGS = -O3 -fomit-frame-pointer -march=native -fPIC
 CLANG     = clang -march=native -O3 -fomit-frame-pointer -fwrapv -Qunused-arguments
 RM 		    = /bin/rm
-#ifneq ($(shell uname -s),Darwin) # Add static if not on Darwin
-#	CFLAGS += -static
-#endif
-
 
 all: test/test_kyber \
 		 test/test_kex \
