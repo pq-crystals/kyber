@@ -5,8 +5,6 @@
 #include "fips202.h"
 #include "fips202x4.h"
 
-#if 0
-
 static const __m256i idx[256] = {
 {0x800000008,0x800000008,0x800000008,0x800000008},
 {0x800000000,0x800000008,0x800000008,0x800000008},
@@ -267,7 +265,6 @@ static const __m256i idx[256] = {
 
 };
 
-#endif
 
 /* Generate entry a_{i,j} of matrix A as Parse(SHAKE128(seed|i|j)) */
 static void genmatrix_ref(polyvec *a, const unsigned char *seed, int transposed)
@@ -323,7 +320,6 @@ static void genmatrix_ref(polyvec *a, const unsigned char *seed, int transposed)
   }
 }
 
-#if 0
 
 static int rej_sample(poly *r, const unsigned char *buf, size_t buflen)
 {
@@ -355,7 +351,11 @@ static int rej_sample(poly *r, const unsigned char *buf, size_t buflen)
 
     tmp2 = _mm256_permutevar8x32_epi32(tmp1, idx[good]); // permute good values to the bottom of tmp2
 
-    _mm256_storeu_si256((__m256i *)&r->coeffs[ctr], tmp2);
+    tmp1 = _mm256_permute2f128_si256 (tmp2, tmp2, 0x21);
+    tmp2 = _mm256_packus_epi32(tmp2, tmp1);
+    d = _mm256_extractf128_si256(tmp2, 0);
+    _mm_storeu_si128((__m128i *)&r->coeffs[ctr], d);
+
     ctr += offset;
 
     // Now work with the higher half of tmp0
@@ -369,8 +369,12 @@ static int rej_sample(poly *r, const unsigned char *buf, size_t buflen)
     offset = __builtin_popcount(good); // we get this many good (< modulus) values
 
     tmp2 = _mm256_permutevar8x32_epi32(tmp1, idx[good]); // permute good values to the bottom of tmp2
+ 
+    tmp1 = _mm256_permute2f128_si256 (tmp2, tmp2, 0x21);
+    tmp2 = _mm256_packus_epi32(tmp2, tmp1);
+    d = _mm256_extractf128_si256(tmp2, 0);
+    _mm_storeu_si128((__m128i *)&r->coeffs[ctr], d);
 
-    _mm256_storeu_si256((__m256i *)&r->coeffs[ctr], tmp2);
     ctr += offset;
     
     pos += 32;
@@ -393,11 +397,10 @@ static int rej_sample(poly *r, const unsigned char *buf, size_t buflen)
   return 0;
 }
 
-#endif
 
 #if (KYBER_K == 3)
 
-
+/*
 static int rej_sample(poly *r, const unsigned char *buf, size_t buflen)
 {
   unsigned int ctr = 0, offset=0;
@@ -415,6 +418,7 @@ static int rej_sample(poly *r, const unsigned char *buf, size_t buflen)
 
   return 0;
 }
+*/
 
 /* Generate entry a_{i,j} of matrix A as Parse(SHAKE128(seed|i|j)) */
 void genmatrix(polyvec *a, const unsigned char *seed, int transposed) // Not static for benchmarking in test/speed.c
