@@ -400,6 +400,7 @@ static int rej_sample(poly *r, const unsigned char *buf, size_t buflen)
 
 
 #if (KYBER_K == 2)
+
 /* Generate entry a_{i,j} of matrix A as Parse(SHAKE128(seed|i|j)) */
 void genmatrix(polyvec *a, const unsigned char *seed, int transposed) // Not static for benchmarking in test/speed.c
 {
@@ -450,7 +451,10 @@ void genmatrix(polyvec *a, const unsigned char *seed, int transposed) // Not sta
     for(j=0;j<KYBER_K;j++)
     {
       if(rej_sample(&a[i].vec[j], buf[i][j], SHAKE128_RATE*nblocks))
+      {
         genmatrix_ref(a, seed, transposed); // slower, but also extremely unlikely
+        return;
+      }
     }
   }
 }
@@ -540,13 +544,76 @@ void genmatrix(polyvec *a, const unsigned char *seed, int transposed) // Not sta
     for(j=0;j<KYBER_K;j++)
     {
       if(rej_sample(&a[i].vec[j], buf[i][j], SHAKE128_RATE*nblocks))
+      {
         genmatrix_ref(a, seed, transposed); // slower, but also extremely unlikely
+        return;
+      }
     }
   }
 }
 
+#elif (KYBER_K == 4)
 
+/* Generate entry a_{i,j} of matrix A as Parse(SHAKE128(seed|i|j)) */
+void genmatrix(polyvec *a, const unsigned char *seed, int transposed) // Not static for benchmarking in test/speed.c
+{
+  unsigned int nblocks=4;
+  uint8_t buf[KYBER_K][KYBER_K][SHAKE128_RATE*nblocks];
+  unsigned char extseed0[KYBER_SEEDBYTES+2];
+  unsigned char extseed1[KYBER_SEEDBYTES+2];
+  unsigned char extseed2[KYBER_SEEDBYTES+2];
+  unsigned char extseed3[KYBER_SEEDBYTES+2];
 
+  int i,j;
+
+  for(i=0;i<KYBER_SEEDBYTES;i++)
+  {
+    extseed0[i] = seed[i];
+    extseed1[i] = seed[i];
+    extseed2[i] = seed[i];
+    extseed3[i] = seed[i];
+  }
+
+  for(i=0;i<KYBER_K;i++) 
+  {
+    if(transposed)
+    {
+      extseed0[KYBER_SEEDBYTES]   = i;
+      extseed0[KYBER_SEEDBYTES+1] = 0;
+      extseed1[KYBER_SEEDBYTES]   = i;
+      extseed1[KYBER_SEEDBYTES+1] = 1;
+      extseed2[KYBER_SEEDBYTES]   = i;
+      extseed2[KYBER_SEEDBYTES+1] = 2;
+      extseed3[KYBER_SEEDBYTES]   = i;
+      extseed3[KYBER_SEEDBYTES+1] = 3;
+    }
+    else
+    {
+      extseed0[KYBER_SEEDBYTES]   = 0;
+      extseed0[KYBER_SEEDBYTES+1] = i;
+      extseed1[KYBER_SEEDBYTES]   = 1;
+      extseed1[KYBER_SEEDBYTES+1] = i;
+      extseed2[KYBER_SEEDBYTES]   = 2;
+      extseed2[KYBER_SEEDBYTES+1] = i;
+      extseed3[KYBER_SEEDBYTES]   = 3;
+      extseed3[KYBER_SEEDBYTES+1] = i;
+    }
+    shake128x4(buf[i][0], buf[i][1], buf[i][2], buf[i][3],SHAKE128_RATE*nblocks,
+        extseed0, extseed1, extseed2, extseed3, KYBER_SEEDBYTES+2);
+  }
+
+  for(i=0;i<KYBER_K;i++)
+  {
+    for(j=0;j<KYBER_K;j++)
+    {
+      if(rej_sample(&a[i].vec[j], buf[i][j], SHAKE128_RATE*nblocks))
+      {
+        genmatrix_ref(a, seed, transposed); // slower, but also extremely unlikely
+        return;
+      }
+    }
+  }
+}
 
 
 
