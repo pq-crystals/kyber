@@ -5,6 +5,62 @@
 #include "fips202.h"
 #include "fips202x4.h"
 
+/* Generate entry a_{i,j} of matrix A as Parse(SHAKE128(seed|i|j)) */
+static void genmatrix_ref(polyvec *a, const unsigned char *seed, int transposed)
+{
+  unsigned int pos=0, ctr;
+  uint16_t val;
+  unsigned int nblocks=4;
+  uint8_t buf[SHAKE128_RATE*nblocks];
+  int i,j;
+  uint64_t state[25]; // CSHAKE state
+  unsigned char extseed[KYBER_SEEDBYTES+2];
+
+  for(i=0;i<KYBER_SEEDBYTES;i++)
+    extseed[i] = seed[i];
+
+
+  for(i=0;i<KYBER_K;i++)
+  {
+    for(j=0;j<KYBER_K;j++)
+    {
+      ctr = pos = 0;
+      if(transposed) 
+      {
+        extseed[KYBER_SEEDBYTES]   = i;
+        extseed[KYBER_SEEDBYTES+1] = j;
+      }
+      else
+      {
+        extseed[KYBER_SEEDBYTES]   = j;
+        extseed[KYBER_SEEDBYTES+1] = i;
+      }
+        
+      shake128_absorb(state,extseed,KYBER_SEEDBYTES+2);
+      shake128_squeezeblocks(buf,nblocks,state);
+
+      while(ctr < KYBER_N)
+      {
+        val = (buf[pos] | ((uint16_t) buf[pos+1] << 8)) & 0x1fff;
+        if(val < KYBER_Q)
+        {
+            a[i].vec[j].coeffs[ctr++] = val;
+        }
+        pos += 2;
+
+        if(pos > SHAKE128_RATE*nblocks-2)
+        {
+          nblocks = 1;
+          shake128_squeezeblocks(buf,nblocks,state);
+          pos = 0;
+        }
+      }
+    }
+  }
+}
+
+
+
 static const __m256i idx[256] = {
 {0x800000008,0x800000008,0x800000008,0x800000008},
 {0x800000000,0x800000008,0x800000008,0x800000008},
@@ -262,63 +318,8 @@ static const __m256i idx[256] = {
 {0x200000000,0x400000003,0x600000005,0x800000007},
 {0x200000001,0x400000003,0x600000005,0x800000007},
 {0x100000000,0x300000002,0x500000004,0x700000006},
-
 };
 
-
-/* Generate entry a_{i,j} of matrix A as Parse(SHAKE128(seed|i|j)) */
-static void genmatrix_ref(polyvec *a, const unsigned char *seed, int transposed)
-{
-  unsigned int pos=0, ctr;
-  uint16_t val;
-  unsigned int nblocks=4;
-  uint8_t buf[SHAKE128_RATE*nblocks];
-  int i,j;
-  uint64_t state[25]; // CSHAKE state
-  unsigned char extseed[KYBER_SEEDBYTES+2];
-
-  for(i=0;i<KYBER_SEEDBYTES;i++)
-    extseed[i] = seed[i];
-
-
-  for(i=0;i<KYBER_K;i++)
-  {
-    for(j=0;j<KYBER_K;j++)
-    {
-      ctr = pos = 0;
-      if(transposed) 
-      {
-        extseed[KYBER_SEEDBYTES]   = i;
-        extseed[KYBER_SEEDBYTES+1] = j;
-      }
-      else
-      {
-        extseed[KYBER_SEEDBYTES]   = j;
-        extseed[KYBER_SEEDBYTES+1] = i;
-      }
-        
-      shake128_absorb(state,extseed,KYBER_SEEDBYTES+2);
-      shake128_squeezeblocks(buf,nblocks,state);
-
-      while(ctr < KYBER_N)
-      {
-        val = (buf[pos] | ((uint16_t) buf[pos+1] << 8)) & 0x1fff;
-        if(val < KYBER_Q)
-        {
-            a[i].vec[j].coeffs[ctr++] = val;
-        }
-        pos += 2;
-
-        if(pos > SHAKE128_RATE*nblocks-2)
-        {
-          nblocks = 1;
-          shake128_squeezeblocks(buf,nblocks,state);
-          pos = 0;
-        }
-      }
-    }
-  }
-}
 
 
 static int rej_sample(poly *r, const unsigned char *buf, size_t buflen)
@@ -398,27 +399,63 @@ static int rej_sample(poly *r, const unsigned char *buf, size_t buflen)
 }
 
 
-#if (KYBER_K == 3)
-
-/*
-static int rej_sample(poly *r, const unsigned char *buf, size_t buflen)
+#if (KYBER_K == 2)
+/* Generate entry a_{i,j} of matrix A as Parse(SHAKE128(seed|i|j)) */
+void genmatrix(polyvec *a, const unsigned char *seed, int transposed) // Not static for benchmarking in test/speed.c
 {
-  unsigned int ctr = 0, offset=0;
-  uint16_t d;
+  unsigned int nblocks=4;
+  uint8_t buf[KYBER_K][KYBER_K][SHAKE128_RATE*nblocks];
+  unsigned char extseed0[KYBER_SEEDBYTES+2];
+  unsigned char extseed1[KYBER_SEEDBYTES+2];
+  unsigned char extseed2[KYBER_SEEDBYTES+2];
+  unsigned char extseed3[KYBER_SEEDBYTES+2];
 
-  while(ctr < 256 && offset < buflen)
+  int i,j;
+
+  for(i=0;i<KYBER_SEEDBYTES;i++)
   {
-    d = buf[offset] | (uint16_t)buf[offset+1] << 8;
-    d &= 0x1fff;
-    if(d < KYBER_Q)
-      r->coeffs[ctr++] = d;
-    offset+=2;
+    extseed0[i] = seed[i];
+    extseed1[i] = seed[i];
+    extseed2[i] = seed[i];
+    extseed3[i] = seed[i];
   }
-  if(ctr < 256) return -1;
 
-  return 0;
+  if(transposed)
+  {
+    extseed0[KYBER_SEEDBYTES]   = 0;
+    extseed0[KYBER_SEEDBYTES+1] = 0;
+    extseed1[KYBER_SEEDBYTES]   = 0;
+    extseed1[KYBER_SEEDBYTES+1] = 1;
+    extseed2[KYBER_SEEDBYTES]   = 1;
+    extseed2[KYBER_SEEDBYTES+1] = 0;
+    extseed3[KYBER_SEEDBYTES]   = 1;
+    extseed3[KYBER_SEEDBYTES+1] = 1;
+  }
+  else
+  {
+    extseed0[KYBER_SEEDBYTES]   = 0;
+    extseed0[KYBER_SEEDBYTES+1] = 0;
+    extseed1[KYBER_SEEDBYTES]   = 1;
+    extseed1[KYBER_SEEDBYTES+1] = 0;
+    extseed2[KYBER_SEEDBYTES]   = 0;
+    extseed2[KYBER_SEEDBYTES+1] = 1;
+    extseed3[KYBER_SEEDBYTES]   = 1;
+    extseed3[KYBER_SEEDBYTES+1] = 1;
+  }
+  shake128x4(buf[0][0], buf[0][1], buf[1][0], buf[1][1],SHAKE128_RATE*nblocks,
+             extseed0, extseed1, extseed2, extseed3, KYBER_SEEDBYTES+2);
+
+  for(i=0;i<KYBER_K;i++)
+  {
+    for(j=0;j<KYBER_K;j++)
+    {
+      if(rej_sample(&a[i].vec[j], buf[i][j], SHAKE128_RATE*nblocks))
+        genmatrix_ref(a, seed, transposed); // slower, but also extremely unlikely
+    }
+  }
 }
-*/
+
+#elif (KYBER_K == 3)
 
 /* Generate entry a_{i,j} of matrix A as Parse(SHAKE128(seed|i|j)) */
 void genmatrix(polyvec *a, const unsigned char *seed, int transposed) // Not static for benchmarking in test/speed.c
@@ -507,6 +544,13 @@ void genmatrix(polyvec *a, const unsigned char *seed, int transposed) // Not sta
     }
   }
 }
+
+
+
+
+
+
+
 
 #else
 
