@@ -16,8 +16,9 @@ all: test/test_kyber \
      test/PQCgenKAT_kem \
 		 test/speed
 
-SOURCES = kem.c poly.c polyvec.c fips202.o reduce.c cbdeta4.s cbd.c precomp.c ntt.c verify.c indcpa.c kex.c consts.c
-HEADERS = params.h poly.h polyvec.h reduce.h cbd.h ntt.h verify.h indcpa.h kex.h
+SOURCES = kem.c poly.c polyvec.c fips202.o reduce.c cbdeta4.s cbdref.c precomp.c ntt.c verify.c indcpa.c kex.c consts.c genmatrix.c fips202x4.c \
+					keccak4x/KeccakP-1600-times4-SIMD256.o
+HEADERS = params.h poly.h polyvec.h reduce.h cbd.h ntt.h verify.h indcpa.h kex.h genmatrix.h fips202x4.h
 
 test/test_kyber: $(SOURCES) $(HEADERS) test/test_kyber.c randombytes.c randombytes.h
 	$(CC) $(CFLAGS) -o $@ $(SOURCES) randombytes.c test/test_kyber.c
@@ -39,6 +40,15 @@ test/testvectors1024: $(SOURCES) $(HEADERS) cpucycles.h cpucycles.c test/testvec
 
 test/speed: $(SOURCES) $(HEADERS) cpucycles.h cpucycles.c test/speed.c randombytes.c randombytes.h
 	$(CC) $(CFLAGS) -o $@ $(SOURCES) randombytes.c cpucycles.c test/speed.c
+
+keccak4x/KeccakP-1600-times4-SIMD256.o: keccak4x/KeccakP-1600-times4-SIMD256.c \
+																				keccak4x/align.h \
+																				keccak4x/brg_endian.h \
+																				keccak4x/KeccakP-1600-times4-SIMD256.c \
+																				keccak4x/KeccakP-1600-times4-SnP.h \
+																				keccak4x/KeccakP-1600-unrolling.macros \
+																				keccak4x/SIMD256-config.h
+	$(CC) $(CFLAGS) -c keccak4x/KeccakP-1600-times4-SIMD256.c -o $@
 
 fips202.o: fips202.c
 	$(CLANG) -c -fPIC $^ -o $@

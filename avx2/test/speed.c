@@ -2,6 +2,7 @@
 #include "../kex.h"
 #include "../poly.h"
 #include "../polyvec.h"
+#include "../genmatrix.h"
 #include "../cpucycles.h"
 #include <stdlib.h>
 #include <stdio.h>
@@ -92,7 +93,7 @@ int main()
   for(i=0; i<NTESTS; i++)
   {
     t[i] = cpucycles();
-    gen_matrix(matrix, seed, 0);
+    genmatrix(matrix, seed, 0);
   }
   print_results("gen_a:         ", t, NTESTS);
  

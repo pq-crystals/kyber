@@ -5,6 +5,7 @@
 #include "randombytes.h"
 #include "fips202.h"
 #include "ntt.h"
+#include "genmatrix.h"
 
 static void pack_pk(unsigned char *r, const polyvec *pk, const unsigned char *seed)
 {
@@ -48,62 +49,8 @@ static void unpack_sk(polyvec *sk, const unsigned char *packedsk)
   polyvec_frombytes(sk, packedsk);
 }
 
-#define gen_a(A,B)  gen_matrix(A,B,0)
-#define gen_at(A,B) gen_matrix(A,B,1)
-
-/* Generate entry a_{i,j} of matrix A as Parse(SHAKE128(seed|i|j)) */
-void gen_matrix(polyvec *a, const unsigned char *seed, int transposed) //XXX: Not static for benchmarking
-{
-  unsigned int pos=0, ctr;
-  uint16_t val;
-  unsigned int nblocks=4;
-  uint8_t buf[SHAKE128_RATE*nblocks];
-  int i,j;
-  uint64_t state[25]; // CSHAKE state
-  unsigned char extseed[KYBER_SEEDBYTES+2];
-
-  for(i=0;i<KYBER_SEEDBYTES;i++)
-    extseed[i] = seed[i];
 
 
-  for(i=0;i<KYBER_K;i++)
-  {
-    for(j=0;j<KYBER_K;j++)
-    {
-      ctr = pos = 0;
-      if(transposed) 
-      {
-        extseed[KYBER_SEEDBYTES]   = i;
-        extseed[KYBER_SEEDBYTES+1] = j;
-      }
-      else
-      {
-        extseed[KYBER_SEEDBYTES]   = j;
-        extseed[KYBER_SEEDBYTES+1] = i;
-      }
-        
-      shake128_absorb(state,extseed,KYBER_SEEDBYTES+2);
-      shake128_squeezeblocks(buf,nblocks,state);
-
-      while(ctr < KYBER_N)
-      {
-        val = (buf[pos] | ((uint16_t) buf[pos+1] << 8)) & 0x1fff;
-        if(val < KYBER_Q)
-        {
-            a[i].vec[j].coeffs[ctr++] = val;
-        }
-        pos += 2;
-
-        if(pos > SHAKE128_RATE*nblocks-2)
-        {
-          nblocks = 1;
-          shake128_squeezeblocks(buf,nblocks,state);
-          pos = 0;
-        }
-      }
-    }
-  }
-}
 
 
 void indcpa_keypair(unsigned char *pk, 
@@ -118,7 +65,7 @@ void indcpa_keypair(unsigned char *pk,
   randombytes(buf, KYBER_SEEDBYTES);
   shake256(buf, KYBER_SEEDBYTES+KYBER_COINBYTES, buf, KYBER_SEEDBYTES);
 
-  gen_a(a, publicseed);
+  genmatrix(a, publicseed, 0);
 
 #if (KYBER_K == 2)
     poly_getnoise4x(skpv.vec+0,skpv.vec+1,e.vec+0,e.vec+1,noiseseed,0,1,2,3);
@@ -168,7 +115,7 @@ void indcpa_enc(unsigned char *c,
 
   polyvec_ntt(&pkpv);
 
-  gen_at(at, seed);
+  genmatrix(at, seed, 1);
 
 #if (KYBER_K == 2)
     poly_getnoise4x(sp.vec+0,sp.vec+1,ep.vec+0,ep.vec+1,coins,0,1,2,3);

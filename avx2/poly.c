@@ -5,6 +5,7 @@
 #include "reduce.h"
 #include "cbd.h"
 #include "fips202.h"
+#include "fips202x4.h"
 
 void poly_compress(unsigned char *r, const poly *a)
 {
@@ -97,11 +98,7 @@ void poly_getnoise(poly *r,const unsigned char *seed, unsigned char nonce)
      
   shake256(buf,KYBER_ETA*KYBER_N/4,extseed,KYBER_NOISESEEDBYTES+1);
 
-#if (KYBER_ETA == 4)
-  cbdeta4(r, buf);
-#else
   cbd(r, buf);
-#endif
 }
 
 
@@ -119,27 +116,22 @@ void poly_getnoise4x(poly *r0, poly *r1, poly *r2, poly *r3, const unsigned char
   int i;
 
   for(i=0;i<KYBER_NOISESEEDBYTES;i++)
+  {
     extseed0[i] = seed[i];
-  extseed0[KYBER_NOISESEEDBYTES] = nonce0;
-  shake256(buf0,KYBER_ETA*KYBER_N/4,extseed0,KYBER_NOISESEEDBYTES+1);
-  cbd(r0, buf0);
-
-  for(i=0;i<KYBER_NOISESEEDBYTES;i++)
     extseed1[i] = seed[i];
-  extseed1[KYBER_NOISESEEDBYTES] = nonce1;
-  shake256(buf1,KYBER_ETA*KYBER_N/4,extseed1,KYBER_NOISESEEDBYTES+1);
-  cbd(r1, buf1);
-
-  for(i=0;i<KYBER_NOISESEEDBYTES;i++)
     extseed2[i] = seed[i];
-  extseed2[KYBER_NOISESEEDBYTES] = nonce2;
-  shake256(buf2,KYBER_ETA*KYBER_N/4,extseed2,KYBER_NOISESEEDBYTES+1);
-  cbd(r2, buf2);
-
-  for(i=0;i<KYBER_NOISESEEDBYTES;i++)
     extseed3[i] = seed[i];
+  }
+  extseed0[KYBER_NOISESEEDBYTES] = nonce0;
+  extseed1[KYBER_NOISESEEDBYTES] = nonce1;
+  extseed2[KYBER_NOISESEEDBYTES] = nonce2;
   extseed3[KYBER_NOISESEEDBYTES] = nonce3;
-  shake256(buf3,KYBER_ETA*KYBER_N/4,extseed3,KYBER_NOISESEEDBYTES+1);
+
+  shake256x4(buf0, buf1, buf2, buf3, KYBER_ETA*KYBER_N/4,extseed0,extseed1,extseed2,extseed3,KYBER_NOISESEEDBYTES+1);
+
+  cbd(r0, buf0);
+  cbd(r1, buf1);
+  cbd(r2, buf2);
   cbd(r3, buf3);
 }
 
