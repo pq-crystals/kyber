@@ -1,7 +1,7 @@
 /* Deterministic randombytes by Daniel J. Bernstein */
 /* taken from SUPERCOP (https://bench.cr.yp.to)     */
 
-#include "../api.h"
+#include "api.h"
 #include <math.h>
 #include <stdio.h>
 #include <stdint.h>

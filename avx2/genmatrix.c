@@ -615,17 +615,6 @@ void genmatrix(polyvec *a, const unsigned char *seed, int transposed) // Not sta
   }
 }
 
-
-
-
-
 #else
-
-void genmatrix(polyvec *a, const unsigned char *seed, int transposed)
-{
-  genmatrix_ref(a, seed, transposed);
-}
-
-        
+#error "genmatrix only supports KYBER_K in {2,3,4}"
 #endif
-

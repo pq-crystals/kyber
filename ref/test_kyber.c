@@ -1,10 +1,10 @@
-#include "../api.h"
-#include "../poly.h"
-#include "../randombytes.h"
+#include "api.h"
+#include "poly.h"
+#include "randombytes.h"
 #include <stdio.h>
 #include <string.h>
 
-#define NTESTS 100
+#define NTESTS 10000
 
 int test_keys()
 {

@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "../kex.h"
+#include "kex.h"
 
 int main(void)
 {
