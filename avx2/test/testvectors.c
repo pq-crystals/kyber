@@ -1,14 +1,13 @@
 /* Deterministic randombytes by Daniel J. Bernstein */
 /* taken from SUPERCOP (https://bench.cr.yp.to)     */
 
-#include "../kyber.h"
 #include "../api.h"
 #include <math.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <string.h>
 
-#define NTESTS 10000
+#define NTESTS 1000
 
 
 typedef uint32_t uint32;
@@ -62,7 +61,7 @@ int main(void)
 {
   unsigned char key_a[KYBER_SHAREDKEYBYTES], key_b[KYBER_SHAREDKEYBYTES];
   unsigned char pk[KYBER_PUBLICKEYBYTES];
-  unsigned char sendb[KYBER_BYTES];
+  unsigned char sendb[KYBER_CIPHERTEXTBYTES];
   unsigned char sk_a[KYBER_SECRETKEYBYTES];
   int i,j;
 
@@ -84,17 +83,17 @@ int main(void)
     for(j=0;j<CRYPTO_CIPHERTEXTBYTES;j++)
       printf("%02x",sendb[j]);
     printf("\n");
-    for(j=0;j<CRYPTO_SHAREDKEYBYTES;j++)
+    for(j=0;j<CRYPTO_BYTES;j++)
       printf("%02x",key_b[j]);
     printf("\n");
 
     // Decapsulation
     crypto_kem_dec(key_a, sendb, sk_a);
-    for(j=0;j<CRYPTO_SHAREDKEYBYTES;j++)
+    for(j=0;j<CRYPTO_BYTES;j++)
       printf("%02x",key_a[j]);
     printf("\n");
 
-    for(j=0;j<CRYPTO_SHAREDKEYBYTES;j++)
+    for(j=0;j<CRYPTO_BYTES;j++)
     {
       if(key_a[j] != key_b[j]) 
       {

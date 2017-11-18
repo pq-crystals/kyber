@@ -10,7 +10,7 @@ int verify(const unsigned char *a, const unsigned char *b, size_t len)
   
   for(i=0;i<len;i++)
     r |= a[i] ^ b[i];
- 
+
   r = (-r) >> 63;
   return r;
 }

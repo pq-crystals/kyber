@@ -3,14 +3,14 @@
 
 #include "inttypes.h"
 
-extern double omegas_bitrev[];
-extern double omegas_inv_bitrev[];
+extern uint16_t omegas_montgomery[];
+extern uint16_t omegas_inv_bitrev_montgomery[];
 
-extern uint32_t psis_bitrev[];
-extern uint32_t psis_inv[];
+extern uint16_t psis_bitrev_montgomery[];
+extern uint16_t psis_inv_montgomery[];
 
-void bitrev_vector(uint32_t* poly);
-void mul_coefficients(uint32_t* poly, const uint32_t* factors);
-void ntt(uint32_t* poly, const double* omegas);
+void bitrev_vector(uint16_t* poly);
+void mul_coefficients(uint16_t* poly, const uint16_t* factors);
+void ntt(uint16_t* poly, const uint16_t* omegas);
 
 #endif

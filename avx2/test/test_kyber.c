@@ -1,18 +1,16 @@
-#include "../kyber.h"
+#include "../api.h"
 #include "../poly.h"
 #include "../randombytes.h"
-#include <math.h>
 #include <stdio.h>
 #include <string.h>
 
-#define NTESTS 100000
-
+#define NTESTS 100
 
 int test_keys()
 {
   unsigned char key_a[KYBER_SHAREDKEYBYTES], key_b[KYBER_SHAREDKEYBYTES];
   unsigned char pk[KYBER_PUBLICKEYBYTES];
-  unsigned char sendb[KYBER_BYTES];
+  unsigned char sendb[KYBER_CIPHERTEXTBYTES];
   unsigned char sk_a[KYBER_SECRETKEYBYTES];
   int i;
 
@@ -40,11 +38,9 @@ int test_invalid_sk_a()
   unsigned char sk_a[KYBER_SECRETKEYBYTES];
   unsigned char key_a[KYBER_SHAREDKEYBYTES], key_b[KYBER_SHAREDKEYBYTES];
   unsigned char pk[KYBER_PUBLICKEYBYTES];
-  unsigned char sendb[KYBER_BYTES];
+  unsigned char sendb[KYBER_CIPHERTEXTBYTES];
   int i;
 
-  FILE *urandom = fopen("/dev/urandom", "r");
-  
   for(i=0; i<NTESTS; i++)
   {
     //Alice generates a public key
@@ -54,7 +50,8 @@ int test_invalid_sk_a()
     crypto_kem_enc(sendb, key_b, pk);
 
     //Replace secret key with random values
-    fread(sk_a, KYBER_SECRETKEYBYTES, 1, urandom); 
+    randombytes(sk_a, KYBER_SECRETKEYBYTES);
+
   
     //Alice uses Bobs response to get her secre key
     crypto_kem_dec(key_a, sendb, sk_a);
@@ -62,8 +59,6 @@ int test_invalid_sk_a()
     if(!memcmp(key_a, key_b, KYBER_SHAREDKEYBYTES))
       printf("ERROR invalid sk_a\n");
   }
-
-  fclose(urandom);
 
   return 0;
 }
@@ -74,15 +69,13 @@ int test_invalid_ciphertext()
   unsigned char sk_a[KYBER_SECRETKEYBYTES];
   unsigned char key_a[KYBER_SHAREDKEYBYTES], key_b[KYBER_SHAREDKEYBYTES];
   unsigned char pk[KYBER_PUBLICKEYBYTES];
-  unsigned char sendb[KYBER_BYTES];
+  unsigned char sendb[KYBER_CIPHERTEXTBYTES];
   int i;
   size_t pos;
 
-  FILE *urandom = fopen("/dev/urandom", "r");
-  
   for(i=0; i<NTESTS; i++)
   {
-    fread(&pos, sizeof(int), 1, urandom);
+    randombytes((unsigned char *)&pos, sizeof(size_t));
 
     //Alice generates a public key
     crypto_kem_keypair(pk, sk_a);
@@ -91,7 +84,7 @@ int test_invalid_ciphertext()
     crypto_kem_enc(sendb, key_b, pk);
 
     //Change some byte in the ciphertext (i.e., encapsulated key)
-    sendb[pos % KYBER_BYTES] ^= 23;
+    sendb[pos % KYBER_CIPHERTEXTBYTES] ^= 23;
   
     //Alice uses Bobs response to get her secre key
     crypto_kem_dec(key_a, sendb, sk_a);
@@ -100,20 +93,18 @@ int test_invalid_ciphertext()
       printf("ERROR invalid ciphertext\n");
   }
 
-  fclose(urandom);
-
   return 0;
 }
 
-int main(){
-
+int main(void)
+{
   test_keys();
   test_invalid_sk_a();
   test_invalid_ciphertext();
   
-  printf("KYBER_SECRETKEYBYTES: %d\n",KYBER_SECRETKEYBYTES);
-  printf("KYBER_PUBLICKEYBYTES: %d\n",KYBER_PUBLICKEYBYTES);
-  printf("KYBER_BYTES:          %d\n",KYBER_BYTES);
+  printf("KYBER_SECRETKEYBYTES:  %d\n",KYBER_SECRETKEYBYTES);
+  printf("KYBER_PUBLICKEYBYTES:  %d\n",KYBER_PUBLICKEYBYTES);
+  printf("KYBER_CIPHERTEXTBYTES: %d\n",KYBER_CIPHERTEXTBYTES);
 
   return 0;
 }

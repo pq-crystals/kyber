@@ -1,10 +1,9 @@
 #include "inttypes.h"
 #include "ntt.h"
 #include "params.h"
-#include "math.h"
-#include <immintrin.h>
+#include "reduce.h"
 
-static uint32_t bitrev_table[KYBER_N] = {
+static uint16_t bitrev_table[KYBER_N] = {
   0, 128, 64, 192, 32, 160, 96, 224, 16, 144, 80, 208, 48, 176, 112, 240, 
   8, 136, 72, 200, 40, 168, 104, 232, 24, 152, 88, 216, 56, 184, 120, 248, 
   4, 132, 68, 196, 36, 164, 100, 228, 20, 148, 84, 212, 52, 180, 116, 244, 
@@ -24,10 +23,10 @@ static uint32_t bitrev_table[KYBER_N] = {
 };
 
 
-void bitrev_vector(uint32_t* poly)
+void bitrev_vector(uint16_t* poly)
 {
     unsigned int i,r;
-    uint32_t tmp;
+    uint16_t tmp;
 
     for(i = 0; i < KYBER_N; i++)
     {
@@ -41,15 +40,42 @@ void bitrev_vector(uint32_t* poly)
     }
 }
  
-extern void nttlevels0t4(double *t, const uint32_t *a, const double *omega);
-extern void nttlevels5t7(uint32_t *a, const double *t, const double *omega);
+
+void mul_coefficients(uint16_t* poly, const uint16_t* factors)
+{
+    unsigned int i;
+
+    for(i = 0; i < KYBER_N; i++)
+      poly[i] = montgomery_reduce((poly[i] * factors[i]));
+}
+
 
 /* GS_bo_to_no; omegas need to be in Montgomery domain */
-void ntt(uint32_t * a, const double* omega)
+void ntt(uint16_t * a, const uint16_t* omega)
 {
-  double aa[KYBER_N];
+  int start, j, jTwiddle, level;
+  uint16_t temp, W;
+  uint32_t t;
 
-  nttlevels0t4(aa,a,omega);
-  nttlevels5t7(a,aa,omega);
+  for(level=0;level<8;level++)
+  {
+    for(start = 0; start < (1<<level);start++)
+    {
+      jTwiddle = 0;
+      for(j=start;j<KYBER_N-1;j+=2*(1<<level))
+      {
+        W = omega[jTwiddle++];
+        temp = a[j];
 
+        if(level & 1) // odd level
+          a[j] = barrett_reduce((temp + a[j + (1<<level)]));
+        else
+          a[j] = (temp + a[j + (1<<level)]); // Omit reduction (be lazy)
+        
+        t = (W * ((uint32_t)temp + 4*KYBER_Q - a[j + (1<<level)]));
+
+        a[j + (1<<level)] = montgomery_reduce(t);
+      }
+    }
+  }
 }

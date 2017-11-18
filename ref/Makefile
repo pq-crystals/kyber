@@ -6,7 +6,9 @@ RM 		    = /bin/rm
 
 all: test/test_kyber \
 		 test/test_kex \
-		 test/testvectors \
+		 test/testvectors512 \
+		 test/testvectors768 \
+		 test/testvectors1024 \
      test/PQCgenKAT_kem \
 		 test/speed
 
@@ -22,8 +24,14 @@ test/PQCgenKAT_kem: $(SOURCES) $(HEADERS) test/PQCgenKAT_kem.c rng.c rng.h
 test/test_kex: $(SOURCES) $(HEADERS) test/test_kex.c randombytes.c randombytes.h
 	$(CC) $(CFLAGS) -o $@ $(SOURCES) randombytes.c test/test_kex.c
 
-test/testvectors: $(SOURCES) $(HEADERS) cpucycles.h cpucycles.c test/testvectors.c randombytes.h
-	$(CC) $(CFLAGS) -o $@ $(SOURCES) cpucycles.c test/testvectors.c
+test/testvectors512: $(SOURCES) $(HEADERS) cpucycles.h cpucycles.c test/testvectors.c randombytes.h
+	$(CC) $(CFLAGS) -o $@ -DKYBER_K=2 $(SOURCES) cpucycles.c test/testvectors.c
+
+test/testvectors768: $(SOURCES) $(HEADERS) cpucycles.h cpucycles.c test/testvectors.c randombytes.h
+	$(CC) $(CFLAGS) -o $@ -DKYBER_K=3 $(SOURCES) cpucycles.c test/testvectors.c
+
+test/testvectors1024: $(SOURCES) $(HEADERS) cpucycles.h cpucycles.c test/testvectors.c randombytes.h
+	$(CC) $(CFLAGS) -o $@ -DKYBER_K=4 $(SOURCES) cpucycles.c test/testvectors.c
 
 test/speed: $(SOURCES) $(HEADERS) cpucycles.h cpucycles.c test/speed.c randombytes.c randombytes.h
 	$(CC) $(CFLAGS) -o $@ $(SOURCES) randombytes.c cpucycles.c test/speed.c
@@ -43,6 +51,8 @@ clean:
 	-$(RM) *.o
 	-$(RM) -r test/test_kyber
 	-$(RM) -r test/test_kex
-	-$(RM) -r test/testvectors
+	-$(RM) -r test/testvectors512
+	-$(RM) -r test/testvectors768
+	-$(RM) -r test/testvectors1024
 	-$(RM) -r test/speed
 	-$(RM) -r test/PQCgenKAT_kem

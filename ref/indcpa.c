@@ -110,16 +110,16 @@ void indcpa_keypair(unsigned char *pk,
                    unsigned char *sk)
 {
   polyvec a[KYBER_K], e, pkpv, skpv;
-  unsigned char seed[KYBER_SEEDBYTES];
-  unsigned char noiseseed[KYBER_COINBYTES];
+  unsigned char buf[KYBER_SEEDBYTES+KYBER_COINBYTES];
+  unsigned char *publicseed = buf;
+  unsigned char *noiseseed = buf+KYBER_SEEDBYTES;
   int i;
   unsigned char nonce=0;
 
-  randombytes(seed, KYBER_SEEDBYTES);
-  shake256(seed, KYBER_SEEDBYTES, seed, KYBER_SEEDBYTES); /* Don't send output of system RNG */
-  randombytes(noiseseed, KYBER_COINBYTES);
+  randombytes(buf, KYBER_SEEDBYTES);
+  shake256(buf, KYBER_SEEDBYTES+KYBER_COINBYTES, buf, KYBER_SEEDBYTES);
 
-  gen_a(a, seed);
+  gen_a(a, publicseed);
 
   for(i=0;i<KYBER_K;i++)
     poly_getnoise(skpv.vec+i,noiseseed,nonce++);
@@ -137,7 +137,7 @@ void indcpa_keypair(unsigned char *pk,
   polyvec_add(&pkpv,&pkpv,&e);
 
   pack_sk(sk, &skpv);
-  pack_pk(pk, &pkpv, seed);
+  pack_pk(pk, &pkpv, publicseed);
 }
 
 
@@ -157,8 +157,6 @@ void indcpa_enc(unsigned char *c,
 
   poly_frommsg(&k, m);
 
-//  for(i=0;i<KYBER_K;i++)
-//    bitrev_vector(pkpv.vec[i].coeffs);
   polyvec_ntt(&pkpv);
 
   gen_at(at, seed);
@@ -196,13 +194,10 @@ void indcpa_dec(unsigned char *m,
 {
   polyvec bp, skpv;
   poly v, mp;
-  size_t i;
 
   unpack_ciphertext(&bp, &v, c);
   unpack_sk(&skpv, sk);
 
-//  for(i=0;i<KYBER_K;i++)
-//    bitrev_vector(bp.vec[i].coeffs);
   polyvec_ntt(&bp);
 
   polyvec_pointwise_acc(&mp,&skpv,&bp);
