@@ -97,7 +97,11 @@ void poly_getnoise(poly *r,const unsigned char *seed, unsigned char nonce)
      
   shake256(buf,KYBER_ETA*KYBER_N/4,extseed,KYBER_NOISESEEDBYTES+1);
 
+#if (KYBER_ETA == 4)
+  cbdeta4(r, buf);
+#else
   cbd(r, buf);
+#endif
 }
 
 
