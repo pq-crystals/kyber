@@ -137,10 +137,24 @@ void poly_getnoise4x(poly *r0, poly *r1, poly *r2, poly *r3, const unsigned char
 
 void poly_ntt(poly *r)
 {
+  /*
   bitrev_vector(r->coeffs);
   mul_coefficients(r->coeffs, psis_bitrev_montgomery);
   ntt(r->coeffs, omegas_montgomery);
   bitrev_vector(r->coeffs);
+  */
+
+  nttasm(r->coeffs,r->coeffs,zetas_exp);
+
+  int i;
+  for(i=0;i<KYBER_N;i++)
+    r->coeffs[i] += 2*KYBER_Q;
+
+  /*
+  for(i=0;i<32;i++)
+    printf("%u, ", r->coeffs[i] % KYBER_Q);
+  printf("\n");
+  */
 }
 
 void poly_invntt(poly *r)

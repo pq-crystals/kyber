@@ -6,7 +6,7 @@
 
 typedef struct{
   uint16_t coeffs[KYBER_N];
-} poly;
+} poly __attribute__((aligned(32)));
 
 void poly_compress(unsigned char *r, const poly *a);
 void poly_decompress(poly *r, const unsigned char *a);
