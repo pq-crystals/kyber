@@ -137,14 +137,7 @@ void poly_getnoise4x(poly *r0, poly *r1, poly *r2, poly *r3, const unsigned char
 
 void poly_ntt(poly *r)
 {
-  /*
-  bitrev_vector(r->coeffs);
-  mul_coefficients(r->coeffs, psis_bitrev_montgomery);
-  ntt(r->coeffs, omegas_montgomery);
-  bitrev_vector(r->coeffs);
-  */
-
-  nttasm(r->coeffs,r->coeffs,zetas_exp);
+  ntt(r->coeffs,r->coeffs,zetas_exp);
 
   int i;
   for(i=0;i<KYBER_N;i++)
@@ -153,15 +146,11 @@ void poly_ntt(poly *r)
 
 void poly_invntt(poly *r)
 {
-  /*
-  ntt(r->coeffs, omegas_inv_bitrev_montgomery);
-  mul_coefficients(r->coeffs, psis_inv_montgomery);
-  */
   int i;
   for(i=0;i<KYBER_N;i++)
     r->coeffs[i] = ((uint32_t)r->coeffs[i] * 900) % KYBER_Q;
 
-  invnttasm(r->coeffs,r->coeffs,zetas_inv_exp);
+  invntt(r->coeffs,r->coeffs,zetas_inv_exp);
 }
   
 void poly_add(poly *r, const poly *a, const poly *b)

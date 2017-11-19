@@ -1,5 +1,5 @@
-.global nttasm
-nttasm:
+.global ntt
+ntt:
 mov		%rsp,%r11
 and		$31,%r11
 sub		%r11,%rsp
