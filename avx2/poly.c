@@ -149,19 +149,19 @@ void poly_ntt(poly *r)
   int i;
   for(i=0;i<KYBER_N;i++)
     r->coeffs[i] += 2*KYBER_Q;
-
-  /*
-  for(i=0;i<32;i++)
-    printf("%u, ", r->coeffs[i] % KYBER_Q);
-  printf("\n");
-  */
 }
 
 void poly_invntt(poly *r)
 {
-  //bitrev_vector(r->coeffs);
+  /*
   ntt(r->coeffs, omegas_inv_bitrev_montgomery);
   mul_coefficients(r->coeffs, psis_inv_montgomery);
+  */
+  int i;
+  for(i=0;i<KYBER_N;i++)
+    r->coeffs[i] = ((uint32_t)r->coeffs[i] * 900) % KYBER_Q;
+
+  invnttasm(r->coeffs,r->coeffs,zetas_inv_exp);
 }
   
 void poly_add(poly *r, const poly *a, const poly *b)

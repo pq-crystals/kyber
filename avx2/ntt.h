@@ -10,6 +10,7 @@ extern uint16_t psis_bitrev_montgomery[];
 extern uint16_t psis_inv_montgomery[];
 
 extern const uint16_t zetas_exp[];
+extern const uint16_t zetas_inv_exp[];
 
 
 void bitrev_vector(uint16_t* poly);
