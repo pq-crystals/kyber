@@ -646,8 +646,11 @@ vpaddw		%ymm14,%ymm8,%ymm8
 
 vpunpcklwd %ymm3, %ymm10, %ymm13
 vpunpckhwd %ymm3, %ymm10, %ymm14
+vmovdqa		_16x2q(%rip),%ymm3
 vperm2i128 $0x20,%ymm14,%ymm13,%ymm15
 vperm2i128 $0x31,%ymm14,%ymm13,%ymm14
+vpaddw    %ymm3,%ymm15,%ymm15
+vpaddw    %ymm3,%ymm14,%ymm14
 vmovdqu		%ymm15,(%rdi)
 vmovdqu		%ymm14,32(%rdi)
 
@@ -655,6 +658,8 @@ vpunpcklwd %ymm5, %ymm4, %ymm13
 vpunpckhwd %ymm5, %ymm4, %ymm14
 vperm2i128 $0x20,%ymm14,%ymm13,%ymm15
 vperm2i128 $0x31,%ymm14,%ymm13,%ymm14
+vpaddw    %ymm3,%ymm15,%ymm15
+vpaddw    %ymm3,%ymm14,%ymm14
 vmovdqu		%ymm15,64(%rdi)
 vmovdqu		%ymm14,96(%rdi)
 
@@ -662,6 +667,8 @@ vpunpcklwd %ymm7, %ymm6, %ymm13
 vpunpckhwd %ymm7, %ymm6, %ymm14
 vperm2i128 $0x20,%ymm14,%ymm13,%ymm15
 vperm2i128 $0x31,%ymm14,%ymm13,%ymm14
+vpaddw    %ymm3,%ymm15,%ymm15
+vpaddw    %ymm3,%ymm14,%ymm14
 vmovdqu		%ymm15,128(%rdi)
 vmovdqu		%ymm14,160(%rdi)
 
@@ -669,11 +676,10 @@ vpunpcklwd %ymm9, %ymm8, %ymm13
 vpunpckhwd %ymm9, %ymm8, %ymm14
 vperm2i128 $0x20,%ymm14,%ymm13,%ymm15
 vperm2i128 $0x31,%ymm14,%ymm13,%ymm14
+vpaddw    %ymm3,%ymm15,%ymm15
+vpaddw    %ymm3,%ymm14,%ymm14
 vmovdqu		%ymm15,192(%rdi)
 vmovdqu		%ymm14,224(%rdi)
-
-
-
 
 add		$128,%rsi
 add		$256,%rdi
@@ -1033,8 +1039,11 @@ vpaddw		%ymm14,%ymm8,%ymm8
 
 vpunpcklwd %ymm3, %ymm10, %ymm13
 vpunpckhwd %ymm3, %ymm10, %ymm14
+vmovdqa		_16x2q(%rip),%ymm3
 vperm2i128 $0x20,%ymm14,%ymm13,%ymm15
 vperm2i128 $0x31,%ymm14,%ymm13,%ymm14
+vpaddw    %ymm3,%ymm15,%ymm15
+vpaddw    %ymm3,%ymm14,%ymm14
 vmovdqu		%ymm15,(%rdi)
 vmovdqu		%ymm14,32(%rdi)
 
@@ -1042,6 +1051,8 @@ vpunpcklwd %ymm5, %ymm4, %ymm13
 vpunpckhwd %ymm5, %ymm4, %ymm14
 vperm2i128 $0x20,%ymm14,%ymm13,%ymm15
 vperm2i128 $0x31,%ymm14,%ymm13,%ymm14
+vpaddw    %ymm3,%ymm15,%ymm15
+vpaddw    %ymm3,%ymm14,%ymm14
 vmovdqu		%ymm15,64(%rdi)
 vmovdqu		%ymm14,96(%rdi)
 
@@ -1049,6 +1060,8 @@ vpunpcklwd %ymm7, %ymm6, %ymm13
 vpunpckhwd %ymm7, %ymm6, %ymm14
 vperm2i128 $0x20,%ymm14,%ymm13,%ymm15
 vperm2i128 $0x31,%ymm14,%ymm13,%ymm14
+vpaddw    %ymm3,%ymm15,%ymm15
+vpaddw    %ymm3,%ymm14,%ymm14
 vmovdqu		%ymm15,128(%rdi)
 vmovdqu		%ymm14,160(%rdi)
 
@@ -1056,6 +1069,8 @@ vpunpcklwd %ymm9, %ymm8, %ymm13
 vpunpckhwd %ymm9, %ymm8, %ymm14
 vperm2i128 $0x20,%ymm14,%ymm13,%ymm15
 vperm2i128 $0x31,%ymm14,%ymm13,%ymm14
+vpaddw    %ymm3,%ymm15,%ymm15
+vpaddw    %ymm3,%ymm14,%ymm14
 vmovdqu		%ymm15,192(%rdi)
 vmovdqu		%ymm14,224(%rdi)
 
