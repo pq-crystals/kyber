@@ -150,7 +150,7 @@ void poly_invntt(poly *r)
   for(i=0;i<KYBER_N;i++)
     r->coeffs[i] = ((uint32_t)r->coeffs[i] * 900) % KYBER_Q;
 
-  invntt(r->coeffs,r->coeffs,zetas_inv_exp);
+  invntt(r->coeffs,zetas_inv_exp);
 }
   
 void poly_add(poly *r, const poly *a, const poly *b)
