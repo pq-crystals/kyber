@@ -9,35 +9,8 @@
 
 #define _GNU_SOURCE
 
-#ifdef SYS_getrandom
-
-void randombytes_fallback(unsigned char *x, size_t xlen);
-
-void randombytes(unsigned char *buf,size_t buflen)
-{
-  size_t d = 0;
-  int r;
-
-  while(d<buflen)
-  {
-    r = syscall(SYS_getrandom, buf, buflen, 0); 
-    if(r < 0) 
-    {
-      randombytes_fallback(buf, buflen);
-      return;
-    }
-    buf += r;
-    d += r;
-  }
-}
-
-#else
-  #define randombytes randombytes_fallback
-#endif
-
 static int fd = -1;
-
-void randombytes_fallback(unsigned char *x, size_t xlen)
+static void randombytes_fallback(unsigned char *x, size_t xlen)
 {
   int i;
   
@@ -62,3 +35,29 @@ void randombytes_fallback(unsigned char *x, size_t xlen)
     xlen -= i;
   }
 }
+
+#ifdef SYS_getrandom
+void randombytes(unsigned char *buf,size_t buflen)
+{
+  size_t d = 0;
+  int r;
+
+  while(d<buflen)
+  {
+    r = syscall(SYS_getrandom, buf, buflen, 0); 
+    if(r < 0) 
+    {
+      randombytes_fallback(buf, buflen);
+      return;
+    }
+    buf += r;
+    d += r;
+  }
+}
+#else
+void randombytes(unsigned char *buf,size_t buflen)
+{
+  randombytes_fallback(buf,buflen);
+}
+#endif
+

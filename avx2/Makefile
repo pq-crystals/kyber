@@ -3,10 +3,6 @@ CFLAGS    = -g -Wall -Wextra -O3 -fomit-frame-pointer -march=native -fPIC
 NISTFLAGS = -O3 -fomit-frame-pointer -march=native -fPIC
 CLANG     = clang -march=native -O3 -fomit-frame-pointer -fwrapv -Qunused-arguments
 RM 		    = /bin/rm
-#ifneq ($(shell uname -s),Darwin) # Add static if not on Darwin
-#	CFLAGS += -static
-#endif
-
 
 all: test_kyber \
 		 test_kex \
@@ -17,7 +13,6 @@ all: test_kyber \
 		 speed768 \
 		 speed1024 \
      PQCgenKAT_kem
-
 
 SOURCES = kem.c poly.c polyvec.c fips202.o reduce.c cbdeta4.s cbdref.c precomp.c ntt.c verify.c indcpa.c kex.c consts.c genmatrix.c fips202x4.c \
 					keccak4x/KeccakP-1600-times4-SIMD256.o \
