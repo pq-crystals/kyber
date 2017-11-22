@@ -15,9 +15,9 @@ install:
 
 script:
   - cd ref
-  - make test/test_kex CFLAGS="-std=gnu99 -fPIC -fprofile-arcs -ftest-coverage -g -O0 -Wall -Wextra -fomit-frame-pointer -march=native" CLANG="clang -march=native -g -O0 -fomit-frame-pointer -fwrapv -Qunused-arguments"
-  - ./test/test_kex
+  - make test_kex CFLAGS="-fprofile-arcs -ftest-coverage -g -Wall -Wextra -O0 -fomit-frame-pointer -march=native -fPIC" CLANG="clang -march=native -g -O0 -fomit-frame-pointer -fwrapv -Qunused-arguments"
+  - ./test_kex
 
 after_success:
-  - lcov -d . -d test --capture --output-file coverage.info
+  - lcov -d . --capture --output-file coverage.info
   - coveralls-lcov coverage.info
