@@ -21,7 +21,7 @@ vmovdqa		160(%rsi),%ymm9
 vmovdqa		192(%rsi),%ymm10
 vmovdqa		224(%rsi),%ymm11
 
-vmovdqa		_lowdword(%rip),%ymm3
+vmovdqu		_lowdword(%rip),%ymm3
 
 # Establish required permutation
 vpand %ymm4, %ymm3, %ymm14
@@ -552,7 +552,7 @@ vmovdqa		160(%rsi),%ymm9
 vmovdqa		192(%rsi),%ymm10
 vmovdqa		224(%rsi),%ymm11
 
-vmovdqa		_lowdword(%rip),%ymm3
+vmovdqu		_lowdword(%rip),%ymm3
 
 # Establish required permutation
 vpand %ymm4, %ymm3, %ymm14
