@@ -10,7 +10,7 @@ static void pack_pk(unsigned char *r, const polyvec *pk, const unsigned char *se
 {
   int i;
   polyvec_compress(r, pk);
-  for(i=0;i<KYBER_SEEDBYTES;i++)
+  for(i=0;i<KYBER_SYMBYTES;i++)
     r[i+KYBER_POLYVECCOMPRESSEDBYTES] = seed[i];
 }
 
@@ -20,7 +20,7 @@ static void unpack_pk(polyvec *pk, unsigned char *seed, const unsigned char *pac
   int i;
   polyvec_decompress(pk, packedpk);
 
-  for(i=0;i<KYBER_SEEDBYTES;i++)
+  for(i=0;i<KYBER_SYMBYTES;i++)
     seed[i] = packedpk[i+KYBER_POLYVECCOMPRESSEDBYTES];
 }
 
@@ -60,9 +60,9 @@ void gen_matrix(polyvec *a, const unsigned char *seed, int transposed) //XXX: No
   uint8_t buf[SHAKE128_RATE*nblocks];
   int i,j;
   uint64_t state[25]; // CSHAKE state
-  unsigned char extseed[KYBER_SEEDBYTES+2];
+  unsigned char extseed[KYBER_SYMBYTES+2];
 
-  for(i=0;i<KYBER_SEEDBYTES;i++)
+  for(i=0;i<KYBER_SYMBYTES;i++)
     extseed[i] = seed[i];
 
 
@@ -73,16 +73,16 @@ void gen_matrix(polyvec *a, const unsigned char *seed, int transposed) //XXX: No
       ctr = pos = 0;
       if(transposed) 
       {
-        extseed[KYBER_SEEDBYTES]   = i;
-        extseed[KYBER_SEEDBYTES+1] = j;
+        extseed[KYBER_SYMBYTES]   = i;
+        extseed[KYBER_SYMBYTES+1] = j;
       }
       else
       {
-        extseed[KYBER_SEEDBYTES]   = j;
-        extseed[KYBER_SEEDBYTES+1] = i;
+        extseed[KYBER_SYMBYTES]   = j;
+        extseed[KYBER_SYMBYTES+1] = i;
       }
         
-      shake128_absorb(state,extseed,KYBER_SEEDBYTES+2);
+      shake128_absorb(state,extseed,KYBER_SYMBYTES+2);
       shake128_squeezeblocks(buf,nblocks,state);
 
       while(ctr < KYBER_N)
@@ -110,14 +110,14 @@ void indcpa_keypair(unsigned char *pk,
                    unsigned char *sk)
 {
   polyvec a[KYBER_K], e, pkpv, skpv;
-  unsigned char buf[KYBER_SEEDBYTES+KYBER_COINBYTES];
+  unsigned char buf[KYBER_SYMBYTES+KYBER_SYMBYTES];
   unsigned char *publicseed = buf;
-  unsigned char *noiseseed = buf+KYBER_SEEDBYTES;
+  unsigned char *noiseseed = buf+KYBER_SYMBYTES;
   int i;
   unsigned char nonce=0;
 
-  randombytes(buf, KYBER_SEEDBYTES);
-  shake256(buf, KYBER_SEEDBYTES+KYBER_COINBYTES, buf, KYBER_SEEDBYTES);
+  randombytes(buf, KYBER_SYMBYTES);
+  shake256(buf, KYBER_SYMBYTES+KYBER_SYMBYTES, buf, KYBER_SYMBYTES);
 
   gen_a(a, publicseed);
 
@@ -148,7 +148,7 @@ void indcpa_enc(unsigned char *c,
 {
   polyvec sp, pkpv, ep, at[KYBER_K], bp;
   poly v, k, epp;
-  unsigned char seed[KYBER_SEEDBYTES];
+  unsigned char seed[KYBER_SYMBYTES];
   int i;
   unsigned char nonce=0;
 
