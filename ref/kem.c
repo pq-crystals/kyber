@@ -31,10 +31,10 @@ int crypto_kem_enc(unsigned char *ct, unsigned char *ss, const unsigned char *pk
   shake256(buf+32, 32, pk, KYBER_PUBLICKEYBYTES);    /* Multitarget countermeasure for coins + contributory KEM */
   shake256(kr, 64, buf, 64);
 
-  indcpa_enc(ct, buf, pk, kr+32);                   /* coins are in krq+32 */
+  indcpa_enc(ct, buf, pk, kr+32);                   /* coins are in kr+32 */
 
-  shake256(kr+32, 32, ct, KYBER_CIPHERTEXTBYTES);   /* overwrite coins in krq with h(c) */
-  shake256(ss, 32, kr, 64);                         /* hash concatenation of pre-k and h(c) to k */
+  shake256(kr+32, 32, ct, KYBER_CIPHERTEXTBYTES);   /* overwrite coins in kr with H(c) */
+  shake256(ss, 32, kr, 64);                         /* hash concatenation of pre-k and H(c) to k */
   return 0;
 }
 
@@ -50,19 +50,19 @@ int crypto_kem_dec(unsigned char *ss, const unsigned char *ct, const unsigned ch
   indcpa_dec(buf, ct, sk);
 
   // shake256(buf+32, 32, pk, KYBER_PUBLICKEYBYTES); /* Multitarget countermeasure for coins + contributory KEM */
-  for(i=0;i<32;i++)                                  /* Save hash by storing h(pk) in sk */
+  for(i=0;i<32;i++)                                  /* Save hash by storing H(pk) in sk */
     buf[32+i] = sk[KYBER_SECRETKEYBYTES-64+i];
   shake256(kr, 64, buf, 64);
 
-  indcpa_enc(cmp, buf, pk, kr+32);                   /* coins are in krq+32 */
+  indcpa_enc(cmp, buf, pk, kr+32);                   /* coins are in kr+32 */
 
   fail = verify(ct, cmp, KYBER_CIPHERTEXTBYTES);
 
-  shake256(kr+32, 32, ct, KYBER_CIPHERTEXTBYTES);    /* overwrite coins in krq with h(c)  */
+  shake256(kr+32, 32, ct, KYBER_CIPHERTEXTBYTES);    /* overwrite coins in kr with H(c)  */
 
   cmov(kr, sk+KYBER_SECRETKEYBYTES-KYBER_SHAREDKEYBYTES, KYBER_SHAREDKEYBYTES, fail); /* Overwrite pre-k with z on re-encryption failure */
 
-  shake256(ss, 32, kr, 64);                          /* hash concatenation of pre-k and h(c) to k */
+  shake256(ss, 32, kr, 64);                          /* hash concatenation of pre-k and H(c) to k */
 
   return -fail;
 }

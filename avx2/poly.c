@@ -138,12 +138,6 @@ void poly_getnoise4x(poly *r0, poly *r1, poly *r2, poly *r3, const unsigned char
 void poly_ntt(poly *r)
 {
   ntt(r->coeffs,zetas_exp);
-
-  /*
-  int i;
-  for(i=0;i<KYBER_N;i++)
-    r->coeffs[i] += 2*KYBER_Q;
-    */
 }
 
 void poly_invntt(poly *r)

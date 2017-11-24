@@ -4,8 +4,12 @@ NISTFLAGS = -O3 -fomit-frame-pointer -march=native -fPIC
 CLANG     = clang -march=native -O3 -fomit-frame-pointer -fwrapv -Qunused-arguments
 RM 		    = /bin/rm
 
-all: test_kyber \
-		 test_kex \
+all: test_kyber512 \
+     test_kyber768 \
+     test_kyber1024 \
+		 test_kex512 \
+		 test_kex768 \
+		 test_kex1024 \
 		 testvectors512 \
 		 testvectors768 \
 		 testvectors1024 \
@@ -19,33 +23,44 @@ SOURCES = kem.c poly.c polyvec.c fips202.o reduce.c cbdeta4.s cbdref.c precomp.c
 					ntt.s invntt.s
 HEADERS = params.h poly.h polyvec.h reduce.h cbd.h ntt.h verify.h indcpa.h kex.h genmatrix.h fips202x4.h
 
-test_kyber: $(SOURCES) $(HEADERS) test_kyber.c randombytes.c randombytes.h
-	$(CC) $(CFLAGS) -o $@ $(SOURCES) randombytes.c test_kyber.c
+test_kyber512: $(SOURCES) $(HEADERS) test_kyber.c randombytes.c randombytes.h
+	$(CC) $(CFLAGS) -DKYBER_K=2 $(SOURCES) randombytes.c test_kyber.c -o test_kyber512
+
+test_kyber768: $(SOURCES) $(HEADERS) test_kyber.c randombytes.c randombytes.h
+	$(CC) $(CFLAGS) -DKYBER_K=3 $(SOURCES) randombytes.c test_kyber.c -o test_kyber768
+
+test_kyber1024: $(SOURCES) $(HEADERS) test_kyber.c randombytes.c randombytes.h
+	$(CC) $(CFLAGS) -DKYBER_K=4 $(SOURCES) randombytes.c test_kyber.c -o test_kyber1024
+
+test_kex512: $(SOURCES) $(HEADERS) test_kex.c randombytes.c randombytes.h
+	$(CC) $(CFLAGS) -DKYBER_K=2 $(SOURCES) randombytes.c test_kex.c -o test_kex512
+
+test_kex768: $(SOURCES) $(HEADERS) test_kex.c randombytes.c randombytes.h
+	$(CC) $(CFLAGS) -DKYBER_K=3 $(SOURCES) randombytes.c test_kex.c -o test_kex768
+
+test_kex1024: $(SOURCES) $(HEADERS) test_kex.c randombytes.c randombytes.h
+	$(CC) $(CFLAGS) -DKYBER_K=4 $(SOURCES) randombytes.c test_kex.c -o test_kex1024
+
+testvectors512: $(SOURCES) $(HEADERS) cpucycles.h cpucycles.c testvectors.c randombytes.h
+	$(CC) $(CFLAGS) -DKYBER_K=2 $(SOURCES) cpucycles.c testvectors.c -o testvectors512
+
+testvectors768: $(SOURCES) $(HEADERS) cpucycles.h cpucycles.c testvectors.c randombytes.h
+	$(CC) $(CFLAGS) -DKYBER_K=3 $(SOURCES) cpucycles.c testvectors.c -o testvectors768
+
+testvectors1024: $(SOURCES) $(HEADERS) cpucycles.h cpucycles.c testvectors.c randombytes.h
+	$(CC) $(CFLAGS) -DKYBER_K=4 $(SOURCES) cpucycles.c testvectors.c -o testvectors1024
+
+speed512: $(SOURCES) $(HEADERS) cpucycles.h cpucycles.c speed.c randombytes.c randombytes.h
+	$(CC) $(CFLAGS) -DKYBER_K=2 $(SOURCES) randombytes.c cpucycles.c speed.c -o speed512
+
+speed768: $(SOURCES) $(HEADERS) cpucycles.h cpucycles.c speed.c randombytes.c randombytes.h
+	$(CC) $(CFLAGS) -DKYBER_K=3 $(SOURCES) randombytes.c cpucycles.c speed.c -o speed768
+
+speed1024: $(SOURCES) $(HEADERS) cpucycles.h cpucycles.c speed.c randombytes.c randombytes.h
+	$(CC) $(CFLAGS) -DKYBER_K=4 $(SOURCES) randombytes.c cpucycles.c speed.c -o speed1024
 
 PQCgenKAT_kem: $(SOURCES) $(HEADERS) PQCgenKAT_kem.c rng.c rng.h
 	$(CC) $(NISTFLAGS) -o $@ $(SOURCES) -I. rng.c PQCgenKAT_kem.c -lcrypto
-
-test_kex: $(SOURCES) $(HEADERS) test_kex.c randombytes.c randombytes.h
-	$(CC) $(CFLAGS) -o $@ $(SOURCES) randombytes.c test_kex.c
-
-testvectors512: $(SOURCES) $(HEADERS) cpucycles.h cpucycles.c testvectors.c randombytes.h
-	$(CC) $(CFLAGS) -o $@ -DKYBER_K=2 $(SOURCES) cpucycles.c testvectors.c
-
-testvectors768: $(SOURCES) $(HEADERS) cpucycles.h cpucycles.c testvectors.c randombytes.h
-	$(CC) $(CFLAGS) -o $@ -DKYBER_K=3 $(SOURCES) cpucycles.c testvectors.c
-
-testvectors1024: $(SOURCES) $(HEADERS) cpucycles.h cpucycles.c testvectors.c randombytes.h
-	$(CC) $(CFLAGS) -o $@ -DKYBER_K=4 $(SOURCES) cpucycles.c testvectors.c
-
-speed512: $(SOURCES) $(HEADERS) cpucycles.h cpucycles.c speed.c randombytes.c randombytes.h
-	$(CC) $(CFLAGS) -o $@ -DKYBER_K=2 $(SOURCES) randombytes.c cpucycles.c speed.c
-
-speed768: $(SOURCES) $(HEADERS) cpucycles.h cpucycles.c speed.c randombytes.c randombytes.h
-	$(CC) $(CFLAGS) -o $@ -DKYBER_K=3 $(SOURCES) randombytes.c cpucycles.c speed.c
-
-speed1024: $(SOURCES) $(HEADERS) cpucycles.h cpucycles.c speed.c randombytes.c randombytes.h
-	$(CC) $(CFLAGS) -o $@ -DKYBER_K=4 $(SOURCES) randombytes.c cpucycles.c speed.c
-
 
 keccak4x/KeccakP-1600-times4-SIMD256.o: keccak4x/KeccakP-1600-times4-SIMD256.c \
 																				keccak4x/align.h \
@@ -63,8 +78,12 @@ fips202.o: fips202.c
 
 clean:
 	-$(RM) *.o
-	-$(RM) -r test_kyber
-	-$(RM) -r test_kex
+	-$(RM) -r test_kyber512
+	-$(RM) -r test_kyber768
+	-$(RM) -r test_kyber1024
+	-$(RM) -r test_kex512
+	-$(RM) -r test_kex768
+	-$(RM) -r test_kex1024
 	-$(RM) -r testvectors512
 	-$(RM) -r testvectors768
 	-$(RM) -r testvectors1024

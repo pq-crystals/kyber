@@ -102,17 +102,12 @@ void poly_getnoise(poly *r,const unsigned char *seed, unsigned char nonce)
 
 void poly_ntt(poly *r)
 {
-  bitrev_vector(r->coeffs);
-  mul_coefficients(r->coeffs, psis_bitrev_montgomery);
   ntt(r->coeffs, omegas_montgomery);
-  bitrev_vector(r->coeffs);
 }
 
 void poly_invntt(poly *r)
 {
-  //bitrev_vector(r->coeffs);
-  ntt(r->coeffs, omegas_inv_bitrev_montgomery);
-  mul_coefficients(r->coeffs, psis_inv_montgomery);
+  invntt(r->coeffs, omegas_inv_bitrev_montgomery);
 }
   
 void poly_add(poly *r, const poly *a, const poly *b)
