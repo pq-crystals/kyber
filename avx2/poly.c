@@ -89,14 +89,14 @@ void poly_frombytes(poly *r, const unsigned char *a)
 void poly_getnoise(poly *r,const unsigned char *seed, unsigned char nonce)
 {
   unsigned char buf[KYBER_ETA*KYBER_N/4];
-  unsigned char extseed[KYBER_NOISESEEDBYTES+1];
+  unsigned char extseed[KYBER_SYMBYTES+1];
   int i;
 
-  for(i=0;i<KYBER_NOISESEEDBYTES;i++)
+  for(i=0;i<KYBER_SYMBYTES;i++)
     extseed[i] = seed[i];
-  extseed[KYBER_NOISESEEDBYTES] = nonce;
+  extseed[KYBER_SYMBYTES] = nonce;
      
-  shake256(buf,KYBER_ETA*KYBER_N/4,extseed,KYBER_NOISESEEDBYTES+1);
+  shake256(buf,KYBER_ETA*KYBER_N/4,extseed,KYBER_SYMBYTES+1);
 
   cbd(r, buf);
 }
@@ -109,25 +109,25 @@ void poly_getnoise4x(poly *r0, poly *r1, poly *r2, poly *r3, const unsigned char
   unsigned char buf2[KYBER_ETA*KYBER_N/4];
   unsigned char buf3[KYBER_ETA*KYBER_N/4];
 
-  unsigned char extseed0[KYBER_NOISESEEDBYTES+1];
-  unsigned char extseed1[KYBER_NOISESEEDBYTES+1];
-  unsigned char extseed2[KYBER_NOISESEEDBYTES+1];
-  unsigned char extseed3[KYBER_NOISESEEDBYTES+1];
+  unsigned char extseed0[KYBER_SYMBYTES+1];
+  unsigned char extseed1[KYBER_SYMBYTES+1];
+  unsigned char extseed2[KYBER_SYMBYTES+1];
+  unsigned char extseed3[KYBER_SYMBYTES+1];
   int i;
 
-  for(i=0;i<KYBER_NOISESEEDBYTES;i++)
+  for(i=0;i<KYBER_SYMBYTES;i++)
   {
     extseed0[i] = seed[i];
     extseed1[i] = seed[i];
     extseed2[i] = seed[i];
     extseed3[i] = seed[i];
   }
-  extseed0[KYBER_NOISESEEDBYTES] = nonce0;
-  extseed1[KYBER_NOISESEEDBYTES] = nonce1;
-  extseed2[KYBER_NOISESEEDBYTES] = nonce2;
-  extseed3[KYBER_NOISESEEDBYTES] = nonce3;
+  extseed0[KYBER_SYMBYTES] = nonce0;
+  extseed1[KYBER_SYMBYTES] = nonce1;
+  extseed2[KYBER_SYMBYTES] = nonce2;
+  extseed3[KYBER_SYMBYTES] = nonce3;
 
-  shake256x4(buf0, buf1, buf2, buf3, KYBER_ETA*KYBER_N/4,extseed0,extseed1,extseed2,extseed3,KYBER_NOISESEEDBYTES+1);
+  shake256x4(buf0, buf1, buf2, buf3, KYBER_ETA*KYBER_N/4,extseed0,extseed1,extseed2,extseed3,KYBER_SYMBYTES+1);
 
   cbd(r0, buf0);
   cbd(r1, buf1);
@@ -163,11 +163,11 @@ void poly_sub(poly *r, const poly *a, const poly *b)
     r->coeffs[i] = barrett_reduce(a->coeffs[i] + 3*KYBER_Q - b->coeffs[i]);
 }
 
-void poly_frommsg(poly *r, const unsigned char msg[KYBER_SHAREDKEYBYTES])
+void poly_frommsg(poly *r, const unsigned char msg[KYBER_SYMBYTES])
 {
   uint16_t i,j,mask;
 
-  for(i=0;i<KYBER_SHAREDKEYBYTES;i++)
+  for(i=0;i<KYBER_SYMBYTES;i++)
   {
     for(j=0;j<8;j++)
     {   
@@ -177,12 +177,12 @@ void poly_frommsg(poly *r, const unsigned char msg[KYBER_SHAREDKEYBYTES])
   }
 }
 
-void poly_tomsg(unsigned char msg[KYBER_SHAREDKEYBYTES], const poly *a)
+void poly_tomsg(unsigned char msg[KYBER_SYMBYTES], const poly *a)
 {
   uint16_t t;
   int i,j;
 
-  for(i=0;i<KYBER_SHAREDKEYBYTES;i++)
+  for(i=0;i<KYBER_SYMBYTES;i++)
   {
     msg[i] = 0;
     for(j=0;j<8;j++)

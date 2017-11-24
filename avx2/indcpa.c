@@ -11,7 +11,7 @@ static void pack_pk(unsigned char *r, const polyvec *pk, const unsigned char *se
 {
   int i;
   polyvec_compress(r, pk);
-  for(i=0;i<KYBER_SEEDBYTES;i++)
+  for(i=0;i<KYBER_SYMBYTES;i++)
     r[i+KYBER_POLYVECCOMPRESSEDBYTES] = seed[i];
 }
 
@@ -21,7 +21,7 @@ static void unpack_pk(polyvec *pk, unsigned char *seed, const unsigned char *pac
   int i;
   polyvec_decompress(pk, packedpk);
 
-  for(i=0;i<KYBER_SEEDBYTES;i++)
+  for(i=0;i<KYBER_SYMBYTES;i++)
     seed[i] = packedpk[i+KYBER_POLYVECCOMPRESSEDBYTES];
 }
 
@@ -57,13 +57,13 @@ void indcpa_keypair(unsigned char *pk,
                    unsigned char *sk)
 {
   polyvec a[KYBER_K], e, pkpv, skpv;
-  unsigned char buf[KYBER_SEEDBYTES+KYBER_COINBYTES];
+  unsigned char buf[KYBER_SYMBYTES+KYBER_SYMBYTES];
   unsigned char *publicseed = buf;
-  unsigned char *noiseseed = buf+KYBER_SEEDBYTES;
+  unsigned char *noiseseed = buf+KYBER_SYMBYTES;
   int i;
 
-  randombytes(buf, KYBER_SEEDBYTES);
-  shake256(buf, KYBER_SEEDBYTES+KYBER_COINBYTES, buf, KYBER_SEEDBYTES);
+  randombytes(buf, KYBER_SYMBYTES);
+  shake256(buf, KYBER_SYMBYTES+KYBER_SYMBYTES, buf, KYBER_SYMBYTES);
 
   genmatrix(a, publicseed, 0);
 
@@ -105,7 +105,7 @@ void indcpa_enc(unsigned char *c,
 {
   polyvec sp, pkpv, ep, at[KYBER_K], bp;
   poly v, k, epp;
-  unsigned char seed[KYBER_SEEDBYTES];
+  unsigned char seed[KYBER_SYMBYTES];
   int i;
 
 

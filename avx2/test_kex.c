@@ -19,13 +19,13 @@ int main(void)
   unsigned char ake_senda[KYBER_AKE_SENDABYTES];
   unsigned char ake_sendb[KYBER_AKE_SENDBBYTES];
 
-  unsigned char tk[KYBER_SHAREDKEYBYTES];
-  unsigned char ka[KYBER_SHAREDKEYBYTES];
-  unsigned char kb[KYBER_SHAREDKEYBYTES];
-  unsigned char zero[KYBER_SHAREDKEYBYTES];
+  unsigned char tk[KYBER_SYMBYTES];
+  unsigned char ka[KYBER_SYMBYTES];
+  unsigned char kb[KYBER_SYMBYTES];
+  unsigned char zero[KYBER_SYMBYTES];
   int i;
 
-  for(i=0;i<KYBER_SHAREDKEYBYTES;i++)
+  for(i=0;i<KYBER_SYMBYTES;i++)
     zero[i] = 0;
 
   crypto_kem_keypair(pkb, skb); // Generate static key for Bob
@@ -41,10 +41,10 @@ int main(void)
 
   kyber_uake_sharedA(ka, uake_sendb, tk, eska); // Run by Alice
 
-  if(memcmp(ka,kb,KYBER_SHAREDKEYBYTES))
+  if(memcmp(ka,kb,KYBER_SYMBYTES))
     printf("Error in UAKE\n");
 
-  if(!memcmp(ka,zero,KYBER_SHAREDKEYBYTES))
+  if(!memcmp(ka,zero,KYBER_SYMBYTES))
     printf("Error: UAKE produces zero key\n");
   
   // Perform mutually authenticated key exchange
@@ -55,10 +55,10 @@ int main(void)
 
   kyber_ake_sharedA(ka, ake_sendb, tk, eska, ska); // Run by Alice
 
-  if(memcmp(ka,kb,KYBER_SHAREDKEYBYTES))
+  if(memcmp(ka,kb,KYBER_SYMBYTES))
     printf("Error in AKE\n");
   
-  if(!memcmp(ka,zero,KYBER_SHAREDKEYBYTES))
+  if(!memcmp(ka,zero,KYBER_SYMBYTES))
     printf("Error: AKE produces zero key\n");
 
 

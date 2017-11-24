@@ -14,9 +14,9 @@ static void genmatrix_ref(polyvec *a, const unsigned char *seed, int transposed)
   uint8_t buf[SHAKE128_RATE*nblocks];
   int i,j;
   uint64_t state[25]; // CSHAKE state
-  unsigned char extseed[KYBER_SEEDBYTES+2];
+  unsigned char extseed[KYBER_SYMBYTES+2];
 
-  for(i=0;i<KYBER_SEEDBYTES;i++)
+  for(i=0;i<KYBER_SYMBYTES;i++)
     extseed[i] = seed[i];
 
 
@@ -27,16 +27,16 @@ static void genmatrix_ref(polyvec *a, const unsigned char *seed, int transposed)
       ctr = pos = 0;
       if(transposed) 
       {
-        extseed[KYBER_SEEDBYTES]   = i;
-        extseed[KYBER_SEEDBYTES+1] = j;
+        extseed[KYBER_SYMBYTES]   = i;
+        extseed[KYBER_SYMBYTES+1] = j;
       }
       else
       {
-        extseed[KYBER_SEEDBYTES]   = j;
-        extseed[KYBER_SEEDBYTES+1] = i;
+        extseed[KYBER_SYMBYTES]   = j;
+        extseed[KYBER_SYMBYTES+1] = i;
       }
         
-      shake128_absorb(state,extseed,KYBER_SEEDBYTES+2);
+      shake128_absorb(state,extseed,KYBER_SYMBYTES+2);
       shake128_squeezeblocks(buf,nblocks,state);
 
       while(ctr < KYBER_N)
@@ -406,14 +406,14 @@ void genmatrix(polyvec *a, const unsigned char *seed, int transposed) // Not sta
 {
   unsigned int nblocks=4;
   uint8_t buf[KYBER_K][KYBER_K][SHAKE128_RATE*nblocks];
-  unsigned char extseed0[KYBER_SEEDBYTES+2];
-  unsigned char extseed1[KYBER_SEEDBYTES+2];
-  unsigned char extseed2[KYBER_SEEDBYTES+2];
-  unsigned char extseed3[KYBER_SEEDBYTES+2];
+  unsigned char extseed0[KYBER_SYMBYTES+2];
+  unsigned char extseed1[KYBER_SYMBYTES+2];
+  unsigned char extseed2[KYBER_SYMBYTES+2];
+  unsigned char extseed3[KYBER_SYMBYTES+2];
 
   int i,j;
 
-  for(i=0;i<KYBER_SEEDBYTES;i++)
+  for(i=0;i<KYBER_SYMBYTES;i++)
   {
     extseed0[i] = seed[i];
     extseed1[i] = seed[i];
@@ -423,28 +423,28 @@ void genmatrix(polyvec *a, const unsigned char *seed, int transposed) // Not sta
 
   if(transposed)
   {
-    extseed0[KYBER_SEEDBYTES]   = 0;
-    extseed0[KYBER_SEEDBYTES+1] = 0;
-    extseed1[KYBER_SEEDBYTES]   = 0;
-    extseed1[KYBER_SEEDBYTES+1] = 1;
-    extseed2[KYBER_SEEDBYTES]   = 1;
-    extseed2[KYBER_SEEDBYTES+1] = 0;
-    extseed3[KYBER_SEEDBYTES]   = 1;
-    extseed3[KYBER_SEEDBYTES+1] = 1;
+    extseed0[KYBER_SYMBYTES]   = 0;
+    extseed0[KYBER_SYMBYTES+1] = 0;
+    extseed1[KYBER_SYMBYTES]   = 0;
+    extseed1[KYBER_SYMBYTES+1] = 1;
+    extseed2[KYBER_SYMBYTES]   = 1;
+    extseed2[KYBER_SYMBYTES+1] = 0;
+    extseed3[KYBER_SYMBYTES]   = 1;
+    extseed3[KYBER_SYMBYTES+1] = 1;
   }
   else
   {
-    extseed0[KYBER_SEEDBYTES]   = 0;
-    extseed0[KYBER_SEEDBYTES+1] = 0;
-    extseed1[KYBER_SEEDBYTES]   = 1;
-    extseed1[KYBER_SEEDBYTES+1] = 0;
-    extseed2[KYBER_SEEDBYTES]   = 0;
-    extseed2[KYBER_SEEDBYTES+1] = 1;
-    extseed3[KYBER_SEEDBYTES]   = 1;
-    extseed3[KYBER_SEEDBYTES+1] = 1;
+    extseed0[KYBER_SYMBYTES]   = 0;
+    extseed0[KYBER_SYMBYTES+1] = 0;
+    extseed1[KYBER_SYMBYTES]   = 1;
+    extseed1[KYBER_SYMBYTES+1] = 0;
+    extseed2[KYBER_SYMBYTES]   = 0;
+    extseed2[KYBER_SYMBYTES+1] = 1;
+    extseed3[KYBER_SYMBYTES]   = 1;
+    extseed3[KYBER_SYMBYTES+1] = 1;
   }
   shake128x4(buf[0][0], buf[0][1], buf[1][0], buf[1][1],SHAKE128_RATE*nblocks,
-             extseed0, extseed1, extseed2, extseed3, KYBER_SEEDBYTES+2);
+             extseed0, extseed1, extseed2, extseed3, KYBER_SYMBYTES+2);
 
   for(i=0;i<KYBER_K;i++)
   {
@@ -466,14 +466,14 @@ void genmatrix(polyvec *a, const unsigned char *seed, int transposed) // Not sta
 {
   unsigned int nblocks=4;
   uint8_t buf[KYBER_K][KYBER_K][SHAKE128_RATE*nblocks];
-  unsigned char extseed0[KYBER_SEEDBYTES+2];
-  unsigned char extseed1[KYBER_SEEDBYTES+2];
-  unsigned char extseed2[KYBER_SEEDBYTES+2];
-  unsigned char extseed3[KYBER_SEEDBYTES+2];
+  unsigned char extseed0[KYBER_SYMBYTES+2];
+  unsigned char extseed1[KYBER_SYMBYTES+2];
+  unsigned char extseed2[KYBER_SYMBYTES+2];
+  unsigned char extseed3[KYBER_SYMBYTES+2];
 
   int i,j;
 
-  for(i=0;i<KYBER_SEEDBYTES;i++)
+  for(i=0;i<KYBER_SYMBYTES;i++)
   {
     extseed0[i] = seed[i];
     extseed1[i] = seed[i];
@@ -483,60 +483,60 @@ void genmatrix(polyvec *a, const unsigned char *seed, int transposed) // Not sta
 
   if(transposed)
   {
-    extseed0[KYBER_SEEDBYTES]   = 0;
-    extseed0[KYBER_SEEDBYTES+1] = 0;
-    extseed1[KYBER_SEEDBYTES]   = 0;
-    extseed1[KYBER_SEEDBYTES+1] = 1;
-    extseed2[KYBER_SEEDBYTES]   = 0;
-    extseed2[KYBER_SEEDBYTES+1] = 2;
-    extseed3[KYBER_SEEDBYTES]   = 1;
-    extseed3[KYBER_SEEDBYTES+1] = 0;
+    extseed0[KYBER_SYMBYTES]   = 0;
+    extseed0[KYBER_SYMBYTES+1] = 0;
+    extseed1[KYBER_SYMBYTES]   = 0;
+    extseed1[KYBER_SYMBYTES+1] = 1;
+    extseed2[KYBER_SYMBYTES]   = 0;
+    extseed2[KYBER_SYMBYTES+1] = 2;
+    extseed3[KYBER_SYMBYTES]   = 1;
+    extseed3[KYBER_SYMBYTES+1] = 0;
   }
   else
   {
-    extseed0[KYBER_SEEDBYTES]   = 0;
-    extseed0[KYBER_SEEDBYTES+1] = 0;
-    extseed1[KYBER_SEEDBYTES]   = 1;
-    extseed1[KYBER_SEEDBYTES+1] = 0;
-    extseed2[KYBER_SEEDBYTES]   = 2;
-    extseed2[KYBER_SEEDBYTES+1] = 0;
-    extseed3[KYBER_SEEDBYTES]   = 0;
-    extseed3[KYBER_SEEDBYTES+1] = 1;
+    extseed0[KYBER_SYMBYTES]   = 0;
+    extseed0[KYBER_SYMBYTES+1] = 0;
+    extseed1[KYBER_SYMBYTES]   = 1;
+    extseed1[KYBER_SYMBYTES+1] = 0;
+    extseed2[KYBER_SYMBYTES]   = 2;
+    extseed2[KYBER_SYMBYTES+1] = 0;
+    extseed3[KYBER_SYMBYTES]   = 0;
+    extseed3[KYBER_SYMBYTES+1] = 1;
   }
   shake128x4(buf[0][0], buf[0][1], buf[0][2], buf[1][0],SHAKE128_RATE*nblocks,
-             extseed0, extseed1, extseed2, extseed3, KYBER_SEEDBYTES+2);
+             extseed0, extseed1, extseed2, extseed3, KYBER_SYMBYTES+2);
 
   if(transposed)
   {
-    extseed0[KYBER_SEEDBYTES]   = 1;
-    extseed0[KYBER_SEEDBYTES+1] = 1;
-    extseed1[KYBER_SEEDBYTES]   = 1;
-    extseed1[KYBER_SEEDBYTES+1] = 2;
-    extseed2[KYBER_SEEDBYTES]   = 2;
-    extseed2[KYBER_SEEDBYTES+1] = 0;
-    extseed3[KYBER_SEEDBYTES]   = 2;
-    extseed3[KYBER_SEEDBYTES+1] = 1;
+    extseed0[KYBER_SYMBYTES]   = 1;
+    extseed0[KYBER_SYMBYTES+1] = 1;
+    extseed1[KYBER_SYMBYTES]   = 1;
+    extseed1[KYBER_SYMBYTES+1] = 2;
+    extseed2[KYBER_SYMBYTES]   = 2;
+    extseed2[KYBER_SYMBYTES+1] = 0;
+    extseed3[KYBER_SYMBYTES]   = 2;
+    extseed3[KYBER_SYMBYTES+1] = 1;
   }
   else
   {
-    extseed0[KYBER_SEEDBYTES]   = 1;
-    extseed0[KYBER_SEEDBYTES+1] = 1;
-    extseed1[KYBER_SEEDBYTES]   = 2;
-    extseed1[KYBER_SEEDBYTES+1] = 1;
-    extseed2[KYBER_SEEDBYTES]   = 0;
-    extseed2[KYBER_SEEDBYTES+1] = 2;
-    extseed3[KYBER_SEEDBYTES]   = 1;
-    extseed3[KYBER_SEEDBYTES+1] = 2;
+    extseed0[KYBER_SYMBYTES]   = 1;
+    extseed0[KYBER_SYMBYTES+1] = 1;
+    extseed1[KYBER_SYMBYTES]   = 2;
+    extseed1[KYBER_SYMBYTES+1] = 1;
+    extseed2[KYBER_SYMBYTES]   = 0;
+    extseed2[KYBER_SYMBYTES+1] = 2;
+    extseed3[KYBER_SYMBYTES]   = 1;
+    extseed3[KYBER_SYMBYTES+1] = 2;
   }
 
   shake128x4(buf[1][1], buf[1][2], buf[2][0], buf[2][1],SHAKE128_RATE*nblocks,
-             extseed0, extseed1, extseed2, extseed3, KYBER_SEEDBYTES+2);
+             extseed0, extseed1, extseed2, extseed3, KYBER_SYMBYTES+2);
 
 
-  extseed0[KYBER_SEEDBYTES]   = 2;
-  extseed0[KYBER_SEEDBYTES+1] = 2;
+  extseed0[KYBER_SYMBYTES]   = 2;
+  extseed0[KYBER_SYMBYTES+1] = 2;
 
-  shake128(buf[2][2],SHAKE128_RATE*nblocks,extseed0,KYBER_SEEDBYTES+2);
+  shake128(buf[2][2],SHAKE128_RATE*nblocks,extseed0,KYBER_SYMBYTES+2);
 
 
   for(i=0;i<KYBER_K;i++)
@@ -559,14 +559,14 @@ void genmatrix(polyvec *a, const unsigned char *seed, int transposed) // Not sta
 {
   unsigned int nblocks=4;
   uint8_t buf[KYBER_K][KYBER_K][SHAKE128_RATE*nblocks];
-  unsigned char extseed0[KYBER_SEEDBYTES+2];
-  unsigned char extseed1[KYBER_SEEDBYTES+2];
-  unsigned char extseed2[KYBER_SEEDBYTES+2];
-  unsigned char extseed3[KYBER_SEEDBYTES+2];
+  unsigned char extseed0[KYBER_SYMBYTES+2];
+  unsigned char extseed1[KYBER_SYMBYTES+2];
+  unsigned char extseed2[KYBER_SYMBYTES+2];
+  unsigned char extseed3[KYBER_SYMBYTES+2];
 
   int i,j;
 
-  for(i=0;i<KYBER_SEEDBYTES;i++)
+  for(i=0;i<KYBER_SYMBYTES;i++)
   {
     extseed0[i] = seed[i];
     extseed1[i] = seed[i];
@@ -578,28 +578,28 @@ void genmatrix(polyvec *a, const unsigned char *seed, int transposed) // Not sta
   {
     if(transposed)
     {
-      extseed0[KYBER_SEEDBYTES]   = i;
-      extseed0[KYBER_SEEDBYTES+1] = 0;
-      extseed1[KYBER_SEEDBYTES]   = i;
-      extseed1[KYBER_SEEDBYTES+1] = 1;
-      extseed2[KYBER_SEEDBYTES]   = i;
-      extseed2[KYBER_SEEDBYTES+1] = 2;
-      extseed3[KYBER_SEEDBYTES]   = i;
-      extseed3[KYBER_SEEDBYTES+1] = 3;
+      extseed0[KYBER_SYMBYTES]   = i;
+      extseed0[KYBER_SYMBYTES+1] = 0;
+      extseed1[KYBER_SYMBYTES]   = i;
+      extseed1[KYBER_SYMBYTES+1] = 1;
+      extseed2[KYBER_SYMBYTES]   = i;
+      extseed2[KYBER_SYMBYTES+1] = 2;
+      extseed3[KYBER_SYMBYTES]   = i;
+      extseed3[KYBER_SYMBYTES+1] = 3;
     }
     else
     {
-      extseed0[KYBER_SEEDBYTES]   = 0;
-      extseed0[KYBER_SEEDBYTES+1] = i;
-      extseed1[KYBER_SEEDBYTES]   = 1;
-      extseed1[KYBER_SEEDBYTES+1] = i;
-      extseed2[KYBER_SEEDBYTES]   = 2;
-      extseed2[KYBER_SEEDBYTES+1] = i;
-      extseed3[KYBER_SEEDBYTES]   = 3;
-      extseed3[KYBER_SEEDBYTES+1] = i;
+      extseed0[KYBER_SYMBYTES]   = 0;
+      extseed0[KYBER_SYMBYTES+1] = i;
+      extseed1[KYBER_SYMBYTES]   = 1;
+      extseed1[KYBER_SYMBYTES+1] = i;
+      extseed2[KYBER_SYMBYTES]   = 2;
+      extseed2[KYBER_SYMBYTES+1] = i;
+      extseed3[KYBER_SYMBYTES]   = 3;
+      extseed3[KYBER_SYMBYTES+1] = i;
     }
     shake128x4(buf[i][0], buf[i][1], buf[i][2], buf[i][3],SHAKE128_RATE*nblocks,
-        extseed0, extseed1, extseed2, extseed3, KYBER_SEEDBYTES+2);
+        extseed0, extseed1, extseed2, extseed3, KYBER_SYMBYTES+2);
   }
 
   for(i=0;i<KYBER_K;i++)
