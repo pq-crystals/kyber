@@ -7,7 +7,7 @@ cbdeta4:
 
 vmovupd _mask11(%rip),%ymm0
 vmovupd _mask0f(%rip),%ymm1
-vmovupd _q16x(%rip),%ymm2
+vmovupd _16xq(%rip),%ymm2
 
 mov  $256,%rdx
 
