@@ -50,8 +50,8 @@ void mul_coefficients(uint16_t* poly, const uint16_t* factors)
 }
 
 
-/* GS_bo_to_no; omegas need to be in Montgomery domain */
-void ntt(uint16_t * a, const uint16_t* omega)
+/*
+void ntt(uint16_t * a)
 {
   int start, j, jTwiddle, level;
   uint16_t temp, W;
@@ -67,7 +67,7 @@ void ntt(uint16_t * a, const uint16_t* omega)
       jTwiddle = 0;
       for(j=start;j<KYBER_N-1;j+=2*(1<<level))
       {
-        W = omega[jTwiddle++];
+        W = omegas_montgomery[jTwiddle++];
         temp = a[j];
 
         if(level & 1) // odd level
@@ -84,9 +84,28 @@ void ntt(uint16_t * a, const uint16_t* omega)
 
   bitrev_vector(a);
 }
+*/
+
+void ntt(uint16_t *p) 
+{
+  unsigned int len, start, j, k;
+  uint16_t zeta, t;
+
+  k = 1;
+  for(len = 128; len > 0; len >>= 1) {
+    for(start = 0; start < KYBER_N; start = j + len) {
+      zeta = zetas[k++];
+      for(j = start; j < start + len; ++j) {
+        t = montgomery_reduce((uint32_t)zeta * p[j + len]);
+        p[j + len] = barrett_reduce(p[j] + 2*KYBER_Q - t);
+        p[j] = barrett_reduce(p[j] + t);
+      }
+    }
+  }
+}
 
 /* GS_bo_to_no; omegas need to be in Montgomery domain */
-void invntt(uint16_t * a, const uint16_t* omega)
+void invntt(uint16_t * a)
 {
   int start, j, jTwiddle, level;
   uint16_t temp, W;
@@ -99,7 +118,7 @@ void invntt(uint16_t * a, const uint16_t* omega)
       jTwiddle = 0;
       for(j=start;j<KYBER_N-1;j+=2*(1<<level))
       {
-        W = omega[jTwiddle++];
+        W = omegas_inv_bitrev_montgomery[jTwiddle++];
         temp = a[j];
 
         if(level & 1) // odd level
