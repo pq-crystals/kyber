@@ -15,8 +15,12 @@ install:
 
 script:
   - cd ref
-  - make test_kex CFLAGS="-fprofile-arcs -ftest-coverage -g -Wall -Wextra -O0 -fomit-frame-pointer -march=native -fPIC" CLANG="clang -march=native -g -O0 -fomit-frame-pointer -fwrapv -Qunused-arguments"
-  - ./test_kex
+  - make test_kex512 CFLAGS="-fprofile-arcs -ftest-coverage -g -Wall -Wextra -O0 -fomit-frame-pointer -march=native -fPIC" CLANG="clang -march=native -g -O0 -fomit-frame-pointer -fwrapv -Qunused-arguments"
+  - make test_kex768 CFLAGS="-fprofile-arcs -ftest-coverage -g -Wall -Wextra -O0 -fomit-frame-pointer -march=native -fPIC" CLANG="clang -march=native -g -O0 -fomit-frame-pointer -fwrapv -Qunused-arguments"
+  - make test_kex1024 CFLAGS="-fprofile-arcs -ftest-coverage -g -Wall -Wextra -O0 -fomit-frame-pointer -march=native -fPIC" CLANG="clang -march=native -g -O0 -fomit-frame-pointer -fwrapv -Qunused-arguments"
+  - ./test_kex512
+  - ./test_kex768
+  - ./test_kex1024
 
 after_success:
   - lcov -d . --capture --output-file coverage.info
