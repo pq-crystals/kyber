@@ -1,5 +1,5 @@
-.global invnttasm
-invnttasm:
+.global invntt
+invntt:
 mov		%rsp,%r11
 and		$31,%r11
 sub		%r11,%rsp
@@ -8,18 +8,18 @@ vmovdqa		_16xqinv(%rip),%ymm0
 vmovdqa		_16xq(%rip),%ymm1
 vmovdqa		_16x4q(%rip),%ymm2
 
-mov		%rdx,%r8
+mov		%rsi,%r8
 
 #first round
 #load
-vmovdqa		(%rsi),%ymm4
-vmovdqa		32(%rsi),%ymm5
-vmovdqa		64(%rsi),%ymm6
-vmovdqa		96(%rsi),%ymm7
-vmovdqa		128(%rsi),%ymm8
-vmovdqa		160(%rsi),%ymm9
-vmovdqa		192(%rsi),%ymm10
-vmovdqa		224(%rsi),%ymm11
+vmovdqa		(%rdi),%ymm4
+vmovdqa		32(%rdi),%ymm5
+vmovdqa		64(%rdi),%ymm6
+vmovdqa		96(%rdi),%ymm7
+vmovdqa		128(%rdi),%ymm8
+vmovdqa		160(%rdi),%ymm9
+vmovdqa		192(%rdi),%ymm10
+vmovdqa		224(%rdi),%ymm11
 
 vmovdqu		_lowdword(%rip),%ymm3
 
@@ -428,8 +428,8 @@ vpsubw		%ymm8,%ymm14,%ymm8
 vpsubw		%ymm9,%ymm15,%ymm9
 
 #zetas
-vmovdqa		1280(%rdx),%ymm14
-vmovdqa		1312(%rdx),%ymm15
+vmovdqa		1280(%rsi),%ymm14
+vmovdqa		1312(%rsi),%ymm15
 
 #mul
 vpmullw		%ymm14,%ymm4,%ymm11
@@ -490,7 +490,7 @@ vpsubw		%ymm8,%ymm14,%ymm8
 vpsubw		%ymm9,%ymm15,%ymm9
 
 #zetas
-vmovdqa		1408(%rdx),%ymm15
+vmovdqa		1408(%rsi),%ymm15
 
 #mul
 vpmullw		%ymm15,%ymm6,%ymm11
@@ -537,20 +537,19 @@ vmovdqa		%ymm7,160(%rdi)
 vmovdqa		%ymm8,192(%rdi)
 vmovdqa		%ymm9,224(%rdi)
 
-add		$256,%rsi
 add		$256,%rdi
 add		$128,%r8
 
 #second round
 #load
-vmovdqa		(%rsi),%ymm4
-vmovdqa		32(%rsi),%ymm5
-vmovdqa		64(%rsi),%ymm6
-vmovdqa		96(%rsi),%ymm7
-vmovdqa		128(%rsi),%ymm8
-vmovdqa		160(%rsi),%ymm9
-vmovdqa		192(%rsi),%ymm10
-vmovdqa		224(%rsi),%ymm11
+vmovdqa		(%rdi),%ymm4
+vmovdqa		32(%rdi),%ymm5
+vmovdqa		64(%rdi),%ymm6
+vmovdqa		96(%rdi),%ymm7
+vmovdqa		128(%rdi),%ymm8
+vmovdqa		160(%rdi),%ymm9
+vmovdqa		192(%rdi),%ymm10
+vmovdqa		224(%rdi),%ymm11
 
 vmovdqu		_lowdword(%rip),%ymm3
 
@@ -960,8 +959,8 @@ vpsubw		%ymm8,%ymm14,%ymm8
 vpsubw		%ymm9,%ymm15,%ymm9
 
 #zetas
-vmovdqa		1344(%rdx),%ymm14
-vmovdqa		1376(%rdx),%ymm15
+vmovdqa		1344(%rsi),%ymm14
+vmovdqa		1376(%rsi),%ymm15
 
 #mul
 vpmullw		%ymm14,%ymm4,%ymm11
@@ -1022,7 +1021,7 @@ vpsubw		%ymm8,%ymm14,%ymm8
 vpsubw		%ymm9,%ymm15,%ymm9
 
 #zetas
-vmovdqa		1440(%rdx),%ymm15
+vmovdqa		1440(%rsi),%ymm15
 
 #mul
 vpmullw		%ymm15,%ymm6,%ymm11
@@ -1098,7 +1097,7 @@ vpsubw		%ymm10,%ymm14,%ymm10
 vpsubw		%ymm11,%ymm15,%ymm11
 
 #zeta
-vmovdqa		1472(%rdx),%ymm3
+vmovdqa		1472(%rsi),%ymm3
 
 #mul
 vpmullw		%ymm3,%ymm8,%ymm12
@@ -1210,7 +1209,7 @@ vmovdqa		320(%rdi),%ymm10
 vmovdqa		352(%rdi),%ymm11
 
 #zeta
-vmovdqa		1472(%rdx),%ymm3
+vmovdqa		1472(%rsi),%ymm3
 
 #level 7
 #update

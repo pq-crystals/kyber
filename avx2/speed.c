@@ -62,7 +62,7 @@ int main()
   unsigned char pk_b[KYBER_PUBLICKEYBYTES];
   
   unsigned char eska[KYBER_SECRETKEYBYTES];
-  unsigned char tk[KYBER_SHAREDKEYBYTES];
+  unsigned char tk[KYBER_SYMBYTES];
 
   unsigned char key_a[32], key_b[32];
   unsigned char* senda = (unsigned char*) malloc(NTESTS*KYBER_PUBLICKEYBYTES);

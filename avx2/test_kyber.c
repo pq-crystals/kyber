@@ -8,7 +8,7 @@
 
 int test_keys()
 {
-  unsigned char key_a[KYBER_SHAREDKEYBYTES], key_b[KYBER_SHAREDKEYBYTES];
+  unsigned char key_a[KYBER_SYMBYTES], key_b[KYBER_SYMBYTES];
   unsigned char pk[KYBER_PUBLICKEYBYTES];
   unsigned char sendb[KYBER_CIPHERTEXTBYTES];
   unsigned char sk_a[KYBER_SECRETKEYBYTES];
@@ -25,7 +25,7 @@ int test_keys()
     //Alice uses Bobs response to get her secret key
     crypto_kem_dec(key_a, sendb, sk_a);
 
-    if(memcmp(key_a, key_b, KYBER_SHAREDKEYBYTES))
+    if(memcmp(key_a, key_b, KYBER_SYMBYTES))
       printf("ERROR keys\n");
   }
 
@@ -36,7 +36,7 @@ int test_keys()
 int test_invalid_sk_a()
 {
   unsigned char sk_a[KYBER_SECRETKEYBYTES];
-  unsigned char key_a[KYBER_SHAREDKEYBYTES], key_b[KYBER_SHAREDKEYBYTES];
+  unsigned char key_a[KYBER_SYMBYTES], key_b[KYBER_SYMBYTES];
   unsigned char pk[KYBER_PUBLICKEYBYTES];
   unsigned char sendb[KYBER_CIPHERTEXTBYTES];
   int i;
@@ -56,7 +56,7 @@ int test_invalid_sk_a()
     //Alice uses Bobs response to get her secre key
     crypto_kem_dec(key_a, sendb, sk_a);
     
-    if(!memcmp(key_a, key_b, KYBER_SHAREDKEYBYTES))
+    if(!memcmp(key_a, key_b, KYBER_SYMBYTES))
       printf("ERROR invalid sk_a\n");
   }
 
@@ -67,7 +67,7 @@ int test_invalid_sk_a()
 int test_invalid_ciphertext()
 {
   unsigned char sk_a[KYBER_SECRETKEYBYTES];
-  unsigned char key_a[KYBER_SHAREDKEYBYTES], key_b[KYBER_SHAREDKEYBYTES];
+  unsigned char key_a[KYBER_SYMBYTES], key_b[KYBER_SYMBYTES];
   unsigned char pk[KYBER_PUBLICKEYBYTES];
   unsigned char sendb[KYBER_CIPHERTEXTBYTES];
   int i;
@@ -89,7 +89,7 @@ int test_invalid_ciphertext()
     //Alice uses Bobs response to get her secre key
     crypto_kem_dec(key_a, sendb, sk_a);
 
-    if(!memcmp(key_a, key_b, KYBER_SHAREDKEYBYTES))
+    if(!memcmp(key_a, key_b, KYBER_SYMBYTES))
       printf("ERROR invalid ciphertext\n");
   }
 

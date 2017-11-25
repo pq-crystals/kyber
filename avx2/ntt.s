@@ -1,5 +1,5 @@
-.global nttasm
-nttasm:
+.global ntt
+ntt:
 mov		%rsp,%r11
 and		$31,%r11
 sub		%r11,%rsp
@@ -10,17 +10,17 @@ vmovdqa		_16x4q(%rip),%ymm2
 
 #first round
 #zetas
-vmovdqa		(%rdx),%ymm3
+vmovdqa		(%rsi),%ymm3
 
 #load
-vmovdqa		(%rsi),%ymm4
-vmovdqa		64(%rsi),%ymm5
-vmovdqa		128(%rsi),%ymm6
-vmovdqa		192(%rsi),%ymm7
-vmovdqa		256(%rsi),%ymm8
-vmovdqa		320(%rsi),%ymm9
-vmovdqa		384(%rsi),%ymm10
-vmovdqa		448(%rsi),%ymm11
+vmovdqa		(%rdi),%ymm4
+vmovdqa		64(%rdi),%ymm5
+vmovdqa		128(%rdi),%ymm6
+vmovdqa		192(%rdi),%ymm7
+vmovdqa		256(%rdi),%ymm8
+vmovdqa		320(%rdi),%ymm9
+vmovdqa		384(%rdi),%ymm10
+vmovdqa		448(%rdi),%ymm11
 
 #level 0
 #mul
@@ -59,8 +59,8 @@ vpaddw		%ymm15,%ymm7,%ymm7
 
 #level 1
 #zetas
-vmovdqa		32(%rdx),%ymm15
-vmovdqa		64(%rdx),%ymm3
+vmovdqa		32(%rsi),%ymm15
+vmovdqa		64(%rsi),%ymm3
 
 #mul
 vpmullw		%ymm15,%ymm6,%ymm12
@@ -98,10 +98,10 @@ vpaddw		%ymm15,%ymm9,%ymm9
 
 #level 2
 #zetas
-vmovdqa		96(%rdx),%ymm13
-vmovdqa		128(%rdx),%ymm14
-vmovdqa		160(%rdx),%ymm15
-vmovdqa		192(%rdx),%ymm3
+vmovdqa		96(%rsi),%ymm13
+vmovdqa		128(%rsi),%ymm14
+vmovdqa		160(%rsi),%ymm15
+vmovdqa		192(%rsi),%ymm3
 
 #mul
 vpmullw		%ymm13,%ymm5,%ymm12
@@ -147,22 +147,21 @@ vmovdqa		%ymm9,320(%rdi)
 vmovdqa		%ymm10,384(%rdi)
 vmovdqa		%ymm11,448(%rdi)
 
-add		$32,%rsi
 add		$32,%rdi
 
 #second round
 #zetas
-vmovdqa		(%rdx),%ymm3
+vmovdqa		(%rsi),%ymm3
 
 #load
-vmovdqa		(%rsi),%ymm4
-vmovdqa		64(%rsi),%ymm5
-vmovdqa		128(%rsi),%ymm6
-vmovdqa		192(%rsi),%ymm7
-vmovdqa		256(%rsi),%ymm8
-vmovdqa		320(%rsi),%ymm9
-vmovdqa		384(%rsi),%ymm10
-vmovdqa		448(%rsi),%ymm11
+vmovdqa		(%rdi),%ymm4
+vmovdqa		64(%rdi),%ymm5
+vmovdqa		128(%rdi),%ymm6
+vmovdqa		192(%rdi),%ymm7
+vmovdqa		256(%rdi),%ymm8
+vmovdqa		320(%rdi),%ymm9
+vmovdqa		384(%rdi),%ymm10
+vmovdqa		448(%rdi),%ymm11
 
 #level 0
 #mul
@@ -201,8 +200,8 @@ vpaddw		%ymm15,%ymm7,%ymm7
 
 #level 1
 #zetas
-vmovdqa		32(%rdx),%ymm15
-vmovdqa		64(%rdx),%ymm3
+vmovdqa		32(%rsi),%ymm15
+vmovdqa		64(%rsi),%ymm3
 
 #mul
 vpmullw		%ymm15,%ymm6,%ymm12
@@ -240,10 +239,10 @@ vpaddw		%ymm15,%ymm9,%ymm9
 
 #level 2
 #zetas
-vmovdqa		96(%rdx),%ymm13
-vmovdqa		128(%rdx),%ymm14
-vmovdqa		160(%rdx),%ymm15
-vmovdqa		192(%rdx),%ymm3
+vmovdqa		96(%rsi),%ymm13
+vmovdqa		128(%rsi),%ymm14
+vmovdqa		160(%rsi),%ymm15
+vmovdqa		192(%rsi),%ymm3
 
 #mul
 vpmullw		%ymm13,%ymm5,%ymm12
@@ -289,15 +288,15 @@ vmovdqa		%ymm9,320(%rdi)
 vmovdqa		%ymm10,384(%rdi)
 vmovdqa		%ymm11,448(%rdi)
 
-add		$224,%rdx
+add		$224,%rsi
 sub		$32,%rdi
 
 #first round
 #zetas
-vmovdqa		(%rdx),%ymm13
-vmovdqa		32(%rdx),%ymm14
-vmovdqa		64(%rdx),%ymm15
-vmovdqa		96(%rdx),%ymm3
+vmovdqa		(%rsi),%ymm13
+vmovdqa		32(%rsi),%ymm14
+vmovdqa		64(%rsi),%ymm15
+vmovdqa		96(%rsi),%ymm3
 
 #load
 vmovdqa		(%rdi),%ymm4
@@ -381,10 +380,10 @@ vpaddw		%ymm15,%ymm10,%ymm10
 
 #level 4
 #zetas
-vmovdqa		256(%rdx),%ymm12
-vmovdqa		288(%rdx),%ymm13
-vmovdqa		320(%rdx),%ymm14
-vmovdqa		352(%rdx),%ymm15
+vmovdqa		256(%rsi),%ymm12
+vmovdqa		288(%rsi),%ymm13
+vmovdqa		320(%rsi),%ymm14
+vmovdqa		352(%rsi),%ymm15
 
 #shuffle
 vperm2i128	$0x02,%ymm4,%ymm5,%ymm3
@@ -432,10 +431,10 @@ vpaddw		%ymm14,%ymm9,%ymm9
 
 #level 5
 #zetas 1
-vmovdqa		512(%rdx),%ymm12
-vmovdqa		544(%rdx),%ymm13
-vmovdqa		576(%rdx),%ymm14
-vmovdqa		608(%rdx),%ymm15
+vmovdqa		512(%rsi),%ymm12
+vmovdqa		544(%rsi),%ymm13
+vmovdqa		576(%rsi),%ymm14
+vmovdqa		608(%rsi),%ymm15
 
 #shuffle
 vshufpd		$0x00,%ymm4,%ymm3,%ymm11
@@ -502,10 +501,10 @@ vpblendd	$0x55,%ymm8,%ymm15,%ymm8
 vpblendd	$0xAA,%ymm9,%ymm14,%ymm9
 
 #zetas
-vmovdqa		768(%rdx),%ymm12
-vmovdqa		800(%rdx),%ymm13
-vmovdqa		832(%rdx),%ymm14
-vmovdqa		864(%rdx),%ymm15
+vmovdqa		768(%rsi),%ymm12
+vmovdqa		800(%rsi),%ymm13
+vmovdqa		832(%rsi),%ymm14
+vmovdqa		864(%rsi),%ymm15
 
 #mul
 vpmullw		%ymm12,%ymm3,%ymm11
@@ -596,10 +595,10 @@ vpblendw	$0x55,%ymm8,%ymm14,%ymm8
 vpblendw	$0xAA,%ymm9,%ymm13,%ymm9
 
 #zetas
-vmovdqa		1024(%rdx),%ymm12
-vmovdqa		1056(%rdx),%ymm13
-vmovdqa		1088(%rdx),%ymm14
-vmovdqa		1120(%rdx),%ymm15
+vmovdqa		1024(%rsi),%ymm12
+vmovdqa		1056(%rsi),%ymm13
+vmovdqa		1088(%rsi),%ymm14
+vmovdqa		1120(%rsi),%ymm15
 
 #mul
 vpmullw		%ymm12,%ymm3,%ymm11
@@ -647,8 +646,11 @@ vpaddw		%ymm14,%ymm8,%ymm8
 
 vpunpcklwd %ymm3, %ymm10, %ymm13
 vpunpckhwd %ymm3, %ymm10, %ymm14
+vmovdqa		_16x2q(%rip),%ymm3
 vperm2i128 $0x20,%ymm14,%ymm13,%ymm15
 vperm2i128 $0x31,%ymm14,%ymm13,%ymm14
+vpaddw    %ymm3,%ymm15,%ymm15
+vpaddw    %ymm3,%ymm14,%ymm14
 vmovdqu		%ymm15,(%rdi)
 vmovdqu		%ymm14,32(%rdi)
 
@@ -656,6 +658,8 @@ vpunpcklwd %ymm5, %ymm4, %ymm13
 vpunpckhwd %ymm5, %ymm4, %ymm14
 vperm2i128 $0x20,%ymm14,%ymm13,%ymm15
 vperm2i128 $0x31,%ymm14,%ymm13,%ymm14
+vpaddw    %ymm3,%ymm15,%ymm15
+vpaddw    %ymm3,%ymm14,%ymm14
 vmovdqu		%ymm15,64(%rdi)
 vmovdqu		%ymm14,96(%rdi)
 
@@ -663,6 +667,8 @@ vpunpcklwd %ymm7, %ymm6, %ymm13
 vpunpckhwd %ymm7, %ymm6, %ymm14
 vperm2i128 $0x20,%ymm14,%ymm13,%ymm15
 vperm2i128 $0x31,%ymm14,%ymm13,%ymm14
+vpaddw    %ymm3,%ymm15,%ymm15
+vpaddw    %ymm3,%ymm14,%ymm14
 vmovdqu		%ymm15,128(%rdi)
 vmovdqu		%ymm14,160(%rdi)
 
@@ -670,21 +676,20 @@ vpunpcklwd %ymm9, %ymm8, %ymm13
 vpunpckhwd %ymm9, %ymm8, %ymm14
 vperm2i128 $0x20,%ymm14,%ymm13,%ymm15
 vperm2i128 $0x31,%ymm14,%ymm13,%ymm14
+vpaddw    %ymm3,%ymm15,%ymm15
+vpaddw    %ymm3,%ymm14,%ymm14
 vmovdqu		%ymm15,192(%rdi)
 vmovdqu		%ymm14,224(%rdi)
 
-
-
-
-add		$128,%rdx
+add		$128,%rsi
 add		$256,%rdi
 
 #second round
 #zetas
-vmovdqa		(%rdx),%ymm13
-vmovdqa		32(%rdx),%ymm14
-vmovdqa		64(%rdx),%ymm15
-vmovdqa		96(%rdx),%ymm3
+vmovdqa		(%rsi),%ymm13
+vmovdqa		32(%rsi),%ymm14
+vmovdqa		64(%rsi),%ymm15
+vmovdqa		96(%rsi),%ymm3
 
 #load
 vmovdqa		(%rdi),%ymm4
@@ -768,10 +773,10 @@ vpaddw		%ymm15,%ymm10,%ymm10
 
 #level 4
 #zetas
-vmovdqa		256(%rdx),%ymm12
-vmovdqa		288(%rdx),%ymm13
-vmovdqa		320(%rdx),%ymm14
-vmovdqa		352(%rdx),%ymm15
+vmovdqa		256(%rsi),%ymm12
+vmovdqa		288(%rsi),%ymm13
+vmovdqa		320(%rsi),%ymm14
+vmovdqa		352(%rsi),%ymm15
 
 #shuffle
 vperm2i128	$0x02,%ymm4,%ymm5,%ymm3
@@ -819,10 +824,10 @@ vpaddw		%ymm14,%ymm9,%ymm9
 
 #level 5
 #zetas 1
-vmovdqa		512(%rdx),%ymm12
-vmovdqa		544(%rdx),%ymm13
-vmovdqa		576(%rdx),%ymm14
-vmovdqa		608(%rdx),%ymm15
+vmovdqa		512(%rsi),%ymm12
+vmovdqa		544(%rsi),%ymm13
+vmovdqa		576(%rsi),%ymm14
+vmovdqa		608(%rsi),%ymm15
 
 #shuffle
 vshufpd		$0x00,%ymm4,%ymm3,%ymm11
@@ -889,10 +894,10 @@ vpblendd	$0x55,%ymm8,%ymm15,%ymm8
 vpblendd	$0xAA,%ymm9,%ymm14,%ymm9
 
 #zetas
-vmovdqa		768(%rdx),%ymm12
-vmovdqa		800(%rdx),%ymm13
-vmovdqa		832(%rdx),%ymm14
-vmovdqa		864(%rdx),%ymm15
+vmovdqa		768(%rsi),%ymm12
+vmovdqa		800(%rsi),%ymm13
+vmovdqa		832(%rsi),%ymm14
+vmovdqa		864(%rsi),%ymm15
 
 #mul
 vpmullw		%ymm12,%ymm3,%ymm11
@@ -983,10 +988,10 @@ vpblendw	$0x55,%ymm8,%ymm14,%ymm8
 vpblendw	$0xAA,%ymm9,%ymm13,%ymm9
 
 #zetas
-vmovdqa		1024(%rdx),%ymm12
-vmovdqa		1056(%rdx),%ymm13
-vmovdqa		1088(%rdx),%ymm14
-vmovdqa		1120(%rdx),%ymm15
+vmovdqa		1024(%rsi),%ymm12
+vmovdqa		1056(%rsi),%ymm13
+vmovdqa		1088(%rsi),%ymm14
+vmovdqa		1120(%rsi),%ymm15
 
 #mul
 vpmullw		%ymm12,%ymm3,%ymm11
@@ -1034,8 +1039,11 @@ vpaddw		%ymm14,%ymm8,%ymm8
 
 vpunpcklwd %ymm3, %ymm10, %ymm13
 vpunpckhwd %ymm3, %ymm10, %ymm14
+vmovdqa		_16x2q(%rip),%ymm3
 vperm2i128 $0x20,%ymm14,%ymm13,%ymm15
 vperm2i128 $0x31,%ymm14,%ymm13,%ymm14
+vpaddw    %ymm3,%ymm15,%ymm15
+vpaddw    %ymm3,%ymm14,%ymm14
 vmovdqu		%ymm15,(%rdi)
 vmovdqu		%ymm14,32(%rdi)
 
@@ -1043,6 +1051,8 @@ vpunpcklwd %ymm5, %ymm4, %ymm13
 vpunpckhwd %ymm5, %ymm4, %ymm14
 vperm2i128 $0x20,%ymm14,%ymm13,%ymm15
 vperm2i128 $0x31,%ymm14,%ymm13,%ymm14
+vpaddw    %ymm3,%ymm15,%ymm15
+vpaddw    %ymm3,%ymm14,%ymm14
 vmovdqu		%ymm15,64(%rdi)
 vmovdqu		%ymm14,96(%rdi)
 
@@ -1050,6 +1060,8 @@ vpunpcklwd %ymm7, %ymm6, %ymm13
 vpunpckhwd %ymm7, %ymm6, %ymm14
 vperm2i128 $0x20,%ymm14,%ymm13,%ymm15
 vperm2i128 $0x31,%ymm14,%ymm13,%ymm14
+vpaddw    %ymm3,%ymm15,%ymm15
+vpaddw    %ymm3,%ymm14,%ymm14
 vmovdqu		%ymm15,128(%rdi)
 vmovdqu		%ymm14,160(%rdi)
 
@@ -1057,6 +1069,8 @@ vpunpcklwd %ymm9, %ymm8, %ymm13
 vpunpckhwd %ymm9, %ymm8, %ymm14
 vperm2i128 $0x20,%ymm14,%ymm13,%ymm15
 vperm2i128 $0x31,%ymm14,%ymm13,%ymm14
+vpaddw    %ymm3,%ymm15,%ymm15
+vpaddw    %ymm3,%ymm14,%ymm14
 vmovdqu		%ymm15,192(%rdi)
 vmovdqu		%ymm14,224(%rdi)
 
