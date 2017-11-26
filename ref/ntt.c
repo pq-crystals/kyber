@@ -23,16 +23,12 @@ void ntt(uint16_t *p)
       {
         t = montgomery_reduce((uint32_t)zeta * p[j + (1<<level)]);
 
-        if(level & 1) /* Omit reduction (be lazy) */
-        {
-          p[j + (1<<level)] = barrett_reduce(p[j] + 4*KYBER_Q - t);
+        p[j + (1<<level)] = barrett_reduce(p[j] + 4*KYBER_Q - t);
+
+        if(level & 1) /* odd level */
+          p[j] = p[j] + t; /* Omit reduction (be lazy) */
+        else 
           p[j] = barrett_reduce(p[j] + t);
-        }
-        else /* even level */
-        {
-          p[j + (1<<level)] = barrett_reduce(p[j] + 4*KYBER_Q - t);
-          p[j] = barrett_reduce(p[j] + t);
-        }
       }
     }
   }
