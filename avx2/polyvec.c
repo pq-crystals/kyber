@@ -202,6 +202,13 @@ void polyvec_invntt(polyvec *r)
   
 void polyvec_pointwise_acc(poly *r, const polyvec *a, const polyvec *b)
 {
+#if KYBER_K == 2
+  polyvec_pointwise_acc_k2(r, a, b);
+#elif KYBER_K == 3
+  polyvec_pointwise_acc_k3(r, a, b);
+#elif KYBER_K == 4
+  polyvec_pointwise_acc_k4(r, a, b);
+#else
   int i,j;
   uint16_t t;
   for(j=0;j<KYBER_N;j++)
@@ -213,8 +220,10 @@ void polyvec_pointwise_acc(poly *r, const polyvec *a, const polyvec *b)
       t = montgomery_reduce(4613* (uint32_t)b->vec[i].coeffs[j]);
       r->coeffs[j] += montgomery_reduce(a->vec[i].coeffs[j] * t);
     }
-    r->coeffs[j] = barrett_reduce(r->coeffs[j]);
+    r->coeffs[j] = freeze(r->coeffs[j]);
   }
+}
+#endif
 }
 
 void polyvec_add(polyvec *r, const polyvec *a, const polyvec *b)

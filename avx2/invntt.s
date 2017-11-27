@@ -6,7 +6,7 @@ sub		%r11,%rsp
 
 vmovdqa		_16xqinv(%rip),%ymm0
 vmovdqa		_16xq(%rip),%ymm1
-vmovdqa		_16x4q(%rip),%ymm2
+vmovdqa		_16xv(%rip),%ymm2
 
 mov		%rsi,%r8
 
@@ -21,89 +21,81 @@ vmovdqa		160(%rdi),%ymm9
 vmovdqa		192(%rdi),%ymm10
 vmovdqa		224(%rdi),%ymm11
 
-vmovdqu		_lowdword(%rip),%ymm3
-
-# Establish required permutation
-vpand %ymm4, %ymm3, %ymm14
-vpand %ymm5, %ymm3, %ymm15
-vpsrad $16,%ymm4,%ymm4
-vpsrad $16,%ymm5,%ymm5
-vpackssdw %ymm5, %ymm4, %ymm5
-vpackusdw %ymm15, %ymm14, %ymm4
-vpermq $0xd8,%ymm4,%ymm4
-vpermq $0xd8,%ymm5,%ymm5
-
-vpand %ymm6, %ymm3, %ymm14
-vpand %ymm7, %ymm3, %ymm15
-vpsrad $16,%ymm6,%ymm6
-vpsrad $16,%ymm7,%ymm7
-vpackssdw %ymm7, %ymm6, %ymm7
-vpackusdw %ymm15, %ymm14, %ymm6
-vpermq $0xd8,%ymm6,%ymm6
-vpermq $0xd8,%ymm7,%ymm7
-
-vpand %ymm8, %ymm3, %ymm14
-vpand %ymm9, %ymm3, %ymm15
-vpsrad $16,%ymm8,%ymm8
-vpsrad $16,%ymm9,%ymm9
-vpackssdw %ymm9, %ymm8, %ymm9
-vpackusdw %ymm15, %ymm14, %ymm8
-vpermq $0xd8,%ymm8,%ymm8
-vpermq $0xd8,%ymm9,%ymm9
-
-vpand %ymm10, %ymm3, %ymm14
-vpand %ymm11, %ymm3, %ymm15
-vpsrad $16,%ymm10,%ymm10
-vpsrad $16,%ymm11,%ymm11
-vpackssdw %ymm11, %ymm10, %ymm11
-vpackusdw %ymm15, %ymm14, %ymm10
-vpermq $0xd8,%ymm10,%ymm10
-vpermq $0xd8,%ymm11,%ymm11
+#reorder
+vmovdqa		_lowdword(%rip),%ymm3
+vpand		%ymm3,%ymm4,%ymm12
+vpand		%ymm3,%ymm5,%ymm13
+vpand		%ymm3,%ymm6,%ymm14
+vpand		%ymm3,%ymm7,%ymm15
+vpsrld		$16,%ymm4,%ymm4
+vpsrld		$16,%ymm5,%ymm5
+vpsrld		$16,%ymm6,%ymm6
+vpsrld		$16,%ymm7,%ymm7
+vpackusdw	%ymm5,%ymm4,%ymm5
+vpackusdw	%ymm13,%ymm12,%ymm4
+vpackusdw	%ymm7,%ymm6,%ymm7
+vpackusdw	%ymm15,%ymm14,%ymm6
+vpermq		$0xd8,%ymm4,%ymm4
+vpermq		$0xd8,%ymm5,%ymm5
+vpermq		$0xd8,%ymm6,%ymm6
+vpermq		$0xd8,%ymm7,%ymm7
+vpand		%ymm3,%ymm8,%ymm12
+vpand		%ymm3,%ymm9,%ymm13
+vpand		%ymm3,%ymm10,%ymm14
+vpand		%ymm3,%ymm11,%ymm15
+vpsrld		$16,%ymm8,%ymm8
+vpsrld		$16,%ymm9,%ymm9
+vpsrld		$16,%ymm10,%ymm10
+vpsrld		$16,%ymm11,%ymm11
+vpackusdw	%ymm9,%ymm8,%ymm9
+vpackusdw	%ymm13,%ymm12,%ymm8
+vpackusdw	%ymm11,%ymm10,%ymm11
+vpackusdw	%ymm15,%ymm14,%ymm10
+vpermq		$0xd8,%ymm8,%ymm8
+vpermq		$0xd8,%ymm9,%ymm9
+vpermq		$0xd8,%ymm10,%ymm10
+vpermq		$0xd8,%ymm11,%ymm11
 
 #level 0
 #update
-vmovdqa		%ymm4,%ymm12
-vmovdqa		%ymm6,%ymm13
-vmovdqa		%ymm8,%ymm14
-vmovdqa		%ymm10,%ymm15
+vpsubw		%ymm5,%ymm4,%ymm12
+vpsubw		%ymm7,%ymm6,%ymm13
+vpsubw		%ymm9,%ymm8,%ymm14
+vpsubw		%ymm11,%ymm10,%ymm15
 vpaddw		%ymm4,%ymm5,%ymm4
 vpaddw		%ymm6,%ymm7,%ymm6
 vpaddw		%ymm8,%ymm9,%ymm8
 vpaddw		%ymm10,%ymm11,%ymm10
+
+#zetas
+vmovdqa		(%r8),%ymm7
+vmovdqa		32(%r8),%ymm9
+vmovdqa		64(%r8),%ymm11
+vmovdqa		96(%r8),%ymm3
+
+#mul
+vpmullw		%ymm7,%ymm12,%ymm5
+vpmulhw		%ymm7,%ymm12,%ymm12
+vpmullw		%ymm9,%ymm13,%ymm7
+vpmulhw		%ymm9,%ymm13,%ymm13
+vpmullw		%ymm11,%ymm14,%ymm9
+vpmulhw		%ymm11,%ymm14,%ymm14
+vpmullw		%ymm3,%ymm15,%ymm11
+vpmulhw		%ymm3,%ymm15,%ymm15
+
+#reduce
+vpmullw		%ymm0,%ymm5,%ymm5
+vpmullw		%ymm0,%ymm7,%ymm7
+vpmullw		%ymm0,%ymm9,%ymm9
+vpmullw		%ymm0,%ymm11,%ymm11
+vpmulhw		%ymm1,%ymm5,%ymm5
+vpmulhw		%ymm1,%ymm7,%ymm7
+vpmulhw		%ymm1,%ymm9,%ymm9
+vpmulhw		%ymm1,%ymm11,%ymm11
 vpsubw		%ymm5,%ymm12,%ymm5
 vpsubw		%ymm7,%ymm13,%ymm7
 vpsubw		%ymm9,%ymm14,%ymm9
 vpsubw		%ymm11,%ymm15,%ymm11
-
-#zetas
-vmovdqa		(%r8),%ymm13
-vmovdqa		32(%r8),%ymm14
-vmovdqa		64(%r8),%ymm15
-vmovdqa		96(%r8),%ymm3
-
-#mul
-vpmullw		%ymm13,%ymm5,%ymm12
-vpmulhw		%ymm13,%ymm5,%ymm5
-vpmullw		%ymm14,%ymm7,%ymm13
-vpmulhw		%ymm14,%ymm7,%ymm7
-vpmullw		%ymm15,%ymm9,%ymm14
-vpmulhw		%ymm15,%ymm9,%ymm9
-vpmullw		%ymm3,%ymm11,%ymm15
-vpmulhw		%ymm3,%ymm11,%ymm11
-
-#reduce
-vpmullw		%ymm0,%ymm12,%ymm12
-vpmullw		%ymm0,%ymm13,%ymm13
-vpmullw		%ymm0,%ymm14,%ymm14
-vpmullw		%ymm0,%ymm15,%ymm15
-vpmulhw		%ymm1,%ymm12,%ymm12
-vpmulhw		%ymm1,%ymm13,%ymm13
-vpmulhw		%ymm1,%ymm14,%ymm14
-vpmulhw		%ymm1,%ymm15,%ymm15
-vpsubw		%ymm12,%ymm5,%ymm5
-vpsubw		%ymm13,%ymm7,%ymm7
-vpsubw		%ymm14,%ymm9,%ymm9
-vpsubw		%ymm15,%ymm11,%ymm11
 
 #level 1
 #shuffle
@@ -126,83 +118,62 @@ vpblendw	$0x55,%ymm10,%ymm15,%ymm10
 vpblendw	$0xAA,%ymm11,%ymm14,%ymm11
 
 #update
-vmovdqa		%ymm4,%ymm12
-vmovdqa		%ymm6,%ymm13
-vmovdqa		%ymm8,%ymm14
-vmovdqa		%ymm10,%ymm15
+vpsubw		%ymm5,%ymm4,%ymm12
+vpsubw		%ymm7,%ymm6,%ymm13
+vpsubw		%ymm9,%ymm8,%ymm14
+vpsubw		%ymm11,%ymm10,%ymm15
 vpaddw		%ymm4,%ymm5,%ymm4
 vpaddw		%ymm6,%ymm7,%ymm6
 vpaddw		%ymm8,%ymm9,%ymm8
 vpaddw		%ymm10,%ymm11,%ymm10
+
+#zetas
+vmovdqa		256(%r8),%ymm7
+vmovdqa		288(%r8),%ymm9
+vmovdqa		320(%r8),%ymm11
+vmovdqa		352(%r8),%ymm3
+
+#mul
+vpmullw		%ymm7,%ymm12,%ymm5
+vpmulhw		%ymm7,%ymm12,%ymm12
+vpmullw		%ymm9,%ymm13,%ymm7
+vpmulhw		%ymm9,%ymm13,%ymm13
+vpmullw		%ymm11,%ymm14,%ymm9
+vpmulhw		%ymm11,%ymm14,%ymm14
+vpmullw		%ymm3,%ymm15,%ymm11
+vpmulhw		%ymm3,%ymm15,%ymm15
+
+#reduce
+vpmullw		%ymm0,%ymm5,%ymm5
+vpmullw		%ymm0,%ymm7,%ymm7
+vpmullw		%ymm0,%ymm9,%ymm9
+vpmullw		%ymm0,%ymm11,%ymm11
+vpmulhw		%ymm1,%ymm5,%ymm5
+vpmulhw		%ymm1,%ymm7,%ymm7
+vpmulhw		%ymm1,%ymm9,%ymm9
+vpmulhw		%ymm1,%ymm11,%ymm11
 vpsubw		%ymm5,%ymm12,%ymm5
 vpsubw		%ymm7,%ymm13,%ymm7
 vpsubw		%ymm9,%ymm14,%ymm9
 vpsubw		%ymm11,%ymm15,%ymm11
 
-#zetas
-vmovdqa		256(%r8),%ymm13
-vmovdqa		288(%r8),%ymm14
-vmovdqa		320(%r8),%ymm15
-vmovdqa		352(%r8),%ymm3
-
-#mul
-vpmullw		%ymm13,%ymm5,%ymm12
-vpmulhw		%ymm13,%ymm5,%ymm5
-vpmullw		%ymm14,%ymm7,%ymm13
-vpmulhw		%ymm14,%ymm7,%ymm7
-vpmullw		%ymm15,%ymm9,%ymm14
-vpmulhw		%ymm15,%ymm9,%ymm9
-vpmullw		%ymm3,%ymm11,%ymm15
-vpmulhw		%ymm3,%ymm11,%ymm11
-
-#reduce
-vpmullw		%ymm0,%ymm12,%ymm12
-vpmullw		%ymm0,%ymm13,%ymm13
-vpmullw		%ymm0,%ymm14,%ymm14
-vpmullw		%ymm0,%ymm15,%ymm15
-vpmulhw		%ymm1,%ymm12,%ymm12
-vpmulhw		%ymm1,%ymm13,%ymm13
-vpmulhw		%ymm1,%ymm14,%ymm14
-vpmulhw		%ymm1,%ymm15,%ymm15
-vpsubw		%ymm12,%ymm5,%ymm5
-vpsubw		%ymm13,%ymm7,%ymm7
-vpsubw		%ymm14,%ymm9,%ymm9
-vpsubw		%ymm15,%ymm11,%ymm11
-
 #reduce 2
-vmovdqa		_low_mask(%rip),%ymm3
-vpaddw		%ymm2,%ymm4,%ymm4
-vpaddw		%ymm2,%ymm6,%ymm6
-vpaddw		%ymm2,%ymm8,%ymm8
-vpaddw		%ymm2,%ymm10,%ymm10
-vpsrlw		$13,%ymm4,%ymm12
-vpsrlw		$13,%ymm6,%ymm13
-vpsrlw		$13,%ymm8,%ymm14
-vpsrlw		$13,%ymm10,%ymm15
-#vpmullw	%ymm1,%ymm12,%ymm12
-#vpmullw	%ymm1,%ymm13,%ymm13
-#vpmullw	%ymm1,%ymm14,%ymm14
-#vpmullw	%ymm1,%ymm15,%ymm15
-vpand		%ymm3,%ymm4,%ymm4
-vpand		%ymm3,%ymm6,%ymm6
-vpand		%ymm3,%ymm8,%ymm8
-vpand		%ymm3,%ymm10,%ymm10
+vpmulhw		%ymm2,%ymm4,%ymm12
+vpmulhw		%ymm2,%ymm6,%ymm13
+vpmulhw		%ymm2,%ymm8,%ymm14
+vpmulhw		%ymm2,%ymm10,%ymm15
+vpsraw		$11,%ymm12,%ymm12
+vpsraw		$11,%ymm13,%ymm13
+vpsraw		$11,%ymm14,%ymm14
+vpsraw		$11,%ymm15,%ymm15
+vpmullw		%ymm1,%ymm12,%ymm12
+vpmullw		%ymm1,%ymm13,%ymm13
+vpmullw		%ymm1,%ymm14,%ymm14
+vpmullw		%ymm1,%ymm15,%ymm15
 vpsubw		%ymm12,%ymm4,%ymm4
 vpsubw		%ymm13,%ymm6,%ymm6
 vpsubw		%ymm14,%ymm8,%ymm8
 vpsubw		%ymm15,%ymm10,%ymm10
-vpsllw		$9,%ymm12,%ymm12
-vpsllw		$9,%ymm13,%ymm13
-vpsllw		$9,%ymm14,%ymm14
-vpsllw		$9,%ymm15,%ymm15
-vpaddw		%ymm12,%ymm4,%ymm4
-vpaddw		%ymm13,%ymm6,%ymm6
-vpaddw		%ymm14,%ymm8,%ymm8
-vpaddw		%ymm15,%ymm10,%ymm10
-vpsubw		%ymm1,%ymm4,%ymm4
-vpsubw		%ymm1,%ymm6,%ymm6
-vpsubw		%ymm1,%ymm8,%ymm8
-vpsubw		%ymm1,%ymm10,%ymm10
 
 #level 2
 #shuffle
@@ -224,48 +195,44 @@ vpblendd	$0x55,%ymm10,%ymm15,%ymm10
 vpblendd	$0xAA,%ymm11,%ymm14,%ymm11
 
 #update
-vmovdqa		%ymm4,%ymm12
-vmovdqa		%ymm6,%ymm13
-vmovdqa		%ymm8,%ymm14
-vmovdqa		%ymm10,%ymm15
+vpsubw		%ymm5,%ymm4,%ymm12
+vpsubw		%ymm7,%ymm6,%ymm13
+vpsubw		%ymm9,%ymm8,%ymm14
+vpsubw		%ymm11,%ymm10,%ymm15
 vpaddw		%ymm4,%ymm5,%ymm4
 vpaddw		%ymm6,%ymm7,%ymm6
 vpaddw		%ymm8,%ymm9,%ymm8
 vpaddw		%ymm10,%ymm11,%ymm10
+
+#zetas
+vmovdqa		512(%r8),%ymm7
+vmovdqa		544(%r8),%ymm9
+vmovdqa		576(%r8),%ymm11
+vmovdqa		608(%r8),%ymm3
+
+#mul
+vpmullw		%ymm7,%ymm12,%ymm5
+vpmulhw		%ymm7,%ymm12,%ymm12
+vpmullw		%ymm9,%ymm13,%ymm7
+vpmulhw		%ymm9,%ymm13,%ymm13
+vpmullw		%ymm11,%ymm14,%ymm9
+vpmulhw		%ymm11,%ymm14,%ymm14
+vpmullw		%ymm3,%ymm15,%ymm11
+vpmulhw		%ymm3,%ymm15,%ymm15
+
+#reduce
+vpmullw		%ymm0,%ymm5,%ymm5
+vpmullw		%ymm0,%ymm7,%ymm7
+vpmullw		%ymm0,%ymm9,%ymm9
+vpmullw		%ymm0,%ymm11,%ymm11
+vpmulhw		%ymm1,%ymm5,%ymm5
+vpmulhw		%ymm1,%ymm7,%ymm7
+vpmulhw		%ymm1,%ymm9,%ymm9
+vpmulhw		%ymm1,%ymm11,%ymm11
 vpsubw		%ymm5,%ymm12,%ymm5
 vpsubw		%ymm7,%ymm13,%ymm7
 vpsubw		%ymm9,%ymm14,%ymm9
 vpsubw		%ymm11,%ymm15,%ymm11
-
-#zetas
-vmovdqa		512(%r8),%ymm13
-vmovdqa		544(%r8),%ymm14
-vmovdqa		576(%r8),%ymm15
-vmovdqa		608(%r8),%ymm3
-
-#mul
-vpmullw		%ymm13,%ymm5,%ymm12
-vpmulhw		%ymm13,%ymm5,%ymm5
-vpmullw		%ymm14,%ymm7,%ymm13
-vpmulhw		%ymm14,%ymm7,%ymm7
-vpmullw		%ymm15,%ymm9,%ymm14
-vpmulhw		%ymm15,%ymm9,%ymm9
-vpmullw		%ymm3,%ymm11,%ymm15
-vpmulhw		%ymm3,%ymm11,%ymm11
-
-#reduce
-vpmullw		%ymm0,%ymm12,%ymm12
-vpmullw		%ymm0,%ymm13,%ymm13
-vpmullw		%ymm0,%ymm14,%ymm14
-vpmullw		%ymm0,%ymm15,%ymm15
-vpmulhw		%ymm1,%ymm12,%ymm12
-vpmulhw		%ymm1,%ymm13,%ymm13
-vpmulhw		%ymm1,%ymm14,%ymm14
-vpmulhw		%ymm1,%ymm15,%ymm15
-vpsubw		%ymm12,%ymm5,%ymm5
-vpsubw		%ymm13,%ymm7,%ymm7
-vpsubw		%ymm14,%ymm9,%ymm9
-vpsubw		%ymm15,%ymm11,%ymm11
 
 #level 3
 #shuffle
@@ -279,83 +246,62 @@ vshufpd		$0x00,%ymm11,%ymm10,%ymm9
 vshufpd		$0x0F,%ymm11,%ymm10,%ymm10
 
 #update
-vmovdqa		%ymm3,%ymm12
-vmovdqa		%ymm5,%ymm13
-vmovdqa		%ymm7,%ymm14
-vmovdqa		%ymm9,%ymm15
+vpsubw		%ymm4,%ymm3,%ymm12
+vpsubw		%ymm6,%ymm5,%ymm13
+vpsubw		%ymm8,%ymm7,%ymm14
+vpsubw		%ymm10,%ymm9,%ymm15
 vpaddw		%ymm3,%ymm4,%ymm3
 vpaddw		%ymm5,%ymm6,%ymm5
 vpaddw		%ymm7,%ymm8,%ymm7
 vpaddw		%ymm9,%ymm10,%ymm9
+
+#zetas
+vmovdqa		768(%r8),%ymm6
+vmovdqa		800(%r8),%ymm8
+vmovdqa		832(%r8),%ymm10
+vmovdqa		864(%r8),%ymm11
+
+#mul
+vpmullw		%ymm6,%ymm12,%ymm4
+vpmulhw		%ymm6,%ymm12,%ymm12
+vpmullw		%ymm8,%ymm13,%ymm6
+vpmulhw		%ymm8,%ymm13,%ymm13
+vpmullw		%ymm10,%ymm14,%ymm8
+vpmulhw		%ymm10,%ymm14,%ymm14
+vpmullw		%ymm11,%ymm15,%ymm10
+vpmulhw		%ymm11,%ymm15,%ymm15
+
+#reduce
+vpmullw		%ymm0,%ymm4,%ymm4
+vpmullw		%ymm0,%ymm6,%ymm6
+vpmullw		%ymm0,%ymm8,%ymm8
+vpmullw		%ymm0,%ymm10,%ymm10
+vpmulhw		%ymm1,%ymm4,%ymm4
+vpmulhw		%ymm1,%ymm6,%ymm6
+vpmulhw		%ymm1,%ymm8,%ymm8
+vpmulhw		%ymm1,%ymm10,%ymm10
 vpsubw		%ymm4,%ymm12,%ymm4
 vpsubw		%ymm6,%ymm13,%ymm6
 vpsubw		%ymm8,%ymm14,%ymm8
 vpsubw		%ymm10,%ymm15,%ymm10
 
-#zetas
-vmovdqa		768(%r8),%ymm12
-vmovdqa		800(%r8),%ymm13
-vmovdqa		832(%r8),%ymm14
-vmovdqa		864(%r8),%ymm15
-
-#mul
-vpmullw		%ymm12,%ymm4,%ymm11
-vpmulhw		%ymm12,%ymm4,%ymm4
-vpmullw		%ymm13,%ymm6,%ymm12
-vpmulhw		%ymm13,%ymm6,%ymm6
-vpmullw		%ymm14,%ymm8,%ymm13
-vpmulhw		%ymm14,%ymm8,%ymm8
-vpmullw		%ymm15,%ymm10,%ymm14
-vpmulhw		%ymm15,%ymm10,%ymm10
-
-#reduce
-vpmullw		%ymm0,%ymm11,%ymm11
-vpmullw		%ymm0,%ymm12,%ymm12
-vpmullw		%ymm0,%ymm13,%ymm13
-vpmullw		%ymm0,%ymm14,%ymm14
-vpmulhw		%ymm1,%ymm11,%ymm11
-vpmulhw		%ymm1,%ymm12,%ymm12
-vpmulhw		%ymm1,%ymm13,%ymm13
-vpmulhw		%ymm1,%ymm14,%ymm14
-vpsubw		%ymm11,%ymm4,%ymm4
-vpsubw		%ymm12,%ymm6,%ymm6
-vpsubw		%ymm13,%ymm8,%ymm8
-vpsubw		%ymm14,%ymm10,%ymm10
-
 #reduce 2
-vmovdqa		_low_mask(%rip),%ymm11
-vpaddw		%ymm2,%ymm3,%ymm3
-vpaddw		%ymm2,%ymm5,%ymm5
-vpaddw		%ymm2,%ymm7,%ymm7
-vpaddw		%ymm2,%ymm9,%ymm9
-vpsrlw		$13,%ymm3,%ymm12
-vpsrlw		$13,%ymm5,%ymm13
-vpsrlw		$13,%ymm7,%ymm14
-vpsrlw		$13,%ymm9,%ymm15
-#vpmullw	%ymm1,%ymm12,%ymm12
-#vpmullw	%ymm1,%ymm13,%ymm13
-#vpmullw	%ymm1,%ymm14,%ymm14
-#vpmullw	%ymm1,%ymm15,%ymm15
-vpand		%ymm11,%ymm3,%ymm3
-vpand		%ymm11,%ymm5,%ymm5
-vpand		%ymm11,%ymm7,%ymm7
-vpand		%ymm11,%ymm9,%ymm9
+vpmulhw		%ymm2,%ymm3,%ymm12
+vpmulhw		%ymm2,%ymm5,%ymm13
+vpmulhw		%ymm2,%ymm7,%ymm14
+vpmulhw		%ymm2,%ymm9,%ymm15
+vpsraw		$11,%ymm12,%ymm12
+vpsraw		$11,%ymm13,%ymm13
+vpsraw		$11,%ymm14,%ymm14
+vpsraw		$11,%ymm15,%ymm15
+vpmullw		%ymm1,%ymm12,%ymm12
+vpmullw		%ymm1,%ymm13,%ymm13
+vpmullw		%ymm1,%ymm14,%ymm14
+vpmullw		%ymm1,%ymm15,%ymm15
 vpsubw		%ymm12,%ymm3,%ymm3
 vpsubw		%ymm13,%ymm5,%ymm5
 vpsubw		%ymm14,%ymm7,%ymm7
 vpsubw		%ymm15,%ymm9,%ymm9
-vpsllw		$9,%ymm12,%ymm12
-vpsllw		$9,%ymm13,%ymm13
-vpsllw		$9,%ymm14,%ymm14
-vpsllw		$9,%ymm15,%ymm15
-vpaddw		%ymm12,%ymm3,%ymm3
-vpaddw		%ymm13,%ymm5,%ymm5
-vpaddw		%ymm14,%ymm7,%ymm7
-vpaddw		%ymm15,%ymm9,%ymm9
-vpsubw		%ymm1,%ymm3,%ymm3
-vpsubw		%ymm1,%ymm5,%ymm5
-vpsubw		%ymm1,%ymm7,%ymm7
-vpsubw		%ymm1,%ymm9,%ymm9
 
 #level 4
 #shuffle
@@ -456,23 +402,14 @@ vpsubw		%ymm13,%ymm8,%ymm8
 vpsubw		%ymm14,%ymm9,%ymm9
 
 #reduce 2
-vmovdqa		_low_mask(%rip),%ymm11
-vpaddw		%ymm2,%ymm10,%ymm10
-vpaddw		%ymm2,%ymm6,%ymm6
-vpsrlw		$13,%ymm10,%ymm12
-vpsrlw		$13,%ymm6,%ymm13
-#vpmullw	%ymm1,%ymm12,%ymm12
-#vpmullw	%ymm1,%ymm13,%ymm13
-vpand		%ymm11,%ymm10,%ymm10
-vpand		%ymm11,%ymm6,%ymm6
+vpmulhw		%ymm2,%ymm10,%ymm12
+vpmulhw		%ymm2,%ymm6,%ymm13
+vpsraw		$11,%ymm12,%ymm12
+vpsraw		$11,%ymm13,%ymm13
+vpmullw		%ymm1,%ymm12,%ymm12
+vpmullw		%ymm1,%ymm13,%ymm13
 vpsubw		%ymm12,%ymm10,%ymm10
 vpsubw		%ymm13,%ymm6,%ymm6
-vpsllw		$9,%ymm12,%ymm12
-vpsllw		$9,%ymm13,%ymm13
-vpaddw		%ymm12,%ymm10,%ymm10
-vpaddw		%ymm13,%ymm6,%ymm6
-vpsubw		%ymm1,%ymm10,%ymm10
-vpsubw		%ymm1,%ymm6,%ymm6
 
 #level 6
 #update
@@ -517,15 +454,10 @@ vpsubw		%ymm13,%ymm8,%ymm8
 vpsubw		%ymm14,%ymm9,%ymm9
 
 #reduce 2
-vmovdqa		_low_mask(%rip),%ymm11
-vpaddw		%ymm2,%ymm3,%ymm3
-vpsrlw		$13,%ymm3,%ymm12
-#vpmullw	%ymm1,%ymm12,%ymm12
-vpand		%ymm11,%ymm3,%ymm3
+vpmulhw		%ymm2,%ymm3,%ymm12
+vpsraw		$11,%ymm12,%ymm12
+vpmullw		%ymm1,%ymm12,%ymm12
 vpsubw		%ymm12,%ymm3,%ymm3
-vpsllw		$9,%ymm12,%ymm12
-vpaddw		%ymm12,%ymm3,%ymm3
-vpsubw		%ymm1,%ymm3,%ymm3
 
 #store
 vmovdqa		%ymm10,(%rdi)
@@ -551,45 +483,40 @@ vmovdqa		160(%rdi),%ymm9
 vmovdqa		192(%rdi),%ymm10
 vmovdqa		224(%rdi),%ymm11
 
-vmovdqu		_lowdword(%rip),%ymm3
-
-# Establish required permutation
-vpand %ymm4, %ymm3, %ymm14
-vpand %ymm5, %ymm3, %ymm15
-vpsrad $16,%ymm4,%ymm4
-vpsrad $16,%ymm5,%ymm5
-vpackssdw %ymm5, %ymm4, %ymm5
-vpackusdw %ymm15, %ymm14, %ymm4
-vpermq $0xd8,%ymm4,%ymm4
-vpermq $0xd8,%ymm5,%ymm5
-
-vpand %ymm6, %ymm3, %ymm14
-vpand %ymm7, %ymm3, %ymm15
-vpsrad $16,%ymm6,%ymm6
-vpsrad $16,%ymm7,%ymm7
-vpackssdw %ymm7, %ymm6, %ymm7
-vpackusdw %ymm15, %ymm14, %ymm6
-vpermq $0xd8,%ymm6,%ymm6
-vpermq $0xd8,%ymm7,%ymm7
-
-vpand %ymm8, %ymm3, %ymm14
-vpand %ymm9, %ymm3, %ymm15
-vpsrad $16,%ymm8,%ymm8
-vpsrad $16,%ymm9,%ymm9
-vpackssdw %ymm9, %ymm8, %ymm9
-vpackusdw %ymm15, %ymm14, %ymm8
-vpermq $0xd8,%ymm8,%ymm8
-vpermq $0xd8,%ymm9,%ymm9
-
-vpand %ymm10, %ymm3, %ymm14
-vpand %ymm11, %ymm3, %ymm15
-vpsrad $16,%ymm10,%ymm10
-vpsrad $16,%ymm11,%ymm11
-vpackssdw %ymm11, %ymm10, %ymm11
-vpackusdw %ymm15, %ymm14, %ymm10
-vpermq $0xd8,%ymm10,%ymm10
-vpermq $0xd8,%ymm11,%ymm11
-
+#reorder
+vmovdqa		_lowdword(%rip),%ymm3
+vpand		%ymm3,%ymm4,%ymm12
+vpand		%ymm3,%ymm5,%ymm13
+vpand		%ymm3,%ymm6,%ymm14
+vpand		%ymm3,%ymm7,%ymm15
+vpsrld		$16,%ymm4,%ymm4
+vpsrld		$16,%ymm5,%ymm5
+vpsrld		$16,%ymm6,%ymm6
+vpsrld		$16,%ymm7,%ymm7
+vpackusdw	%ymm5,%ymm4,%ymm5
+vpackusdw	%ymm13,%ymm12,%ymm4
+vpackusdw	%ymm7,%ymm6,%ymm7
+vpackusdw	%ymm15,%ymm14,%ymm6
+vpermq		$0xd8,%ymm4,%ymm4
+vpermq		$0xd8,%ymm5,%ymm5
+vpermq		$0xd8,%ymm6,%ymm6
+vpermq		$0xd8,%ymm7,%ymm7
+vpand		%ymm3,%ymm8,%ymm12
+vpand		%ymm3,%ymm9,%ymm13
+vpand		%ymm3,%ymm10,%ymm14
+vpand		%ymm3,%ymm11,%ymm15
+vpsrld		$16,%ymm8,%ymm8
+vpsrld		$16,%ymm9,%ymm9
+vpsrld		$16,%ymm10,%ymm10
+vpsrld		$16,%ymm11,%ymm11
+vpackusdw	%ymm9,%ymm8,%ymm9
+vpackusdw	%ymm13,%ymm12,%ymm8
+vpackusdw	%ymm11,%ymm10,%ymm11
+vpackusdw	%ymm15,%ymm14,%ymm10
+vpermq		$0xd8,%ymm8,%ymm8
+vpermq		$0xd8,%ymm9,%ymm9
+vpermq		$0xd8,%ymm10,%ymm10
+vpermq		$0xd8,%ymm11,%ymm11
 
 #level 0
 #update
@@ -701,39 +628,22 @@ vpsubw		%ymm14,%ymm9,%ymm9
 vpsubw		%ymm15,%ymm11,%ymm11
 
 #reduce 2
-vmovdqa		_low_mask(%rip),%ymm3
-vpaddw		%ymm2,%ymm4,%ymm4
-vpaddw		%ymm2,%ymm6,%ymm6
-vpaddw		%ymm2,%ymm8,%ymm8
-vpaddw		%ymm2,%ymm10,%ymm10
-vpsrlw		$13,%ymm4,%ymm12
-vpsrlw		$13,%ymm6,%ymm13
-vpsrlw		$13,%ymm8,%ymm14
-vpsrlw		$13,%ymm10,%ymm15
-#vpmullw	%ymm1,%ymm12,%ymm12
-#vpmullw	%ymm1,%ymm13,%ymm13
-#vpmullw	%ymm1,%ymm14,%ymm14
-#vpmullw	%ymm1,%ymm15,%ymm15
-vpand		%ymm3,%ymm4,%ymm4
-vpand		%ymm3,%ymm6,%ymm6
-vpand		%ymm3,%ymm8,%ymm8
-vpand		%ymm3,%ymm10,%ymm10
+vpmulhw		%ymm2,%ymm4,%ymm12
+vpmulhw		%ymm2,%ymm6,%ymm13
+vpmulhw		%ymm2,%ymm8,%ymm14
+vpmulhw		%ymm2,%ymm10,%ymm15
+vpsraw		$11,%ymm12,%ymm12
+vpsraw		$11,%ymm13,%ymm13
+vpsraw		$11,%ymm14,%ymm14
+vpsraw		$11,%ymm15,%ymm15
+vpmullw		%ymm1,%ymm12,%ymm12
+vpmullw		%ymm1,%ymm13,%ymm13
+vpmullw		%ymm1,%ymm14,%ymm14
+vpmullw		%ymm1,%ymm15,%ymm15
 vpsubw		%ymm12,%ymm4,%ymm4
 vpsubw		%ymm13,%ymm6,%ymm6
 vpsubw		%ymm14,%ymm8,%ymm8
 vpsubw		%ymm15,%ymm10,%ymm10
-vpsllw		$9,%ymm12,%ymm12
-vpsllw		$9,%ymm13,%ymm13
-vpsllw		$9,%ymm14,%ymm14
-vpsllw		$9,%ymm15,%ymm15
-vpaddw		%ymm12,%ymm4,%ymm4
-vpaddw		%ymm13,%ymm6,%ymm6
-vpaddw		%ymm14,%ymm8,%ymm8
-vpaddw		%ymm15,%ymm10,%ymm10
-vpsubw		%ymm1,%ymm4,%ymm4
-vpsubw		%ymm1,%ymm6,%ymm6
-vpsubw		%ymm1,%ymm8,%ymm8
-vpsubw		%ymm1,%ymm10,%ymm10
 
 #level 2
 #shuffle
@@ -854,39 +764,22 @@ vpsubw		%ymm13,%ymm8,%ymm8
 vpsubw		%ymm14,%ymm10,%ymm10
 
 #reduce 2
-vmovdqa		_low_mask(%rip),%ymm11
-vpaddw		%ymm2,%ymm3,%ymm3
-vpaddw		%ymm2,%ymm5,%ymm5
-vpaddw		%ymm2,%ymm7,%ymm7
-vpaddw		%ymm2,%ymm9,%ymm9
-vpsrlw		$13,%ymm3,%ymm12
-vpsrlw		$13,%ymm5,%ymm13
-vpsrlw		$13,%ymm7,%ymm14
-vpsrlw		$13,%ymm9,%ymm15
-#vpmullw	%ymm1,%ymm12,%ymm12
-#vpmullw	%ymm1,%ymm13,%ymm13
-#vpmullw	%ymm1,%ymm14,%ymm14
-#vpmullw	%ymm1,%ymm15,%ymm15
-vpand		%ymm11,%ymm3,%ymm3
-vpand		%ymm11,%ymm5,%ymm5
-vpand		%ymm11,%ymm7,%ymm7
-vpand		%ymm11,%ymm9,%ymm9
+vpmulhw		%ymm2,%ymm3,%ymm12
+vpmulhw		%ymm2,%ymm5,%ymm13
+vpmulhw		%ymm2,%ymm7,%ymm14
+vpmulhw		%ymm2,%ymm9,%ymm15
+vpsraw		$11,%ymm12,%ymm12
+vpsraw		$11,%ymm13,%ymm13
+vpsraw		$11,%ymm14,%ymm14
+vpsraw		$11,%ymm15,%ymm15
+vpmullw		%ymm1,%ymm12,%ymm12
+vpmullw		%ymm1,%ymm13,%ymm13
+vpmullw		%ymm1,%ymm14,%ymm14
+vpmullw		%ymm1,%ymm15,%ymm15
 vpsubw		%ymm12,%ymm3,%ymm3
 vpsubw		%ymm13,%ymm5,%ymm5
 vpsubw		%ymm14,%ymm7,%ymm7
 vpsubw		%ymm15,%ymm9,%ymm9
-vpsllw		$9,%ymm12,%ymm12
-vpsllw		$9,%ymm13,%ymm13
-vpsllw		$9,%ymm14,%ymm14
-vpsllw		$9,%ymm15,%ymm15
-vpaddw		%ymm12,%ymm3,%ymm3
-vpaddw		%ymm13,%ymm5,%ymm5
-vpaddw		%ymm14,%ymm7,%ymm7
-vpaddw		%ymm15,%ymm9,%ymm9
-vpsubw		%ymm1,%ymm3,%ymm3
-vpsubw		%ymm1,%ymm5,%ymm5
-vpsubw		%ymm1,%ymm7,%ymm7
-vpsubw		%ymm1,%ymm9,%ymm9
 
 #level 4
 #shuffle
@@ -987,23 +880,14 @@ vpsubw		%ymm13,%ymm8,%ymm8
 vpsubw		%ymm14,%ymm9,%ymm9
 
 #reduce 2
-vmovdqa		_low_mask(%rip),%ymm11
-vpaddw		%ymm2,%ymm10,%ymm10
-vpaddw		%ymm2,%ymm6,%ymm6
-vpsrlw		$13,%ymm10,%ymm12
-vpsrlw		$13,%ymm6,%ymm13
-#vpmullw	%ymm1,%ymm12,%ymm12
-#vpmullw	%ymm1,%ymm13,%ymm13
-vpand		%ymm11,%ymm10,%ymm10
-vpand		%ymm11,%ymm6,%ymm6
+vpmulhw		%ymm2,%ymm10,%ymm12
+vpmulhw		%ymm2,%ymm6,%ymm13
+vpsraw		$11,%ymm12,%ymm12
+vpsraw		$11,%ymm13,%ymm13
+vpmullw		%ymm1,%ymm12,%ymm12
+vpmullw		%ymm1,%ymm13,%ymm13
 vpsubw		%ymm12,%ymm10,%ymm10
 vpsubw		%ymm13,%ymm6,%ymm6
-vpsllw		$9,%ymm12,%ymm12
-vpsllw		$9,%ymm13,%ymm13
-vpaddw		%ymm12,%ymm10,%ymm10
-vpaddw		%ymm13,%ymm6,%ymm6
-vpsubw		%ymm1,%ymm10,%ymm10
-vpsubw		%ymm1,%ymm6,%ymm6
 
 #level 6
 #update
@@ -1048,15 +932,10 @@ vpsubw		%ymm13,%ymm8,%ymm8
 vpsubw		%ymm14,%ymm9,%ymm9
 
 #reduce 2
-vmovdqa		_low_mask(%rip),%ymm11
-vpaddw		%ymm2,%ymm3,%ymm3
-vpsrlw		$13,%ymm3,%ymm12
-#vpmullw	%ymm1,%ymm12,%ymm12
-vpand		%ymm11,%ymm3,%ymm3
+vpmulhw		%ymm2,%ymm3,%ymm12
+vpsraw		$11,%ymm12,%ymm12
+vpmullw		%ymm1,%ymm12,%ymm12
 vpsubw		%ymm12,%ymm3,%ymm3
-vpsllw		$9,%ymm12,%ymm12
-vpaddw		%ymm12,%ymm3,%ymm3
-vpsubw		%ymm1,%ymm3,%ymm3
 
 #store
 vmovdqa		%ymm10,(%rdi)
@@ -1069,6 +948,9 @@ vmovdqa		%ymm8,192(%rdi)
 vmovdqa		%ymm9,224(%rdi)
 
 sub		$256,%rdi
+
+#f
+vmovdqa		_f(%rip),%ymm2
 
 #first round
 #load
@@ -1118,54 +1000,24 @@ vpmulhw		%ymm1,%ymm12,%ymm12
 vpmulhw		%ymm1,%ymm13,%ymm13
 vpmulhw		%ymm1,%ymm14,%ymm14
 vpmulhw		%ymm1,%ymm15,%ymm15
-vpaddw		%ymm1,%ymm8,%ymm8
-vpaddw		%ymm1,%ymm9,%ymm9
-vpaddw		%ymm1,%ymm10,%ymm10
-vpaddw		%ymm1,%ymm11,%ymm11
 vpsubw		%ymm12,%ymm8,%ymm8
 vpsubw		%ymm13,%ymm9,%ymm9
 vpsubw		%ymm14,%ymm10,%ymm10
 vpsubw		%ymm15,%ymm11,%ymm11
-
-#reduce 2
-#vmovdqa	_low_mask(%rip),%ymm11
-#vpaddw		%ymm2,%ymm4,%ymm4
-#vpaddw		%ymm2,%ymm6,%ymm6
-#vpaddw		%ymm2,%ymm7,%ymm7
-#vpsrlw		$13,%ymm4,%ymm12
-#vpsrlw		$13,%ymm6,%ymm13
-#vpsrlw		$13,%ymm7,%ymm14
-#vpmullw	%ymm1,%ymm12,%ymm12
-#vpmullw	%ymm1,%ymm13,%ymm13
-#vpmullw	%ymm1,%ymm14,%ymm14
-#vpand		%ymm11,%ymm4,%ymm4
-#vpand		%ymm11,%ymm6,%ymm6
-#vpand		%ymm11,%ymm7,%ymm7
-#vpsubw		%ymm12,%ymm4,%ymm4
-#vpsubw		%ymm13,%ymm6,%ymm6
-#vpsubw		%ymm14,%ymm7,%ymm7
-#vpsllw		$9,%ymm12,%ymm12
-#vpsllw		$9,%ymm13,%ymm13
-#vpsllw		$9,%ymm14,%ymm14
-#vpaddw		%ymm12,%ymm4,%ymm4
-#vpaddw		%ymm13,%ymm6,%ymm6
-#vpaddw		%ymm14,%ymm7,%ymm7
-#vpsubw		%ymm1,%ymm4,%ymm4
-#vpsubw		%ymm1,%ymm6,%ymm6
-#vpsubw		%ymm1,%ymm7,%ymm7
-
-#f
-vmovdqa		_f(%rip),%ymm3
+vpaddw		%ymm1,%ymm8,%ymm8
+vpaddw		%ymm1,%ymm9,%ymm9
+vpaddw		%ymm1,%ymm10,%ymm10
+vpaddw		%ymm1,%ymm11,%ymm11
 
 #mul
-vpmullw		%ymm3,%ymm4,%ymm12
-vpmullw		%ymm3,%ymm5,%ymm13
-vpmullw		%ymm3,%ymm6,%ymm14
-vpmullw		%ymm3,%ymm7,%ymm15
-vpmulhw		%ymm3,%ymm4,%ymm4
-vpmulhw		%ymm3,%ymm5,%ymm5
-vpmulhw		%ymm3,%ymm6,%ymm6
-vpmulhw		%ymm3,%ymm7,%ymm7
+vpmullw		%ymm2,%ymm4,%ymm12
+vpmullw		%ymm2,%ymm5,%ymm13
+vpmullw		%ymm2,%ymm6,%ymm14
+vpmullw		%ymm2,%ymm7,%ymm15
+vpmulhw		%ymm2,%ymm4,%ymm4
+vpmulhw		%ymm2,%ymm5,%ymm5
+vpmulhw		%ymm2,%ymm6,%ymm6
+vpmulhw		%ymm2,%ymm7,%ymm7
 
 #reduce
 vpmullw		%ymm0,%ymm12,%ymm12
@@ -1176,14 +1028,14 @@ vpmulhw		%ymm1,%ymm12,%ymm12
 vpmulhw		%ymm1,%ymm13,%ymm13
 vpmulhw		%ymm1,%ymm14,%ymm14
 vpmulhw		%ymm1,%ymm15,%ymm15
-vpaddw		%ymm1,%ymm4,%ymm4
-vpaddw		%ymm1,%ymm5,%ymm5
-vpaddw		%ymm1,%ymm6,%ymm6
-vpaddw		%ymm1,%ymm7,%ymm7
 vpsubw		%ymm12,%ymm4,%ymm4
 vpsubw		%ymm13,%ymm5,%ymm5
 vpsubw		%ymm14,%ymm6,%ymm6
 vpsubw		%ymm15,%ymm7,%ymm7
+vpaddw		%ymm1,%ymm4,%ymm4
+vpaddw		%ymm1,%ymm5,%ymm5
+vpaddw		%ymm1,%ymm6,%ymm6
+vpaddw		%ymm1,%ymm7,%ymm7
 
 #store
 vmovdqa		%ymm4,(%rdi)
@@ -1245,27 +1097,24 @@ vpmulhw		%ymm1,%ymm12,%ymm12
 vpmulhw		%ymm1,%ymm13,%ymm13
 vpmulhw		%ymm1,%ymm14,%ymm14
 vpmulhw		%ymm1,%ymm15,%ymm15
-vpaddw		%ymm1,%ymm8,%ymm8
-vpaddw		%ymm1,%ymm9,%ymm9
-vpaddw		%ymm1,%ymm10,%ymm10
-vpaddw		%ymm1,%ymm11,%ymm11
 vpsubw		%ymm12,%ymm8,%ymm8
 vpsubw		%ymm13,%ymm9,%ymm9
 vpsubw		%ymm14,%ymm10,%ymm10
 vpsubw		%ymm15,%ymm11,%ymm11
-
-#f
-vmovdqa		_f(%rip),%ymm3
+vpaddw		%ymm1,%ymm8,%ymm8
+vpaddw		%ymm1,%ymm9,%ymm9
+vpaddw		%ymm1,%ymm10,%ymm10
+vpaddw		%ymm1,%ymm11,%ymm11
 
 #mul
-vpmullw		%ymm3,%ymm4,%ymm12
-vpmullw		%ymm3,%ymm5,%ymm13
-vpmullw		%ymm3,%ymm6,%ymm14
-vpmullw		%ymm3,%ymm7,%ymm15
-vpmulhw		%ymm3,%ymm4,%ymm4
-vpmulhw		%ymm3,%ymm5,%ymm5
-vpmulhw		%ymm3,%ymm6,%ymm6
-vpmulhw		%ymm3,%ymm7,%ymm7
+vpmullw		%ymm2,%ymm4,%ymm12
+vpmullw		%ymm2,%ymm5,%ymm13
+vpmullw		%ymm2,%ymm6,%ymm14
+vpmullw		%ymm2,%ymm7,%ymm15
+vpmulhw		%ymm2,%ymm4,%ymm4
+vpmulhw		%ymm2,%ymm5,%ymm5
+vpmulhw		%ymm2,%ymm6,%ymm6
+vpmulhw		%ymm2,%ymm7,%ymm7
 
 #reduce
 vpmullw		%ymm0,%ymm12,%ymm12
@@ -1276,14 +1125,14 @@ vpmulhw		%ymm1,%ymm12,%ymm12
 vpmulhw		%ymm1,%ymm13,%ymm13
 vpmulhw		%ymm1,%ymm14,%ymm14
 vpmulhw		%ymm1,%ymm15,%ymm15
-vpaddw		%ymm1,%ymm4,%ymm4
-vpaddw		%ymm1,%ymm5,%ymm5
-vpaddw		%ymm1,%ymm6,%ymm6
-vpaddw		%ymm1,%ymm7,%ymm7
 vpsubw		%ymm12,%ymm4,%ymm4
 vpsubw		%ymm13,%ymm5,%ymm5
 vpsubw		%ymm14,%ymm6,%ymm6
 vpsubw		%ymm15,%ymm7,%ymm7
+vpaddw		%ymm1,%ymm4,%ymm4
+vpaddw		%ymm1,%ymm5,%ymm5
+vpaddw		%ymm1,%ymm6,%ymm6
+vpaddw		%ymm1,%ymm7,%ymm7
 
 #store
 vmovdqa		%ymm4,(%rdi)

@@ -142,10 +142,6 @@ void poly_ntt(poly *r)
 
 void poly_invntt(poly *r)
 {
-  int i;
-  for(i=0;i<KYBER_N;i++)
-    r->coeffs[i] = ((uint32_t)r->coeffs[i] * 900) % KYBER_Q;
-
   invntt(r->coeffs,zetas_inv_exp);
 }
   

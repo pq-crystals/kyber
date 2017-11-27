@@ -18,7 +18,7 @@ all: test_kyber512 \
 		 speed1024 \
      PQCgenKAT_kem
 
-SOURCES = kem.c poly.c polyvec.c fips202.o reduce.c cbdeta4.s cbdref.c precomp.c verify.c indcpa.c kex.c consts.c genmatrix.c fips202x4.c \
+SOURCES = kem.c poly.c polyvec.c polyvec_pointwise_acc.s fips202.o reduce.c cbdeta4.s cbdref.c precomp.c verify.c indcpa.c kex.c consts.c genmatrix.c fips202x4.c \
 					keccak4x/KeccakP-1600-times4-SIMD256.o \
 					ntt.s invntt.s
 HEADERS = params.h poly.h polyvec.h reduce.h cbd.h ntt.h verify.h indcpa.h kex.h genmatrix.h fips202x4.h
