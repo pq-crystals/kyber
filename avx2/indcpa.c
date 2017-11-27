@@ -63,7 +63,7 @@ void indcpa_keypair(unsigned char *pk,
   int i;
 
   randombytes(buf, KYBER_SYMBYTES);
-  shake256(buf, KYBER_SYMBYTES+KYBER_SYMBYTES, buf, KYBER_SYMBYTES);
+  sha3_512(buf, buf, KYBER_SYMBYTES);
 
   genmatrix(a, publicseed, 0);
 
