@@ -1,7 +1,6 @@
 CC 		    = /usr/bin/cc
 CFLAGS    = -g -Wall -Wextra -O3 -fomit-frame-pointer -march=native -fPIC
 NISTFLAGS = -O3 -fomit-frame-pointer -march=native -fPIC
-CLANG     = clang -march=native -O3 -fomit-frame-pointer -fwrapv -Qunused-arguments
 RM 		    = /bin/rm
 
 all: test_kyber512 \
@@ -18,7 +17,7 @@ all: test_kyber512 \
 		 speed1024 \
      PQCgenKAT_kem
 
-SOURCES = kem.c poly.c polyvec.c polyvec_pointwise_acc.s fips202.o reduce.c cbdeta4.s cbdref.c precomp.c verify.c indcpa.c kex.c consts.c genmatrix.c fips202x4.c \
+SOURCES = kem.c poly.c polyvec.c polyvec_pointwise_acc.s fips202.c reduce.c cbdeta4.s cbdref.c precomp.c verify.c indcpa.c kex.c consts.c genmatrix.c fips202x4.c \
 					keccak4x/KeccakP-1600-times4-SIMD256.o \
 					ntt.s invntt.s
 HEADERS = params.h poly.h polyvec.h reduce.h cbd.h ntt.h verify.h indcpa.h kex.h genmatrix.h fips202x4.h
@@ -70,9 +69,6 @@ keccak4x/KeccakP-1600-times4-SIMD256.o: keccak4x/KeccakP-1600-times4-SIMD256.c \
 																				keccak4x/KeccakP-1600-unrolling.macros \
 																				keccak4x/SIMD256-config.h
 	$(CC) $(CFLAGS) -c keccak4x/KeccakP-1600-times4-SIMD256.c -o $@
-
-fips202.o: fips202.c
-	$(CLANG) -c -fPIC $^ -o $@
 
 .PHONY: clean test
 
