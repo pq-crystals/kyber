@@ -7,17 +7,21 @@ os:
 
 compiler:
   - gcc
+  - clang
 
 install:
   - sudo apt-get update
   - sudo apt-get install -y lcov
   - gem install coveralls-lcov
 
+before_script:
+  - $CC -v
+
 script:
   - cd ref
-  - make test_kex512 CFLAGS="-fprofile-arcs -ftest-coverage -g -Wall -Wextra -O0 -fomit-frame-pointer -march=native -fPIC" CLANG="clang -march=native -g -O0 -fomit-frame-pointer -fwrapv -Qunused-arguments"
-  - make test_kex768 CFLAGS="-fprofile-arcs -ftest-coverage -g -Wall -Wextra -O0 -fomit-frame-pointer -march=native -fPIC" CLANG="clang -march=native -g -O0 -fomit-frame-pointer -fwrapv -Qunused-arguments"
-  - make test_kex1024 CFLAGS="-fprofile-arcs -ftest-coverage -g -Wall -Wextra -O0 -fomit-frame-pointer -march=native -fPIC" CLANG="clang -march=native -g -O0 -fomit-frame-pointer -fwrapv -Qunused-arguments"
+  - make test_kex512 CC=$CC CFLAGS="-fprofile-arcs -ftest-coverage -g -Wall -Wextra -O0 -fomit-frame-pointer -march=native -fPIC" CLANG="clang -march=native -g -O0 -fomit-frame-pointer -fwrapv -Qunused-arguments"
+  - make test_kex768 CC=$CC CFLAGS="-fprofile-arcs -ftest-coverage -g -Wall -Wextra -O0 -fomit-frame-pointer -march=native -fPIC" CLANG="clang -march=native -g -O0 -fomit-frame-pointer -fwrapv -Qunused-arguments"
+  - make test_kex1024 CC=$CC CFLAGS="-fprofile-arcs -ftest-coverage -g -Wall -Wextra -O0 -fomit-frame-pointer -march=native -fPIC" CLANG="clang -march=native -g -O0 -fomit-frame-pointer -fwrapv -Qunused-arguments"
   - ./test_kex512
   - ./test_kex768
   - ./test_kex1024
