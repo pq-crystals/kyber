@@ -222,7 +222,6 @@ void polyvec_pointwise_acc(poly *r, const polyvec *a, const polyvec *b)
     }
     r->coeffs[j] = freeze(r->coeffs[j]);
   }
-}
 #endif
 }
 

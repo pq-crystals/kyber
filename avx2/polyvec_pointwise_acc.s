@@ -388,7 +388,7 @@ vpaddw		%ymm6,%ymm7,%ymm7
 vpmulhw		%ymm3,%ymm7,%ymm8
 vpsraw		$11,%ymm8,%ymm8
 vpmullw		%ymm1,%ymm8,%ymm8
-vpsubw		%ymm7,%ymm8,%ymm8
+vpsubw		%ymm8,%ymm7,%ymm8
 
 #store
 vmovdqa		%ymm8,(%rdi)

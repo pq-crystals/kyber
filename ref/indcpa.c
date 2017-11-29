@@ -117,7 +117,7 @@ void indcpa_keypair(unsigned char *pk,
   unsigned char nonce=0;
 
   randombytes(buf, KYBER_SYMBYTES);
-  shake256(buf, KYBER_SYMBYTES+KYBER_SYMBYTES, buf, KYBER_SYMBYTES);
+  sha3_512(buf, buf, KYBER_SYMBYTES);
 
   gen_a(a, publicseed);
 

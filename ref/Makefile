@@ -1,7 +1,6 @@
 CC 		    = /usr/bin/cc
 CFLAGS    = -g -Wall -Wextra -O3 -fomit-frame-pointer -march=native -fPIC
 NISTFLAGS = -O3 -fomit-frame-pointer -march=native -fPIC
-CLANG     = clang -march=native -O3 -fomit-frame-pointer -fwrapv -Qunused-arguments
 RM 		    = /bin/rm
 
 all: test_kyber512 \
@@ -18,7 +17,7 @@ all: test_kyber512 \
 		 speed1024 \
      PQCgenKAT_kem \
 
-SOURCES = kem.c poly.c polyvec.c fips202.o reduce.c cbd.c precomp.c ntt.c verify.c indcpa.c kex.c
+SOURCES = kem.c poly.c polyvec.c fips202.c reduce.c cbd.c precomp.c ntt.c verify.c indcpa.c kex.c
 HEADERS = params.h poly.h polyvec.h reduce.h cbd.h ntt.h verify.h indcpa.h kex.h
 
 test_kyber512: $(SOURCES) $(HEADERS) test_kyber.c randombytes.c randombytes.h
@@ -60,9 +59,6 @@ speed1024: $(SOURCES) $(HEADERS) cpucycles.h cpucycles.c speed.c randombytes.c r
 PQCgenKAT_kem: $(SOURCES) $(HEADERS) PQCgenKAT_kem.c rng.c rng.h
 	$(CC) $(NISTFLAGS) -o $@ $(SOURCES) -I. rng.c PQCgenKAT_kem.c -lcrypto
 
-
-fips202.o: fips202.c
-	$(CLANG) -c -fPIC $^ -o $@
 
 .PHONY: clean test
 
