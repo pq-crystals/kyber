@@ -459,7 +459,6 @@ void sha3_256(unsigned char *output, const unsigned char *input,  unsigned long 
   /* Squeeze output */
   keccak_squeezeblocks(t, 1, s, SHA3_256_RATE);
 
-  keccak_squeezeblocks(t, 1, s, SHA3_256_RATE);
   for(i=0;i<32;i++)
       output[i] = t[i];
 }
@@ -476,7 +475,6 @@ void sha3_512(unsigned char *output, const unsigned char *input,  unsigned long 
   /* Squeeze output */
   keccak_squeezeblocks(t, 1, s, SHA3_512_RATE);
 
-  keccak_squeezeblocks(t, 1, s, SHA3_512_RATE);
   for(i=0;i<64;i++)
       output[i] = t[i];
 }
