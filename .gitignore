@@ -1,0 +1,6 @@
+*.dSYM
+*.pyc
+.DS_Store
+*.req
+*.rsp
+*.o
