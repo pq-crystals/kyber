@@ -59,7 +59,7 @@ void gen_matrix(polyvec *a, const unsigned char *seed, int transposed) //XXX: No
   unsigned int nblocks=4;
   uint8_t buf[SHAKE128_RATE*nblocks];
   int i,j;
-  uint64_t state[25]; // CSHAKE state
+  uint64_t state[25]; // SHAKE state
   unsigned char extseed[KYBER_SYMBYTES+2];
 
   for(i=0;i<KYBER_SYMBYTES;i++)

@@ -101,6 +101,7 @@ int main()
     t[i] = cpucycles();
     poly_getnoise(&ap, seed, 0);
   }
+  print_results("poly_getnoise: ", t, NTESTS);
 
   for(i=0; i<NTESTS; i++)
   {
