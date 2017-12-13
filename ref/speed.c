@@ -41,7 +41,6 @@ static void print_results(const char *s, unsigned long long *t, size_t tlen)
   for(i=0;i<tlen-1;i++)
   {
     t[i] = t[i+1] - t[i];
-  //  printf("%llu ", t[i]);
   }
   printf("\n");
   printf("median: %llu\n", median(t, tlen));
@@ -113,7 +112,7 @@ int main()
   for(i=0; i<NTESTS; i++)
   {
     t[i] = cpucycles();
-    crypto_kem_enc(key_b, sendb+i*KYBER_CIPHERTEXTBYTES, senda+i*KYBER_PUBLICKEYBYTES);
+    crypto_kem_enc(sendb+i*KYBER_CIPHERTEXTBYTES, key_b, senda+i*KYBER_PUBLICKEYBYTES);
   }
   print_results("kyber_encaps:  ", t, NTESTS);
 
