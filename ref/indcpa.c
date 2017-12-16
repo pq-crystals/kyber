@@ -107,7 +107,18 @@ static void unpack_sk(polyvec *sk, const unsigned char *packedsk)
 #define gen_a(A,B)  gen_matrix(A,B,0)
 #define gen_at(A,B) gen_matrix(A,B,1)
 
-/* Generate entry a_{i,j} of matrix A as Parse(SHAKE128(seed|i|j)) */
+/*************************************************
+* Name:        gen_matrix
+* 
+* Description: Deterministically generate matrix A (or the transpose of A)
+*              from a seed. Entries of the matrix are polynomials that look
+*              uniformly random. Performs rejection sampling on output of 
+*              SHAKE-128
+*
+* Arguments:   - polyvec *a:                pointer to ouptput matrix A
+*              - const unsigned char *seed: pointer to input seed
+*              - int transposed:            boolean deciding whether A or A^T is generated
+**************************************************/
 void gen_matrix(polyvec *a, const unsigned char *seed, int transposed) //XXX: Not static for benchmarking
 {
   unsigned int pos=0, ctr;
