@@ -7,7 +7,15 @@ extern const uint16_t omegas_inv_bitrev_montgomery[];
 extern const uint16_t psis_inv_montgomery[];
 extern const uint16_t zetas[];
 
-/* Forward NTT, normal to bitreversed order */
+/*************************************************
+* Name:        ntt
+* 
+* Description: Computes negacyclic number-theoretic transform (NTT) of
+*              a polynomial (vector of 256 coefficients) in place; 
+*              inputs assumed to be in normal order, output in bitreversed order
+*
+* Arguments:   - uint16_t *p: pointer to in/output polynomial
+**************************************************/
 void ntt(uint16_t *p) 
 {
   int level, start, j, k;
@@ -34,7 +42,15 @@ void ntt(uint16_t *p)
   }
 }
 
-/* Inverse NTT, bitreversed to normal order */
+/*************************************************
+* Name:        invntt
+* 
+* Description: Computes inverse of negacyclic number-theoretic transform (NTT) of
+*              a polynomial (vector of 256 coefficients) in place; 
+*              inputs assumed to be in bitreversed order, output in normal order
+*
+* Arguments:   - uint16_t *a: pointer to in/output polynomial
+**************************************************/
 void invntt(uint16_t * a)
 {
   int start, j, jTwiddle, level;

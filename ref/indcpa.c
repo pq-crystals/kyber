@@ -6,6 +6,17 @@
 #include "fips202.h"
 #include "ntt.h"
 
+/*************************************************
+* Name:        pack_pk
+* 
+* Description: Serialize the public key as concatenation of the
+*              compressed and serialized vector of polynomials pk 
+*              and the public seed used to generate the matrix A.
+*
+* Arguments:   unsigned char *r:          pointer to the output serialized public key
+*              const poly *pk:            pointer to the input public-key polynomial
+*              const unsigned char *seed: pointer to the input public seed
+**************************************************/
 static void pack_pk(unsigned char *r, const polyvec *pk, const unsigned char *seed)
 {
   int i;
@@ -14,7 +25,16 @@ static void pack_pk(unsigned char *r, const polyvec *pk, const unsigned char *se
     r[i+KYBER_POLYVECCOMPRESSEDBYTES] = seed[i];
 }
 
-
+/*************************************************
+* Name:        unpack_pk
+* 
+* Description: De-serialize and decompress public key from a byte array;
+*              approximate inverse of pack_pk
+*
+* Arguments:   - polyvec *pk:                   pointer to output public-key vector of polynomials
+*              - unsigned char *seed:           pointer to output seed to generate matrix A
+*              - const unsigned char *packedpk: pointer to input serialized public key
+**************************************************/
 static void unpack_pk(polyvec *pk, unsigned char *seed, const unsigned char *packedpk)
 {
   int i;
@@ -24,25 +44,61 @@ static void unpack_pk(polyvec *pk, unsigned char *seed, const unsigned char *pac
     seed[i] = packedpk[i+KYBER_POLYVECCOMPRESSEDBYTES];
 }
 
-
+/*************************************************
+* Name:        pack_ciphertext
+* 
+* Description: Serialize the ciphertext as concatenation of the
+*              compressed and serialized vector of polynomials b
+*              and the compressed and serialized polynomial v
+*
+* Arguments:   unsigned char *r:          pointer to the output serialized ciphertext
+*              const poly *pk:            pointer to the input vector of polynomials b
+*              const unsigned char *seed: pointer to the input polynomial v
+**************************************************/
 static void pack_ciphertext(unsigned char *r, const polyvec *b, const poly *v)
 {
   polyvec_compress(r, b);
   poly_compress(r+KYBER_POLYVECCOMPRESSEDBYTES, v);
 }
 
-
+/*************************************************
+* Name:        unpack_ciphertext
+* 
+* Description: De-serialize and decompress ciphertext from a byte array;
+*              approximate inverse of pack_ciphertext
+*
+* Arguments:   - polyvec *b:             pointer to the output vector of polynomials b
+*              - poly *v:                pointer to the output polynomial v
+*              - const unsigned char *c: pointer to the input serialized ciphertext
+**************************************************/
 static void unpack_ciphertext(polyvec *b, poly *v, const unsigned char *c)
 {
   polyvec_decompress(b, c);
   poly_decompress(v, c+KYBER_POLYVECCOMPRESSEDBYTES);
 }
 
+/*************************************************
+* Name:        pack_sk
+* 
+* Description: Serialize the secret key
+*
+* Arguments:   - unsigned char *r:  pointer to output serialized secret key
+*              - const polyvec *sk: pointer to input vector of polynomials (secret key)
+**************************************************/
 static void pack_sk(unsigned char *r, const polyvec *sk)
 {
   polyvec_tobytes(r, sk);
 }
 
+/*************************************************
+* Name:        unpack_sk
+* 
+* Description: De-serialize the secret key;
+*              inverse of pack_sk
+*
+* Arguments:   - polyvec *sk:                   pointer to output vector of polynomials (secret key)
+*              - const unsigned char *packedsk: pointer to input serialized secret key
+**************************************************/
 static void unpack_sk(polyvec *sk, const unsigned char *packedsk)
 {
   polyvec_frombytes(sk, packedsk);
@@ -106,6 +162,15 @@ void gen_matrix(polyvec *a, const unsigned char *seed, int transposed) //XXX: No
 }
 
 
+/*************************************************
+* Name:        indcpa_keypair
+* 
+* Description: Generates public and private key for the CPA-secure 
+*              public-key encryption scheme underlying Kyber
+*
+* Arguments:   - unsigned char *pk: pointer to output public key
+*              - unsigned char *sk: pointer to output private key
+**************************************************/
 void indcpa_keypair(unsigned char *pk, 
                    unsigned char *sk)
 {
@@ -141,6 +206,18 @@ void indcpa_keypair(unsigned char *pk,
 }
 
 
+/*************************************************
+* Name:        indcpa_enc
+* 
+* Description: Encryption function of the CPA-secure 
+*              public-key encryption scheme underlying Kyber.
+*
+* Arguments:   - unsigned char *c:          pointer to output ciphertext
+*              - const unsigned char *m:    pointer to input message (of length KYBER_SYMBYTES bytes)
+*              - const unsigned char *pk:   pointer to input public key
+*              - const unsigned char *coin: pointer to input random coins used as seed
+*                                           to deterministically generate all randomness
+**************************************************/
 void indcpa_enc(unsigned char *c,
                const unsigned char *m,
                const unsigned char *pk,
@@ -187,7 +264,16 @@ void indcpa_enc(unsigned char *c,
   pack_ciphertext(c, &bp, &v);
 }
 
-
+/*************************************************
+* Name:        indcpa_dec
+* 
+* Description: Decryption function of the CPA-secure 
+*              public-key encryption scheme underlying Kyber.
+*
+* Arguments:   - unsigned char *m:        pointer to output decrypted message
+*              - const unsigned char *c:  pointer to input ciphertext
+*              - const unsigned char *sk: pointer to input secret key
+**************************************************/
 void indcpa_dec(unsigned char *m,
                const unsigned char *c,
                const unsigned char *sk)

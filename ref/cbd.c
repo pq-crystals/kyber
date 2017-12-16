@@ -1,5 +1,16 @@
 #include "cbd.h"
 
+/*************************************************
+* Name:        load_littleendian
+* 
+* Description: load bytes into a 64-bit integer 
+*              in little-endian order
+*
+* Arguments:   - const unsigned char *x: pointer to input byte array
+*              - bytes:                  number of bytes to load, has to be <= 8
+*
+* Returns 64-bit unsigned integer loaded from x
+**************************************************/
 static uint64_t load_littleendian(const unsigned char *x, int bytes)
 {
   int i;
@@ -9,7 +20,16 @@ static uint64_t load_littleendian(const unsigned char *x, int bytes)
   return r;
 }
 
-
+/*************************************************
+* Name:        cbd
+* 
+* Description: Given an array of uniformly random bytes, compute 
+*              polynomial with coefficients distributed according to
+*              a centered binomial distribution with parameter KYBER_ETA
+*
+* Arguments:   - poly *r:                  pointer to output polynomial  
+*              - const unsigned char *buf: pointer to input byte array
+**************************************************/
 void cbd(poly *r, const unsigned char *buf)
 {
 #if KYBER_ETA == 3

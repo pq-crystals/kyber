@@ -12,6 +12,15 @@
 #define NROUNDS 24
 #define ROL(a, offset) ((a << offset) ^ (a >> (64-offset)))
 
+/*************************************************
+* Name:        load64
+* 
+* Description: Load 8 bytes into uint64_t in little-endian order
+*
+* Arguments:   - const unsigned char *x: pointer to input byte array
+*
+* Returns the loaded 64-bit unsigned integer
+**************************************************/
 static uint64_t load64(const unsigned char *x)
 {
   unsigned long long r = 0, i;
@@ -22,6 +31,14 @@ static uint64_t load64(const unsigned char *x)
   return r;
 }
 
+/*************************************************
+* Name:        store64
+* 
+* Description: Store a 64-bit integer to a byte array in little-endian order
+*
+* Arguments:   - uint8_t *x: pointer to the output byte array
+*              - uint64_t u: input 64-bit unsigned integer
+**************************************************/
 static void store64(uint8_t *x, uint64_t u)
 {
   unsigned int i;
@@ -32,6 +49,7 @@ static void store64(uint8_t *x, uint64_t u)
   }
 }
 
+/* Keccak round constants */
 static const uint64_t KeccakF_RoundConstants[NROUNDS] = 
 {
     (uint64_t)0x0000000000000001ULL,
@@ -60,6 +78,13 @@ static const uint64_t KeccakF_RoundConstants[NROUNDS] =
     (uint64_t)0x8000000080008008ULL
 };
 
+/*************************************************
+* Name:        KeccakF1600_StatePermute
+* 
+* Description: The Keccak F1600 Permutation
+*
+* Arguments:   - uint64_t * state: pointer to in/output Keccak state
+**************************************************/
 void KeccakF1600_StatePermute(uint64_t * state)
 {
   int round;
@@ -331,6 +356,18 @@ void KeccakF1600_StatePermute(uint64_t * state)
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
 
 
+/*************************************************
+* Name:        keccak_absorb
+* 
+* Description: Absorb step of Keccak;
+*              non-incremental, starts by zeroeing the state.
+*
+* Arguments:   - uint64_t *s:             pointer to (uninitialized) output Keccak state
+*              - unsigned int r:          rate in bytes (e.g., 168 for SHAKE128)
+*              - const unsigned char *m:  pointer to input to be absorbed into s
+*              - unsigned long long mlen: length of input in bytes
+*              - unsigned char p:         domain-separation byte for different Keccak-derived functions
+**************************************************/
 static void keccak_absorb(uint64_t *s,
                           unsigned int r,
                           const unsigned char *m, unsigned long long int mlen,
@@ -364,6 +401,18 @@ static void keccak_absorb(uint64_t *s,
 }
 
 
+/*************************************************
+* Name:        keccak_squeezeblocks
+* 
+* Description: Squeeze step of Keccak. Squeezes full blocks of r bytes each.
+*              Modifies the state. Can be called multiple times to keep squeezing,
+*              i.e., is incremental.
+*
+* Arguments:   - unsigned char *h:               pointer to output blocks
+*              - unsigned long long int nblocks: number of blocks to be squeezed (written to h)
+*              - uint64_t *s:                    pointer to in/output Keccak state
+*              - unsigned int r:                 rate in bytes (e.g., 168 for SHAKE128)
+**************************************************/
 static void keccak_squeezeblocks(unsigned char *h, unsigned long long int nblocks,
                                  uint64_t *s, 
                                  unsigned int r)
@@ -382,18 +431,47 @@ static void keccak_squeezeblocks(unsigned char *h, unsigned long long int nblock
 }
 
 
-
-
+/*************************************************
+* Name:        shake128_absorb
+* 
+* Description: Absorb step of the SHAKE128 XOF.
+*              non-incremental, starts by zeroeing the state.
+*
+* Arguments:   - uint64_t *s:                     pointer to (uninitialized) output Keccak state
+*              - const unsigned char *input:      pointer to input to be absorbed into s
+*              - unsigned long long inputByteLen: length of input in bytes
+**************************************************/
 void shake128_absorb(uint64_t *s, const unsigned char *input, unsigned int inputByteLen)
 {
   keccak_absorb(s, SHAKE128_RATE, input, inputByteLen, 0x1F);
 }
 
+/*************************************************
+* Name:        shake128_squeezeblocks
+* 
+* Description: Squeeze step of SHAKE128 XOF. Squeezes full blocks of SHAKE128_RATE bytes each.
+*              Modifies the state. Can be called multiple times to keep squeezing,
+*              i.e., is incremental.
+*
+* Arguments:   - unsigned char *output:      pointer to output blocks
+*              - unsigned long long nblocks: number of blocks to be squeezed (written to output)
+*              - uint64_t *s:                pointer to in/output Keccak state
+**************************************************/
 void shake128_squeezeblocks(unsigned char *output, unsigned long long nblocks, uint64_t *s)
 {
   keccak_squeezeblocks(output, nblocks, s, SHAKE128_RATE);
 }
 
+/*************************************************
+* Name:        shake256
+* 
+* Description: SHAKE256 XOF with non-incremental API
+*
+* Arguments:   - unsigned char *output:      pointer to output
+*              - unsigned long long outlen:  requested output length in bytes
+               - const unsigned char *input: pointer to input
+               - unsigned long long inlen:   length of input in bytes
+**************************************************/
 void shake256(unsigned char *output, unsigned long long outlen, 
               const unsigned char *input,  unsigned long long inlen)
 {
@@ -419,6 +497,15 @@ void shake256(unsigned char *output, unsigned long long outlen,
   }
 }
 
+/*************************************************
+* Name:        sha3_256
+* 
+* Description: SHAKE256 XOF with non-incremental API
+*
+* Arguments:   - unsigned char *output:      pointer to output
+*              - const unsigned char *input: pointer to input 
+*              - unsigned long long inlen:   length of input in bytes
+**************************************************/
 void sha3_256(unsigned char *output, const unsigned char *input,  unsigned long long inlen)
 {
   uint64_t s[25];
@@ -435,6 +522,15 @@ void sha3_256(unsigned char *output, const unsigned char *input,  unsigned long 
       output[i] = t[i];
 }
 
+/*************************************************
+* Name:        sha3_512
+* 
+* Description: SHAKE256 XOF with non-incremental API
+*
+* Arguments:   - unsigned char *output:      pointer to output
+*              - const unsigned char *input: pointer to input 
+*              - unsigned long long inlen:   length of input in bytes
+**************************************************/
 void sha3_512(unsigned char *output, const unsigned char *input,  unsigned long long inlen)
 {
   uint64_t s[25];

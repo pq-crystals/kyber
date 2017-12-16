@@ -5,6 +5,15 @@
 #include "reduce.h"
 
 #if (KYBER_POLYVECCOMPRESSEDBYTES == (KYBER_K * 352))
+
+/*************************************************
+* Name:        polyvec_compress
+* 
+* Description: Compress and serialize vector of polynomials
+*
+* Arguments:   - unsigned char *r: pointer to output byte array 
+*              - const polyvec *a: pointer to input vector of polynomials
+**************************************************/
 void polyvec_compress(unsigned char *r, const polyvec *a)
 {
   int i,j,k;
@@ -32,6 +41,15 @@ void polyvec_compress(unsigned char *r, const polyvec *a)
   }
 }
 
+/*************************************************
+* Name:        polyvec_decompress
+* 
+* Description: De-serialize and decompress vector of polynomials;
+*              approximate inverse of polyvec_compress
+*
+* Arguments:   - polyvec *r:       pointer to output vector of polynomials
+*              - unsigned char *a: pointer to input byte array
+**************************************************/
 void polyvec_decompress(polyvec *r, const unsigned char *a)
 {
   int i,j;
@@ -172,6 +190,14 @@ void polyvec_decompress(polyvec *r, const unsigned char *a)
   #error "Unsupported compression of polyvec"
 #endif
 
+/*************************************************
+* Name:        polyvec_tobytes
+* 
+* Description: Serialize vector of polynomials
+*
+* Arguments:   - unsigned char *r: pointer to output byte array 
+*              - const polyvec *a: pointer to input vector of polynomials
+**************************************************/
 void polyvec_tobytes(unsigned char *r, const polyvec *a)
 {
   int i;
@@ -179,6 +205,15 @@ void polyvec_tobytes(unsigned char *r, const polyvec *a)
     poly_tobytes(r+i*KYBER_POLYBYTES, &a->vec[i]);
 }
 
+/*************************************************
+* Name:        polyvec_frombytes
+* 
+* Description: De-serialize vector of polynomials;
+*              inverse of polyvec_tobytes 
+*
+* Arguments:   - unsigned char *r: pointer to output byte array 
+*              - const polyvec *a: pointer to input vector of polynomials
+**************************************************/
 void polyvec_frombytes(polyvec *r, const unsigned char *a)
 {
   int i;
@@ -186,6 +221,13 @@ void polyvec_frombytes(polyvec *r, const unsigned char *a)
     poly_frombytes(&r->vec[i], a+i*KYBER_POLYBYTES);
 }
 
+/*************************************************
+* Name:        polyvec_ntt
+* 
+* Description: Apply forward NTT to all elements of a vector of polynomials
+*
+* Arguments:   - polyvec *r: pointer to in/output vector of polynomials
+**************************************************/
 void polyvec_ntt(polyvec *r)
 {
   int i;
@@ -193,13 +235,29 @@ void polyvec_ntt(polyvec *r)
     poly_ntt(&r->vec[i]);
 }
 
+/*************************************************
+* Name:        polyvec_invntt
+* 
+* Description: Apply inverse NTT to all elements of a vector of polynomials
+*
+* Arguments:   - polyvec *r: pointer to in/output vector of polynomials
+**************************************************/
 void polyvec_invntt(polyvec *r)
 {
   int i;
   for(i=0;i<KYBER_K;i++)
     poly_invntt(&r->vec[i]);
 }
-  
+ 
+/*************************************************
+* Name:        polyvec_pointwise_acc
+* 
+* Description: Pointwise multiply elements of a and b and accumulate into r
+*
+* Arguments: - poly *r:          pointer to output polynomial
+*            - const polyvec *a: pointer to first input vector of polynomials
+*            - const polyvec *b: pointer to second input vector of polynomials
+**************************************************/ 
 void polyvec_pointwise_acc(poly *r, const polyvec *a, const polyvec *b)
 {
   int i,j;
@@ -217,6 +275,15 @@ void polyvec_pointwise_acc(poly *r, const polyvec *a, const polyvec *b)
   }
 }
 
+/*************************************************
+* Name:        polyvec_add
+* 
+* Description: Add vectors of polynomials
+*
+* Arguments: - polyvec *r:       pointer to output vector of polynomials
+*            - const polyvec *a: pointer to first input vector of polynomials
+*            - const polyvec *b: pointer to second input vector of polynomials
+**************************************************/ 
 void polyvec_add(polyvec *r, const polyvec *a, const polyvec *b)
 {
   int i;
