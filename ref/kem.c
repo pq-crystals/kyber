@@ -81,10 +81,9 @@ int crypto_kem_dec(unsigned char *ss, const unsigned char *ct, const unsigned ch
   const unsigned char *pk = sk+KYBER_INDCPA_SECRETKEYBYTES;
 
   indcpa_dec(buf, ct, sk);
-
-  // shake256(buf+KYBER_SYMBYTES, KYBER_SYMBYTES, pk, KYBER_PUBLICKEYBYTES);  /* Multitarget countermeasure for coins + contributory KEM */
-  for(i=0;i<KYBER_SYMBYTES;i++)                                               /* Save hash by storing H(pk) in sk */
-    buf[KYBER_SYMBYTES+i] = sk[KYBER_SECRETKEYBYTES-2*KYBER_SYMBYTES+i];
+                                                                              
+  for(i=0;i<KYBER_SYMBYTES;i++)                                               /* Multitarget countermeasure for coins + contributory KEM */
+    buf[KYBER_SYMBYTES+i] = sk[KYBER_SECRETKEYBYTES-2*KYBER_SYMBYTES+i];      /* Save hash by storing H(pk) in sk */
   sha3_512(kr, buf, 2*KYBER_SYMBYTES);
 
   indcpa_enc(cmp, buf, pk, kr+KYBER_SYMBYTES);                                /* coins are in kr+KYBER_SYMBYTES */

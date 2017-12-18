@@ -108,6 +108,6 @@ void cbd(poly *r, const unsigned char *buf)
     r->coeffs[4*i+3] = a[3] + KYBER_Q - b[3];
   }
 #else
-#error "poly_getnoise in poly.c only supports etain {3,4,5}"
+#error "poly_getnoise in poly.c only supports eta in {3,4,5}"
 #endif
 }

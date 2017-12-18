@@ -500,7 +500,7 @@ void shake256(unsigned char *output, unsigned long long outlen,
 /*************************************************
 * Name:        sha3_256
 * 
-* Description: SHAKE256 XOF with non-incremental API
+* Description: SHA3-256 with non-incremental API
 *
 * Arguments:   - unsigned char *output:      pointer to output
 *              - const unsigned char *input: pointer to input 
@@ -525,7 +525,7 @@ void sha3_256(unsigned char *output, const unsigned char *input,  unsigned long 
 /*************************************************
 * Name:        sha3_512
 * 
-* Description: SHAKE256 XOF with non-incremental API
+* Description: SHA3-512 with non-incremental API
 *
 * Arguments:   - unsigned char *output:      pointer to output
 *              - const unsigned char *input: pointer to input 

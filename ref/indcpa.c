@@ -119,7 +119,7 @@ static void unpack_sk(polyvec *sk, const unsigned char *packedsk)
 *              - const unsigned char *seed: pointer to input seed
 *              - int transposed:            boolean deciding whether A or A^T is generated
 **************************************************/
-void gen_matrix(polyvec *a, const unsigned char *seed, int transposed) //XXX: Not static for benchmarking
+void gen_matrix(polyvec *a, const unsigned char *seed, int transposed) // Not static for benchmarking
 {
   unsigned int pos=0, ctr;
   uint16_t val;

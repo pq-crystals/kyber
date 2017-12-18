@@ -5,9 +5,10 @@
 #define KYBER_K 3 /* Change this for different security strengths */
 #endif
 
+/* Don't change parameters below this line */
+
 #define KYBER_N 256
 #define KYBER_Q 7681
-
 
 #if   (KYBER_K == 2) /* Kyber512 */
 #define KYBER_ETA 5
