@@ -179,8 +179,8 @@ void gen_matrix(polyvec *a, const unsigned char *seed, int transposed) // Not st
 * Description: Generates public and private key for the CPA-secure 
 *              public-key encryption scheme underlying Kyber
 *
-* Arguments:   - unsigned char *pk: pointer to output public key
-*              - unsigned char *sk: pointer to output private key
+* Arguments:   - unsigned char *pk: pointer to output public key (of length KYBER_INDCPA_PUBLICKEYBYTES bytes)
+*              - unsigned char *sk: pointer to output private key (of length KYBER_INDCPA_SECRETKEYBYTES bytes)
 **************************************************/
 void indcpa_keypair(unsigned char *pk, 
                    unsigned char *sk)
@@ -223,10 +223,10 @@ void indcpa_keypair(unsigned char *pk,
 * Description: Encryption function of the CPA-secure 
 *              public-key encryption scheme underlying Kyber.
 *
-* Arguments:   - unsigned char *c:          pointer to output ciphertext
+* Arguments:   - unsigned char *c:          pointer to output ciphertext (of length KYBER_INDCPA_BYTES bytes)
 *              - const unsigned char *m:    pointer to input message (of length KYBER_SYMBYTES bytes)
-*              - const unsigned char *pk:   pointer to input public key
-*              - const unsigned char *coin: pointer to input random coins used as seed
+*              - const unsigned char *pk:   pointer to input public key (of length KYBER_INDCPA_PUBLICKEYBYTES bytes)
+*              - const unsigned char *coin: pointer to input random coins used as seed (of length KYBER_SYMBYTES bytes)
 *                                           to deterministically generate all randomness
 **************************************************/
 void indcpa_enc(unsigned char *c,
@@ -281,9 +281,9 @@ void indcpa_enc(unsigned char *c,
 * Description: Decryption function of the CPA-secure 
 *              public-key encryption scheme underlying Kyber.
 *
-* Arguments:   - unsigned char *m:        pointer to output decrypted message
-*              - const unsigned char *c:  pointer to input ciphertext
-*              - const unsigned char *sk: pointer to input secret key
+* Arguments:   - unsigned char *m:        pointer to output decrypted message (of length KYBER_INDCPA_MSGBYTES)
+*              - const unsigned char *c:  pointer to input ciphertext (of length KYBER_INDCPA_BYTES)
+*              - const unsigned char *sk: pointer to input secret key (of length KYBER_INDCPA_SECRETKEYBYTES)
 **************************************************/
 void indcpa_dec(unsigned char *m,
                const unsigned char *c,
