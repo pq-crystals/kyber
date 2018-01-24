@@ -224,7 +224,7 @@ void indcpa_keypair(unsigned char *pk,
 *              public-key encryption scheme underlying Kyber.
 *
 * Arguments:   - unsigned char *c:          pointer to output ciphertext (of length KYBER_INDCPA_BYTES bytes)
-*              - const unsigned char *m:    pointer to input message (of length KYBER_SYMBYTES bytes)
+*              - const unsigned char *m:    pointer to input message (of length KYBER_INDCPA_MSGBYTES bytes)
 *              - const unsigned char *pk:   pointer to input public key (of length KYBER_INDCPA_PUBLICKEYBYTES bytes)
 *              - const unsigned char *coin: pointer to input random coins used as seed (of length KYBER_SYMBYTES bytes)
 *                                           to deterministically generate all randomness
