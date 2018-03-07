@@ -10,8 +10,9 @@ static void genmatrix_ref(polyvec *a, const unsigned char *seed, int transposed)
 {
   unsigned int pos=0, ctr;
   uint16_t val;
-  unsigned int nblocks=4;
-  uint8_t buf[SHAKE128_RATE*nblocks];
+  unsigned int nblocks;
+  const unsigned int maxnblocks = 4;
+  uint8_t buf[SHAKE128_RATE*maxnblocks];
   int i,j;
   uint64_t state[25]; // CSHAKE state
   unsigned char extseed[KYBER_SYMBYTES+2];
@@ -25,6 +26,7 @@ static void genmatrix_ref(polyvec *a, const unsigned char *seed, int transposed)
     for(j=0;j<KYBER_K;j++)
     {
       ctr = pos = 0;
+      nblocks = maxnblocks;
       if(transposed) 
       {
         extseed[KYBER_SYMBYTES]   = i;
