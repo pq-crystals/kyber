@@ -44,9 +44,11 @@ void randombytes(unsigned char *buf,size_t buflen)
 
   while(d<buflen)
   {
+    errno = 0;
     r = syscall(SYS_getrandom, buf, buflen, 0); 
     if(r < 0) 
     {
+      if (errno == EINTR) continue;
       randombytes_fallback(buf, buflen);
       return;
     }
