@@ -1,4 +1,3 @@
-#include <stdio.h>
 #include "polyvec.h"
 #include "fips202.h"
 #include "cbd.h"

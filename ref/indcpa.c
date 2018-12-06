@@ -1,4 +1,3 @@
-#include <string.h>
 #include "indcpa.h"
 #include "poly.h"
 #include "polyvec.h"
