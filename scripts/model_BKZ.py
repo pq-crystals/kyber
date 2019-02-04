@@ -76,9 +76,9 @@ def construct_BKZ_shape(q, nq, n1, b):
     diff = glv - lv
     assert abs(diff) < lq               # Sanity check the volume, up to the discretness of index error
     for i in range(a, a+B):        # Small shift of the GSA sequence to equiliBrate volume
-        L[i] -= diff / B
+        L[i] += diff / B
     lv = sum(L) 
-    assert lv/glv - 1 < 1e-6        # Sanity check the volume
+    assert abs(lv/glv - 1) < 1e-6        # Sanity check the volume
 
     return (a, a + B, L)
 
