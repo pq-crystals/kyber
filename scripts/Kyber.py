@@ -28,7 +28,7 @@ def communication_costs(ps):
     :returns: (cost_Alice, cost_Bob) (in Bytes)
     """    
     A_space = 256 + ps.n * ps.m * log(ps.rqk)/log(2)
-    B_space = ps.n * ps.m * log(ps.rqc)/log(2) + ps.n * log(ps.rq2)/log(2) + 256
+    B_space = ps.n * ps.m * log(ps.rqc)/log(2) + ps.n * log(ps.rq2)/log(2)
     return (int(round(A_space))/8., int(round(B_space))/8.)
 
 
