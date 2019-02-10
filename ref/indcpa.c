@@ -7,9 +7,9 @@
 
 /*************************************************
 * Name:        pack_pk
-* 
+*
 * Description: Serialize the public key as concatenation of the
-*              compressed and serialized vector of polynomials pk 
+*              compressed and serialized vector of polynomials pk
 *              and the public seed used to generate the matrix A.
 *
 * Arguments:   unsigned char *r:          pointer to the output serialized public key
@@ -26,7 +26,7 @@ static void pack_pk(unsigned char *r, const polyvec *pk, const unsigned char *se
 
 /*************************************************
 * Name:        unpack_pk
-* 
+*
 * Description: De-serialize and decompress public key from a byte array;
 *              approximate inverse of pack_pk
 *
@@ -45,7 +45,7 @@ static void unpack_pk(polyvec *pk, unsigned char *seed, const unsigned char *pac
 
 /*************************************************
 * Name:        pack_ciphertext
-* 
+*
 * Description: Serialize the ciphertext as concatenation of the
 *              compressed and serialized vector of polynomials b
 *              and the compressed and serialized polynomial v
@@ -62,7 +62,7 @@ static void pack_ciphertext(unsigned char *r, const polyvec *b, const poly *v)
 
 /*************************************************
 * Name:        unpack_ciphertext
-* 
+*
 * Description: De-serialize and decompress ciphertext from a byte array;
 *              approximate inverse of pack_ciphertext
 *
@@ -78,7 +78,7 @@ static void unpack_ciphertext(polyvec *b, poly *v, const unsigned char *c)
 
 /*************************************************
 * Name:        pack_sk
-* 
+*
 * Description: Serialize the secret key
 *
 * Arguments:   - unsigned char *r:  pointer to output serialized secret key
@@ -91,7 +91,7 @@ static void pack_sk(unsigned char *r, const polyvec *sk)
 
 /*************************************************
 * Name:        unpack_sk
-* 
+*
 * Description: De-serialize the secret key;
 *              inverse of pack_sk
 *
@@ -108,10 +108,10 @@ static void unpack_sk(polyvec *sk, const unsigned char *packedsk)
 
 /*************************************************
 * Name:        gen_matrix
-* 
+*
 * Description: Deterministically generate matrix A (or the transpose of A)
 *              from a seed. Entries of the matrix are polynomials that look
-*              uniformly random. Performs rejection sampling on output of 
+*              uniformly random. Performs rejection sampling on output of
 *              SHAKE-128
 *
 * Arguments:   - polyvec *a:                pointer to ouptput matrix A
@@ -139,7 +139,7 @@ void gen_matrix(polyvec *a, const unsigned char *seed, int transposed) // Not st
     {
       ctr = pos = 0;
       nblocks = maxnblocks;
-      if(transposed) 
+      if(transposed)
       {
         extseed[KYBER_SYMBYTES]   = i;
         extseed[KYBER_SYMBYTES+1] = j;
@@ -149,7 +149,7 @@ void gen_matrix(polyvec *a, const unsigned char *seed, int transposed) // Not st
         extseed[KYBER_SYMBYTES]   = j;
         extseed[KYBER_SYMBYTES+1] = i;
       }
-        
+
       shake128_absorb(state,extseed,KYBER_SYMBYTES+2);
       shake128_squeezeblocks(buf,nblocks,state);
 
@@ -176,14 +176,14 @@ void gen_matrix(polyvec *a, const unsigned char *seed, int transposed) // Not st
 
 /*************************************************
 * Name:        indcpa_keypair
-* 
-* Description: Generates public and private key for the CPA-secure 
+*
+* Description: Generates public and private key for the CPA-secure
 *              public-key encryption scheme underlying Kyber
 *
 * Arguments:   - unsigned char *pk: pointer to output public key (of length KYBER_INDCPA_PUBLICKEYBYTES bytes)
 *              - unsigned char *sk: pointer to output private key (of length KYBER_INDCPA_SECRETKEYBYTES bytes)
 **************************************************/
-void indcpa_keypair(unsigned char *pk, 
+void indcpa_keypair(unsigned char *pk,
                    unsigned char *sk)
 {
   polyvec a[KYBER_K], e, pkpv, skpv;
@@ -202,7 +202,7 @@ void indcpa_keypair(unsigned char *pk,
     poly_getnoise(skpv.vec+i,noiseseed,nonce++);
 
   polyvec_ntt(&skpv);
-  
+
   for(i=0;i<KYBER_K;i++)
     poly_getnoise(e.vec+i,noiseseed,nonce++);
 
@@ -220,8 +220,8 @@ void indcpa_keypair(unsigned char *pk,
 
 /*************************************************
 * Name:        indcpa_enc
-* 
-* Description: Encryption function of the CPA-secure 
+*
+* Description: Encryption function of the CPA-secure
 *              public-key encryption scheme underlying Kyber.
 *
 * Arguments:   - unsigned char *c:          pointer to output ciphertext (of length KYBER_INDCPA_BYTES bytes)
@@ -264,7 +264,7 @@ void indcpa_enc(unsigned char *c,
 
   polyvec_invntt(&bp);
   polyvec_add(&bp, &bp, &ep);
- 
+
   polyvec_pointwise_acc(&v, &pkpv, &sp);
   poly_invntt(&v);
 
@@ -278,8 +278,8 @@ void indcpa_enc(unsigned char *c,
 
 /*************************************************
 * Name:        indcpa_dec
-* 
-* Description: Decryption function of the CPA-secure 
+*
+* Description: Decryption function of the CPA-secure
 *              public-key encryption scheme underlying Kyber.
 *
 * Arguments:   - unsigned char *m:        pointer to output decrypted message (of length KYBER_INDCPA_MSGBYTES)

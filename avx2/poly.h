@@ -22,7 +22,7 @@ void poly_getnoise4x(poly *r0, poly *r1, poly *r2, poly *r3, const unsigned char
 
 void poly_ntt(poly *r);
 void poly_invntt(poly *r);
-  
+
 void poly_add(poly *r, const poly *a, const poly *b);
 void poly_sub(poly *r, const poly *a, const poly *b);
 

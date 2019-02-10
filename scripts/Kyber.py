@@ -9,8 +9,8 @@ class KyberParameterSet:
         self.m = m
         self.ks= ks     # binary distribution for the secret key
         self.ke = ke    # binary distribution for the ciphertext errors
-        self.q = q 
-        self.rqk = rqk  # 2^(bits in the public key)  
+        self.q = q
+        self.rqk = rqk  # 2^(bits in the public key)
         self.rqc = rqc  # 2^(bits in the first ciphertext)
         self.rq2 = rq2  # 2^(bits in the second ciphertext)
 
@@ -26,7 +26,7 @@ def communication_costs(ps):
     """ Compute the communication cost of a parameter set
     :param ps: Parameter set (ParameterSet)
     :returns: (cost_Alice, cost_Bob) (in Bytes)
-    """    
+    """
     A_space = 256 + ps.n * ps.m * log(ps.rqk)/log(2)
     B_space = ps.n * ps.m * log(ps.rqc)/log(2) + ps.n * log(ps.rq2)/log(2)
     return (int(round(A_space))/8., int(round(B_space))/8.)
@@ -43,7 +43,7 @@ if __name__ == "__main__":
     # Parameter sets
     ps_light = KyberParameterSet(256, 2, 5, 5, 7681, 2**11, 2**11, 2**3)
     ps_recommended = KyberParameterSet(256, 3, 4, 4, 7681, 2**11, 2**11, 2**3)
-    ps_paranoid = KyberParameterSet(256, 4, 3, 3, 7681, 2**11, 2**11, 2**3)
+    ps_paranoid = KyberParameterSet(256, 4, 3, 3, 7681, 2**11, 2**12, 2**3)
 
     # Analyses
     print ("Kyber512 (light):")

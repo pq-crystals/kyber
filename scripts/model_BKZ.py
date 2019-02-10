@@ -12,7 +12,7 @@ def delta_BKZ(b):
 def svp_plausible(b):
     """ log_2 of best plausible Quantum Cost of SVP in dimension b
     """
-    return b *log(sqrt(4./3))/log(2)   # .2075 * b 
+    return b *log(sqrt(4./3))/log(2)   # .2075 * b
 
 
 def svp_quantum(b):
@@ -36,7 +36,7 @@ def nvec_sieve(b):
 ## Adding Memoization to this really slow function
 # @functools.lru_cache(maxsize=2**20)
 def construct_BKZ_shape(q, nq, n1, b):
-    """ Simulate the (log) shape of a basis after the reduction of 
+    """ Simulate the (log) shape of a basis after the reduction of
         a [q ... q, 1 ... 1] shape after BKZ-b reduction (nq many q's, n1 many 1's)
         This is implemented by constructing a longer shape and looking
         for the subshape with the right volume. Also outputs the index of the
@@ -46,7 +46,7 @@ def construct_BKZ_shape(q, nq, n1, b):
         # a compressed description of the shape in time O(1), but it is much
         # more prone to making mistakes
 
-    """ 
+    """
     d = nq+n1
     if b==0:
         L = nq*[log(q)] + n1*[0]
@@ -77,17 +77,17 @@ def construct_BKZ_shape(q, nq, n1, b):
     assert abs(diff) < lq               # Sanity check the volume, up to the discretness of index error
     for i in range(a, a+B):        # Small shift of the GSA sequence to equiliBrate volume
         L[i] += diff / B
-    lv = sum(L) 
+    lv = sum(L)
     assert abs(lv/glv - 1) < 1e-6        # Sanity check the volume
 
     return (a, a + B, L)
 
 
 def construct_BKZ_shape_randomized(q, nq, n1, b):
-    """ Simulate the (log) shape of a basis after the reduction of 
-        a [q ... q, 1 ... 1] shape after a randomization and a BKZ-b reduction 
+    """ Simulate the (log) shape of a basis after the reduction of
+        a [q ... q, 1 ... 1] shape after a randomization and a BKZ-b reduction
         (such that no GS vectors gets smaller than 1)
-    """ 
+    """
     glv = nq * log(q)
     d = nq+n1
     L = []
@@ -105,13 +105,13 @@ def construct_BKZ_shape_randomized(q, nq, n1, b):
     L += (d-B)*[0]
     a = 0                        # The length of the [q, ... q] sequence
 
-    lv = sum(L) 
+    lv = sum(L)
     diff = lv - glv
     #print diff, li
     #assert abs(diff) < li          # Sanity check the volume, up to the discretness of index error
     for i in range(a, a+B):        # Small shift of the GSA sequence to equiliBrate volume
         L[i] -= diff / B
-    lv = sum(L) 
+    lv = sum(L)
     assert abs(lv/glv - 1) < 1e-6        # Sanity check the volume
 
     return (a, a + B, L)

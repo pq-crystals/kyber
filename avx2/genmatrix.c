@@ -27,7 +27,7 @@ static void genmatrix_ref(polyvec *a, const unsigned char *seed, int transposed)
     {
       ctr = pos = 0;
       nblocks = maxnblocks;
-      if(transposed) 
+      if(transposed)
       {
         extseed[KYBER_SYMBYTES]   = i;
         extseed[KYBER_SYMBYTES+1] = j;
@@ -37,7 +37,7 @@ static void genmatrix_ref(polyvec *a, const unsigned char *seed, int transposed)
         extseed[KYBER_SYMBYTES]   = j;
         extseed[KYBER_SYMBYTES+1] = i;
       }
-        
+
       shake128_absorb(state,extseed,KYBER_SYMBYTES+2);
       shake128_squeezeblocks(buf,nblocks,state);
 
@@ -372,14 +372,14 @@ static int rej_sample(poly *r, const unsigned char *buf, size_t buflen)
     offset = __builtin_popcount(good); // we get this many good (< modulus) values
 
     tmp2 = _mm256_permutevar8x32_epi32(tmp1, idx[good]); // permute good values to the bottom of tmp2
- 
+
     tmp1 = _mm256_permute2f128_si256 (tmp2, tmp2, 0x21);
     tmp2 = _mm256_packus_epi32(tmp2, tmp1);
     d = _mm256_extractf128_si256(tmp2, 0);
     _mm_storeu_si128((__m128i *)&r->coeffs[ctr], d);
 
     ctr += offset;
-    
+
     pos += 32;
 
     if(pos > buflen - 32)
@@ -576,7 +576,7 @@ void genmatrix(polyvec *a, const unsigned char *seed, int transposed) // Not sta
     extseed3[i] = seed[i];
   }
 
-  for(i=0;i<KYBER_K;i++) 
+  for(i=0;i<KYBER_K;i++)
   {
     if(transposed)
     {

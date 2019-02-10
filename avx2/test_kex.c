@@ -7,15 +7,15 @@ int main(void)
 {
   unsigned char pkb[KYBER_PUBLICKEYBYTES];
   unsigned char skb[KYBER_SECRETKEYBYTES];
-  
-  unsigned char pka[KYBER_PUBLICKEYBYTES]; 
+
+  unsigned char pka[KYBER_PUBLICKEYBYTES];
   unsigned char ska[KYBER_SECRETKEYBYTES];
 
   unsigned char eska[KYBER_SECRETKEYBYTES];
 
   unsigned char uake_senda[KYBER_UAKE_SENDABYTES];
   unsigned char uake_sendb[KYBER_UAKE_SENDBBYTES];
-  
+
   unsigned char ake_senda[KYBER_AKE_SENDABYTES];
   unsigned char ake_sendb[KYBER_AKE_SENDBBYTES];
 
@@ -29,12 +29,12 @@ int main(void)
     zero[i] = 0;
 
   crypto_kem_keypair(pkb, skb); // Generate static key for Bob
-  
+
   crypto_kem_keypair(pka, ska); // Generate static key for Alice
 
 
   // Perform unilaterally authenticated key exchange
-  
+
   kyber_uake_initA(uake_senda, tk, eska, pkb); // Run by Alice
 
   kyber_uake_sharedB(uake_sendb, kb, uake_senda, skb); // Run by Bob
@@ -46,9 +46,9 @@ int main(void)
 
   if(!memcmp(ka,zero,KYBER_SYMBYTES))
     printf("Error: UAKE produces zero key\n");
-  
+
   // Perform mutually authenticated key exchange
-  
+
   kyber_ake_initA(ake_senda, tk, eska, pkb); // Run by Alice
 
   kyber_ake_sharedB(ake_sendb, kb, ake_senda, skb, pka); // Run by Bob
@@ -57,7 +57,7 @@ int main(void)
 
   if(memcmp(ka,kb,KYBER_SYMBYTES))
     printf("Error in AKE\n");
-  
+
   if(!memcmp(ka,zero,KYBER_SYMBYTES))
     printf("Error: AKE produces zero key\n");
 

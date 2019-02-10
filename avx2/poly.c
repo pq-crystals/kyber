@@ -95,7 +95,7 @@ void poly_getnoise(poly *r,const unsigned char *seed, unsigned char nonce)
   for(i=0;i<KYBER_SYMBYTES;i++)
     extseed[i] = seed[i];
   extseed[KYBER_SYMBYTES] = nonce;
-     
+
   shake256(buf,KYBER_ETA*KYBER_N/4,extseed,KYBER_SYMBYTES+1);
 
   cbd(r, buf);
@@ -144,7 +144,7 @@ void poly_invntt(poly *r)
 {
   invntt(r->coeffs,zetas_inv_exp);
 }
-  
+
 void poly_add(poly *r, const poly *a, const poly *b)
 {
   int i;
@@ -166,10 +166,10 @@ void poly_frommsg(poly *r, const unsigned char msg[KYBER_SYMBYTES])
   for(i=0;i<KYBER_SYMBYTES;i++)
   {
     for(j=0;j<8;j++)
-    {   
+    {
       mask = -((msg[i] >> j)&1);
       r->coeffs[8*i+j] = mask & ((KYBER_Q+1)/2);
-    }   
+    }
   }
 }
 

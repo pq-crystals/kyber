@@ -7,7 +7,7 @@ int verify(const unsigned char *a, const unsigned char *b, size_t len)
   uint64_t r;
   size_t i;
   r = 0;
-  
+
   for(i=0;i<len;i++)
     r |= a[i] ^ b[i];
 

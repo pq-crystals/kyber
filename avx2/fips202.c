@@ -1,6 +1,6 @@
 /* Based on the public domain implementation in
  * crypto_hash/keccakc512/simple/ from http://bench.cr.yp.to/supercop.html
- * by Ronny Van Keer 
+ * by Ronny Van Keer
  * and the public domain "TweetFips202" implementation
  * from https://twitter.com/tweetfips202
  * by Gilles Van Assche, Daniel J. Bernstein, and Peter Schwabe */
@@ -32,7 +32,7 @@ static void store64(uint8_t *x, uint64_t u)
   }
 }
 
-static const uint64_t KeccakF_RoundConstants[NROUNDS] = 
+static const uint64_t KeccakF_RoundConstants[NROUNDS] =
 {
     (uint64_t)0x0000000000000001ULL,
     (uint64_t)0x0000000000008082ULL,
@@ -342,12 +342,12 @@ static void keccak_absorb(uint64_t *s,
   // Zero state
   for (i = 0; i < 25; ++i)
     s[i] = 0;
- 
-  while (mlen >= r) 
+
+  while (mlen >= r)
   {
     for (i = 0; i < r / 8; ++i)
       s[i] ^= load64(m + 8 * i);
-    
+
     KeccakF1600_StatePermute(s);
     mlen -= r;
     m += r;
@@ -365,11 +365,11 @@ static void keccak_absorb(uint64_t *s,
 
 
 static void keccak_squeezeblocks(unsigned char *h, unsigned long long int nblocks,
-                                 uint64_t *s, 
+                                 uint64_t *s,
                                  unsigned int r)
 {
   unsigned int i;
-  while(nblocks > 0) 
+  while(nblocks > 0)
   {
     KeccakF1600_StatePermute(s);
     for(i=0;i<(r>>3);i++)
@@ -394,7 +394,7 @@ void shake128_squeezeblocks(unsigned char *output, unsigned long long nblocks, u
   keccak_squeezeblocks(output, nblocks, s, SHAKE128_RATE);
 }
 
-void shake128(unsigned char *output, unsigned long long outlen, 
+void shake128(unsigned char *output, unsigned long long outlen,
               const unsigned char *input,  unsigned long long inlen)
 {
   uint64_t s[25];
@@ -411,7 +411,7 @@ void shake128(unsigned char *output, unsigned long long outlen,
   output+=nblocks*SHAKE128_RATE;
   outlen-=nblocks*SHAKE128_RATE;
 
-  if(outlen) 
+  if(outlen)
   {
     keccak_squeezeblocks(t, 1, s, SHAKE128_RATE);
     for(i=0;i<outlen;i++)
@@ -420,7 +420,7 @@ void shake128(unsigned char *output, unsigned long long outlen,
 }
 
 
-void shake256(unsigned char *output, unsigned long long outlen, 
+void shake256(unsigned char *output, unsigned long long outlen,
               const unsigned char *input,  unsigned long long inlen)
 {
   uint64_t s[25];
@@ -437,7 +437,7 @@ void shake256(unsigned char *output, unsigned long long outlen,
   output+=nblocks*SHAKE256_RATE;
   outlen-=nblocks*SHAKE256_RATE;
 
-  if(outlen) 
+  if(outlen)
   {
     keccak_squeezeblocks(t, 1, s, SHAKE256_RATE);
     for(i=0;i<outlen;i++)

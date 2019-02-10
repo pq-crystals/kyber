@@ -3,7 +3,7 @@
 
 /*************************************************
 * Name:        verify
-* 
+*
 * Description: Compare two arrays for equality in constant time.
 *
 * Arguments:   const unsigned char *a: pointer to first byte array
@@ -17,7 +17,7 @@ int verify(const unsigned char *a, const unsigned char *b, size_t len)
   uint64_t r;
   size_t i;
   r = 0;
-  
+
   for(i=0;i<len;i++)
     r |= a[i] ^ b[i];
 
@@ -27,7 +27,7 @@ int verify(const unsigned char *a, const unsigned char *b, size_t len)
 
 /*************************************************
 * Name:        cmov
-* 
+*
 * Description: Copy len bytes from x to r if b is 1;
 *              don't modify x if b is 0. Requires b to be in {0,1};
 *              assumes two's complement representation of negative integers.

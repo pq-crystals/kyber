@@ -24,7 +24,7 @@ def LWE_primal_cost(q, n, m, s, b, cost_svp=svp_classical, verbose=False):
     delta = delta_BKZ(b)
     if verbose:
         print("Primal attacks uses block-size %d and %d samples"%(b, m))
-    
+
     if s * sqrt(b) < BKZ_last_block_length(q, m, n, b):
         return cost_svp(b)
     else:
@@ -77,7 +77,7 @@ def MLWE_summarize_attacks(ps):
     q = ps.q
     n = ps.n * ps.d
     max_m = ps.n * ps.m
-    
+
     if ps.distr=="binomial":
         s = sqrt(ps.k /2.)
     elif ps.distr=="uniform":
@@ -85,7 +85,7 @@ def MLWE_summarize_attacks(ps):
         s = sqrt(sum([i**2 for i in range(-k, k+1)])/(2*k+1))
     else:
         raise ValueError("Unknown distribution "+ps.distr)
-    
+
     (m_pc, b_pc, c_pc) = MLWE_optimize_attack(q, n, max_m, s, cost_attack=LWE_primal_cost, cost_svp=svp_classical, verbose=True)
     (m_pq, b_pq, c_pq) = MLWE_optimize_attack(q, n, max_m, s, cost_attack=LWE_primal_cost, cost_svp=svp_quantum, verbose=False)
     (m_pp, b_pp, c_pp) = MLWE_optimize_attack(q, n, max_m, s, cost_attack=LWE_primal_cost, cost_svp=svp_plausible, verbose=False)

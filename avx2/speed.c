@@ -60,7 +60,7 @@ int main()
   unsigned char pk_a[KYBER_PUBLICKEYBYTES];
   unsigned char sk_b[KYBER_SECRETKEYBYTES];
   unsigned char pk_b[KYBER_PUBLICKEYBYTES];
-  
+
   unsigned char eska[KYBER_SECRETKEYBYTES];
   unsigned char tk[KYBER_SYMBYTES];
 
@@ -82,21 +82,21 @@ int main()
     poly_ntt(&ap);
   }
   print_results("NTT:           ", t, NTESTS);
- 
+
   for(i=0; i<NTESTS; i++)
   {
     t[i] = cpucycles();
     poly_invntt(&ap);
   }
   print_results("INVNTT:        ", t, NTESTS);
- 
+
   for(i=0; i<NTESTS; i++)
   {
     t[i] = cpucycles();
     genmatrix(matrix, seed, 0);
   }
   print_results("gen_a:         ", t, NTESTS);
- 
+
   for(i=0; i<NTESTS; i++)
   {
     t[i] = cpucycles();
@@ -123,8 +123,8 @@ int main()
     crypto_kem_dec(key_a, sendb+i*KYBER_CIPHERTEXTBYTES, sk_a);
   }
   print_results("kyber_decaps:  ", t, NTESTS);
- 
-  
+
+
   /* Generating static keys for AKE */
   crypto_kem_keypair(pk_a, sk_a); // Generate static key for Alice
   crypto_kem_keypair(pk_b, sk_b); // Generate static key for Bob
@@ -151,8 +151,8 @@ int main()
     kyber_uake_sharedA(key_a, kexsendb+i*KYBER_AKE_SENDBBYTES, tk, eska); // Run by Alice
   }
   print_results("kyber_uake_sharedA:  ", t, NTESTS);
- 
-  
+
+
 
   for(i=0; i<NTESTS; i++)
   {
@@ -174,12 +174,12 @@ int main()
     kyber_ake_sharedA(key_a, kexsendb+i*KYBER_AKE_SENDBBYTES, tk, eska, sk_a); // Run by Alice
   }
   print_results("kyber_ake_sharedA:  ", t, NTESTS);
- 
+
   // Cleaning
   free(senda);
   free(sendb);
   free(kexsenda);
   free(kexsendb);
-  
+
   return 0;
 }

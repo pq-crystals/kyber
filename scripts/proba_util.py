@@ -16,7 +16,7 @@ def binomial(x, y):
     :param x: (integer)
     :param y: (integer)
     :returns: y choose x
-    """    
+    """
     try:
         binom = fac(x) // fac(y) // fac(x - y)
     except ValueError:
@@ -29,7 +29,7 @@ def centered_binomial_pdf(k, x):
     :param k: (integer)
     :param x: (integer)
     :returns: p_k(x)
-    """    
+    """
     return binomial(2*k, x+k) / 2.**(2*k)
 
 
@@ -38,7 +38,7 @@ def build_centered_binomial_law(k):
     :param k: (integer)
     :param x: (integer)
     :returns: A dictionnary {x:p_k(x) for x in {-k..k}}
-    """    
+    """
     D = {}
     for i in range(-k, k+1):
         D[i] = centered_binomial_pdf(k, i)
@@ -50,7 +50,7 @@ def mod_switch(x, q, rq):
     :param x: value to round (integer)
     :param q: input modulus (integer)
     :param rq: output modulus (integer)
-    """    
+    """
     return int(round(1.* rq * x / q) % rq)
 
 
@@ -58,7 +58,7 @@ def mod_centered(x, q):
     """ reduction mod q, centered (ie represented in -q/2 .. q/2)
     :param x: value to round (integer)
     :param q: input modulus (integer)
-    """        
+    """
     a = x % q
     if a < q/2:
         return a
@@ -69,7 +69,7 @@ def build_mod_switching_error_law(q, rq):
     """ Construct Error law: law of the difference introduced by switching from and back a uniform value mod q
     :param q: original modulus (integer)
     :param rq: intermediate modulus (integer)
-    """        
+    """
     D = {}
     V = {}
     for x in range(q):
@@ -86,7 +86,7 @@ def law_convolution(A, B):
     """ Construct the convolution of two laws (sum of independent variables from two input laws)
     :param A: first input law (dictionnary)
     :param B: second input law (dictionnary)
-    """        
+    """
 
     C = {}
     for a in A:
@@ -100,7 +100,7 @@ def law_product(A, B):
     """ Construct the law of the product of independent variables from two input laws
     :param A: first input law (dictionnary)
     :param B: second input law (dictionnary)
-    """        
+    """
     C = {}
     for a in A:
         for b in B:
@@ -112,7 +112,7 @@ def law_product(A, B):
 def clean_dist(A):
     """ Clean a distribution to accelerate further computation (drop element of the support with proba less than 2^-300)
     :param A: input law (dictionnary)
-    """        
+    """
     B = {}
     for (x, y) in A.items():
         if y>2**(-300):
@@ -124,7 +124,7 @@ def iter_law_convolution(A, i):
     """ compute the -ith forld convolution of a distribution (using double-and-add)
     :param A: first input law (dictionnary)
     :param i: (integer)
-    """    
+    """
     D = {0: 1.0}
     i_bin = bin(i)[2:]  # binary representation of n
     for ch in i_bin:

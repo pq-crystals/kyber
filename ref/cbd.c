@@ -2,8 +2,8 @@
 
 /*************************************************
 * Name:        load_littleendian
-* 
-* Description: load bytes into a 64-bit integer 
+*
+* Description: load bytes into a 64-bit integer
 *              in little-endian order
 *
 * Arguments:   - const unsigned char *x: pointer to input byte array
@@ -22,12 +22,12 @@ static uint64_t load_littleendian(const unsigned char *x, int bytes)
 
 /*************************************************
 * Name:        cbd
-* 
-* Description: Given an array of uniformly random bytes, compute 
+*
+* Description: Given an array of uniformly random bytes, compute
 *              polynomial with coefficients distributed according to
 *              a centered binomial distribution with parameter KYBER_ETA
 *
-* Arguments:   - poly *r:                  pointer to output polynomial  
+* Arguments:   - poly *r:                  pointer to output polynomial
 *              - const unsigned char *buf: pointer to input byte array
 **************************************************/
 void cbd(poly *r, const unsigned char *buf)

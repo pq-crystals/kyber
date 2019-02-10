@@ -95,7 +95,7 @@ int main(void)
 
     for(j=0;j<CRYPTO_BYTES;j++)
     {
-      if(key_a[j] != key_b[j]) 
+      if(key_a[j] != key_b[j])
       {
         fprintf(stderr, "ERROR\n");
         return -1;

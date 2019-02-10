@@ -32,10 +32,10 @@ extern void KeccakP1600times4_PermuteAll_24rounds(__m256i *s);
 
 static void keccak_absorb4x(__m256i *s,
                           unsigned int r,
-                          const unsigned char *m0, 
-                          const unsigned char *m1, 
-                          const unsigned char *m2, 
-                          const unsigned char *m3, 
+                          const unsigned char *m0,
+                          const unsigned char *m1,
+                          const unsigned char *m2,
+                          const unsigned char *m3,
                           unsigned long long int mlen,
                           unsigned char p)
 {
@@ -47,8 +47,8 @@ static void keccak_absorb4x(__m256i *s,
 
   unsigned long long *ss = (unsigned long long *)s;
 
- 
-  while (mlen >= r) 
+
+  while (mlen >= r)
   {
     for (i = 0; i < r / 8; ++i)
     {
@@ -57,7 +57,7 @@ static void keccak_absorb4x(__m256i *s,
       ss[4*i+2] ^= load64(m2 + 8 * i);
       ss[4*i+3] ^= load64(m3 + 8 * i);
     }
-    
+
     KeccakF1600_StatePermute4x(s);
     mlen -= r;
     m0 += r;
@@ -101,19 +101,19 @@ static void keccak_absorb4x(__m256i *s,
 }
 
 
-static void keccak_squeezeblocks4x(unsigned char *h0, 
-                                   unsigned char *h1, 
-                                   unsigned char *h2, 
-                                   unsigned char *h3, 
+static void keccak_squeezeblocks4x(unsigned char *h0,
+                                   unsigned char *h1,
+                                   unsigned char *h2,
+                                   unsigned char *h3,
                                    unsigned long long int nblocks,
-                                   __m256i *s, 
+                                   __m256i *s,
                                    unsigned int r)
 {
   unsigned int i;
 
   unsigned long long *ss = (unsigned long long *)s;
 
-  while(nblocks > 0) 
+  while(nblocks > 0)
   {
     KeccakF1600_StatePermute4x(s);
     for(i=0;i<(r>>3);i++)
@@ -133,10 +133,10 @@ static void keccak_squeezeblocks4x(unsigned char *h0,
 
 
 
-void shake128x4(unsigned char *out0, 
+void shake128x4(unsigned char *out0,
                 unsigned char *out1,
                 unsigned char *out2,
-                unsigned char *out3, unsigned long long outlen, 
+                unsigned char *out3, unsigned long long outlen,
                 unsigned char *in0,
                 unsigned char *in1,
                 unsigned char *in2,
@@ -151,7 +151,7 @@ void shake128x4(unsigned char *out0,
 
   /* zero state */
   for(i=0;i<25;i++)
-    s[i] = _mm256_xor_si256(s[i], s[i]); 
+    s[i] = _mm256_xor_si256(s[i], s[i]);
 
   /* absorb 4 message of identical length in parallel */
   keccak_absorb4x(s, SHAKE128_RATE, in0, in1, in2, in3, inlen, 0x1F);
@@ -178,10 +178,10 @@ void shake128x4(unsigned char *out0,
 }
 
 
-void shake256x4(unsigned char *out0, 
+void shake256x4(unsigned char *out0,
                 unsigned char *out1,
                 unsigned char *out2,
-                unsigned char *out3, unsigned long long outlen, 
+                unsigned char *out3, unsigned long long outlen,
                 unsigned char *in0,
                 unsigned char *in1,
                 unsigned char *in2,
@@ -196,7 +196,7 @@ void shake256x4(unsigned char *out0,
 
   /* zero state */
   for(i=0;i<25;i++)
-    s[i] = _mm256_xor_si256(s[i], s[i]); 
+    s[i] = _mm256_xor_si256(s[i], s[i]);
 
   /* absorb 4 message of identical length in parallel */
   keccak_absorb4x(s, SHAKE256_RATE, in0, in1, in2, in3, inlen, 0x1F);

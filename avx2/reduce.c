@@ -36,8 +36,8 @@ uint16_t freeze(uint16_t x)
 
   m = r - KYBER_Q;
   c = m;
-  c >>= 15; 
-  r = m ^ ((r^m)&c); 
+  c >>= 15;
+  r = m ^ ((r^m)&c);
 
   return r;
 }

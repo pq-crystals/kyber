@@ -53,7 +53,7 @@ static void unpack_sk(polyvec *sk, const unsigned char *packedsk)
 
 
 
-void indcpa_keypair(unsigned char *pk, 
+void indcpa_keypair(unsigned char *pk,
                    unsigned char *sk)
 {
   polyvec a[KYBER_K], e, pkpv, skpv;
@@ -85,7 +85,7 @@ void indcpa_keypair(unsigned char *pk,
 #endif
 
   polyvec_ntt(&skpv);
-  
+
   // matrix-vector multiplication
   for(i=0;i<KYBER_K;i++)
     polyvec_pointwise_acc(&pkpv.vec[i],&skpv,a+i);
@@ -137,7 +137,7 @@ void indcpa_enc(unsigned char *c,
 
   polyvec_invntt(&bp);
   polyvec_add(&bp, &bp, &ep);
- 
+
   polyvec_pointwise_acc(&v, &pkpv, &sp);
   poly_invntt(&v);
 

@@ -168,7 +168,7 @@ void polyvec_decompress(polyvec *r, const unsigned char *a)
   }
 }
 
-#else 
+#else
   #error "Unsupported compression of polyvec"
 #endif
 
@@ -199,7 +199,7 @@ void polyvec_invntt(polyvec *r)
   for(i=0;i<KYBER_K;i++)
     poly_invntt(&r->vec[i]);
 }
-  
+
 void polyvec_pointwise_acc(poly *r, const polyvec *a, const polyvec *b)
 {
 #if KYBER_K == 2

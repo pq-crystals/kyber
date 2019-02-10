@@ -5,7 +5,7 @@
 #include "verify.h"
 #include "indcpa.h"
 
-// API FUNCTIONS 
+// API FUNCTIONS
 
 /* Build a CCA-secure KEM from an IND-CPA-secure encryption scheme */
 
@@ -23,7 +23,7 @@ int crypto_kem_keypair(unsigned char *pk, unsigned char *sk)
 int crypto_kem_enc(unsigned char *ct, unsigned char *ss, const unsigned char *pk)
 {
   unsigned char  kr[2*KYBER_SYMBYTES];                                        /* Will contain key, coins */
-  unsigned char buf[2*KYBER_SYMBYTES];                          
+  unsigned char buf[2*KYBER_SYMBYTES];
 
   randombytes(buf, KYBER_SYMBYTES);
   sha3_256(buf,buf,KYBER_SYMBYTES);                                           /* Don't release system RNG output */
@@ -40,7 +40,7 @@ int crypto_kem_enc(unsigned char *ct, unsigned char *ss, const unsigned char *pk
 
 int crypto_kem_dec(unsigned char *ss, const unsigned char *ct, const unsigned char *sk)
 {
-  size_t i; 
+  size_t i;
   int fail;
   unsigned char cmp[KYBER_CIPHERTEXTBYTES];
   unsigned char buf[2*KYBER_SYMBYTES];

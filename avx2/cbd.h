@@ -6,8 +6,8 @@
 #include "params.h"
 
 #if (KYBER_ETA == 4)
-#define cbd cbdeta4 
-#else 
+#define cbd cbdeta4
+#else
 #define cbd cbdref
 #endif
 

@@ -42,7 +42,7 @@ int crypto_kem_keypair(unsigned char *pk, unsigned char *sk)
 int crypto_kem_enc(unsigned char *ct, unsigned char *ss, const unsigned char *pk)
 {
   unsigned char  kr[2*KYBER_SYMBYTES];                                        /* Will contain key, coins */
-  unsigned char buf[2*KYBER_SYMBYTES];                          
+  unsigned char buf[2*KYBER_SYMBYTES];
 
   randombytes(buf, KYBER_SYMBYTES);
   sha3_256(buf,buf,KYBER_SYMBYTES);                                           /* Don't release system RNG output */
@@ -73,7 +73,7 @@ int crypto_kem_enc(unsigned char *ct, unsigned char *ss, const unsigned char *pk
 **************************************************/
 int crypto_kem_dec(unsigned char *ss, const unsigned char *ct, const unsigned char *sk)
 {
-  size_t i; 
+  size_t i;
   int fail;
   unsigned char cmp[KYBER_CIPHERTEXTBYTES];
   unsigned char buf[2*KYBER_SYMBYTES];
@@ -81,7 +81,7 @@ int crypto_kem_dec(unsigned char *ss, const unsigned char *ct, const unsigned ch
   const unsigned char *pk = sk+KYBER_INDCPA_SECRETKEYBYTES;
 
   indcpa_dec(buf, ct, sk);
-                                                                              
+
   for(i=0;i<KYBER_SYMBYTES;i++)                                               /* Multitarget countermeasure for coins + contributory KEM */
     buf[KYBER_SYMBYTES+i] = sk[KYBER_SECRETKEYBYTES-2*KYBER_SYMBYTES+i];      /* Save hash by storing H(pk) in sk */
   sha3_512(kr, buf, 2*KYBER_SYMBYTES);

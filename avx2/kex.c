@@ -21,7 +21,7 @@ void kyber_uake_sharedA(u8 *k, const u8 *recv, const u8 *tk, const u8 *sk)
   unsigned char buf[2*KYBER_SYMBYTES];
   int i;
   crypto_kem_dec(buf, recv, sk);
-  for(i=0;i<KYBER_SYMBYTES;i++) 
+  for(i=0;i<KYBER_SYMBYTES;i++)
     buf[i+KYBER_SYMBYTES] = tk[i];
   shake256(k,KYBER_SYMBYTES,buf,2*KYBER_SYMBYTES);
 }
@@ -49,7 +49,7 @@ void kyber_ake_sharedA(u8 *k, const u8 *recv, const u8 *tk, const u8 *sk, const 
   int i;
   crypto_kem_dec(buf, recv, sk);
   crypto_kem_dec(buf+KYBER_SYMBYTES, recv+KYBER_CIPHERTEXTBYTES, ska);
-  for(i=0;i<KYBER_SYMBYTES;i++) 
+  for(i=0;i<KYBER_SYMBYTES;i++)
     buf[i+2*KYBER_SYMBYTES] = tk[i];
   shake256(k,KYBER_SYMBYTES,buf,3*KYBER_SYMBYTES);
 }

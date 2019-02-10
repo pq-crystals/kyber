@@ -9,25 +9,25 @@ extern const uint16_t zetas[];
 
 /*************************************************
 * Name:        ntt
-* 
+*
 * Description: Computes negacyclic number-theoretic transform (NTT) of
-*              a polynomial (vector of 256 coefficients) in place; 
+*              a polynomial (vector of 256 coefficients) in place;
 *              inputs assumed to be in normal order, output in bitreversed order
 *
 * Arguments:   - uint16_t *p: pointer to in/output polynomial
 **************************************************/
-void ntt(uint16_t *p) 
+void ntt(uint16_t *p)
 {
   int level, start, j, k;
   uint16_t zeta, t;
 
   k = 1;
-  for(level = 7; level >= 0; level--) 
+  for(level = 7; level >= 0; level--)
   {
-    for(start = 0; start < KYBER_N; start = j + (1<<level)) 
+    for(start = 0; start < KYBER_N; start = j + (1<<level))
     {
       zeta = zetas[k++];
-      for(j = start; j < start + (1<<level); ++j) 
+      for(j = start; j < start + (1<<level); ++j)
       {
         t = montgomery_reduce((uint32_t)zeta * p[j + (1<<level)]);
 
@@ -35,7 +35,7 @@ void ntt(uint16_t *p)
 
         if(level & 1) /* odd level */
           p[j] = p[j] + t; /* Omit reduction (be lazy) */
-        else 
+        else
           p[j] = barrett_reduce(p[j] + t);
       }
     }
@@ -44,9 +44,9 @@ void ntt(uint16_t *p)
 
 /*************************************************
 * Name:        invntt
-* 
+*
 * Description: Computes inverse of negacyclic number-theoretic transform (NTT) of
-*              a polynomial (vector of 256 coefficients) in place; 
+*              a polynomial (vector of 256 coefficients) in place;
 *              inputs assumed to be in bitreversed order, output in normal order
 *
 * Arguments:   - uint16_t *a: pointer to in/output polynomial

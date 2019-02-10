@@ -13,7 +13,7 @@ static int fd = -1;
 static void randombytes_fallback(unsigned char *x, size_t xlen)
 {
   int i;
-  
+
   if (fd == -1) {
     for (;;) {
       fd = open("/dev/urandom",O_RDONLY);
@@ -45,8 +45,8 @@ void randombytes(unsigned char *buf,size_t buflen)
   while(d<buflen)
   {
     errno = 0;
-    r = syscall(SYS_getrandom, buf, buflen - d, 0); 
-    if(r < 0) 
+    r = syscall(SYS_getrandom, buf, buflen - d, 0);
+    if(r < 0)
     {
       if (errno == EINTR) continue;
       randombytes_fallback(buf, buflen);

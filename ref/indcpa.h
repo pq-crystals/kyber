@@ -1,7 +1,7 @@
 #ifndef INDCPA_H
 #define INDCPA_H
 
-void indcpa_keypair(unsigned char *pk, 
+void indcpa_keypair(unsigned char *pk,
                    unsigned char *sk);
 
 void indcpa_enc(unsigned char *c,

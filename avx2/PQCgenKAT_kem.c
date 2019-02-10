@@ -34,7 +34,7 @@ main()
     int                 done;
     unsigned char       pk[CRYPTO_PUBLICKEYBYTES], sk[CRYPTO_SECRETKEYBYTES];
     int                 ret_val;
-    
+
     // Create the REQUEST file
     sprintf(fn_req, "PQCkemKAT_%d.req", CRYPTO_SECRETKEYBYTES);
     if ( (fp_req = fopen(fn_req, "w")) == NULL ) {
@@ -46,7 +46,7 @@ main()
         printf("Couldn't open <%s> for write\n", fn_rsp);
         return KAT_FILE_OPEN_ERROR;
     }
-    
+
     for (int i=0; i<48; i++)
         entropy_input[i] = i;
 
@@ -61,13 +61,13 @@ main()
         fprintf(fp_req, "ss =\n\n");
     }
     fclose(fp_req);
-    
+
     //Create the RESPONSE file based on what's in the REQUEST file
     if ( (fp_req = fopen(fn_req, "r")) == NULL ) {
         printf("Couldn't open <%s> for read\n", fn_req);
         return KAT_FILE_OPEN_ERROR;
     }
-    
+
     fprintf(fp_rsp, "# %s\n\n", CRYPTO_ALGNAME);
     done = 0;
     do {
@@ -78,15 +78,15 @@ main()
             break;
         }
         fprintf(fp_rsp, "count = %d\n", count);
-        
+
         if ( !ReadHex(fp_req, seed, 48, "seed = ") ) {
             printf("ERROR: unable to read 'seed' from <%s>\n", fn_req);
             return KAT_DATA_ERROR;
         }
         fprintBstr(fp_rsp, "seed = ", seed, 48);
-        
+
         randombytes_init(seed, NULL, 256);
-        
+
         // Generate the public/private keypair
         if ( (ret_val = crypto_kem_keypair(pk, sk)) != 0) {
             printf("crypto_kem_keypair returned <%d>\n", ret_val);
@@ -94,28 +94,28 @@ main()
         }
         fprintBstr(fp_rsp, "pk = ", pk, CRYPTO_PUBLICKEYBYTES);
         fprintBstr(fp_rsp, "sk = ", sk, CRYPTO_SECRETKEYBYTES);
-        
+
         if ( (ret_val = crypto_kem_enc(ct, ss, pk)) != 0) {
             printf("crypto_kem_enc returned <%d>\n", ret_val);
             return KAT_CRYPTO_FAILURE;
         }
         fprintBstr(fp_rsp, "ct = ", ct, CRYPTO_CIPHERTEXTBYTES);
         fprintBstr(fp_rsp, "ss = ", ss, CRYPTO_BYTES);
-        
+
         fprintf(fp_rsp, "\n");
-        
+
         if ( (ret_val = crypto_kem_dec(ss1, ct, sk)) != 0) {
             printf("crypto_kem_dec returned <%d>\n", ret_val);
             return KAT_CRYPTO_FAILURE;
         }
-        
+
         if ( memcmp(ss, ss1, CRYPTO_BYTES) ) {
             printf("crypto_kem_dec returned bad 'ss' value\n");
             return KAT_CRYPTO_FAILURE;
         }
 
     } while ( !done );
-    
+
     fclose(fp_req);
     fclose(fp_rsp);
 
@@ -203,7 +203,7 @@ ReadHex(FILE *infile, unsigned char *A, int Length, char *str)
 				ich = ch - 'a' + 10;
             else // shouldn't ever get here
                 ich = 0;
-			
+
 			for ( i=0; i<Length-1; i++ )
 				A[i] = (A[i] << 4) | (A[i+1] >> 4);
 			A[Length-1] = (A[Length-1] << 4) | ich;
