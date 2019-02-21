@@ -50,7 +50,7 @@ void cbd(poly *r, const unsigned char *buf)
     {
       a = (d >>  2*j)    & 0x3;
       b = (d >> (2*j+2)) & 0x3;
-      r->coeffs[4*i+j] = a - b;
+      r->coeffs[8*i+j] = a - b;
     }
   }
 #else

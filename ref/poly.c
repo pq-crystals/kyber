@@ -49,6 +49,7 @@ void poly_tobytes(unsigned char *r, const poly *a)
 {
   size_t i;
   int16_t t0, t1;;
+
   for(i=0;i<KYBER_N/2;i++){
     t0 = freeze(a->coeffs[2*i]);
     t1 = freeze(a->coeffs[2*i+1]);
@@ -70,8 +71,9 @@ void poly_tobytes(unsigned char *r, const poly *a)
 void poly_frombytes(poly *r, const unsigned char *a)
 {
   size_t i;
+
   for(i=0;i<KYBER_N/2;i++){
-    r->coeffs[2*i]   = a[3*i]   | ((int16_t)a[3*i+1] & 0xf) << 8;
+    r->coeffs[2*i]   = a[3*i]        | ((int16_t)a[3*i+1] & 0x0f) << 8;
     r->coeffs[2*i+1] = a[3*i+1] >> 4 | ((int16_t)a[3*i+2] & 0xff) << 4;
   }
 }
