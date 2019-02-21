@@ -87,3 +87,4 @@ clean:
 	-$(RM) -r speed768
 	-$(RM) -r speed1024
 	-$(RM) -r PQCgenKAT_kem
+	-$(RM) -r keccak4x/KeccakP-1600-times4-SIMD256.o

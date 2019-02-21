@@ -41,6 +41,9 @@ static void genmatrix_ref(polyvec *a, const unsigned char *seed, int transposed)
       shake128_absorb(state,extseed,KYBER_SYMBYTES+2);
       shake128_squeezeblocks(buf,nblocks,state);
 
+      memcpy(a[i].vec, buf, sizeof(a[i].vec));
+
+      /*
       while(ctr < KYBER_N)
       {
         val = (buf[pos] | ((uint16_t) buf[pos+1] << 8)) & 0x1fff;
@@ -57,6 +60,7 @@ static void genmatrix_ref(polyvec *a, const unsigned char *seed, int transposed)
           pos = 0;
         }
       }
+      */
     }
   }
 }

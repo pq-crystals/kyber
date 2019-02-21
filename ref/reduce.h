@@ -3,10 +3,13 @@
 
 #include <stdint.h>
 
-uint16_t freeze(uint16_t x);
+#define MONT 2285 // 2^16 % Q
+#define QINV 62209 // q^(-1) mod 2^16
 
-uint16_t montgomery_reduce(uint32_t a);
+int16_t freeze(int16_t x);
 
-uint16_t barrett_reduce(uint16_t a);
+int16_t montgomery_reduce(int32_t a);
+
+int16_t barrett_reduce(int16_t a);
 
 #endif

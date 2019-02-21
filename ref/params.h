@@ -8,24 +8,16 @@
 /* Don't change parameters below this line */
 
 #define KYBER_N 256
-#define KYBER_Q 7681
+#define KYBER_Q 3329
 
-#if   (KYBER_K == 2) /* Kyber512 */
-#define KYBER_ETA 5
-#elif (KYBER_K == 3) /* Kyber768 */
-#define KYBER_ETA 4
-#elif (KYBER_K == 4) /*KYBER1024 */
-#define KYBER_ETA 3
-#else
-#error "KYBER_K must be in {2,3,4}"
-#endif
+#define KYBER_ETA 2
 
 #define KYBER_SYMBYTES 32   /* size in bytes of shared key, hashes, and seeds */
 
-#define KYBER_POLYBYTES              416
-#define KYBER_POLYCOMPRESSEDBYTES    96
+#define KYBER_POLYBYTES              384
+#define KYBER_POLYCOMPRESSEDBYTES    384 //XXX: Update, depending on KYBER_K
 #define KYBER_POLYVECBYTES           (KYBER_K * KYBER_POLYBYTES)
-#define KYBER_POLYVECCOMPRESSEDBYTES (KYBER_K * 352)
+#define KYBER_POLYVECCOMPRESSEDBYTES (KYBER_K * 384) //XXX: Update
 
 #define KYBER_INDCPA_MSGBYTES       KYBER_SYMBYTES
 #define KYBER_INDCPA_PUBLICKEYBYTES (KYBER_POLYVECCOMPRESSEDBYTES + KYBER_SYMBYTES)
