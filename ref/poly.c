@@ -17,6 +17,7 @@
 **************************************************/
 void poly_compress(unsigned char *r, const poly *a)
 {
+#if KYBER_POLYCOMPRESSEDBYTES == 96
   //XXX: FIX
   poly_tobytes(r, a);
 }

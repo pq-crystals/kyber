@@ -1,3 +1,5 @@
+#include <stdlib.h>
+
 #include "polyvec.h"
 #include "fips202.h"
 #include "cbd.h"
