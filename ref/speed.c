@@ -54,20 +54,20 @@ unsigned char seed[32] = {0};
 
 int main()
 {
-  unsigned char sk_a[KYBER_SECRETKEYBYTES];
-  unsigned char pk_a[KYBER_PUBLICKEYBYTES];
-  unsigned char sk_b[KYBER_SECRETKEYBYTES];
-  unsigned char pk_b[KYBER_PUBLICKEYBYTES];
+  unsigned char sk_a[CRYPTO_SECRETKEYBYTES];
+  unsigned char pk_a[CRYPTO_PUBLICKEYBYTES];
+  unsigned char sk_b[CRYPTO_SECRETKEYBYTES];
+  unsigned char pk_b[CRYPTO_PUBLICKEYBYTES];
 
-  unsigned char eska[KYBER_SECRETKEYBYTES];
-  unsigned char tk[KYBER_SYMBYTES];
+  unsigned char eska[CRYPTO_SECRETKEYBYTES];
+  unsigned char tk[CRYPTO_BYTES];
 
   unsigned char key_a[32], key_b[32];
-  unsigned char* senda = (unsigned char*) malloc(NTESTS*KYBER_PUBLICKEYBYTES);
-  unsigned char* sendb = (unsigned char*) malloc(NTESTS*KYBER_CIPHERTEXTBYTES);
+  unsigned char* senda = (unsigned char*) malloc(NTESTS*CRYPTO_PUBLICKEYBYTES);
+  unsigned char* sendb = (unsigned char*) malloc(NTESTS*CRYPTO_CIPHERTEXTBYTES);
 
-  unsigned char* kexsenda = (unsigned char*) malloc(NTESTS*KYBER_AKE_SENDABYTES);
-  unsigned char* kexsendb = (unsigned char*) malloc(NTESTS*KYBER_AKE_SENDBBYTES);
+  unsigned char* kexsenda = (unsigned char*) malloc(NTESTS*KEX_AKE_SENDABYTES);
+  unsigned char* kexsendb = (unsigned char*) malloc(NTESTS*KEX_AKE_SENDBBYTES);
 
 
   poly ap;
@@ -105,21 +105,21 @@ int main()
   for(i=0; i<NTESTS; i++)
   {
     t[i] = cpucycles();
-    crypto_kem_keypair(senda+i*KYBER_PUBLICKEYBYTES, sk_a);
+    crypto_kem_keypair(senda+i*CRYPTO_PUBLICKEYBYTES, sk_a);
   }
   print_results("kyber_keypair: ", t, NTESTS);
 
   for(i=0; i<NTESTS; i++)
   {
     t[i] = cpucycles();
-    crypto_kem_enc(sendb+i*KYBER_CIPHERTEXTBYTES, key_b, senda+i*KYBER_PUBLICKEYBYTES);
+    crypto_kem_enc(sendb+i*CRYPTO_CIPHERTEXTBYTES, key_b, senda+i*CRYPTO_PUBLICKEYBYTES);
   }
   print_results("kyber_encaps:  ", t, NTESTS);
 
   for(i=0; i<NTESTS; i++)
   {
     t[i] = cpucycles();
-    crypto_kem_dec(key_a, sendb+i*KYBER_CIPHERTEXTBYTES, sk_a);
+    crypto_kem_dec(key_a, sendb+i*CRYPTO_CIPHERTEXTBYTES, sk_a);
   }
   print_results("kyber_decaps:  ", t, NTESTS);
 
@@ -133,46 +133,46 @@ int main()
   for(i=0; i<NTESTS; i++)
   {
     t[i] = cpucycles();
-    kyber_uake_initA(kexsenda+i*KYBER_AKE_SENDABYTES, tk, eska, pk_b); // Run by Alice
+    kex_uake_initA(kexsenda+i*KEX_AKE_SENDABYTES, tk, eska, pk_b); // Run by Alice
   }
-  print_results("kyber_uake_initA: ", t, NTESTS);
+  print_results("kex_uake_initA: ", t, NTESTS);
 
   for(i=0; i<NTESTS; i++)
   {
     t[i] = cpucycles();
-    kyber_uake_sharedB(kexsendb+i*KYBER_AKE_SENDBBYTES, key_b, kexsenda+i*KYBER_AKE_SENDABYTES, sk_b); // Run by Bob
+    kex_uake_sharedB(kexsendb+i*KEX_AKE_SENDBBYTES, key_b, kexsenda+i*KEX_AKE_SENDABYTES, sk_b); // Run by Bob
   }
-  print_results("kyber_uake_sharedB:  ", t, NTESTS);
+  print_results("kex_uake_sharedB:  ", t, NTESTS);
 
   for(i=0; i<NTESTS; i++)
   {
     t[i] = cpucycles();
-    kyber_uake_sharedA(key_a, kexsendb+i*KYBER_AKE_SENDBBYTES, tk, eska); // Run by Alice
+    kex_uake_sharedA(key_a, kexsendb+i*KEX_AKE_SENDBBYTES, tk, eska); // Run by Alice
   }
-  print_results("kyber_uake_sharedA:  ", t, NTESTS);
+  print_results("kex_uake_sharedA:  ", t, NTESTS);
 
 
 
   for(i=0; i<NTESTS; i++)
   {
     t[i] = cpucycles();
-    kyber_ake_initA(kexsenda+i*KYBER_AKE_SENDABYTES, tk, eska, pk_b); // Run by Alice
+    kex_ake_initA(kexsenda+i*KEX_AKE_SENDABYTES, tk, eska, pk_b); // Run by Alice
   }
-  print_results("kyber_ake_initA: ", t, NTESTS);
+  print_results("kex_ake_initA: ", t, NTESTS);
 
   for(i=0; i<NTESTS; i++)
   {
     t[i] = cpucycles();
-    kyber_ake_sharedB(kexsendb+i*KYBER_AKE_SENDBBYTES, key_b, kexsenda+i*KYBER_AKE_SENDABYTES, sk_b, pk_a); // Run by Bob
+    kex_ake_sharedB(kexsendb+i*KEX_AKE_SENDBBYTES, key_b, kexsenda+i*KEX_AKE_SENDABYTES, sk_b, pk_a); // Run by Bob
   }
-  print_results("kyber_ake_sharedB:  ", t, NTESTS);
+  print_results("kex_ake_sharedB:  ", t, NTESTS);
 
   for(i=0; i<NTESTS; i++)
   {
     t[i] = cpucycles();
-    kyber_ake_sharedA(key_a, kexsendb+i*KYBER_AKE_SENDBBYTES, tk, eska, sk_a); // Run by Alice
+    kex_ake_sharedA(key_a, kexsendb+i*KEX_AKE_SENDBBYTES, tk, eska, sk_a); // Run by Alice
   }
-  print_results("kyber_ake_sharedA:  ", t, NTESTS);
+  print_results("kex_ake_sharedA:  ", t, NTESTS);
 
   // Cleaning
   free(senda);

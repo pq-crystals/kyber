@@ -1,30 +1,31 @@
 #ifndef KEX_H
 #define KEX_H
 
-#include "params.h"
 #include "api.h"
 
-#define KYBER_UAKE_SENDABYTES (KYBER_PUBLICKEYBYTES + KYBER_CIPHERTEXTBYTES)
-#define KYBER_UAKE_SENDBBYTES (KYBER_CIPHERTEXTBYTES)
+#define KEX_UAKE_SENDABYTES (CRYPTO_PUBLICKEYBYTES + CRYPTO_CIPHERTEXTBYTES)
+#define KEX_UAKE_SENDBBYTES (CRYPTO_CIPHERTEXTBYTES)
 
-#define KYBER_AKE_SENDABYTES (KYBER_PUBLICKEYBYTES + KYBER_CIPHERTEXTBYTES)
-#define KYBER_AKE_SENDBBYTES (2*KYBER_CIPHERTEXTBYTES)
+#define KEX_AKE_SENDABYTES (CRYPTO_PUBLICKEYBYTES + CRYPTO_CIPHERTEXTBYTES)
+#define KEX_AKE_SENDBBYTES (2*CRYPTO_CIPHERTEXTBYTES)
+
+#define KEX_SSBYTES 32
 
 
 typedef unsigned char u8;
 
-void kyber_uake_initA(u8 *send, u8* tk, u8 *sk, const u8 *pkb);
+void kex_uake_initA(u8 *send, u8* tk, u8 *sk, const u8 *pkb);
 
-void kyber_uake_sharedB(u8 *send, u8 *k, const u8* recv, const u8 *skb);
+void kex_uake_sharedB(u8 *send, u8 *k, const u8* recv, const u8 *skb);
 
-void kyber_uake_sharedA(u8 *k, const u8 *recv, const u8 *tk, const u8 *sk);
+void kex_uake_sharedA(u8 *k, const u8 *recv, const u8 *tk, const u8 *sk);
 
 
-void kyber_ake_initA(u8 *send, u8* tk, u8 *sk, const u8 *pkb);
+void kex_ake_initA(u8 *send, u8* tk, u8 *sk, const u8 *pkb);
 
-void kyber_ake_sharedB(u8 *send, u8 *k, const u8* recv, const u8 *skb, const u8 *pka);
+void kex_ake_sharedB(u8 *send, u8 *k, const u8* recv, const u8 *skb, const u8 *pka);
 
-void kyber_ake_sharedA(u8 *k, const u8 *recv, const u8 *tk, const u8 *sk, const u8 *ska);
+void kex_ake_sharedA(u8 *k, const u8 *recv, const u8 *tk, const u8 *sk, const u8 *ska);
 
 
 #endif

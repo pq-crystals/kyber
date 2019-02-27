@@ -59,10 +59,10 @@ void randombytes(unsigned char *x,unsigned long long xlen)
 
 int main(void)
 {
-  unsigned char key_a[KYBER_SYMBYTES], key_b[KYBER_SYMBYTES];
-  unsigned char pk[KYBER_PUBLICKEYBYTES];
-  unsigned char sendb[KYBER_CIPHERTEXTBYTES];
-  unsigned char sk_a[KYBER_SECRETKEYBYTES];
+  unsigned char key_a[CRYPTO_BYTES], key_b[CRYPTO_BYTES];
+  unsigned char pk[CRYPTO_PUBLICKEYBYTES];
+  unsigned char sendb[CRYPTO_CIPHERTEXTBYTES];
+  unsigned char sk_a[CRYPTO_SECRETKEYBYTES];
   int i,j;
 
   for(i=0;i<NTESTS;i++)

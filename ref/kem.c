@@ -53,7 +53,7 @@ int crypto_kem_enc(unsigned char *ct, unsigned char *ss, const unsigned char *pk
   indcpa_enc(ct, buf, pk, kr+KYBER_SYMBYTES);                                 /* coins are in kr+KYBER_SYMBYTES */
 
   sha3_256(kr+KYBER_SYMBYTES, ct, KYBER_CIPHERTEXTBYTES);                     /* overwrite coins in kr with H(c) */
-  sha3_256(ss, kr, 2*KYBER_SYMBYTES);                                         /* hash concatenation of pre-k and H(c) to k */
+  shake256(ss, KYBER_SSBYTES, kr, 2*KYBER_SYMBYTES);                          /* hash concatenation of pre-k and H(c) to k */
   return 0;
 }
 
@@ -94,7 +94,7 @@ int crypto_kem_dec(unsigned char *ss, const unsigned char *ct, const unsigned ch
 
   cmov(kr, sk+KYBER_SECRETKEYBYTES-KYBER_SYMBYTES, KYBER_SYMBYTES, fail);     /* Overwrite pre-k with z on re-encryption failure */
 
-  sha3_256(ss, kr, 2*KYBER_SYMBYTES);                                         /* hash concatenation of pre-k and H(c) to k */
+  shake256(ss, KYBER_SSBYTES, kr, 2*KYBER_SYMBYTES);                          /* hash concatenation of pre-k and H(c) to k */
 
   return 0;
 }
