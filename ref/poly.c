@@ -20,7 +20,7 @@ void poly_compress(unsigned char *r, const poly *a)
   uint32_t t[8];
   unsigned int i,j,k=0;
 
-#if KYBER_POLYCOMPRESSEDBYTES == 96
+#if (KYBER_POLYCOMPRESSEDBYTES == 96)
   for(i=0;i<KYBER_N;i+=8)
   {
     for(j=0;j<8;j++)
@@ -31,7 +31,7 @@ void poly_compress(unsigned char *r, const poly *a)
     r[k+2] = (t[5] >> 1) | (t[6] << 2) | (t[7] << 5);
     k += 3;
   }
-#elif KYBER_POLYCOMPRESSEDBYTES == 128
+#elif (KYBER_POLYCOMPRESSEDBYTES == 128)
   for(i=0;i<KYBER_N;i+=8)
   {
     for(j=0;j<8;j++)
@@ -43,7 +43,7 @@ void poly_compress(unsigned char *r, const poly *a)
     r[k+3] = t[6] | (t[7] << 4);
     k += 4;
   }
-#elif KYBER_POLYCOMPRESSEDBYTES == 160
+#elif (KYBER_POLYCOMPRESSEDBYTES == 160)
   for(i=0;i<KYBER_N;i+=8)
   {
     for(j=0;j<8;j++)
@@ -73,7 +73,7 @@ void poly_compress(unsigned char *r, const poly *a)
 void poly_decompress(poly *r, const unsigned char *a)
 {
   unsigned int i;
-#if KYBER_POLYCOMPRESSEDBYTES == 96
+#if (KYBER_POLYCOMPRESSEDBYTES == 96)
   for(i=0;i<KYBER_N;i+=8)
   {
     r->coeffs[i+0] =  (((a[0] & 7) * KYBER_Q) + 4) >> 3;
@@ -86,7 +86,7 @@ void poly_decompress(poly *r, const unsigned char *a)
     r->coeffs[i+7] = ((((a[2] >> 5)) * KYBER_Q) + 4) >> 3;
     a += 3;
   }
-#elif KYBER_POLYCOMPRESSEDBYTES == 128
+#elif (KYBER_POLYCOMPRESSEDBYTES == 128)
   for(i=0;i<KYBER_N;i+=8)
   {
     r->coeffs[i+0] = (((a[0] & 15) * KYBER_Q) + 8) >> 4;
@@ -99,7 +99,7 @@ void poly_decompress(poly *r, const unsigned char *a)
     r->coeffs[i+7] = (((a[3] >> 4) * KYBER_Q) + 8) >> 4;
     a += 4;
   }
-#elif KYBER_POLYCOMPRESSEDBYTES == 160
+#elif (KYBER_POLYCOMPRESSEDBYTES == 160)
   for(i=0;i<KYBER_N;i+=8)
   {
     r->coeffs[i+0] =  (((a[0] & 31) * KYBER_Q) + 16) >> 5;

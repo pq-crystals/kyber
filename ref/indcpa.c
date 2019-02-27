@@ -19,9 +19,9 @@
 static void pack_pk(unsigned char *r, const polyvec *pk, const unsigned char *seed)
 {
   int i;
-  polyvec_compress(r, pk);
+  polyvec_tobytes(r, pk);
   for(i=0;i<KYBER_SYMBYTES;i++)
-    r[i+KYBER_POLYVECCOMPRESSEDBYTES] = seed[i];
+    r[i+KYBER_POLYVECBYTES] = seed[i];
 }
 
 /*************************************************
@@ -37,10 +37,10 @@ static void pack_pk(unsigned char *r, const polyvec *pk, const unsigned char *se
 static void unpack_pk(polyvec *pk, unsigned char *seed, const unsigned char *packedpk)
 {
   int i;
-  polyvec_decompress(pk, packedpk);
+  polyvec_frombytes(pk, packedpk);
 
   for(i=0;i<KYBER_SYMBYTES;i++)
-    seed[i] = packedpk[i+KYBER_POLYVECCOMPRESSEDBYTES];
+    seed[i] = packedpk[i+KYBER_POLYVECBYTES];
 }
 
 /*************************************************
