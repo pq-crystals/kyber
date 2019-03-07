@@ -19,6 +19,9 @@ void polyvec_invntt(polyvec *r);
 
 void polyvec_pointwise_acc(poly *r, const polyvec *a, const polyvec *b);
 
+void polyvec_reduce(polyvec *r);
+void polyvec_csubq(polyvec *r);
+
 void polyvec_add(polyvec *r, const polyvec *a, const polyvec *b);
 
 #endif

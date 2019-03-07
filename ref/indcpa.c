@@ -1,3 +1,4 @@
+#include <stdint.h>
 #include "indcpa.h"
 #include "poly.h"
 #include "polyvec.h"
@@ -38,7 +39,6 @@ static void unpack_pk(polyvec *pk, unsigned char *seed, const unsigned char *pac
 {
   int i;
   polyvec_frombytes(pk, packedpk);
-
   for(i=0;i<KYBER_SYMBYTES;i++)
     seed[i] = packedpk[i+KYBER_POLYVECBYTES];
 }
@@ -120,9 +120,8 @@ static void unpack_sk(polyvec *sk, const unsigned char *packedsk)
 **************************************************/
 void gen_matrix(polyvec *a, const unsigned char *seed, int transposed) // Not static for benchmarking
 {
-  unsigned int pos=0, ctr;
+  unsigned int pos=0, ctr, nblocks;
   uint16_t val;
-  unsigned int nblocks;
   const unsigned int maxnblocks=4;
   uint8_t buf[SHAKE128_RATE*maxnblocks];
   int i,j;
@@ -131,7 +130,6 @@ void gen_matrix(polyvec *a, const unsigned char *seed, int transposed) // Not st
 
   for(i=0;i<KYBER_SYMBYTES;i++)
     extseed[i] = seed[i];
-
 
   for(i=0;i<KYBER_K;i++)
   {
@@ -150,29 +148,28 @@ void gen_matrix(polyvec *a, const unsigned char *seed, int transposed) // Not st
         extseed[KYBER_SYMBYTES+1] = i;
       }
 
-      shake128_absorb(state,extseed,KYBER_SYMBYTES+2);
-      shake128_squeezeblocks(buf,nblocks,state);
+      shake128_absorb(state, extseed, KYBER_SYMBYTES+2);
+      shake128_squeezeblocks(buf, nblocks, state);
 
       while(ctr < KYBER_N)
       {
         val = (buf[pos] | ((uint16_t) buf[pos+1] << 8)) & 0x1fff;
         if(val < KYBER_Q)
         {
-            a[i].vec[j].coeffs[ctr++] = val;
+          a[i].vec[j].coeffs[ctr++] = val;
         }
         pos += 2;
 
         if(pos > SHAKE128_RATE*nblocks-2)
         {
           nblocks = 1;
-          shake128_squeezeblocks(buf,nblocks,state);
+          shake128_squeezeblocks(buf, nblocks, state);
           pos = 0;
         }
       }
     }
   }
 }
-
 
 /*************************************************
 * Name:        indcpa_keypair
@@ -183,11 +180,10 @@ void gen_matrix(polyvec *a, const unsigned char *seed, int transposed) // Not st
 * Arguments:   - unsigned char *pk: pointer to output public key (of length KYBER_INDCPA_PUBLICKEYBYTES bytes)
 *              - unsigned char *sk: pointer to output private key (of length KYBER_INDCPA_SECRETKEYBYTES bytes)
 **************************************************/
-void indcpa_keypair(unsigned char *pk,
-                   unsigned char *sk)
+void indcpa_keypair(unsigned char *pk, unsigned char *sk)
 {
   polyvec a[KYBER_K], e, pkpv, skpv;
-  unsigned char buf[KYBER_SYMBYTES+KYBER_SYMBYTES];
+  unsigned char buf[2*KYBER_SYMBYTES];
   unsigned char *publicseed = buf;
   unsigned char *noiseseed = buf+KYBER_SYMBYTES;
   int i;
@@ -199,24 +195,28 @@ void indcpa_keypair(unsigned char *pk,
   gen_a(a, publicseed);
 
   for(i=0;i<KYBER_K;i++)
-    poly_getnoise(skpv.vec+i,noiseseed,nonce++);
+    poly_getnoise(skpv.vec+i, noiseseed, nonce++);
+  for(i=0;i<KYBER_K;i++)
+    poly_getnoise(e.vec+i, noiseseed, nonce++);
 
   polyvec_ntt(&skpv);
-
-  for(i=0;i<KYBER_K;i++)
-    poly_getnoise(e.vec+i,noiseseed,nonce++);
+  polyvec_ntt(&e); // XXX
 
   // matrix-vector multiplication
-  for(i=0;i<KYBER_K;i++)
-    polyvec_pointwise_acc(&pkpv.vec[i],&skpv,a+i);
+  for(i=0;i<KYBER_K;i++) {
+    polyvec_pointwise_acc(&pkpv.vec[i], &a[i], &skpv);
+    poly_frommont(&pkpv.vec[i]);
+  }
 
-  polyvec_invntt(&pkpv);
-  polyvec_add(&pkpv,&pkpv,&e);
+  //polyvec_invntt(&pkpv); // XXX
+  polyvec_add(&pkpv, &pkpv, &e);
+  polyvec_reduce(&pkpv);
 
+  polyvec_csubq(&skpv);
+  polyvec_csubq(&pkpv);
   pack_sk(sk, &skpv);
   pack_pk(pk, &pkpv, publicseed);
 }
-
 
 /*************************************************
 * Name:        indcpa_enc
@@ -231,9 +231,9 @@ void indcpa_keypair(unsigned char *pk,
 *                                           to deterministically generate all randomness
 **************************************************/
 void indcpa_enc(unsigned char *c,
-               const unsigned char *m,
-               const unsigned char *pk,
-               const unsigned char *coins)
+                const unsigned char *m,
+                const unsigned char *pk,
+                const unsigned char *coins)
 {
   polyvec sp, pkpv, ep, at[KYBER_K], bp;
   poly v, k, epp;
@@ -241,38 +241,36 @@ void indcpa_enc(unsigned char *c,
   int i;
   unsigned char nonce=0;
 
-
   unpack_pk(&pkpv, seed, pk);
-
   poly_frommsg(&k, m);
-
-  polyvec_ntt(&pkpv);
-
   gen_at(at, seed);
 
   for(i=0;i<KYBER_K;i++)
-    poly_getnoise(sp.vec+i,coins,nonce++);
-
-  polyvec_ntt(&sp);
-
+    poly_getnoise(sp.vec+i, coins, nonce++);
   for(i=0;i<KYBER_K;i++)
-    poly_getnoise(ep.vec+i,coins,nonce++);
+    poly_getnoise(ep.vec+i, coins, nonce++);
+  poly_getnoise(&epp, coins, nonce++);
+
+  //polyvec_ntt(&pkpv); // XXX
+  polyvec_ntt(&sp);
 
   // matrix-vector multiplication
   for(i=0;i<KYBER_K;i++)
-    polyvec_pointwise_acc(&bp.vec[i],&sp,at+i);
-
-  polyvec_invntt(&bp);
-  polyvec_add(&bp, &bp, &ep);
+    polyvec_pointwise_acc(&bp.vec[i], &at[i], &sp);
 
   polyvec_pointwise_acc(&v, &pkpv, &sp);
+
+  polyvec_invntt(&bp);
   poly_invntt(&v);
 
-  poly_getnoise(&epp,coins,nonce++);
-
+  polyvec_add(&bp, &bp, &ep);
   poly_add(&v, &v, &epp);
   poly_add(&v, &v, &k);
+  polyvec_reduce(&bp);
+  poly_reduce(&v);
 
+  polyvec_csubq(&bp);
+  poly_csubq(&v);
   pack_ciphertext(c, &bp, &v);
 }
 
@@ -287,8 +285,8 @@ void indcpa_enc(unsigned char *c,
 *              - const unsigned char *sk: pointer to input secret key (of length KYBER_INDCPA_SECRETKEYBYTES)
 **************************************************/
 void indcpa_dec(unsigned char *m,
-               const unsigned char *c,
-               const unsigned char *sk)
+                const unsigned char *c,
+                const unsigned char *sk)
 {
   polyvec bp, skpv;
   poly v, mp;
@@ -297,11 +295,12 @@ void indcpa_dec(unsigned char *m,
   unpack_sk(&skpv, sk);
 
   polyvec_ntt(&bp);
-
-  polyvec_pointwise_acc(&mp,&skpv,&bp);
+  polyvec_pointwise_acc(&mp, &skpv, &bp);
   poly_invntt(&mp);
 
-  poly_sub(&mp, &mp, &v);
+  poly_sub(&mp, &v, &mp);
+  poly_reduce(&mp);
 
+  poly_csubq(&mp);
   poly_tomsg(m, &mp);
 }

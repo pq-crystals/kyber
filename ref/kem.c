@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include "api.h"
 #include "randombytes.h"
 #include "fips202.h"
@@ -19,11 +20,11 @@
 int crypto_kem_keypair(unsigned char *pk, unsigned char *sk)
 {
   size_t i;
-  indcpa_keypair(pk, sk);
+  indcpa_keypair(pk,sk);
   for(i=0;i<KYBER_INDCPA_PUBLICKEYBYTES;i++)
     sk[i+KYBER_INDCPA_SECRETKEYBYTES] = pk[i];
-  sha3_256(sk+KYBER_SECRETKEYBYTES-2*KYBER_SYMBYTES,pk,KYBER_PUBLICKEYBYTES);
-  randombytes(sk+KYBER_SECRETKEYBYTES-KYBER_SYMBYTES,KYBER_SYMBYTES);         /* Value z for pseudo-random output on reject */
+  sha3_256(sk+KYBER_SECRETKEYBYTES-2*KYBER_SYMBYTES, pk, KYBER_PUBLICKEYBYTES);
+  randombytes(sk+KYBER_SECRETKEYBYTES-KYBER_SYMBYTES, KYBER_SYMBYTES);        /* Value z for pseudo-random output on reject */
   return 0;
 }
 
@@ -45,7 +46,7 @@ int crypto_kem_enc(unsigned char *ct, unsigned char *ss, const unsigned char *pk
   unsigned char buf[2*KYBER_SYMBYTES];
 
   randombytes(buf, KYBER_SYMBYTES);
-  sha3_256(buf,buf,KYBER_SYMBYTES);                                           /* Don't release system RNG output */
+  sha3_256(buf, buf, KYBER_SYMBYTES);                                         /* Don't release system RNG output */
 
   sha3_256(buf+KYBER_SYMBYTES, pk, KYBER_PUBLICKEYBYTES);                     /* Multitarget countermeasure for coins + contributory KEM */
   sha3_512(kr, buf, 2*KYBER_SYMBYTES);

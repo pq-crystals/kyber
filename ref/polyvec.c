@@ -1,10 +1,6 @@
-#include <stdlib.h>
-
+#include <stdint.h>
 #include "polyvec.h"
-#include "fips202.h"
-#include "cbd.h"
-#include "reduce.h"
-
+#include "poly.h"
 
 /*************************************************
 * Name:        polyvec_compress
@@ -24,7 +20,7 @@ void polyvec_compress(unsigned char *r, const polyvec *a)
     for(j=0;j<KYBER_N/8;j++)
     {
       for(k=0;k<8;k++)
-        t[k] = ((((uint32_t)freeze(a->vec[i].coeffs[8*j+k]) << 11) + KYBER_Q/2)/ KYBER_Q) & 0x7ff;
+        t[k] = ((((uint32_t)a->vec[i].coeffs[8*j+k] << 11) + KYBER_Q/2) / KYBER_Q) & 0x7ff;
 
       r[11*j+ 0] =  t[0] & 0xff;
       r[11*j+ 1] = (t[0] >>  8) | ((t[1] & 0x1f) << 3);
@@ -47,7 +43,7 @@ void polyvec_compress(unsigned char *r, const polyvec *a)
     for(j=0;j<KYBER_N/4;j++)
     {
       for(k=0;k<4;k++)
-        t[k] = ((((uint32_t)freeze(a->vec[i].coeffs[4*j+k]) << 10) + KYBER_Q/2)/ KYBER_Q) & 0x3ff;
+        t[k] = ((((uint32_t)a->vec[i].coeffs[4*j+k] << 10) + KYBER_Q/2) / KYBER_Q) & 0x3ff;
 
       r[5*j+ 0] =  t[0] & 0xff;
       r[5*j+ 1] = (t[0] >>  8) | ((t[1] & 0x3f) << 2);
@@ -61,7 +57,6 @@ void polyvec_compress(unsigned char *r, const polyvec *a)
 #error "KYBER_POLYVECCOMPRESSEDBYTES needs to be in {320*KYBER_K, 352*KYBER_K}"
 #endif
 }
-
 
 /*************************************************
 * Name:        polyvec_decompress
@@ -80,12 +75,12 @@ void polyvec_decompress(polyvec *r, const unsigned char *a)
   {
     for(j=0;j<KYBER_N/8;j++)
     {
-      r->vec[i].coeffs[8*j+0] =  (((a[11*j+ 0]       | (((uint32_t)a[11*j+ 1] & 0x07) << 8)) * KYBER_Q) +1024) >> 11;
-      r->vec[i].coeffs[8*j+1] = ((((a[11*j+ 1] >> 3) | (((uint32_t)a[11*j+ 2] & 0x3f) << 5)) * KYBER_Q) +1024) >> 11;
-      r->vec[i].coeffs[8*j+2] = ((((a[11*j+ 2] >> 6) | (((uint32_t)a[11*j+ 3] & 0xff) << 2) |  (((uint32_t)a[11*j+ 4] & 0x01) << 10)) * KYBER_Q) + 1024) >> 11;
+      r->vec[i].coeffs[8*j+0] =  (((a[11*j+ 0]       | (((uint32_t)a[11*j+ 1] & 0x07) << 8)) * KYBER_Q) + 1024) >> 11;
+      r->vec[i].coeffs[8*j+1] = ((((a[11*j+ 1] >> 3) | (((uint32_t)a[11*j+ 2] & 0x3f) << 5)) * KYBER_Q) + 1024) >> 11;
+      r->vec[i].coeffs[8*j+2] = ((((a[11*j+ 2] >> 6) | (((uint32_t)a[11*j+ 3] & 0xff) << 2) | (((uint32_t)a[11*j+ 4] & 0x01) << 10)) * KYBER_Q) + 1024) >> 11;
       r->vec[i].coeffs[8*j+3] = ((((a[11*j+ 4] >> 1) | (((uint32_t)a[11*j+ 5] & 0x0f) << 7)) * KYBER_Q) + 1024) >> 11;
       r->vec[i].coeffs[8*j+4] = ((((a[11*j+ 5] >> 4) | (((uint32_t)a[11*j+ 6] & 0x7f) << 4)) * KYBER_Q) + 1024) >> 11;
-      r->vec[i].coeffs[8*j+5] = ((((a[11*j+ 6] >> 7) | (((uint32_t)a[11*j+ 7] & 0xff) << 1) |  (((uint32_t)a[11*j+ 8] & 0x03) <<  9)) * KYBER_Q) + 1024) >> 11;
+      r->vec[i].coeffs[8*j+5] = ((((a[11*j+ 6] >> 7) | (((uint32_t)a[11*j+ 7] & 0xff) << 1) | (((uint32_t)a[11*j+ 8] & 0x03) <<  9)) * KYBER_Q) + 1024) >> 11;
       r->vec[i].coeffs[8*j+6] = ((((a[11*j+ 8] >> 2) | (((uint32_t)a[11*j+ 9] & 0x1f) << 6)) * KYBER_Q) + 1024) >> 11;
       r->vec[i].coeffs[8*j+7] = ((((a[11*j+ 9] >> 5) | (((uint32_t)a[11*j+10] & 0xff) << 3)) * KYBER_Q) + 1024) >> 11;
     }
@@ -107,7 +102,6 @@ void polyvec_decompress(polyvec *r, const unsigned char *a)
 #error "KYBER_POLYVECCOMPRESSEDBYTES needs to be in {320*KYBER_K, 352*KYBER_K}"
 #endif
 }
-
 
 /*************************************************
 * Name:        polyvec_tobytes
@@ -179,18 +173,30 @@ void polyvec_invntt(polyvec *r)
 **************************************************/
 void polyvec_pointwise_acc(poly *r, const polyvec *a, const polyvec *b)
 {
-  int i,j;
+  int i;
   poly t;
-
-  //XXX: Make nice!
 
   poly_basemul(r, &a->vec[0], &b->vec[0]);
   for(i=1;i<KYBER_K;i++) {
     poly_basemul(&t, &a->vec[i], &b->vec[i]);
     poly_add(r, r, &t);
-    for(j=0;j<KYBER_N;j++)
-      r->coeffs[j] = barrett_reduce(r->coeffs[j]);
   }
+
+  poly_reduce(r);
+}
+
+void polyvec_reduce(polyvec *r)
+{
+  int i;
+  for(i=0;i<KYBER_K;i++)
+    poly_reduce(&r->vec[i]);
+}
+
+void polyvec_csubq(polyvec *r)
+{
+  int i;
+  for(i=0;i<KYBER_K;i++)
+    poly_csubq(&r->vec[i]);
 }
 
 /*************************************************
@@ -207,5 +213,4 @@ void polyvec_add(polyvec *r, const polyvec *a, const polyvec *b)
   int i;
   for(i=0;i<KYBER_K;i++)
     poly_add(&r->vec[i], &a->vec[i], &b->vec[i]);
-
 }

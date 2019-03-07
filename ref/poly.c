@@ -1,8 +1,7 @@
-#include <stdlib.h>
-
+#include <stdint.h>
+#include "params.h"
 #include "poly.h"
 #include "ntt.h"
-#include "polyvec.h"
 #include "reduce.h"
 #include "cbd.h"
 #include "fips202.h"
@@ -17,14 +16,14 @@
 **************************************************/
 void poly_compress(unsigned char *r, const poly *a)
 {
-  uint32_t t[8];
-  unsigned int i,j,k=0;
+  uint8_t t[8];
+  int i,j,k=0;
 
 #if (KYBER_POLYCOMPRESSEDBYTES == 96)
   for(i=0;i<KYBER_N;i+=8)
   {
     for(j=0;j<8;j++)
-      t[j] = (((freeze(a->coeffs[i+j]) << 3) + KYBER_Q/2)/KYBER_Q) & 7;
+      t[j] = ((((uint32_t)a->coeffs[i+j] << 3) + KYBER_Q/2) / KYBER_Q) & 7;
 
     r[k]   =  t[0]       | (t[1] << 3) | (t[2] << 6);
     r[k+1] = (t[2] >> 2) | (t[3] << 1) | (t[4] << 4) | (t[5] << 7);
@@ -35,7 +34,7 @@ void poly_compress(unsigned char *r, const poly *a)
   for(i=0;i<KYBER_N;i+=8)
   {
     for(j=0;j<8;j++)
-      t[j] = (((freeze(a->coeffs[i+j]) << 4) + KYBER_Q/2)/KYBER_Q) & 15;
+      t[j] = ((((uint32_t)a->coeffs[i+j] << 4) + KYBER_Q/2) / KYBER_Q) & 15;
 
     r[k]   = t[0] | (t[1] << 4);
     r[k+1] = t[2] | (t[3] << 4);
@@ -47,7 +46,7 @@ void poly_compress(unsigned char *r, const poly *a)
   for(i=0;i<KYBER_N;i+=8)
   {
     for(j=0;j<8;j++)
-      t[j] = (((freeze(a->coeffs[i+j]) << 5) + KYBER_Q/2)/KYBER_Q) & 31;
+      t[j] = ((((uint32_t)a->coeffs[i+j] << 5) + KYBER_Q/2) / KYBER_Q) & 31;
 
     r[k]   =  t[0]       | (t[1] << 5);
     r[k+1] = (t[1] >> 3) | (t[2] << 2) | (t[3] << 7);
@@ -72,7 +71,7 @@ void poly_compress(unsigned char *r, const poly *a)
 **************************************************/
 void poly_decompress(poly *r, const unsigned char *a)
 {
-  unsigned int i;
+  int i;
 #if (KYBER_POLYCOMPRESSEDBYTES == 96)
   for(i=0;i<KYBER_N;i+=8)
   {
@@ -103,13 +102,13 @@ void poly_decompress(poly *r, const unsigned char *a)
   for(i=0;i<KYBER_N;i+=8)
   {
     r->coeffs[i+0] =  (((a[0] & 31) * KYBER_Q) + 16) >> 5;
-    r->coeffs[i+1] = ((((a[0] >> 5) | ((a[1] & 3) << 3)) * KYBER_Q)+ 16) >> 5;
+    r->coeffs[i+1] = ((((a[0] >> 5) | ((a[1] & 3) << 3)) * KYBER_Q) + 16) >> 5;
     r->coeffs[i+2] = ((((a[1] >> 2) & 31) * KYBER_Q) + 16) >> 5;
-    r->coeffs[i+3] = ((((a[1] >> 7) | ((a[2] & 15) << 1)) * KYBER_Q)+ 16) >> 5;
-    r->coeffs[i+4] = ((((a[2] >> 4) | ((a[3] &  1) << 4)) * KYBER_Q)+ 16) >> 5;
+    r->coeffs[i+3] = ((((a[1] >> 7) | ((a[2] & 15) << 1)) * KYBER_Q) + 16) >> 5;
+    r->coeffs[i+4] = ((((a[2] >> 4) | ((a[3] &  1) << 4)) * KYBER_Q) + 16) >> 5;
     r->coeffs[i+5] = ((((a[3] >> 1) & 31) * KYBER_Q) + 16) >> 5;
-    r->coeffs[i+6] = ((((a[3] >> 6) | ((a[4] &  7) << 2)) * KYBER_Q)+ 16) >> 5;
-    r->coeffs[i+7] =  (((a[4] >> 3) * KYBER_Q)+ 16) >> 5;
+    r->coeffs[i+6] = ((((a[3] >> 6) | ((a[4] &  7) << 2)) * KYBER_Q) + 16) >> 5;
+    r->coeffs[i+7] =  (((a[4] >> 3) * KYBER_Q) + 16) >> 5;
     a += 5;
   }
 #else
@@ -127,12 +126,12 @@ void poly_decompress(poly *r, const unsigned char *a)
 **************************************************/
 void poly_tobytes(unsigned char *r, const poly *a)
 {
-  size_t i;
-  int16_t t0, t1;;
+  int i;
+  uint16_t t0, t1;
 
   for(i=0;i<KYBER_N/2;i++){
-    t0 = freeze(a->coeffs[2*i]);
-    t1 = freeze(a->coeffs[2*i+1]);
+    t0 = a->coeffs[2*i];
+    t1 = a->coeffs[2*i+1];
     r[3*i] = t0 & 0xff;
     r[3*i+1] = (t0 >> 8) | ((t1 & 0xf) << 4);
     r[3*i+2] = t1 >> 4;
@@ -150,11 +149,11 @@ void poly_tobytes(unsigned char *r, const poly *a)
 **************************************************/
 void poly_frombytes(poly *r, const unsigned char *a)
 {
-  size_t i;
+  int i;
 
   for(i=0;i<KYBER_N/2;i++){
-    r->coeffs[2*i]   = a[3*i]        | ((int16_t)a[3*i+1] & 0x0f) << 8;
-    r->coeffs[2*i+1] = a[3*i+1] >> 4 | ((int16_t)a[3*i+2] & 0xff) << 4;
+    r->coeffs[2*i]   = a[3*i]        | ((uint16_t)a[3*i+1] & 0x0f) << 8;
+    r->coeffs[2*i+1] = a[3*i+1] >> 4 | ((uint16_t)a[3*i+2] & 0xff) << 4;
   }
 }
 
@@ -179,7 +178,7 @@ void poly_getnoise(poly *r,const unsigned char *seed, unsigned char nonce)
     extseed[i] = seed[i];
   extseed[KYBER_SYMBYTES] = nonce;
 
-  shake256(buf,KYBER_ETA*KYBER_N/4,extseed,KYBER_SYMBYTES+1);
+  shake256(buf, KYBER_ETA*KYBER_N/4, extseed, KYBER_SYMBYTES+1);
 
   cbd(r, buf);
 }
@@ -196,6 +195,7 @@ void poly_getnoise(poly *r,const unsigned char *seed, unsigned char nonce)
 void poly_ntt(poly *r)
 {
   ntt(r->coeffs);
+  poly_reduce(r);
 }
 
 /*************************************************
@@ -213,13 +213,39 @@ void poly_invntt(poly *r)
 }
 
 //XXX Add comment
-void poly_basemul(poly *r, const poly *a, const poly *b) {
+void poly_basemul(poly *r, const poly *a, const poly *b)
+{
   unsigned int i;
 
   for(i = 0; i < KYBER_N/4; ++i) {
     basemul(r->coeffs + 4*i, a->coeffs + 4*i, b->coeffs + 4*i, zetas[64 + i]);
     basemul(r->coeffs + 4*i + 2, a->coeffs + 4*i + 2, b->coeffs + 4*i + 2, -zetas[64 + i]);
   }
+}
+
+void poly_frommont(poly *r)
+{
+  int i;
+  const int16_t f = (1ULL << 32) % KYBER_Q;
+
+  for(i=0;i<KYBER_N;i++)
+    r->coeffs[i] = montgomery_reduce((int32_t)r->coeffs[i]*f);
+}
+
+void poly_reduce(poly *r)
+{
+  int i;
+
+  for(i=0;i<KYBER_N;i++)
+    r->coeffs[i] = barrett_reduce(r->coeffs[i]);
+}
+
+void poly_csubq(poly *r)
+{
+  int i;
+
+  for(i=0;i<KYBER_N;i++)
+    r->coeffs[i] = csubq(r->coeffs[i]);
 }
 
 /*************************************************
@@ -235,7 +261,7 @@ void poly_add(poly *r, const poly *a, const poly *b)
 {
   int i;
   for(i=0;i<KYBER_N;i++)
-    r->coeffs[i] = barrett_reduce(a->coeffs[i] + b->coeffs[i]);
+    r->coeffs[i] = a->coeffs[i] + b->coeffs[i];
 }
 
 /*************************************************
@@ -251,7 +277,7 @@ void poly_sub(poly *r, const poly *a, const poly *b)
 {
   int i;
   for(i=0;i<KYBER_N;i++)
-    r->coeffs[i] = barrett_reduce(a->coeffs[i] + 3*KYBER_Q - b->coeffs[i]);
+    r->coeffs[i] = a->coeffs[i] - b->coeffs[i];
 }
 
 /*************************************************
@@ -264,7 +290,8 @@ void poly_sub(poly *r, const poly *a, const poly *b)
 **************************************************/
 void poly_frommsg(poly *r, const unsigned char msg[KYBER_SYMBYTES])
 {
-  uint16_t i,j,mask;
+  int i,j;
+  uint16_t mask;
 
   for(i=0;i<KYBER_SYMBYTES;i++)
   {
@@ -294,7 +321,7 @@ void poly_tomsg(unsigned char msg[KYBER_SYMBYTES], const poly *a)
     msg[i] = 0;
     for(j=0;j<8;j++)
     {
-      t = (((freeze(a->coeffs[8*i+j]) << 1) + KYBER_Q/2)/KYBER_Q) & 1;
+      t = (((a->coeffs[8*i+j] << 1) + KYBER_Q/2) / KYBER_Q) & 1; // FIXME
       msg[i] |= t << j;
     }
   }

@@ -1,4 +1,4 @@
-#include "inttypes.h"
+#include <stdint.h>
 #include "ntt.h"
 #include "params.h"
 
@@ -23,10 +23,8 @@ int16_t zetas_inv[128] = {
   1861, 1474, 1202, 2367, 3147, 1752, 2707, 171, 3127, 3042, 1907, 1836, 1517, 359, 758, 1441};
 
 
-/* Constants computed via
-
 #define KYBER_ROOT_OF_UNITY 17
- 
+
 static const uint16_t tree[128] = {
   0, 64, 32, 96, 16, 80, 48, 112, 8, 72, 40, 104, 24, 88, 56, 120, 
   4, 68, 36, 100, 20, 84, 52, 116, 12, 76, 44, 108, 28, 92, 60, 124, 
@@ -44,7 +42,7 @@ void init_ntt() {
 
   tmp[0] = MONT;
   for(i = 1; i < 128; ++i)
-    tmp[i] = fqmul(tmp[i-1], ROOT_OF_UNITY*MONT % KYBER_Q);
+    tmp[i] = fqmul(tmp[i-1], KYBER_ROOT_OF_UNITY*MONT % KYBER_Q);
 
   for(i = 0; i < 128; ++i)
     zetas[i] = tmp[tree[i]];
@@ -56,5 +54,3 @@ void init_ntt() {
 
   zetas_inv[127] = MONT * (MONT * (KYBER_Q - 1) * ((KYBER_Q - 1)/128) % KYBER_Q) % KYBER_Q;
 }
-
-*/

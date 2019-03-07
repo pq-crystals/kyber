@@ -26,6 +26,10 @@ void poly_getnoise(poly *r,const unsigned char *seed, unsigned char nonce);
 void poly_ntt(poly *r);
 void poly_invntt(poly *r);
 void poly_basemul(poly *r, const poly *a, const poly *b);
+void poly_frommont(poly *r);
+
+void poly_reduce(poly *r);
+void poly_csubq(poly *r);
 
 void poly_add(poly *r, const poly *a, const poly *b);
 void poly_sub(poly *r, const poly *a, const poly *b);
