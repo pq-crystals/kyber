@@ -3,10 +3,16 @@
 
 #include <stdint.h>
 
-extern const uint16_t zetas_exp[];
-extern const uint16_t zetas_inv_exp[];
+extern int16_t zetas_exp[396];
+extern int16_t zetas_inv_exp[396];
 
-void ntt(uint16_t *inout, const uint16_t* zetas) asm("ntt");
-void invntt(uint16_t *inout, const uint16_t* omegas) asm("invntt");
+void ntt_level0_avx(int16_t *r, const int16_t *zetas);
+void ntt_levels1t6_avx(int16_t *r, const int16_t *zetas);
+void invntt_levels0t5_avx(int16_t *r, const int16_t *zetas);
+void invntt_level6_avx(int16_t *r, const int16_t *zetas);
+void nttpack_avx(int16_t *r);
+void nttunpack_avx(int16_t *r);
+void basemul_avx(int16_t *r, const int16_t *a, const int16_t *b, int16_t *zeta);
+void basemul_acc_avx(int16_t *r, const int16_t *a, const int16_t *b, int16_t *zeta);
 
 #endif

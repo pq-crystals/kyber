@@ -16,11 +16,13 @@ void polyvec_frombytes(polyvec *r, const unsigned char *a);
 
 void polyvec_ntt(polyvec *r);
 void polyvec_invntt(polyvec *r);
+void polyvec_nttpack(polyvec *r);
+void polyvec_nttunpack(polyvec *r);
 
 void polyvec_pointwise_acc(poly *r, const polyvec *a, const polyvec *b);
-void polyvec_pointwise_acc_k2(poly *r, const polyvec *a, const polyvec *b) asm("polyvec_pointwise_acc_k2");
-void polyvec_pointwise_acc_k3(poly *r, const polyvec *a, const polyvec *b) asm("polyvec_pointwise_acc_k3");
-void polyvec_pointwise_acc_k4(poly *r, const polyvec *a, const polyvec *b) asm("polyvec_pointwise_acc_k4");
+
+void polyvec_reduce(polyvec *r);
+void polyvec_csubq(polyvec *r);
 
 void polyvec_add(polyvec *r, const polyvec *a, const polyvec *b);
 

@@ -1,26 +1,24 @@
-CC 		    = /usr/bin/cc
-CFLAGS    = -g -Wall -Wextra -O3 -fomit-frame-pointer -march=native -fPIC
-NISTFLAGS = -O3 -fomit-frame-pointer -march=native -fPIC
-RM 		    = /bin/rm
+CC = /usr/bin/cc
+CFLAGS += -Wall -Wextra -O3 -fomit-frame-pointer -march=native -mtune=native -fPIC
+NISTFLAGS = -O3 -fomit-frame-pointer -march=native -mtune=native -fPIC
+RM = /bin/rm
 
 all: test_kyber512 \
-     test_kyber768 \
-     test_kyber1024 \
-		 test_kex512 \
-		 test_kex768 \
-		 test_kex1024 \
-		 testvectors512 \
-		 testvectors768 \
-		 testvectors1024 \
-		 speed512 \
-		 speed768 \
-		 speed1024 \
-     PQCgenKAT_kem
+  test_kyber768 \
+  test_kyber1024 \
+  test_kex512 \
+  test_kex768 \
+  test_kex1024 \
+  testvectors512 \
+  testvectors768 \
+  testvectors1024 \
+  speed512 \
+  speed768 \
+  speed1024 \
+  PQCgenKAT_kem \
 
-SOURCES = kem.c poly.c polyvec.c polyvec_pointwise_acc.s fips202.c reduce.c cbdeta4.s cbdref.c precomp.c verify.c indcpa.c kex.c consts.c genmatrix.c fips202x4.c \
-					keccak4x/KeccakP-1600-times4-SIMD256.o \
-					ntt.s invntt.s
-HEADERS = params.h poly.h polyvec.h reduce.h cbd.h ntt.h verify.h indcpa.h kex.h genmatrix.h fips202x4.h
+SOURCES = kem.c poly.c polyvec.c fips202.c fq.s shuffle.s cbd.c ntt.s invntt.s basemul.s consts.c verify.c indcpa.c kex.c
+HEADERS = params.h poly.h polyvec.h reduce.h fq.h cbd.h ntt.h shuffle.h verify.h indcpa.h kex.h
 
 test_kyber512: $(SOURCES) $(HEADERS) test_kyber.c randombytes.c randombytes.h
 	$(CC) $(CFLAGS) -DKYBER_K=2 $(SOURCES) randombytes.c test_kyber.c -o test_kyber512
@@ -61,15 +59,6 @@ speed1024: $(SOURCES) $(HEADERS) cpucycles.h cpucycles.c speed.c randombytes.c r
 PQCgenKAT_kem: $(SOURCES) $(HEADERS) PQCgenKAT_kem.c rng.c rng.h
 	$(CC) $(NISTFLAGS) -o $@ $(SOURCES) -I. rng.c PQCgenKAT_kem.c -lcrypto
 
-keccak4x/KeccakP-1600-times4-SIMD256.o: keccak4x/KeccakP-1600-times4-SIMD256.c \
-																				keccak4x/align.h \
-																				keccak4x/brg_endian.h \
-																				keccak4x/KeccakP-1600-times4-SIMD256.c \
-																				keccak4x/KeccakP-1600-times4-SnP.h \
-																				keccak4x/KeccakP-1600-unrolling.macros \
-																				keccak4x/SIMD256-config.h
-	$(CC) $(CFLAGS) -c keccak4x/KeccakP-1600-times4-SIMD256.c -o $@
-
 .PHONY: clean test
 
 clean:
@@ -87,4 +76,3 @@ clean:
 	-$(RM) -r speed768
 	-$(RM) -r speed1024
 	-$(RM) -r PQCgenKAT_kem
-	-$(RM) -r keccak4x/KeccakP-1600-times4-SIMD256.o

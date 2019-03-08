@@ -168,7 +168,7 @@ void poly_frombytes(poly *r, const unsigned char *a)
 *              - const unsigned char *seed: pointer to input seed
 *              - unsigned char nonce:       one-byte input nonce
 **************************************************/
-void poly_getnoise(poly *r,const unsigned char *seed, unsigned char nonce)
+void poly_getnoise(poly *r, const unsigned char *seed, unsigned char nonce)
 {
   unsigned char buf[KYBER_ETA*KYBER_N/4];
   unsigned char extseed[KYBER_SYMBYTES+1];

@@ -17,9 +17,10 @@
 *              const poly *pk:            pointer to the input public-key polynomial
 *              const unsigned char *seed: pointer to the input public seed
 **************************************************/
-static void pack_pk(unsigned char *r, const polyvec *pk, const unsigned char *seed)
+static void pack_pk(unsigned char *r, polyvec *pk, const unsigned char *seed)
 {
   int i;
+  polyvec_csubq(pk);
   polyvec_tobytes(r, pk);
   for(i=0;i<KYBER_SYMBYTES;i++)
     r[i+KYBER_POLYVECBYTES] = seed[i];
@@ -54,8 +55,10 @@ static void unpack_pk(polyvec *pk, unsigned char *seed, const unsigned char *pac
 *              const poly *pk:            pointer to the input vector of polynomials b
 *              const unsigned char *seed: pointer to the input polynomial v
 **************************************************/
-static void pack_ciphertext(unsigned char *r, const polyvec *b, const poly *v)
+static void pack_ciphertext(unsigned char *r, polyvec *b, poly *v)
 {
+  polyvec_csubq(b);
+  poly_csubq(v);
   polyvec_compress(r, b);
   poly_compress(r+KYBER_POLYVECCOMPRESSEDBYTES, v);
 }
@@ -84,8 +87,9 @@ static void unpack_ciphertext(polyvec *b, poly *v, const unsigned char *c)
 * Arguments:   - unsigned char *r:  pointer to output serialized secret key
 *              - const polyvec *sk: pointer to input vector of polynomials (secret key)
 **************************************************/
-static void pack_sk(unsigned char *r, const polyvec *sk)
+static void pack_sk(unsigned char *r, polyvec *sk)
 {
+  polyvec_csubq(sk);
   polyvec_tobytes(r, sk);
 }
 
@@ -212,8 +216,6 @@ void indcpa_keypair(unsigned char *pk, unsigned char *sk)
   polyvec_add(&pkpv, &pkpv, &e);
   polyvec_reduce(&pkpv);
 
-  polyvec_csubq(&skpv);
-  polyvec_csubq(&pkpv);
   pack_sk(sk, &skpv);
   pack_pk(pk, &pkpv, publicseed);
 }
@@ -269,8 +271,6 @@ void indcpa_enc(unsigned char *c,
   polyvec_reduce(&bp);
   poly_reduce(&v);
 
-  polyvec_csubq(&bp);
-  poly_csubq(&v);
   pack_ciphertext(c, &bp, &v);
 }
 

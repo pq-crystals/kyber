@@ -3,10 +3,8 @@
 
 #include <stdint.h>
 
-uint16_t freeze(uint16_t x);
-
-uint16_t montgomery_reduce(uint32_t a);
-
-uint16_t barrett_reduce(uint16_t a);
+int16_t reduce_avx(int16_t *r);
+int16_t csubq_avx(int16_t *r);
+int16_t frommont_avx(int16_t *r);
 
 #endif

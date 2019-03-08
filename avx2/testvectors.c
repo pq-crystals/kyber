@@ -59,10 +59,10 @@ void randombytes(unsigned char *x,unsigned long long xlen)
 
 int main(void)
 {
-  unsigned char key_a[KYBER_SYMBYTES], key_b[KYBER_SYMBYTES];
-  unsigned char pk[KYBER_PUBLICKEYBYTES];
-  unsigned char sendb[KYBER_CIPHERTEXTBYTES];
-  unsigned char sk_a[KYBER_SECRETKEYBYTES];
+  unsigned char key_a[CRYPTO_BYTES], key_b[CRYPTO_BYTES];
+  unsigned char pk[CRYPTO_PUBLICKEYBYTES];
+  unsigned char sendb[CRYPTO_CIPHERTEXTBYTES];
+  unsigned char sk_a[CRYPTO_SECRETKEYBYTES];
   int i,j;
 
   for(i=0;i<NTESTS;i++)
@@ -70,9 +70,11 @@ int main(void)
     // Key-pair generation
     crypto_kem_keypair(pk, sk_a);
 
+    printf("Public key: ");
     for(j=0;j<CRYPTO_PUBLICKEYBYTES;j++)
       printf("%02x",pk[j]);
     printf("\n");
+    printf("Secret key: ");
     for(j=0;j<CRYPTO_SECRETKEYBYTES;j++)
       printf("%02x",sk_a[j]);
     printf("\n");
@@ -80,15 +82,18 @@ int main(void)
     // Encapsulation
     crypto_kem_enc(sendb, key_b, pk);
 
+    printf("Ciphertext: ");
     for(j=0;j<CRYPTO_CIPHERTEXTBYTES;j++)
       printf("%02x",sendb[j]);
     printf("\n");
+    printf("Shared Secret B: ");
     for(j=0;j<CRYPTO_BYTES;j++)
       printf("%02x",key_b[j]);
     printf("\n");
 
     // Decapsulation
     crypto_kem_dec(key_a, sendb, sk_a);
+    printf("Shared Secret A: ");
     for(j=0;j<CRYPTO_BYTES;j++)
       printf("%02x",key_a[j]);
     printf("\n");
