@@ -62,17 +62,17 @@ PQCgenKAT_kem: $(SOURCES) $(HEADERS) PQCgenKAT_kem.c rng.c rng.h
 .PHONY: clean test
 
 clean:
-	-$(RM) *.o
-	-$(RM) -r test_kyber512
-	-$(RM) -r test_kyber768
-	-$(RM) -r test_kyber1024
-	-$(RM) -r test_kex512
-	-$(RM) -r test_kex768
-	-$(RM) -r test_kex1024
-	-$(RM) -r testvectors512
-	-$(RM) -r testvectors768
-	-$(RM) -r testvectors1024
-	-$(RM) -r speed512
-	-$(RM) -r speed768
-	-$(RM) -r speed1024
-	-$(RM) -r PQCgenKAT_kem
+	-$(RM) -rf *.o
+	-$(RM) -rf test_kyber512
+	-$(RM) -rf test_kyber768
+	-$(RM) -rf test_kyber1024
+	-$(RM) -rf test_kex512
+	-$(RM) -rf test_kex768
+	-$(RM) -rf test_kex1024
+	-$(RM) -rf testvectors512
+	-$(RM) -rf testvectors768
+	-$(RM) -rf testvectors1024
+	-$(RM) -rf speed512
+	-$(RM) -rf speed768
+	-$(RM) -rf speed1024
+	-$(RM) -rf PQCgenKAT_kem
