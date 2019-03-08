@@ -159,7 +159,7 @@ void gen_matrix(polyvec *a, const unsigned char *seed, int transposed) // Not st
 
       while(ctr < KYBER_N)
       {
-        val = (buf[pos] | ((uint16_t) buf[pos+1] << 8)) & 0x1fff;
+        val = (buf[pos] | ((uint16_t) buf[pos+1] << 8)) & 0xfff;
         if(val < KYBER_Q)
         {
           a[i].vec[j].coeffs[ctr++] = val;
