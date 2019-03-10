@@ -7,7 +7,7 @@
 #include <stdint.h>
 #include <string.h>
 
-#define NTESTS 1000
+#define NTESTS 10000
 
 
 typedef uint32_t uint32;

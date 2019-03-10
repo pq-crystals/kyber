@@ -3,8 +3,8 @@
 #include "poly.h"
 #include "polyvec.h"
 #include "randombytes.h"
-#include "fips202.h"
 #include "ntt.h"
+#include "symmetric.h"
 
 /*************************************************
 * Name:        pack_pk
@@ -116,7 +116,7 @@ static void unpack_sk(polyvec *sk, const unsigned char *packedsk)
 * Description: Deterministically generate matrix A (or the transpose of A)
 *              from a seed. Entries of the matrix are polynomials that look
 *              uniformly random. Performs rejection sampling on output of
-*              SHAKE-128
+*              a XOF
 *
 * Arguments:   - polyvec *a:                pointer to ouptput matrix A
 *              - const unsigned char *seed: pointer to input seed
@@ -124,16 +124,11 @@ static void unpack_sk(polyvec *sk, const unsigned char *packedsk)
 **************************************************/
 void gen_matrix(polyvec *a, const unsigned char *seed, int transposed) // Not static for benchmarking
 {
-  unsigned int pos=0, ctr, nblocks;
+  unsigned int pos=0, ctr, nblocks, offset, bufbytes, i, j, k;
   uint16_t val0, val1;
-  const unsigned int maxnblocks=4;
-  uint8_t buf[SHAKE128_RATE*maxnblocks];
-  int i,j;
-  uint64_t state[25]; // SHAKE state
-  unsigned char extseed[KYBER_SYMBYTES+2];
-
-  for(i=0;i<KYBER_SYMBYTES;i++)
-    extseed[i] = seed[i];
+  const unsigned int maxnblocks=(473+XOF_BLOCKBYTES)/XOF_BLOCKBYTES; /* 473 is expected number of required bytes */
+  uint8_t buf[XOF_BLOCKBYTES*maxnblocks+2];
+  xof_state state;
 
   for(i=0;i<KYBER_K;i++)
   {
@@ -141,19 +136,15 @@ void gen_matrix(polyvec *a, const unsigned char *seed, int transposed) // Not st
     {
       ctr = pos = 0;
       nblocks = maxnblocks;
-      if(transposed)
-      {
-        extseed[KYBER_SYMBYTES]   = i;
-        extseed[KYBER_SYMBYTES+1] = j;
+      if(transposed) {
+        xof_absorb(&state, seed, i, j);
       }
-      else
-      {
-        extseed[KYBER_SYMBYTES]   = j;
-        extseed[KYBER_SYMBYTES+1] = i;
+      else {
+        xof_absorb(&state, seed, j, i);
       }
 
-      shake128_absorb(state, extseed, KYBER_SYMBYTES+2);
-      shake128_squeezeblocks(buf, nblocks, state);
+      xof_squeezeblocks(buf, nblocks, &state);
+      bufbytes = nblocks*XOF_BLOCKBYTES;
 
       while(ctr < KYBER_N)
       {
@@ -170,10 +161,15 @@ void gen_matrix(polyvec *a, const unsigned char *seed, int transposed) // Not st
           a[i].vec[j].coeffs[ctr++] = val1;
         }
 
-        if(pos > SHAKE128_RATE*nblocks-3)
+        if(pos > bufbytes-3)
         {
+          offset = bufbytes-pos;
+          for(k=0;k<offset;k++)
+            buf[k] = buf[pos++];
+
           nblocks = 1;
-          shake128_squeezeblocks(buf, nblocks, state);
+          xof_squeezeblocks(buf+offset, nblocks, &state);
+          bufbytes = XOF_BLOCKBYTES+offset;
           pos = 0;
         }
       }
@@ -200,7 +196,7 @@ void indcpa_keypair(unsigned char *pk, unsigned char *sk)
   unsigned char nonce=0;
 
   randombytes(buf, KYBER_SYMBYTES);
-  sha3_512(buf, buf, KYBER_SYMBYTES);
+  hash_g(buf, buf, KYBER_SYMBYTES);
 
   gen_a(a, publicseed);
 

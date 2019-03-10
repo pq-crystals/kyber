@@ -8,6 +8,7 @@
 #include <stdint.h>
 #include <assert.h>
 #include "fips202.h"
+#include "params.h"
 
 #define NROUNDS 24
 #define ROL(a, offset) ((a << offset) ^ (a >> (64-offset)))
@@ -441,9 +442,32 @@ static void keccak_squeezeblocks(unsigned char *h, unsigned long long int nblock
 *              - const unsigned char *input:      pointer to input to be absorbed into s
 *              - unsigned long long inputByteLen: length of input in bytes
 **************************************************/
-void shake128_absorb(uint64_t *s, const unsigned char *input, unsigned int inputByteLen)
+void shake128_absorb(keccak_state *s, const unsigned char *input, unsigned int inputByteLen)
 {
-  keccak_absorb(s, SHAKE128_RATE, input, inputByteLen, 0x1F);
+  keccak_absorb(s->s, SHAKE128_RATE, input, inputByteLen, 0x1F);
+}
+
+/*************************************************
+* Name:        shake128_absorb
+*
+* Description: Absorb step of the SHAKE128 specialized for the Kyber context.
+*              non-incremental, starts by zeroeing the state.
+*
+* Arguments:   - uint64_t *s:                     pointer to (uninitialized) output Keccak state
+*              - const unsigned char *input:      pointer to KYBER_SYMBYTES input to be absorbed into s
+*              - unsigned char i                  additional byte of input
+*              - unsigned char j                  additional byte of input
+**************************************************/
+void kyber_shake128_absorb(keccak_state *s, const unsigned char *input, unsigned char x, unsigned char y)
+{
+  unsigned char extseed[KYBER_SYMBYTES+2];
+  int i;
+
+  for(i=0;i<KYBER_SYMBYTES;i++)
+    extseed[i] = input[i];
+  extseed[i++] = x;
+  extseed[i]   = y;
+  keccak_absorb(s->s, SHAKE128_RATE, extseed, KYBER_SYMBYTES+2, 0x1F);
 }
 
 /*************************************************
@@ -457,9 +481,9 @@ void shake128_absorb(uint64_t *s, const unsigned char *input, unsigned int input
 *              - unsigned long long nblocks: number of blocks to be squeezed (written to output)
 *              - uint64_t *s:                pointer to in/output Keccak state
 **************************************************/
-void shake128_squeezeblocks(unsigned char *output, unsigned long long nblocks, uint64_t *s)
+void shake128_squeezeblocks(unsigned char *output, unsigned long long nblocks, keccak_state *s)
 {
-  keccak_squeezeblocks(output, nblocks, s, SHAKE128_RATE);
+  keccak_squeezeblocks(output, nblocks, s->s, SHAKE128_RATE);
 }
 
 /*************************************************
