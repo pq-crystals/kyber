@@ -1,3 +1,5 @@
+#include "params.h"
+
 .macro schoolbook off,sign
 #load
 vmovdqa		\off+32(%rsi),%ymm7	# b
@@ -96,6 +98,7 @@ vpaddd		%ymm9,%ymm4,%ymm4
 vpaddd		%ymm12,%ymm5,%ymm5
 vpaddd		%ymm7,%ymm6,%ymm6
 
+#if KYBER_K > 2
 poly2.0:
 schoolbook	1024,0
 
@@ -104,6 +107,18 @@ vpaddd		%ymm14,%ymm3,%ymm3
 vpaddd		%ymm9,%ymm4,%ymm4
 vpaddd		%ymm12,%ymm5,%ymm5
 vpaddd		%ymm7,%ymm6,%ymm6
+#endif
+
+#if KYBER_K > 3
+poly3.0:
+schoolbook	1536,0
+
+#add
+vpaddd		%ymm14,%ymm3,%ymm3
+vpaddd		%ymm9,%ymm4,%ymm4
+vpaddd		%ymm12,%ymm5,%ymm5
+vpaddd		%ymm7,%ymm6,%ymm6
+#endif
 
 #reduce
 red		3,4,5,6 7,8,9
@@ -130,6 +145,7 @@ vpaddd		%ymm9,%ymm4,%ymm4
 vpaddd		%ymm12,%ymm5,%ymm5
 vpaddd		%ymm7,%ymm6,%ymm6
 
+#if KYBER_K > 2
 poly2.1:
 schoolbook	1088,1
 
@@ -138,6 +154,18 @@ vpaddd		%ymm14,%ymm3,%ymm3
 vpaddd		%ymm9,%ymm4,%ymm4
 vpaddd		%ymm12,%ymm5,%ymm5
 vpaddd		%ymm7,%ymm6,%ymm6
+#endif
+
+#if KYBER_K > 3
+poly3.1:
+schoolbook	1600,1
+
+#add
+vpaddd		%ymm14,%ymm3,%ymm3
+vpaddd		%ymm9,%ymm4,%ymm4
+vpaddd		%ymm12,%ymm5,%ymm5
+vpaddd		%ymm7,%ymm6,%ymm6
+#endif
 
 #reduce
 red		3,4,5,6 7,8,9
