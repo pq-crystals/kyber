@@ -5,6 +5,7 @@
 #include "randombytes.h"
 #include "fips202.h"
 #include "ntt.h"
+#include "rejsample.h"
 
 /*************************************************
 * Name:        pack_pk
@@ -21,7 +22,7 @@ static void pack_pk(unsigned char *r, polyvec *pk, const unsigned char *seed)
 {
   int i;
   polyvec_csubq(pk);
-  polyvec_nttpack(pk);
+  //polyvec_nttpack(pk);
   polyvec_tobytes(r, pk);
   for(i=0;i<KYBER_SYMBYTES;i++)
     r[i+KYBER_POLYVECBYTES] = seed[i];
@@ -41,7 +42,7 @@ static void unpack_pk(polyvec *pk, unsigned char *seed, const unsigned char *pac
 {
   int i;
   polyvec_frombytes(pk, packedpk);
-  polyvec_nttunpack(pk);
+  //polyvec_nttunpack(pk);
   for(i=0;i<KYBER_SYMBYTES;i++)
     seed[i] = packedpk[i+KYBER_POLYVECBYTES];
 }
@@ -92,6 +93,7 @@ static void unpack_ciphertext(polyvec *b, poly *v, const unsigned char *c)
 static void pack_sk(unsigned char *r, polyvec *sk)
 {
   polyvec_csubq(sk);
+  //polyvec_nttpack(sk);
   polyvec_tobytes(r, sk);
 }
 
@@ -107,6 +109,7 @@ static void pack_sk(unsigned char *r, polyvec *sk)
 static void unpack_sk(polyvec *sk, const unsigned char *packedsk)
 {
   polyvec_frombytes(sk, packedsk);
+  //polyvec_nttunpack(sk);
 }
 
 #define gen_a(A,B)  gen_matrix(A,B,0)
@@ -127,7 +130,7 @@ static void unpack_sk(polyvec *sk, const unsigned char *packedsk)
 void gen_matrix(polyvec *a, const unsigned char *seed, int transposed) // Not static for benchmarking
 {
   unsigned int pos=0, ctr, nblocks;
-  uint16_t val;
+  uint16_t val0, val1;
   const unsigned int maxnblocks=4;
   uint8_t buf[SHAKE128_RATE*maxnblocks];
   int i,j;
@@ -157,20 +160,29 @@ void gen_matrix(polyvec *a, const unsigned char *seed, int transposed) // Not st
       shake128_absorb(state, extseed, KYBER_SYMBYTES+2);
       shake128_squeezeblocks(buf, nblocks, state);
 
+      ctr = rej_uniform(a[i].vec[j].coeffs, KYBER_N, buf,
+                        SHAKE128_RATE*nblocks);
+
       while(ctr < KYBER_N)
       {
-        val = (buf[pos] | ((uint16_t) buf[pos+1] << 8)) & 0xfff;
-        if(val < KYBER_Q)
-        {
-          a[i].vec[j].coeffs[ctr++] = val;
-        }
-        pos += 2;
-
-        if(pos > SHAKE128_RATE*nblocks-2)
+        if(pos > SHAKE128_RATE*nblocks-3)
         {
           nblocks = 1;
           shake128_squeezeblocks(buf, nblocks, state);
           pos = 0;
+        }
+
+        val0 = ((buf[pos+0]     ) | ((uint16_t) buf[pos+1] << 8)) & 0xfff;
+        val1 = ((buf[pos+1] >> 4) | ((uint16_t) buf[pos+2] << 4)) & 0xfff;
+        pos += 3;
+
+        if(val0 < KYBER_Q)
+        {
+          a[i].vec[j].coeffs[ctr++] = val0;
+        }
+        if(val1 < KYBER_Q && ctr < KYBER_N)
+        {
+          a[i].vec[j].coeffs[ctr++] = val1;
         }
       }
     }

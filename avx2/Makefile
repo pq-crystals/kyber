@@ -17,8 +17,8 @@ all: test_kyber512 \
   speed1024 \
   PQCgenKAT_kem \
 
-SOURCES = kem.c poly.c polyvec.c fips202.c fq.s shuffle.s cbd.c ntt.s invntt.s basemul.s consts.c verify.c indcpa.c kex.c
-HEADERS = params.h poly.h polyvec.h reduce.h fq.h cbd.h ntt.h shuffle.h verify.h indcpa.h kex.h
+SOURCES = kem.c poly.c polyvec.c fips202.c fq.s shuffle.s cbd.c ntt.s invntt.s basemul.s consts.c verify.c indcpa.c kex.c rejsample.c
+HEADERS = params.h poly.h polyvec.h reduce.h fq.h cbd.h ntt.h shuffle.h verify.h indcpa.h kex.h rejsample.h
 
 test_kyber512: $(SOURCES) $(HEADERS) test_kyber.c randombytes.c randombytes.h
 	$(CC) $(CFLAGS) -DKYBER_K=2 $(SOURCES) randombytes.c test_kyber.c -o test_kyber512

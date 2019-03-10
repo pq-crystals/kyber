@@ -70,11 +70,11 @@ int main(void)
     // Key-pair generation
     crypto_kem_keypair(pk, sk_a);
 
-    printf("Public key: ");
+    printf("Public Key: ");
     for(j=0;j<CRYPTO_PUBLICKEYBYTES;j++)
       printf("%02x",pk[j]);
     printf("\n");
-    printf("Secret key: ");
+    printf("Secret Key: ");
     for(j=0;j<CRYPTO_SECRETKEYBYTES;j++)
       printf("%02x",sk_a[j]);
     printf("\n");
