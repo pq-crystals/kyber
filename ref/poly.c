@@ -4,7 +4,7 @@
 #include "ntt.h"
 #include "reduce.h"
 #include "cbd.h"
-#include "fips202.h"
+#include "symmetric.h"
 
 /*************************************************
 * Name:        poly_compress
@@ -170,16 +170,9 @@ void poly_frombytes(poly *r, const unsigned char *a)
 **************************************************/
 void poly_getnoise(poly *r, const unsigned char *seed, unsigned char nonce)
 {
-  unsigned char buf[KYBER_ETA*KYBER_N/4];
-  unsigned char extseed[KYBER_SYMBYTES+1];
-  int i;
+  unsigned char buf[KYBER_ETA*KYBER_N/2];
 
-  for(i=0;i<KYBER_SYMBYTES;i++)
-    extseed[i] = seed[i];
-  extseed[KYBER_SYMBYTES] = nonce;
-
-  shake256(buf, KYBER_ETA*KYBER_N/4, extseed, KYBER_SYMBYTES+1);
-
+  prf(buf, KYBER_ETA*KYBER_N/4, seed, nonce);
   cbd(r, buf);
 }
 

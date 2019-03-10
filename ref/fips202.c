@@ -497,6 +497,18 @@ void shake256(unsigned char *output, unsigned long long outlen,
   }
 }
 
+void shake256_prf(unsigned char *output, unsigned long long outlen, const unsigned char *key, unsigned long long keylen, const unsigned char nonce)
+{
+  unsigned char extseed[keylen+1];
+  unsigned long long i;
+
+  for(i=0;i<keylen;i++)
+    extseed[i] = key[i];
+  extseed[keylen] = nonce;
+
+  shake256(output, outlen, extseed, keylen+1);
+}
+
 /*************************************************
 * Name:        sha3_256
 *
