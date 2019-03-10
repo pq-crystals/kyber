@@ -125,7 +125,7 @@ static void unpack_sk(polyvec *sk, const unsigned char *packedsk)
 void gen_matrix(polyvec *a, const unsigned char *seed, int transposed) // Not static for benchmarking
 {
   unsigned int pos=0, ctr, nblocks;
-  uint16_t val;
+  uint16_t val0, val1;
   const unsigned int maxnblocks=4;
   uint8_t buf[SHAKE128_RATE*maxnblocks];
   int i,j;
@@ -157,14 +157,20 @@ void gen_matrix(polyvec *a, const unsigned char *seed, int transposed) // Not st
 
       while(ctr < KYBER_N)
       {
-        val = (buf[pos] | ((uint16_t) buf[pos+1] << 8)) & 0xfff;
-        if(val < KYBER_Q)
-        {
-          a[i].vec[j].coeffs[ctr++] = val;
-        }
-        pos += 2;
+        val0 = ((buf[pos+0]     ) | ((uint16_t) buf[pos+1] << 8)) & 0xfff;
+        val1 = ((buf[pos+1] >> 4) | ((uint16_t) buf[pos+2] << 4)) & 0xfff;
+        pos += 3;
 
-        if(pos > SHAKE128_RATE*nblocks-2)
+        if(val0 < KYBER_Q)
+        {
+          a[i].vec[j].coeffs[ctr++] = val0;
+        }
+        if(val1 < KYBER_Q && ctr < KYBER_N)
+        {
+          a[i].vec[j].coeffs[ctr++] = val1;
+        }
+
+        if(pos > SHAKE128_RATE*nblocks-3)
         {
           nblocks = 1;
           shake128_squeezeblocks(buf, nblocks, state);
@@ -204,7 +210,7 @@ void indcpa_keypair(unsigned char *pk, unsigned char *sk)
     poly_getnoise(e.vec+i, noiseseed, nonce++);
 
   polyvec_ntt(&skpv);
-  polyvec_ntt(&e); // XXX
+  polyvec_ntt(&e);
 
   // matrix-vector multiplication
   for(i=0;i<KYBER_K;i++) {
@@ -212,7 +218,6 @@ void indcpa_keypair(unsigned char *pk, unsigned char *sk)
     poly_frommont(&pkpv.vec[i]);
   }
 
-  //polyvec_invntt(&pkpv); // XXX
   polyvec_add(&pkpv, &pkpv, &e);
   polyvec_reduce(&pkpv);
 
@@ -253,7 +258,6 @@ void indcpa_enc(unsigned char *c,
     poly_getnoise(ep.vec+i, coins, nonce++);
   poly_getnoise(&epp, coins, nonce++);
 
-  //polyvec_ntt(&pkpv); // XXX
   polyvec_ntt(&sp);
 
   // matrix-vector multiplication
