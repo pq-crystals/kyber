@@ -1,6 +1,7 @@
 #include <stdint.h>
 #include "ntt.h"
 #include "params.h"
+#include "reduce.h"
 
 int16_t zetas[128] = {
   2285, 2571, 2970, 1812, 1493, 1422, 287, 202, 3158, 622, 1577, 182, 962, 2127, 1855, 1468, 
@@ -23,6 +24,8 @@ int16_t zetas_inv[128] = {
   1861, 1474, 1202, 2367, 3147, 1752, 2707, 171, 3127, 3042, 1907, 1836, 1517, 359, 758, 1441};
 
 
+/* Code to generate zetas and zetas_inv:
+
 #define KYBER_ROOT_OF_UNITY 17
 
 static const uint16_t tree[128] = {
@@ -35,6 +38,10 @@ static const uint16_t tree[128] = {
   3, 67, 35, 99, 19, 83, 51, 115, 11, 75, 43, 107, 27, 91, 59, 123, 
   7, 71, 39, 103, 23, 87, 55, 119, 15, 79, 47, 111, 31, 95, 63, 127};
 
+
+static int16_t fqmul(int16_t a, int16_t b) {
+  return montgomery_reduce((int32_t)a*b);
+}
 
 void init_ntt() {
   unsigned int i, j, k;
@@ -54,3 +61,5 @@ void init_ntt() {
 
   zetas_inv[127] = MONT * (MONT * (KYBER_Q - 1) * ((KYBER_Q - 1)/128) % KYBER_Q) % KYBER_Q;
 }
+
+*/ 
