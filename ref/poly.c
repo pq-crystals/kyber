@@ -170,7 +170,7 @@ void poly_frombytes(poly *r, const unsigned char *a)
 **************************************************/
 void poly_getnoise(poly *r, const unsigned char *seed, unsigned char nonce)
 {
-  unsigned char buf[KYBER_ETA*KYBER_N/2];
+  unsigned char buf[KYBER_ETA*KYBER_N/4];
 
   prf(buf, KYBER_ETA*KYBER_N/4, seed, nonce);
   cbd(r, buf);

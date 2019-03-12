@@ -3,8 +3,8 @@
 #include "poly.h"
 #include "polyvec.h"
 #include "randombytes.h"
-#include "fips202.h"
 #include "ntt.h"
+#include "symmetric.h"
 #include "rejsample.h"
 
 /*************************************************
@@ -22,7 +22,7 @@ static void pack_pk(unsigned char *r, polyvec *pk, const unsigned char *seed)
 {
   int i;
   polyvec_csubq(pk);
-  //polyvec_nttpack(pk);
+  polyvec_nttpack(pk);
   polyvec_tobytes(r, pk);
   for(i=0;i<KYBER_SYMBYTES;i++)
     r[i+KYBER_POLYVECBYTES] = seed[i];
@@ -42,7 +42,7 @@ static void unpack_pk(polyvec *pk, unsigned char *seed, const unsigned char *pac
 {
   int i;
   polyvec_frombytes(pk, packedpk);
-  //polyvec_nttunpack(pk);
+  polyvec_nttunpack(pk);
   for(i=0;i<KYBER_SYMBYTES;i++)
     seed[i] = packedpk[i+KYBER_POLYVECBYTES];
 }
@@ -121,7 +121,7 @@ static void unpack_sk(polyvec *sk, const unsigned char *packedsk)
 * Description: Deterministically generate matrix A (or the transpose of A)
 *              from a seed. Entries of the matrix are polynomials that look
 *              uniformly random. Performs rejection sampling on output of
-*              SHAKE-128
+*              a XOF
 *
 * Arguments:   - polyvec *a:                pointer to ouptput matrix A
 *              - const unsigned char *seed: pointer to input seed
@@ -129,61 +129,37 @@ static void unpack_sk(polyvec *sk, const unsigned char *packedsk)
 **************************************************/
 void gen_matrix(polyvec *a, const unsigned char *seed, int transposed) // Not static for benchmarking
 {
-  unsigned int pos=0, ctr, nblocks;
-  uint16_t val0, val1;
-  const unsigned int maxnblocks=4;
-  uint8_t buf[SHAKE128_RATE*maxnblocks];
-  int i,j;
-  uint64_t state[25]; // SHAKE state
-  unsigned char extseed[KYBER_SYMBYTES+2];
-
-  for(i=0;i<KYBER_SYMBYTES;i++)
-    extseed[i] = seed[i];
+  unsigned int ctr, offset, bufbytes, i, j, k;
+  //const unsigned int maxnblocks=(473+XOF_BLOCKBYTES)/XOF_BLOCKBYTES; /* 473 is expected number of required bytes */
+  const unsigned int maxnblocks=(631+XOF_BLOCKBYTES)/XOF_BLOCKBYTES; /* 473 is expected number of required bytes */
+  uint8_t buf[XOF_BLOCKBYTES*maxnblocks+2];
+  xof_state state;
 
   for(i=0;i<KYBER_K;i++)
   {
     for(j=0;j<KYBER_K;j++)
     {
-      ctr = pos = 0;
-      nblocks = maxnblocks;
-      if(transposed)
-      {
-        extseed[KYBER_SYMBYTES]   = i;
-        extseed[KYBER_SYMBYTES+1] = j;
+      if(transposed) {
+        xof_absorb(&state, seed, i, j);
       }
-      else
-      {
-        extseed[KYBER_SYMBYTES]   = j;
-        extseed[KYBER_SYMBYTES+1] = i;
+      else {
+        xof_absorb(&state, seed, j, i);
       }
 
-      shake128_absorb(state, extseed, KYBER_SYMBYTES+2);
-      shake128_squeezeblocks(buf, nblocks, state);
+      xof_squeezeblocks(buf, maxnblocks, &state);
+      bufbytes = maxnblocks*XOF_BLOCKBYTES;
 
-      ctr = rej_uniform(a[i].vec[j].coeffs, KYBER_N, buf,
-                        SHAKE128_RATE*nblocks);
+      ctr = rej_uniform(a[i].vec[j].coeffs, KYBER_N, buf, bufbytes);
 
       while(ctr < KYBER_N)
       {
-        if(pos > SHAKE128_RATE*nblocks-3)
-        {
-          nblocks = 1;
-          shake128_squeezeblocks(buf, nblocks, state);
-          pos = 0;
-        }
+        offset = bufbytes % 3;
+        for(k=0;k<offset;k++)
+          buf[k] = buf[bufbytes-offset+k];
 
-        val0 = ((buf[pos+0]     ) | ((uint16_t) buf[pos+1] << 8)) & 0xfff;
-        val1 = ((buf[pos+1] >> 4) | ((uint16_t) buf[pos+2] << 4)) & 0xfff;
-        pos += 3;
-
-        if(val0 < KYBER_Q)
-        {
-          a[i].vec[j].coeffs[ctr++] = val0;
-        }
-        if(val1 < KYBER_Q && ctr < KYBER_N)
-        {
-          a[i].vec[j].coeffs[ctr++] = val1;
-        }
+        xof_squeezeblocks(buf+offset, 1, &state);
+        bufbytes = XOF_BLOCKBYTES+offset;
+        ctr += rej_uniform(a[i].vec[j].coeffs + ctr, KYBER_N - ctr, buf, bufbytes);
       }
     }
   }
@@ -208,7 +184,7 @@ void indcpa_keypair(unsigned char *pk, unsigned char *sk)
   unsigned char nonce=0;
 
   randombytes(buf, KYBER_SYMBYTES);
-  sha3_512(buf, buf, KYBER_SYMBYTES);
+  hash_g(buf, buf, KYBER_SYMBYTES);
 
   gen_a(a, publicseed);
 

@@ -1,10 +1,11 @@
 #include <stdint.h>
+#include <immintrin.h>
 #include "params.h"
 #include "poly.h"
 #include "ntt.h"
 #include "reduce.h"
 #include "cbd.h"
-#include "fips202.h"
+#include "symmetric.h"
 
 /*************************************************
 * Name:        poly_compress
@@ -170,16 +171,12 @@ void poly_frombytes(poly * restrict r, const unsigned char * restrict a)
 **************************************************/
 void poly_getnoise(poly *r, const unsigned char *seed, unsigned char nonce)
 {
-  unsigned char buf[KYBER_ETA*KYBER_N/4];
-  unsigned char extseed[KYBER_SYMBYTES+1];
-  int i;
+  unsigned char buf[XOF_BLOCKBYTES];
+  xof_state state;
 
-  for(i=0;i<KYBER_SYMBYTES;i++)
-    extseed[i] = seed[i];
-  extseed[KYBER_SYMBYTES] = nonce;
-
-  shake256(buf, KYBER_ETA*KYBER_N/4, extseed, KYBER_SYMBYTES+1);
-
+  //prf(buf, KYBER_ETA*KYBER_N/4, seed, nonce);
+  xof_absorb(&state, seed, nonce, 0);
+  xof_squeezeblocks(buf, 1, &state);
   cbd(r, buf);
 }
 
@@ -276,11 +273,17 @@ void poly_csubq(poly *r)
 *            - const poly *a: pointer to first input polynomial
 *            - const poly *b: pointer to second input polynomial
 **************************************************/
-void poly_add(poly * restrict r, const poly * restrict a, const poly * restrict b)
+void poly_add(poly *r, const poly *a, const poly *b)
 {
   int i;
-  for(i=0;i<KYBER_N;i++)
-    r->coeffs[i] = a->coeffs[i] + b->coeffs[i];
+  __m256i vec0, vec1;
+
+  for(i=0;i<KYBER_N;i+=16) {
+    vec0 = _mm256_load_si256((__m256i *)&a->coeffs[i]);
+    vec1 = _mm256_load_si256((__m256i *)&b->coeffs[i]);
+    vec0 = _mm256_add_epi16(vec0, vec1);
+    _mm256_store_si256((__m256i *)&r->coeffs[i], vec0);
+  }
 }
 
 /*************************************************
@@ -292,11 +295,17 @@ void poly_add(poly * restrict r, const poly * restrict a, const poly * restrict 
 *            - const poly *a: pointer to first input polynomial
 *            - const poly *b: pointer to second input polynomial
 **************************************************/
-void poly_sub(poly * restrict r, const poly * restrict a, const poly * restrict b)
+void poly_sub(poly *r, const poly *a, const poly *b)
 {
   int i;
-  for(i=0;i<KYBER_N;i++)
-    r->coeffs[i] = a->coeffs[i] - b->coeffs[i];
+  __m256i vec0, vec1;
+
+  for(i=0;i<KYBER_N;i+=16) {
+    vec0 = _mm256_load_si256((__m256i *)&a->coeffs[i]);
+    vec1 = _mm256_load_si256((__m256i *)&b->coeffs[i]);
+    vec0 = _mm256_sub_epi16(vec0, vec1);
+    _mm256_store_si256((__m256i *)&r->coeffs[i], vec0);
+  }
 }
 
 /*************************************************

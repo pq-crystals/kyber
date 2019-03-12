@@ -26,11 +26,14 @@ unsigned int rej_uniform(int16_t *r,
     }
 
     tmp0 = _mm256_loadu_si256((__m256i *)vec);
+    //d = _mm_loadu_si128((__m128i *)buf);
+    //tmp0 = _mm256_cvtepi16_epi32(d);
+
     tmp1 = _mm256_cmpgt_epi32(bound, tmp0);
     good = _mm256_movemask_ps((__m256)tmp1);
 
-    __m128i rid = _mm_loadl_epi64((__m128i *)&idx[good]);
-    tmp1 = _mm256_cvtepu8_epi32(rid);
+    d = _mm_loadl_epi64((__m128i *)&idx[good]);
+    tmp1 = _mm256_cvtepu8_epi32(d);
     tmp0 = _mm256_permutevar8x32_epi32(tmp0, tmp1);
 
     tmp1 = _mm256_permute2x128_si256(tmp0, tmp0, 0x21);

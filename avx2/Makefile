@@ -1,5 +1,7 @@
 CC = /usr/bin/cc
 CFLAGS += -Wall -Wextra -O3 -fomit-frame-pointer -march=native -mtune=native -fPIC
+CFLAGS += -DKYBER_90S
+#CFLAGS += -DUSE_RDPMC
 NISTFLAGS = -O3 -fomit-frame-pointer -march=native -mtune=native -fPIC
 RM = /bin/rm
 
@@ -17,8 +19,8 @@ all: test_kyber512 \
   speed1024 \
   PQCgenKAT_kem \
 
-SOURCES = kem.c poly.c polyvec.c fips202.c fq.s shuffle.s cbd.c ntt.s invntt.s basemul.S consts.c verify.c indcpa.c kex.c rejsample.c
-HEADERS = params.h poly.h polyvec.h reduce.h fq.h cbd.h ntt.h shuffle.h verify.h indcpa.h kex.h rejsample.h
+SOURCES = kem.c poly.c polyvec.c fq.s shuffle.s cbd.c ntt.s invntt.s basemul.S consts.c verify.c indcpa.c kex.c rejsample.c sha256.c sha512.c aes256ctr.c fips202.c
+HEADERS = params.h poly.h polyvec.h reduce.h fq.h cbd.h ntt.h shuffle.h verify.h indcpa.h kex.h rejsample.h symmetric.h sha2.h aes256ctr.h
 
 test_kyber512: $(SOURCES) $(HEADERS) test_kyber.c randombytes.c randombytes.h
 	$(CC) $(CFLAGS) -DKYBER_K=2 $(SOURCES) randombytes.c test_kyber.c -o test_kyber512

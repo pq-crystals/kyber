@@ -124,7 +124,7 @@ static void unpack_sk(polyvec *sk, const unsigned char *packedsk)
 **************************************************/
 void gen_matrix(polyvec *a, const unsigned char *seed, int transposed) // Not static for benchmarking
 {
-  unsigned int pos=0, ctr, nblocks, offset, bufbytes, i, j, k;
+  unsigned int pos=0, ctr, offset, bufbytes, i, j, k;
   uint16_t val0, val1;
   const unsigned int maxnblocks=(473+XOF_BLOCKBYTES)/XOF_BLOCKBYTES; /* 473 is expected number of required bytes */
   uint8_t buf[XOF_BLOCKBYTES*maxnblocks+2];
@@ -135,7 +135,6 @@ void gen_matrix(polyvec *a, const unsigned char *seed, int transposed) // Not st
     for(j=0;j<KYBER_K;j++)
     {
       ctr = pos = 0;
-      nblocks = maxnblocks;
       if(transposed) {
         xof_absorb(&state, seed, i, j);
       }
@@ -143,8 +142,8 @@ void gen_matrix(polyvec *a, const unsigned char *seed, int transposed) // Not st
         xof_absorb(&state, seed, j, i);
       }
 
-      xof_squeezeblocks(buf, nblocks, &state);
-      bufbytes = nblocks*XOF_BLOCKBYTES;
+      xof_squeezeblocks(buf, maxnblocks, &state);
+      bufbytes = maxnblocks*XOF_BLOCKBYTES;
 
       while(ctr < KYBER_N)
       {
@@ -167,8 +166,7 @@ void gen_matrix(polyvec *a, const unsigned char *seed, int transposed) // Not st
           for(k=0;k<offset;k++)
             buf[k] = buf[pos++];
 
-          nblocks = 1;
-          xof_squeezeblocks(buf+offset, nblocks, &state);
+          xof_squeezeblocks(buf+offset, 1, &state);
           bufbytes = XOF_BLOCKBYTES+offset;
           pos = 0;
         }
