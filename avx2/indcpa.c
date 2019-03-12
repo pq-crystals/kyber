@@ -131,8 +131,8 @@ void gen_matrix(polyvec *a, const unsigned char *seed, int transposed) // Not st
 {
   unsigned int ctr, offset, bufbytes, i, j, k;
   //const unsigned int maxnblocks=(473+XOF_BLOCKBYTES)/XOF_BLOCKBYTES; /* 473 is expected number of required bytes */
-  const unsigned int maxnblocks=(630+XOF_BLOCKBYTES)/XOF_BLOCKBYTES; /* 473 is expected number of required bytes */
-  uint8_t buf[XOF_BLOCKBYTES*maxnblocks+2];
+  const unsigned int maxnblocks=(630+XOF_BLOCKBYTES)/XOF_BLOCKBYTES; /* 630 is expected number of required bytes */
+  unsigned char buf[XOF_BLOCKBYTES*maxnblocks];
   xof_state state;
 
   for(i=0;i<KYBER_K;i++)

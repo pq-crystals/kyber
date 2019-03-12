@@ -125,8 +125,8 @@ static void unpack_sk(polyvec *sk, const unsigned char *packedsk)
 void gen_matrix(polyvec *a, const unsigned char *seed, int transposed) // Not static for benchmarking
 {
   unsigned int pos=0, ctr, offset, bufbytes, i, j, k;
-  uint16_t val0, val1;
-  const unsigned int maxnblocks=(473+XOF_BLOCKBYTES)/XOF_BLOCKBYTES; /* 473 is expected number of required bytes */
+  uint16_t val;
+  const unsigned int maxnblocks=(630+XOF_BLOCKBYTES)/XOF_BLOCKBYTES; /* 630 is expected number of required bytes */
   uint8_t buf[XOF_BLOCKBYTES*maxnblocks+2];
   xof_state state;
 
@@ -147,20 +147,15 @@ void gen_matrix(polyvec *a, const unsigned char *seed, int transposed) // Not st
 
       while(ctr < KYBER_N)
       {
-        val0 = ((buf[pos+0]     ) | ((uint16_t) buf[pos+1] << 8)) & 0xfff;
-        val1 = ((buf[pos+1] >> 4) | ((uint16_t) buf[pos+2] << 4)) & 0xfff;
-        pos += 3;
+        val = buf[pos+0] | ((uint16_t)buf[pos+1] << 8);
+        pos += 2;
 
-        if(val0 < KYBER_Q)
+        if(val < KYBER_Q)
         {
-          a[i].vec[j].coeffs[ctr++] = val0;
-        }
-        if(val1 < KYBER_Q && ctr < KYBER_N)
-        {
-          a[i].vec[j].coeffs[ctr++] = val1;
+          a[i].vec[j].coeffs[ctr++] = val;
         }
 
-        if(pos > bufbytes-3)
+        if(pos > bufbytes-2)
         {
           offset = bufbytes-pos;
           for(k=0;k<offset;k++)
