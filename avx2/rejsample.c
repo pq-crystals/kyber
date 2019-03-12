@@ -10,24 +10,25 @@ unsigned int rej_uniform(int16_t *r,
                          const unsigned char *buf,
                          unsigned int buflen)
 {
-  unsigned int i, ctr, pos;
+  unsigned int ctr, pos;
   uint32_t vec[8];
   __m256i tmp0, tmp1;
   __m128i d;
   uint32_t good = 0;
-  const __m256i bound = _mm256_set1_epi32(KYBER_Q);
+  const __m256i bound = _mm256_set1_epi32(19*KYBER_Q);
 
   ctr = pos = 0;
-  while(ctr + 8 <= len && pos + 12 <= buflen) {
+  while(ctr + 8 <= len && pos + 16 <= buflen) {
+/*
     for(i = 0; i < 4; i++) {
       vec[2*i+0]  = (buf[pos+0]     ) | ((uint32_t)(buf[pos+1] & 0x0F) << 8);
       vec[2*i+1]  = (buf[pos+1] >> 4) | ((uint32_t)(buf[pos+2]       ) << 4);
       pos += 3;
     }
-
-    tmp0 = _mm256_loadu_si256((__m256i *)vec);
-    //d = _mm_loadu_si128((__m128i *)buf);
-    //tmp0 = _mm256_cvtepi16_epi32(d);
+*/
+    //tmp0 = _mm256_loadu_si256((__m256i *)vec);
+    d = _mm_loadu_si128((__m128i *)buf);
+    tmp0 = _mm256_cvtepi16_epi32(d);
 
     tmp1 = _mm256_cmpgt_epi32(bound, tmp0);
     good = _mm256_movemask_ps((__m256)tmp1);
@@ -43,16 +44,16 @@ unsigned int rej_uniform(int16_t *r,
     ctr += __builtin_popcount(good);
   }
 
-  while(ctr < len && pos + 3 <= buflen) {
-    vec[0]  = (buf[pos+0]     ) | ((uint32_t)(buf[pos+1] & 0x0F) << 8);
-    vec[1]  = (buf[pos+1] >> 4) | ((uint32_t)(buf[pos+2]       ) << 4);
-
-    pos += 3;
+  while(ctr < len && pos + 2 <= buflen) {
+    //vec[0]  = (buf[pos+0]     ) | ((uint32_t)(buf[pos+1] & 0x0F) << 8);
+    //vec[1]  = (buf[pos+1] >> 4) | ((uint32_t)(buf[pos+2]       ) << 4);
+    vec[0] = buf[pos+0] | ((uint32_t)buf[pos+1] << 8);
+    pos += 2;
 
     if(vec[0] < KYBER_Q)
       r[ctr++] = vec[0];
-    if(vec[1] < KYBER_Q && ctr < len)
-      r[ctr++] = vec[1];
+    //if(vec[1] < KYBER_Q && ctr < len)
+    //  r[ctr++] = vec[1];
   }
 
   return ctr;

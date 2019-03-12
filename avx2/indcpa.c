@@ -130,7 +130,8 @@ static void unpack_sk(polyvec *sk, const unsigned char *packedsk)
 void gen_matrix(polyvec *a, const unsigned char *seed, int transposed) // Not static for benchmarking
 {
   unsigned int ctr, offset, bufbytes, i, j, k;
-  const unsigned int maxnblocks=(473+XOF_BLOCKBYTES)/XOF_BLOCKBYTES; /* 473 is expected number of required bytes */
+  //const unsigned int maxnblocks=(473+XOF_BLOCKBYTES)/XOF_BLOCKBYTES; /* 473 is expected number of required bytes */
+  const unsigned int maxnblocks=(630+XOF_BLOCKBYTES)/XOF_BLOCKBYTES; /* 473 is expected number of required bytes */
   uint8_t buf[XOF_BLOCKBYTES*maxnblocks+2];
   xof_state state;
 
@@ -152,7 +153,7 @@ void gen_matrix(polyvec *a, const unsigned char *seed, int transposed) // Not st
 
       while(ctr < KYBER_N)
       {
-        offset = bufbytes % 3;
+        offset = bufbytes % 2;
         for(k=0;k<offset;k++)
           buf[k] = buf[bufbytes-offset+k];
 
@@ -160,6 +161,8 @@ void gen_matrix(polyvec *a, const unsigned char *seed, int transposed) // Not st
         bufbytes = XOF_BLOCKBYTES+offset;
         ctr += rej_uniform(a[i].vec[j].coeffs + ctr, KYBER_N - ctr, buf, bufbytes);
       }
+
+      poly_reduce(&a[i].vec[j]);
     }
   }
 }
