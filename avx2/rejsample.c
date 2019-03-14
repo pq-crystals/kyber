@@ -264,47 +264,94 @@ static const unsigned char idx[256][8] = {
 
 unsigned int rej_uniform(int16_t *r,
                          unsigned int len,
-                         const unsigned char *buf,
+                         const unsigned char buf[640],
                          unsigned int buflen)
 {
   unsigned int ctr, pos;
-  uint16_t vec[24];
-  __m256i d, tmp, pi;
-  __m128i pi0, pi1;
-  uint32_t good;
+  int16_t val;
+  uint32_t good0, good1, good2;
   const __m256i bound = _mm256_set1_epi16(19*KYBER_Q - (1 << 15));
-  const __m256i shift = _mm256_set1_epi16(-(1 << 15));
   const __m256i ones = _mm256_set1_epi8(1);
+  __m256i d0, d1, d2, tmp0, tmp1, tmp2, pi0, pi1, pi2;
+  __m128i d, tmp, pilo, pihi;
 
   ctr = pos = 0;
-  while(ctr + 16 <= len && pos + 32 <= buflen) {
-    d = _mm256_loadu_si256((__m256i *)buf+pos);
-    d = _mm256_add_epi16(d, shift);
-    tmp = _mm256_cmpgt_epi16(bound, d);
-    good = _mm256_movemask_epi8(tmp);
-    good = _pext_u32(good, 0x55555555);
+  while(ctr + 48 <= len && pos + 96 <= buflen) {
+    d0 = _mm256_loadu_si256((__m256i *)&buf[pos+0]);
+    d1 = _mm256_loadu_si256((__m256i *)&buf[pos+32]);
+    d2 = _mm256_loadu_si256((__m256i *)&buf[pos+64]);
 
-    pi0 = _mm_loadl_epi64((__m128i *)&idx[good & 0xFF]);
-    pi1 = _mm_loadl_epi64((__m128i *)&idx[(good >> 8) & 0xFF]);
-    pi = _mm256_inserti128_si256(pi, pi0, 0);
-    pi = _mm256_inserti128_si256(pi, pi1, 1);
-    tmp = _mm256_add_epi8(pi, ones);
-    pi = _mm256_unpacklo_epi8(pi, tmp);
+    tmp0 = _mm256_cmpgt_epi16(bound, d0);
+    tmp1 = _mm256_cmpgt_epi16(bound, d1);
+    tmp2 = _mm256_cmpgt_epi16(bound, d2);
+    good0 = _mm256_movemask_epi8(tmp0);
+    good1 = _mm256_movemask_epi8(tmp1);
+    good2 = _mm256_movemask_epi8(tmp2);
+    good0 = _pext_u32(good0, 0x55555555);
+    good1 = _pext_u32(good1, 0x55555555);
+    good2 = _pext_u32(good2, 0x55555555);
 
-    d = _mm256_shuffle_epi8(d, pi);
-    _mm_storeu_si128((__m128i *)&r[ctr], _mm256_extracti128_si256(d, 0));
-    ctr += __builtin_popcount(good & 0xFF);
-    _mm_storeu_si128((__m128i *)&r[ctr], _mm256_extracti128_si256(d, 1));
-    ctr += __builtin_popcount((good >> 8) & 0xFF);
-    pos += 32;
+    pilo = _mm_loadl_epi64((__m128i *)&idx[good0 & 0xFF]);
+    pihi = _mm_loadl_epi64((__m128i *)&idx[(good0 >> 8) & 0xFF]);
+    pi0 = _mm256_inserti128_si256(pi0, pilo, 0);
+    pi0 = _mm256_inserti128_si256(pi0, pihi, 1);
+
+    pilo = _mm_loadl_epi64((__m128i *)&idx[good1 & 0xFF]);
+    pihi = _mm_loadl_epi64((__m128i *)&idx[(good1 >> 8) & 0xFF]);
+    pi1 = _mm256_inserti128_si256(pi1, pilo, 0);
+    pi1 = _mm256_inserti128_si256(pi1, pihi, 1);
+
+    pilo = _mm_loadl_epi64((__m128i *)&idx[good2 & 0xFF]);
+    pihi = _mm_loadl_epi64((__m128i *)&idx[(good2 >> 8) & 0xFF]);
+    pi2 = _mm256_inserti128_si256(pi2, pilo, 0);
+    pi2 = _mm256_inserti128_si256(pi2, pihi, 1);
+
+    tmp0 = _mm256_add_epi8(pi0, ones);
+    tmp1 = _mm256_add_epi8(pi1, ones);
+    tmp2 = _mm256_add_epi8(pi2, ones);
+    pi0 = _mm256_unpacklo_epi8(pi0, tmp0);
+    pi1 = _mm256_unpacklo_epi8(pi1, tmp1);
+    pi2 = _mm256_unpacklo_epi8(pi2, tmp2);
+
+    d0 = _mm256_shuffle_epi8(d0, pi0);
+    d1 = _mm256_shuffle_epi8(d1, pi1);
+    d2 = _mm256_shuffle_epi8(d2, pi2);
+
+    _mm_storeu_si128((__m128i *)&r[ctr], _mm256_extracti128_si256(d0, 0));
+    ctr += __builtin_popcount(good0 & 0xFF);
+    _mm_storeu_si128((__m128i *)&r[ctr], _mm256_extracti128_si256(d0, 1));
+    ctr += __builtin_popcount((good0 >> 8) & 0xFF);
+    _mm_storeu_si128((__m128i *)&r[ctr], _mm256_extracti128_si256(d1, 0));
+    ctr += __builtin_popcount(good1 & 0xFF);
+    _mm_storeu_si128((__m128i *)&r[ctr], _mm256_extracti128_si256(d1, 1));
+    ctr += __builtin_popcount((good1 >> 8) & 0xFF);
+    _mm_storeu_si128((__m128i *)&r[ctr], _mm256_extracti128_si256(d2, 0));
+    ctr += __builtin_popcount(good2 & 0xFF);
+    _mm_storeu_si128((__m128i *)&r[ctr], _mm256_extracti128_si256(d2, 1));
+    ctr += __builtin_popcount((good2 >> 8) & 0xFF);
+    pos += 96;
+  }
+
+  while(ctr + 8 <= len && pos + 16 <= buflen) {
+    d = _mm_loadu_si128((__m128i *)&buf[pos]);
+    tmp = _mm_cmpgt_epi16(_mm256_extracti128_si256(bound,0), d);
+    good0 = _mm_movemask_epi8(tmp);
+    good0 = _pext_u32(good0, 0x55555555);
+    pilo = _mm_loadl_epi64((__m128i *)&idx[good0]);
+    pihi = _mm_add_epi8(pilo, _mm256_extracti128_si256(ones,0));
+    pilo = _mm_unpacklo_epi8(pilo, pihi);
+    d = _mm_shuffle_epi8(d, pilo);
+    _mm_storeu_si128((__m128i *)&r[ctr], d);
+    ctr += __builtin_popcount(good0);
+    pos += 16;
   }
 
   while(ctr < len && pos + 2 <= buflen) {
-    vec[0] = buf[pos+0] | ((uint16_t)buf[pos+1] << 8);
+    val = buf[pos] | ((uint16_t)buf[pos+1] << 8);
     pos += 2;
 
-    if(vec[0] < 19*KYBER_Q)
-      r[ctr++] = vec[0];
+    if(val < 19*KYBER_Q - (1 << 15))
+      r[ctr++] = val;
   }
 
   return ctr;

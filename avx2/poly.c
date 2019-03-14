@@ -171,12 +171,9 @@ void poly_frombytes(poly * restrict r, const unsigned char * restrict a)
 **************************************************/
 void poly_getnoise(poly *r, const unsigned char *seed, unsigned char nonce)
 {
-  unsigned char buf[XOF_BLOCKBYTES];
-  xof_state state;
+  unsigned char buf[KYBER_ETA*KYBER_N/4];
 
-  //prf(buf, KYBER_ETA*KYBER_N/4, seed, nonce);
-  xof_absorb(&state, seed, nonce, 0);
-  xof_squeezeblocks(buf, 1, &state);
+  prf(buf, KYBER_ETA*KYBER_N/4, seed, nonce);
   cbd(r, buf);
 }
 
@@ -213,12 +210,14 @@ void poly_invntt(poly *r)
   invntt_level6_avx(r->coeffs, zetas_inv_exp + 392);
 }
 
+// FIXME
 void poly_nttpack(poly *r)
 {
   nttpack_avx(r->coeffs);
   nttpack_avx(r->coeffs + 128);
 }
 
+// FIXME
 void poly_nttunpack(poly *r)
 {
   nttunpack_avx(r->coeffs);
@@ -246,18 +245,21 @@ void poly_basemul(poly *r, const poly *a, const poly *b)
               zetas_exp + 380);
 }
 
+// FIXME
 void poly_frommont(poly *r)
 {
   frommont_avx(r->coeffs);
   frommont_avx(r->coeffs + 128);
 }
 
+// FIXME
 void poly_reduce(poly *r)
 {
   reduce_avx(r->coeffs);
   reduce_avx(r->coeffs + 128);
 }
 
+// FIXME
 void poly_csubq(poly *r)
 {
   csubq_avx(r->coeffs);

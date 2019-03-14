@@ -216,6 +216,7 @@ void poly_basemul(poly *r, const poly *a, const poly *b)
   }
 }
 
+// FIXME
 void poly_frommont(poly *r)
 {
   int i;
@@ -225,6 +226,7 @@ void poly_frommont(poly *r)
     r->coeffs[i] = montgomery_reduce((int32_t)r->coeffs[i]*f);
 }
 
+// FIXME
 void poly_reduce(poly *r)
 {
   int i;
@@ -233,6 +235,7 @@ void poly_reduce(poly *r)
     r->coeffs[i] = barrett_reduce(r->coeffs[i]);
 }
 
+// FIXME
 void poly_csubq(poly *r)
 {
   int i;

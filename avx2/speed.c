@@ -105,6 +105,13 @@ int main()
   }
   print_results("poly_getnoise: ", t, NTESTS);
 
+  for(i=0; i<NTESTS; i++)
+  {
+    t[i] = cpucycles();
+    poly_compress(pk_a, &ap);
+  }
+  print_results("poly_compress: ", t, NTESTS);
+
 
   for(i=0; i<NTESTS; i++)
   {

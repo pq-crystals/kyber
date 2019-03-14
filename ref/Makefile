@@ -1,10 +1,11 @@
 CC = /usr/bin/cc
-CFLAGS = -Wall -Wextra -O3 -fomit-frame-pointer -march=native -mtune=native -fPIC
+CFLAGS += -Wall -Wextra -O3 -fomit-frame-pointer -march=native -mtune=native -fPIC
+#CFLAGS += -DUSE_RDPMC
 NISTFLAGS = -O3 -fomit-frame-pointer -march=native -mtune=native -fPIC
 RM = /bin/rm
 
 all: \
-	test_kyber512 \
+  test_kyber512 \
   test_kyber768 \
   test_kyber1024 \
   test_kex512 \
@@ -16,7 +17,7 @@ all: \
   speed512 \
   speed768 \
   speed1024 \
-	test_kyber512-90s \
+  test_kyber512-90s \
   test_kyber768-90s \
   test_kyber1024-90s \
   test_kex512-90s \
@@ -113,17 +114,17 @@ PQCgenKAT_kem: $(SOURCES) $(HEADERS) PQCgenKAT_kem.c rng.c rng.h
 .PHONY: clean test
 
 clean:
-	-$(RM) *.o
-	-$(RM) -r test_kyber512
-	-$(RM) -r test_kyber768
-	-$(RM) -r test_kyber1024
-	-$(RM) -r test_kex512
-	-$(RM) -r test_kex768
-	-$(RM) -r test_kex1024
-	-$(RM) -r testvectors512
-	-$(RM) -r testvectors768
-	-$(RM) -r testvectors1024
-	-$(RM) -r speed512
-	-$(RM) -r speed768
-	-$(RM) -r speed1024
-	-$(RM) -r PQCgenKAT_kem
+	-$(RM) -rf *.o
+	-$(RM) -rf test_kyber512
+	-$(RM) -rf test_kyber768
+	-$(RM) -rf test_kyber1024
+	-$(RM) -rf test_kex512
+	-$(RM) -rf test_kex768
+	-$(RM) -rf test_kex1024
+	-$(RM) -rf testvectors512
+	-$(RM) -rf testvectors768
+	-$(RM) -rf testvectors1024
+	-$(RM) -rf speed512
+	-$(RM) -rf speed768
+	-$(RM) -rf speed1024
+	-$(RM) -rf PQCgenKAT_kem

@@ -45,6 +45,34 @@ static void unpack_pk(polyvec *pk, unsigned char *seed, const unsigned char *pac
 }
 
 /*************************************************
+* Name:        pack_sk
+*
+* Description: Serialize the secret key
+*
+* Arguments:   - unsigned char *r:  pointer to output serialized secret key
+*              - const polyvec *sk: pointer to input vector of polynomials (secret key)
+**************************************************/
+static void pack_sk(unsigned char *r, polyvec *sk)
+{
+  polyvec_csubq(sk);
+  polyvec_tobytes(r, sk);
+}
+
+/*************************************************
+* Name:        unpack_sk
+*
+* Description: De-serialize the secret key;
+*              inverse of pack_sk
+*
+* Arguments:   - polyvec *sk:                   pointer to output vector of polynomials (secret key)
+*              - const unsigned char *packedsk: pointer to input serialized secret key
+**************************************************/
+static void unpack_sk(polyvec *sk, const unsigned char *packedsk)
+{
+  polyvec_frombytes(sk, packedsk);
+}
+
+/*************************************************
 * Name:        pack_ciphertext
 *
 * Description: Serialize the ciphertext as concatenation of the
@@ -79,32 +107,23 @@ static void unpack_ciphertext(polyvec *b, poly *v, const unsigned char *c)
   poly_decompress(v, c+KYBER_POLYVECCOMPRESSEDBYTES);
 }
 
-/*************************************************
-* Name:        pack_sk
-*
-* Description: Serialize the secret key
-*
-* Arguments:   - unsigned char *r:  pointer to output serialized secret key
-*              - const polyvec *sk: pointer to input vector of polynomials (secret key)
-**************************************************/
-static void pack_sk(unsigned char *r, polyvec *sk)
+// FIXME
+static unsigned int rej_uniform_ref(int16_t *r, unsigned int len, const unsigned char *buf, unsigned int buflen)
 {
-  polyvec_csubq(sk);
-  polyvec_tobytes(r, sk);
-}
+  unsigned int ctr, pos;
+  int16_t val;
 
-/*************************************************
-* Name:        unpack_sk
-*
-* Description: De-serialize the secret key;
-*              inverse of pack_sk
-*
-* Arguments:   - polyvec *sk:                   pointer to output vector of polynomials (secret key)
-*              - const unsigned char *packedsk: pointer to input serialized secret key
-**************************************************/
-static void unpack_sk(polyvec *sk, const unsigned char *packedsk)
-{
-  polyvec_frombytes(sk, packedsk);
+  ctr = pos = 0;
+  while(ctr < len && pos + 2 <= buflen)
+  {
+    val = buf[pos] | ((int16_t)buf[pos+1] << 8);
+    pos += 2;
+
+    if(val < 19*KYBER_Q - (1 << 15))
+      r[ctr++] = val;
+  }
+
+  return ctr;
 }
 
 #define gen_a(A,B)  gen_matrix(A,B,0)
@@ -124,17 +143,15 @@ static void unpack_sk(polyvec *sk, const unsigned char *packedsk)
 **************************************************/
 void gen_matrix(polyvec *a, const unsigned char *seed, int transposed) // Not static for benchmarking
 {
-  unsigned int pos=0, ctr, offset, bufbytes, i, j, k;
-  uint16_t val;
-  const unsigned int maxnblocks=(630+XOF_BLOCKBYTES)/XOF_BLOCKBYTES; /* 630 is expected number of required bytes */
-  uint8_t buf[XOF_BLOCKBYTES*maxnblocks+2];
+  unsigned int ctr, offset, bufbytes, i, j, k;
+  const unsigned int maxnblocks=(530+XOF_BLOCKBYTES)/XOF_BLOCKBYTES; /* 530 is expected number of required bytes */
+  unsigned char buf[XOF_BLOCKBYTES*maxnblocks+1];
   xof_state state;
 
   for(i=0;i<KYBER_K;i++)
   {
     for(j=0;j<KYBER_K;j++)
     {
-      ctr = pos = 0;
       if(transposed) {
         xof_absorb(&state, seed, i, j);
       }
@@ -145,27 +162,21 @@ void gen_matrix(polyvec *a, const unsigned char *seed, int transposed) // Not st
       xof_squeezeblocks(buf, maxnblocks, &state);
       bufbytes = maxnblocks*XOF_BLOCKBYTES;
 
+      ctr = rej_uniform_ref(a[i].vec[j].coeffs, KYBER_N, buf, bufbytes);
+
       while(ctr < KYBER_N)
       {
-        val = buf[pos+0] | ((uint16_t)buf[pos+1] << 8);
-        pos += 2;
+        offset = bufbytes%2;
+        for(k=0;k<offset;k++)
+          buf[k] = buf[bufbytes-offset+k];
 
-        if(val < KYBER_Q)
-        {
-          a[i].vec[j].coeffs[ctr++] = val;
-        }
+        xof_squeezeblocks(buf+offset, 1, &state);
+        bufbytes = XOF_BLOCKBYTES+offset;
 
-        if(pos > bufbytes-2)
-        {
-          offset = bufbytes-pos;
-          for(k=0;k<offset;k++)
-            buf[k] = buf[pos++];
-
-          xof_squeezeblocks(buf+offset, 1, &state);
-          bufbytes = XOF_BLOCKBYTES+offset;
-          pos = 0;
-        }
+        ctr += rej_uniform_ref(a[i].vec[j].coeffs + ctr, KYBER_N - ctr, buf, bufbytes);
       }
+
+      poly_reduce(&a[i].vec[j]);
     }
   }
 }
