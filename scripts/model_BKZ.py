@@ -117,18 +117,15 @@ def construct_BKZ_shape_randomized(q, nq, n1, b):
     return (a, a + B, L)
 
 
-
-
 def BKZ_first_length(q, nq, n1, b):
     """ Simulate the length of the shortest expected vector in the first b-block
-        after a BKZ-b reduction, ignoring the q-vector if some remains.
+        after randomization (killong q-vectors) and a BKZ-b reduction.
     """
 
-    (_, _, L) = construct_BKZ_shape(q, nq, n1, b)
-    rV = exp(sum(L[:b]) / b)                # Compute the root-volume of the first block
-    delta = delta_BKZ(b)
-    l = rV * delta**b
+    (_, _, L) = construct_BKZ_shape_randomized(q, nq, n1, b)
+    l = exp(L[0])                # Compute the root-volume of the first block
     return l
+
 
 def BKZ_last_block_length(q, nq, n1, b):
     """ Simulate the length of the expected Gram-Schmidt vector at position d-b (d = n+m)
