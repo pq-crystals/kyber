@@ -10,9 +10,12 @@
 * Arguments:   - unsigned char *r: pointer to output byte array
 *              - const polyvec *a: pointer to input vector of polynomials
 **************************************************/
-void polyvec_compress(unsigned char *r, const polyvec *a)
+void polyvec_compress(unsigned char *r, polyvec *a)
 {
   int i,j,k;
+
+  polyvec_csubq(a);
+
 #if (KYBER_POLYVECCOMPRESSEDBYTES == (KYBER_K * 352))
   uint16_t t[8];
   for(i=0;i<KYBER_K;i++)
@@ -111,7 +114,7 @@ void polyvec_decompress(polyvec *r, const unsigned char *a)
 * Arguments:   - unsigned char *r: pointer to output byte array
 *              - const polyvec *a: pointer to input vector of polynomials
 **************************************************/
-void polyvec_tobytes(unsigned char *r, const polyvec *a)
+void polyvec_tobytes(unsigned char *r, polyvec *a)
 {
   int i;
   for(i=0;i<KYBER_K;i++)
@@ -185,6 +188,7 @@ void polyvec_pointwise_acc(poly *r, const polyvec *a, const polyvec *b)
   poly_reduce(r);
 }
 
+// FIXME
 void polyvec_reduce(polyvec *r)
 {
   int i;
@@ -192,6 +196,7 @@ void polyvec_reduce(polyvec *r)
     poly_reduce(&r->vec[i]);
 }
 
+// FIXME
 void polyvec_csubq(polyvec *r)
 {
   int i;

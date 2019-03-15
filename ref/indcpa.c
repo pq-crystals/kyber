@@ -20,7 +20,6 @@
 static void pack_pk(unsigned char *r, polyvec *pk, const unsigned char *seed)
 {
   int i;
-  polyvec_csubq(pk);
   polyvec_tobytes(r, pk);
   for(i=0;i<KYBER_SYMBYTES;i++)
     r[i+KYBER_POLYVECBYTES] = seed[i];
@@ -54,7 +53,6 @@ static void unpack_pk(polyvec *pk, unsigned char *seed, const unsigned char *pac
 **************************************************/
 static void pack_sk(unsigned char *r, polyvec *sk)
 {
-  polyvec_csubq(sk);
   polyvec_tobytes(r, sk);
 }
 
@@ -85,8 +83,6 @@ static void unpack_sk(polyvec *sk, const unsigned char *packedsk)
 **************************************************/
 static void pack_ciphertext(unsigned char *r, polyvec *b, poly *v)
 {
-  polyvec_csubq(b);
-  poly_csubq(v);
   polyvec_compress(r, b);
   poly_compress(r+KYBER_POLYVECCOMPRESSEDBYTES, v);
 }
@@ -305,6 +301,5 @@ void indcpa_dec(unsigned char *m,
   poly_sub(&mp, &v, &mp);
   poly_reduce(&mp);
 
-  poly_csubq(&mp);
   poly_tomsg(m, &mp);
 }

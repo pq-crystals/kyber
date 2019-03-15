@@ -12,6 +12,7 @@ const uint16_t zetas_inv_exp[396] = {42405, 57780, 20258, 23860, 17443, 42326, 2
 #define FLO (FHI * QINV % 65536)
 #define MONTSQHI (MONT * MONT % KYBER_Q)
 #define MONTSQLO (MONTSQHI * QINV % 65536)
+#define MASK 4095
 
 const uint16_t _16xq[16]  __attribute__((aligned(32))) = {Q, Q, Q, Q, Q, Q, Q, Q, Q, Q, Q, Q, Q, Q, Q, Q};
 const uint16_t _16xqinv[16] __attribute__((aligned(32))) = {QINV, QINV, QINV, QINV, QINV, QINV, QINV, QINV, QINV, QINV, QINV, QINV, QINV, QINV, QINV, QINV};
@@ -20,6 +21,7 @@ const uint16_t _16xflo[16] __attribute__((aligned(32))) = {FLO, FLO, FLO, FLO, F
 const uint16_t _16xfhi[16] __attribute__((aligned(32))) = {FHI, FHI, FHI, FHI, FHI, FHI, FHI, FHI, FHI, FHI, FHI, FHI, FHI, FHI, FHI, FHI};
 const uint16_t _16xmontsqlo[16] __attribute__((aligned(32))) = {MONTSQLO, MONTSQLO, MONTSQLO, MONTSQLO, MONTSQLO, MONTSQLO, MONTSQLO, MONTSQLO, MONTSQLO, MONTSQLO, MONTSQLO, MONTSQLO, MONTSQLO, MONTSQLO, MONTSQLO, MONTSQLO};
 const uint16_t _16xmontsqhi[16] __attribute__((aligned(32))) = {MONTSQHI, MONTSQHI, MONTSQHI, MONTSQHI, MONTSQHI, MONTSQHI, MONTSQHI, MONTSQHI, MONTSQHI, MONTSQHI, MONTSQHI, MONTSQHI, MONTSQHI, MONTSQHI, MONTSQHI, MONTSQHI};
+const uint16_t _16xmask[16] __attribute__((aligned(32))) = {MASK, MASK, MASK, MASK, MASK, MASK, MASK, MASK, MASK, MASK, MASK, MASK, MASK, MASK, MASK, MASK};
 
 #undef Q
 #undef QINV
@@ -29,3 +31,4 @@ const uint16_t _16xmontsqhi[16] __attribute__((aligned(32))) = {MONTSQHI, MONTSQ
 #undef FHI
 #undef MONTSQLO
 #undef MONTSQHI
+#undef MASK

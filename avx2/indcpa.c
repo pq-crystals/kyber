@@ -22,8 +22,6 @@
 static void pack_pk(unsigned char *r, polyvec *pk, const unsigned char *seed)
 {
   int i;
-  polyvec_csubq(pk);
-  polyvec_nttpack(pk);
   polyvec_tobytes(r, pk);
   for(i=0;i<KYBER_SYMBYTES;i++)
     r[i+KYBER_POLYVECBYTES] = seed[i];
@@ -43,7 +41,6 @@ static void unpack_pk(polyvec *pk, unsigned char *seed, const unsigned char *pac
 {
   int i;
   polyvec_frombytes(pk, packedpk);
-  polyvec_nttunpack(pk);
   for(i=0;i<KYBER_SYMBYTES;i++)
     seed[i] = packedpk[i+KYBER_POLYVECBYTES];
 }
@@ -58,8 +55,6 @@ static void unpack_pk(polyvec *pk, unsigned char *seed, const unsigned char *pac
 **************************************************/
 static void pack_sk(unsigned char *r, polyvec *sk)
 {
-  polyvec_csubq(sk);
-  polyvec_nttpack(sk);
   polyvec_tobytes(r, sk);
 }
 
@@ -75,7 +70,6 @@ static void pack_sk(unsigned char *r, polyvec *sk)
 static void unpack_sk(polyvec *sk, const unsigned char *packedsk)
 {
   polyvec_frombytes(sk, packedsk);
-  polyvec_nttunpack(sk);
 }
 
 /*************************************************
@@ -91,8 +85,6 @@ static void unpack_sk(polyvec *sk, const unsigned char *packedsk)
 **************************************************/
 static void pack_ciphertext(unsigned char *r, polyvec *b, poly *v)
 {
-  polyvec_csubq(b);
-  poly_csubq(v);
   polyvec_compress(r, b);
   poly_compress(r+KYBER_POLYVECCOMPRESSEDBYTES, v);
 }
@@ -194,7 +186,6 @@ void gen_matrix(polyvec *a, const unsigned char *seed, int transposed) // Not st
         ctr += rej_uniform_ref(a[i].vec[j].coeffs + ctr, KYBER_N - ctr, buf, bufbytes);
       }
 
-      poly_reduce(&a[i].vec[j]);
       poly_nttunpack(&a[i].vec[j]);
     }
   }
@@ -287,7 +278,6 @@ void indcpa_enc(unsigned char *c,
   poly_frommsg(&k, m);
   gen_at(at, seed);
 
-
 #if KYBER_90S
   aes256ctr_ctx state;
   unsigned char buf[128];
@@ -360,6 +350,5 @@ void indcpa_dec(unsigned char *m,
   poly_sub(&mp, &v, &mp);
   poly_reduce(&mp);
 
-  poly_csubq(&mp);
   poly_tomsg(m, &mp);
 }

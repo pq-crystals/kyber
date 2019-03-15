@@ -12,14 +12,14 @@ typedef struct{
   int16_t __attribute__((aligned(32))) coeffs[KYBER_N];
 } poly;
 
-void poly_compress(unsigned char *r, const poly *a);
+void poly_compress(unsigned char *r, poly *a);
 void poly_decompress(poly *r, const unsigned char *a);
 
-void poly_tobytes(unsigned char *r, const poly *a);
+void poly_tobytes(unsigned char *r, poly *a);
 void poly_frombytes(poly *r, const unsigned char *a);
 
 void poly_frommsg(poly *r, const unsigned char msg[KYBER_SYMBYTES]);
-void poly_tomsg(unsigned char msg[KYBER_SYMBYTES], const poly *r);
+void poly_tomsg(unsigned char msg[KYBER_SYMBYTES], poly *r);
 
 void poly_getnoise(poly *r,const unsigned char *seed, unsigned char nonce);
 

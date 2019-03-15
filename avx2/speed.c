@@ -108,9 +108,9 @@ int main()
   for(i=0; i<NTESTS; i++)
   {
     t[i] = cpucycles();
-    poly_compress(pk_a, &ap);
+    poly_frombytes(&ap, seed);
   }
-  print_results("poly_compress: ", t, NTESTS);
+  print_results("poly_frombytes: ", t, NTESTS);
 
 
   for(i=0; i<NTESTS; i++)

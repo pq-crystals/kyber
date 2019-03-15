@@ -8,10 +8,10 @@ typedef struct{
   poly vec[KYBER_K];
 } polyvec;
 
-void polyvec_compress(unsigned char *r, const polyvec *a);
+void polyvec_compress(unsigned char *r, polyvec *a);
 void polyvec_decompress(polyvec *r, const unsigned char *a);
 
-void polyvec_tobytes(unsigned char *r, const polyvec *a);
+void polyvec_tobytes(unsigned char *r, polyvec *a);
 void polyvec_frombytes(polyvec *r, const unsigned char *a);
 
 void polyvec_ntt(polyvec *r);

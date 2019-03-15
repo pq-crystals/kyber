@@ -11,9 +11,12 @@
 * Arguments:   - unsigned char *r: pointer to output byte array
 *              - const polyvec *a: pointer to input vector of polynomials
 **************************************************/
-void polyvec_compress(unsigned char * restrict r, const polyvec * restrict a)
+void polyvec_compress(unsigned char * restrict r, polyvec * restrict a)
 {
   int i,j,k;
+
+  polyvec_csubq(a);
+
 #if (KYBER_POLYVECCOMPRESSEDBYTES == (KYBER_K * 352))
   uint16_t t[8];
   for(i=0;i<KYBER_K;i++)
@@ -112,7 +115,7 @@ void polyvec_decompress(polyvec * restrict r, const unsigned char * restrict a)
 * Arguments:   - unsigned char *r: pointer to output byte array
 *              - const polyvec *a: pointer to input vector of polynomials
 **************************************************/
-void polyvec_tobytes(unsigned char *r, const polyvec *a)
+void polyvec_tobytes(unsigned char *r, polyvec *a)
 {
   int i;
   for(i=0;i<KYBER_K;i++)
@@ -163,20 +166,6 @@ void polyvec_invntt(polyvec *r)
     poly_invntt(&r->vec[i]);
 }
 
-void polyvec_nttpack(polyvec *r)
-{
-  int i;
-  for(i=0;i<KYBER_K;i++)
-    poly_nttpack(&r->vec[i]);
-}
-
-void polyvec_nttunpack(polyvec *r)
-{
-  int i;
-  for(i=0;i<KYBER_K;i++)
-    poly_nttunpack(&r->vec[i]);
-}
-
 /*************************************************
 * Name:        polyvec_pointwise_acc
 *
@@ -206,6 +195,7 @@ void polyvec_pointwise_acc(poly *r, const polyvec *a, const polyvec *b)
                   zetas_exp + 380);
 }
 
+// FIXME
 void polyvec_reduce(polyvec *r)
 {
   int i;
@@ -213,6 +203,7 @@ void polyvec_reduce(polyvec *r)
     poly_reduce(&r->vec[i]);
 }
 
+// FIXME
 void polyvec_csubq(polyvec *r)
 {
   int i;

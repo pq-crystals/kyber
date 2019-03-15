@@ -14,10 +14,12 @@
 * Arguments:   - unsigned char *r: pointer to output byte array
 *              - const poly *a:    pointer to input polynomial
 **************************************************/
-void poly_compress(unsigned char *r, const poly *a)
+void poly_compress(unsigned char *r, poly *a)
 {
   uint8_t t[8];
   int i,j,k=0;
+
+  poly_csubq(a);
 
 #if (KYBER_POLYCOMPRESSEDBYTES == 96)
   for(i=0;i<KYBER_N;i+=8)
@@ -124,10 +126,12 @@ void poly_decompress(poly *r, const unsigned char *a)
 * Arguments:   - unsigned char *r: pointer to output byte array
 *              - const poly *a:    pointer to input polynomial
 **************************************************/
-void poly_tobytes(unsigned char *r, const poly *a)
+void poly_tobytes(unsigned char *r, poly *a)
 {
   int i;
   uint16_t t0, t1;
+
+  poly_csubq(a);
 
   for(i=0;i<KYBER_N/2;i++){
     t0 = a->coeffs[2*i];
@@ -307,10 +311,12 @@ void poly_frommsg(poly *r, const unsigned char msg[KYBER_SYMBYTES])
 * Arguments:   - unsigned char *msg: pointer to output message
 *              - const poly *a:      pointer to input polynomial
 **************************************************/
-void poly_tomsg(unsigned char msg[KYBER_SYMBYTES], const poly *a)
+void poly_tomsg(unsigned char msg[KYBER_SYMBYTES], poly *a)
 {
   uint16_t t;
   int i,j;
+
+  poly_csubq(a);
 
   for(i=0;i<KYBER_SYMBYTES;i++)
   {

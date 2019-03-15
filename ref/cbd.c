@@ -47,8 +47,8 @@ void cbd(poly *r, const unsigned char *buf)
 
     for(j=0;j<8;j++)
     {
-      a = (d >>  2*j)    & 0x3;
-      b = (d >> (2*j+2)) & 0x3;
+      a = (d >>  4*j)    & 0x3;
+      b = (d >> (4*j+2)) & 0x3;
       r->coeffs[8*i+j] = a - b;
     }
   }
