@@ -26,7 +26,7 @@ void poly_compress(unsigned char * restrict r, poly * restrict a)
   for(i=0;i<KYBER_N;i+=8)
   {
     for(j=0;j<8;j++)
-      t[j] = ((((uint32_t)a->coeffs[i+j] << 3) + KYBER_Q/2) / KYBER_Q) & 7;
+      t[j] = ((((uint16_t)a->coeffs[i+j] << 3) + KYBER_Q/2) / KYBER_Q) & 7;
 
     r[k]   =  t[0]       | (t[1] << 3) | (t[2] << 6);
     r[k+1] = (t[2] >> 2) | (t[3] << 1) | (t[4] << 4) | (t[5] << 7);
@@ -37,7 +37,7 @@ void poly_compress(unsigned char * restrict r, poly * restrict a)
   for(i=0;i<KYBER_N;i+=8)
   {
     for(j=0;j<8;j++)
-      t[j] = ((((uint32_t)a->coeffs[i+j] << 4) + KYBER_Q/2) / KYBER_Q) & 15;
+      t[j] = ((((uint16_t)a->coeffs[i+j] << 4) + KYBER_Q/2) / KYBER_Q) & 15;
 
     r[k]   = t[0] | (t[1] << 4);
     r[k+1] = t[2] | (t[3] << 4);
