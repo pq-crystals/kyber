@@ -262,9 +262,9 @@ static const unsigned char idx[256][8] = {
   { 0,  2,  4,  6,  8, 10, 12, 14}
 };
 
-unsigned int rej_uniform(int16_t *r,
+unsigned int rej_uniform(int16_t * restrict r,
                          unsigned int len,
-                         const unsigned char buf[640],
+                         const unsigned char * restrict buf,
                          unsigned int buflen)
 {
   unsigned int ctr, pos;

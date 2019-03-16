@@ -6,7 +6,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#define NTESTS 2000
+#define NTESTS 5000
 
 extern void gen_matrix(polyvec *a, const unsigned char *seed, int transposed);
 

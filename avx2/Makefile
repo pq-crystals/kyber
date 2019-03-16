@@ -105,7 +105,7 @@ speed768-90s: $(SOURCES) $(HEADERS) cpucycles.h cpucycles.c speed.c randombytes.
 	$(CC) $(CFLAGS) -D KYBER_90S -DKYBER_K=3 $(SOURCES) fastrandombytes.c kernelrandombytes.c cpucycles.c speed.c -o speed768-90s -lcrypto
 
 speed1024-90s: $(SOURCES) $(HEADERS) cpucycles.h cpucycles.c speed.c randombytes.c randombytes.h
-	$(CC) $(CFLAGS) -D KYBER_90S -DKYBER_K=4 $(SOURCES) randombytes.c cpucycles.c speed.c -o speed1024-90s
+	$(CC) $(CFLAGS) -D KYBER_90S -DKYBER_K=4 $(SOURCES) randombytes.c cpucycles.c speed.c -o speed1024-90s -l crypto
 
 
 PQCgenKAT_kem: $(SOURCES) $(HEADERS) PQCgenKAT_kem.c rng.c rng.h
@@ -128,3 +128,15 @@ clean:
 	-$(RM) -rf speed768
 	-$(RM) -rf speed1024
 	-$(RM) -rf PQCgenKAT_kem
+	-$(RM) -rf test_kyber512-90s
+	-$(RM) -rf test_kyber768-90s
+	-$(RM) -rf test_kyber1024-90s
+	-$(RM) -rf test_kex512-90s
+	-$(RM) -rf test_kex768-90s
+	-$(RM) -rf test_kex1024-90s
+	-$(RM) -rf testvectors512-90s
+	-$(RM) -rf testvectors768-90s
+	-$(RM) -rf testvectors1024-90s
+	-$(RM) -rf speed512-90s
+	-$(RM) -rf speed768-90s
+	-$(RM) -rf speed1024-90s

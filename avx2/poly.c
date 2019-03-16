@@ -415,7 +415,7 @@ void poly_tomsg(unsigned char msg[KYBER_SYMBYTES], poly * restrict a)
     msg[i] = 0;
     for(j=0;j<8;j++)
     {
-      t = (((a->coeffs[8*i+j] << 1) + KYBER_Q/2) / KYBER_Q) & 1; // FIXME
+      t = ((((uint16_t)a->coeffs[8*i+j] << 1) + KYBER_Q/2) / KYBER_Q) & 1; // FIXME
       msg[i] |= t << j;
     }
   }
