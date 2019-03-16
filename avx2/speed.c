@@ -53,10 +53,10 @@ static void print_results(const char *s, unsigned long long *t, size_t tlen)
 
 int main()
 {
-  unsigned char sk_a[CRYPTO_SECRETKEYBYTES];
-  unsigned char pk_a[CRYPTO_PUBLICKEYBYTES];
-  unsigned char sk_b[CRYPTO_SECRETKEYBYTES];
-  unsigned char pk_b[CRYPTO_PUBLICKEYBYTES];
+  unsigned char __attribute__((aligned(32))) sk_a[CRYPTO_SECRETKEYBYTES];
+  unsigned char __attribute__((aligned(32))) pk_a[CRYPTO_PUBLICKEYBYTES];
+  unsigned char __attribute__((aligned(32))) sk_b[CRYPTO_SECRETKEYBYTES];
+  unsigned char __attribute__((aligned(32))) pk_b[CRYPTO_PUBLICKEYBYTES];
 
   unsigned char eska[CRYPTO_SECRETKEYBYTES];
   unsigned char tk[CRYPTO_BYTES];
@@ -73,9 +73,6 @@ int main()
   int i;
 
   overhead = cpucycles_overhead();
-  // XXX: ramp up frequency
-  for(i = 0; i < 100000; i++)
-    poly_ntt(&ap);
 
   for(i=0; i<NTESTS; i++)
   {

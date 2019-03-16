@@ -1,6 +1,5 @@
 #include "api.h"
 #include "kex.h"
-#include "verify.h"
 #include "fips202.h"
 
 void kex_uake_initA(u8 *send, u8* tk, u8 *sk, const u8 *pkb)

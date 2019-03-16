@@ -84,8 +84,8 @@ void aes256ctr_init(aes256ctr_ctx *state,
                     const unsigned char *key,
                     uint16_t nonce)
 {
-  __m128i key0 = _mm_load_si128((__m128i *)(key+0));
-  __m128i key1 = _mm_load_si128((__m128i *)(key+16));
+  __m128i key0 = _mm_loadu_si128((__m128i *)(key+0));
+  __m128i key1 = _mm_loadu_si128((__m128i *)(key+16));
   __m128i temp0, temp1, temp2, temp4;
   int idx = 0;
 

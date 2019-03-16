@@ -76,7 +76,7 @@ int crypto_kem_dec(unsigned char *ss, const unsigned char *ct, const unsigned ch
 {
   size_t i;
   int fail;
-  unsigned char cmp[KYBER_CIPHERTEXTBYTES];
+  unsigned char __attribute__((aligned(32))) cmp[KYBER_CIPHERTEXTBYTES];
   unsigned char buf[2*KYBER_SYMBYTES];
   unsigned char kr[2*KYBER_SYMBYTES];                                      /* Will contain key, coins, qrom-hash */
   const unsigned char *pk = sk+KYBER_INDCPA_SECRETKEYBYTES;

@@ -143,7 +143,7 @@ void gen_matrix(polyvec *a, const unsigned char *seed, int transposed) // Not st
 {
   unsigned int ctr, offset, bufbytes, i, j, k;
   const unsigned int maxnblocks=(530+XOF_BLOCKBYTES)/XOF_BLOCKBYTES; /* 530 is expected number of required bytes */
-  unsigned char buf[XOF_BLOCKBYTES*maxnblocks+1];
+  unsigned char __attribute__((aligned(32))) buf[XOF_BLOCKBYTES*maxnblocks+1];
   xof_state state;
 
 #ifdef KYBER_90S

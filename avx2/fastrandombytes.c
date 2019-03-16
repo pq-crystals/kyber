@@ -14,7 +14,7 @@ aes256ctr_ctx state;
 
 #define stream_KEYBYTES 32
 #define stream_OUTPUTBYTES 128
-static unsigned char buf[stream_OUTPUTBYTES];
+static unsigned char __attribute__((aligned(32))) buf[stream_OUTPUTBYTES];
 static unsigned long long pos = stream_OUTPUTBYTES;
 
 void randombytes(unsigned char *x, size_t xlen)

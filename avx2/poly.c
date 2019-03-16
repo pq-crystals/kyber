@@ -311,21 +311,18 @@ void poly_sub(poly * restrict r, const poly * restrict a, const poly * restrict 
 void poly_frommsg(poly * restrict r, const unsigned char msg[KYBER_SYMBYTES])
 {
   int i;
-  __m128i tmp0, tmp1;
+  __m128i tmp;
   __m256i a[4], d0, d1, d2, d3;
   const __m256i shift = _mm256_set_epi32(7, 6, 5, 4, 3, 2, 1, 0);
   const __m256i zeros = _mm256_setzero_si256();
   const __m256i ones = _mm256_set1_epi32(1);
   const __m256i hqs = _mm256_set1_epi32((KYBER_Q+1)/2);
 
-  a[0] = _mm256_loadu_si256((__m256i *)msg);
-  tmp0 = _mm256_extracti128_si256(a[0], 0);
-  tmp1 = _mm256_extracti128_si256(a[0], 1);
-
+  tmp = _mm_loadu_si128((__m128i *)msg);
   for(i = 0; i < 4; i++)
   {
-    a[i] = _mm256_broadcastd_epi32(tmp0);
-    tmp0 = _mm_srli_si128(tmp0, 4);
+    a[i] = _mm256_broadcastd_epi32(tmp);
+    tmp = _mm_srli_si128(tmp, 4);
   }
 
   for(i = 0; i < 4; i++)
@@ -358,10 +355,11 @@ void poly_frommsg(poly * restrict r, const unsigned char msg[KYBER_SYMBYTES])
     _mm256_store_si256((__m256i *)&r->coeffs[32*i+16], d2);
   }
 
+  tmp = _mm_loadu_si128((__m128i *)&msg[16]);
   for(i = 0; i < 4; i++)
   {
-    a[i] = _mm256_broadcastd_epi32(tmp1);
-    tmp1 = _mm_srli_si128(tmp1, 4);
+    a[i] = _mm256_broadcastd_epi32(tmp);
+    tmp = _mm_srli_si128(tmp, 4);
   }
 
   for(i = 0; i < 4; i++)
@@ -405,18 +403,22 @@ void poly_frommsg(poly * restrict r, const unsigned char msg[KYBER_SYMBYTES])
 **************************************************/
 void poly_tomsg(unsigned char msg[KYBER_SYMBYTES], poly * restrict a)
 {
-  uint16_t t;
-  int i,j;
+  int i, small;
+  __m256i vec, tmp;
+  const __m256i hqs = _mm256_set1_epi16((KYBER_Q - 1)/2);
+  const __m256i hhqs = _mm256_set1_epi16((KYBER_Q - 5)/4);
 
-  poly_csubq(a);
-
-  for(i=0;i<KYBER_SYMBYTES;i++)
+  for(i = 0; i < KYBER_N/16; i++)
   {
-    msg[i] = 0;
-    for(j=0;j<8;j++)
-    {
-      t = ((((uint16_t)a->coeffs[8*i+j] << 1) + KYBER_Q/2) / KYBER_Q) & 1; // FIXME
-      msg[i] |= t << j;
-    }
+    vec = _mm256_load_si256((__m256i *)&a->coeffs[16*i]);
+    vec = _mm256_sub_epi16(hqs, vec);
+    tmp = _mm256_srai_epi16(vec, 15);
+    vec = _mm256_xor_si256(vec, tmp);
+    vec = _mm256_sub_epi16(hhqs, vec);
+    small = _mm256_movemask_epi8(vec);
+    small = _pext_u32(small, 0xAAAAAAAA);
+    small = ~small;
+    msg[2*i+0] = small;
+    msg[2*i+1] = small >> 8;
   }
 }

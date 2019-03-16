@@ -1,26 +1,7 @@
 #include <stdint.h>
+#include <immintrin.h>
 #include "params.h"
 #include "cbd.h"
-
-/*************************************************
-* Name:        load32_littleendian
-*
-* Description: load bytes into a 32-bit integer
-*              in little-endian order
-*
-* Arguments:   - const unsigned char *x: pointer to input byte array
-*
-* Returns 32-bit unsigned integer loaded from x
-**************************************************/
-static uint32_t load32_littleendian(const unsigned char *x)
-{
-  uint32_t r;
-  r  = (uint32_t)x[0];
-  r |= (uint32_t)x[1] << 8;
-  r |= (uint32_t)x[2] << 16;
-  r |= (uint32_t)x[3] << 24;
-  return r;
-}
 
 /*************************************************
 * Name:        cbd
@@ -34,30 +15,57 @@ static uint32_t load32_littleendian(const unsigned char *x)
 **************************************************/
 void cbd(poly * restrict r, const unsigned char * restrict buf)
 {
+  int i;
+  __m256i vec0, vec1, vec2, vec3, tmp;
+  const __m256i mask55 = _mm256_set1_epi32(0x55555555);
+  const __m256i mask33 = _mm256_set1_epi32(0x33333333);
+  const __m256i mask03 = _mm256_set1_epi32(0x03030303);
 
-
-
-
-
-#if KYBER_ETA == 2
-  uint32_t d,t;
-  int16_t a,b;
-  int i,j;
-
-  for(i=0;i<KYBER_N/8;i++)
+  for(i = 0; i < KYBER_N/64; i++)
   {
-    t = load32_littleendian(buf+4*i);
-    d  = t & 0x55555555;
-    d += (t>>1) & 0x55555555;
+    vec0 = _mm256_loadu_si256((__m256i *)&buf[32*i]);
 
-    for(j=0;j<8;j++)
-    {
-      a = (d >>  4*j)    & 0x3;
-      b = (d >> (4*j+2)) & 0x3;
-      r->coeffs[8*i+j] = a - b;
-    }
+    vec1 = _mm256_srli_epi32(vec0, 1);
+    vec0 = _mm256_and_si256(mask55, vec0);
+    vec1 = _mm256_and_si256(mask55, vec1);
+    vec0 = _mm256_add_epi32(vec0, vec1);
+
+    vec1 = _mm256_srli_epi32(vec0, 2);
+    vec0 = _mm256_and_si256(mask33, vec0);
+    vec1 = _mm256_and_si256(mask33, vec1);
+
+    vec2 = _mm256_srli_epi32(vec0, 4);
+    vec3 = _mm256_srli_epi32(vec1, 4);
+    vec0 = _mm256_and_si256(mask03, vec0);
+    vec1 = _mm256_and_si256(mask03, vec1);
+    vec2 = _mm256_and_si256(mask03, vec2);
+    vec3 = _mm256_and_si256(mask03, vec3);
+
+    vec1 = _mm256_sub_epi8(vec0, vec1);
+    vec3 = _mm256_sub_epi8(vec2, vec3);
+
+    vec0 = _mm256_cvtepi8_epi16(_mm256_extracti128_si256(vec1,0));
+    vec1 = _mm256_cvtepi8_epi16(_mm256_extracti128_si256(vec1,1));
+    vec2 = _mm256_cvtepi8_epi16(_mm256_extracti128_si256(vec3,0));
+    vec3 = _mm256_cvtepi8_epi16(_mm256_extracti128_si256(vec3,1));
+
+    tmp = _mm256_unpacklo_epi16(vec0, vec2);
+    vec2 = _mm256_unpackhi_epi16(vec0, vec2);
+    vec0 = tmp;
+    tmp = _mm256_unpacklo_epi16(vec1, vec3);
+    vec3 = _mm256_unpackhi_epi16(vec1, vec3);
+    vec1 = tmp;
+
+    tmp = _mm256_permute2x128_si256(vec0, vec2, 0x20);
+    vec2 = _mm256_permute2x128_si256(vec0, vec2, 0x31);
+    vec0 = tmp;
+    tmp = _mm256_permute2x128_si256(vec1, vec3, 0x20);
+    vec3 = _mm256_permute2x128_si256(vec1, vec3, 0x31);
+    vec1 = tmp;
+
+    _mm256_store_si256((__m256i *)&r->coeffs[64*i+0], vec0);
+    _mm256_store_si256((__m256i *)&r->coeffs[64*i+16], vec2);
+    _mm256_store_si256((__m256i *)&r->coeffs[64*i+32], vec1);
+    _mm256_store_si256((__m256i *)&r->coeffs[64*i+48], vec3);
   }
-#else
-#error "poly_getnoise in poly.c only supports eta=2"
-#endif
 }
