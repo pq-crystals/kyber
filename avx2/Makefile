@@ -1,5 +1,5 @@
 CC = /usr/bin/cc
-CFLAGS += -Wall -Wextra -O3 -fomit-frame-pointer -march=native -mtune=native -fPIC
+CFLAGS += -Wall -Wextra -O3 -fomit-frame-pointer -march=native -mtune=native
 #CFLAGS += -DUSE_RDPMC
 NISTFLAGS = -O3 -fomit-frame-pointer -march=native -mtune=native -fPIC
 RM = /bin/rm
@@ -29,10 +29,17 @@ all: \
   speed512-90s \
   speed768-90s \
   speed1024-90s \
-  PQCgenKAT_kem \
+  PQCgenKAT_kem
 
-SOURCES = kem.c poly.c polyvec.c fq.s shuffle.s cbd.c ntt.s invntt.s basemul.S consts.c verify.c indcpa.c kex.c rejsample.c aes256ctr.c fips202.c
-HEADERS = params.h poly.h polyvec.h reduce.h fq.h cbd.h ntt.h shuffle.h verify.h indcpa.h kex.h rejsample.h symmetric.h aes256ctr.h randombytes.h
+SOURCES = kem.c poly.c polyvec.c fq.s shuffle.s cbd.c ntt.s invntt.s basemul.S consts.c verify.c indcpa.c kex.c rejsample.c \
+  aes256ctr.c fips202.c fips202x4.c keccak4x/KeccakP-1600-times4-SIMD256.o
+HEADERS = params.h poly.h polyvec.h reduce.h fq.h cbd.h ntt.h shuffle.h verify.h indcpa.h kex.h rejsample.h symmetric.h \
+  aes256ctr.h fips202.h fips202x4.h randombytes.h
+
+keccak4x/KeccakP-1600-times4-SIMD256.o: keccak4x/KeccakP-1600-times4-SIMD256.c \
+  keccak4x/align.h keccak4x/brg_endian.h keccak4x/KeccakP-1600-times4-SnP.h \
+  keccak4x/KeccakP-1600-unrolling.macros keccak4x/SIMD256-config.h
+	$(CC) $(CFLAGS) -c $< -o $@
 
 test_kyber512: $(SOURCES) $(HEADERS) test_kyber.c randombytes.c randombytes.h
 	$(CC) $(CFLAGS) -DKYBER_K=2 $(SOURCES) randombytes.c test_kyber.c -o test_kyber512

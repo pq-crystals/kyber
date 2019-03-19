@@ -293,17 +293,17 @@ unsigned int rej_uniform(int16_t * restrict r,
 
     pilo = _mm_loadl_epi64((__m128i *)&idx[good0 & 0xFF]);
     pihi = _mm_loadl_epi64((__m128i *)&idx[(good0 >> 8) & 0xFF]);
-    pi0 = _mm256_inserti128_si256(pi0, pilo, 0);
+    pi0 = _mm256_castsi128_si256(pilo);
     pi0 = _mm256_inserti128_si256(pi0, pihi, 1);
 
     pilo = _mm_loadl_epi64((__m128i *)&idx[good1 & 0xFF]);
     pihi = _mm_loadl_epi64((__m128i *)&idx[(good1 >> 8) & 0xFF]);
-    pi1 = _mm256_inserti128_si256(pi1, pilo, 0);
+    pi1 = _mm256_castsi128_si256(pilo);
     pi1 = _mm256_inserti128_si256(pi1, pihi, 1);
 
     pilo = _mm_loadl_epi64((__m128i *)&idx[good2 & 0xFF]);
     pihi = _mm_loadl_epi64((__m128i *)&idx[(good2 >> 8) & 0xFF]);
-    pi2 = _mm256_inserti128_si256(pi2, pilo, 0);
+    pi2 = _mm256_castsi128_si256(pilo);
     pi2 = _mm256_inserti128_si256(pi2, pihi, 1);
 
     tmp0 = _mm256_add_epi8(pi0, ones);
@@ -317,15 +317,15 @@ unsigned int rej_uniform(int16_t * restrict r,
     d1 = _mm256_shuffle_epi8(d1, pi1);
     d2 = _mm256_shuffle_epi8(d2, pi2);
 
-    _mm_storeu_si128((__m128i *)&r[ctr], _mm256_extracti128_si256(d0, 0));
+    _mm_storeu_si128((__m128i *)&r[ctr], _mm256_castsi256_si128(d0));
     ctr += __builtin_popcount(good0 & 0xFF);
     _mm_storeu_si128((__m128i *)&r[ctr], _mm256_extracti128_si256(d0, 1));
     ctr += __builtin_popcount((good0 >> 8) & 0xFF);
-    _mm_storeu_si128((__m128i *)&r[ctr], _mm256_extracti128_si256(d1, 0));
+    _mm_storeu_si128((__m128i *)&r[ctr], _mm256_castsi256_si128(d1));
     ctr += __builtin_popcount(good1 & 0xFF);
     _mm_storeu_si128((__m128i *)&r[ctr], _mm256_extracti128_si256(d1, 1));
     ctr += __builtin_popcount((good1 >> 8) & 0xFF);
-    _mm_storeu_si128((__m128i *)&r[ctr], _mm256_extracti128_si256(d2, 0));
+    _mm_storeu_si128((__m128i *)&r[ctr], _mm256_castsi256_si128(d2));
     ctr += __builtin_popcount(good2 & 0xFF);
     _mm_storeu_si128((__m128i *)&r[ctr], _mm256_extracti128_si256(d2, 1));
     ctr += __builtin_popcount((good2 >> 8) & 0xFF);
@@ -334,11 +334,11 @@ unsigned int rej_uniform(int16_t * restrict r,
 
   while(ctr + 8 <= len && pos + 16 <= buflen) {
     d = _mm_loadu_si128((__m128i *)&buf[pos]);
-    tmp = _mm_cmpgt_epi16(_mm256_extracti128_si256(bound,0), d);
+    tmp = _mm_cmpgt_epi16(_mm256_castsi256_si128(bound), d);
     good0 = _mm_movemask_epi8(tmp);
     good0 = _pext_u32(good0, 0x55555555);
     pilo = _mm_loadl_epi64((__m128i *)&idx[good0]);
-    pihi = _mm_add_epi8(pilo, _mm256_extracti128_si256(ones,0));
+    pihi = _mm_add_epi8(pilo, _mm256_castsi256_si128(ones));
     pilo = _mm_unpacklo_epi8(pilo, pihi);
     d = _mm_shuffle_epi8(d, pilo);
     _mm_storeu_si128((__m128i *)&r[ctr], d);

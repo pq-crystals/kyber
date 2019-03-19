@@ -26,6 +26,7 @@ typedef aes256ctr_ctx xof_state;
 #else
 
 #include "fips202.h"
+#include "fips202x4.h"
 
 #define hash_h(OUT, IN, INBYTES) sha3_256(OUT, IN, INBYTES)
 #define hash_g(OUT, IN, INBYTES) sha3_512(OUT, IN, INBYTES)

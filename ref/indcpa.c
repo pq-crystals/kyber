@@ -104,7 +104,7 @@ static void unpack_ciphertext(polyvec *b, poly *v, const unsigned char *c)
 }
 
 // FIXME
-static unsigned int rej_uniform_ref(int16_t *r, unsigned int len, const unsigned char *buf, unsigned int buflen)
+static unsigned int rej_uniform(int16_t *r, unsigned int len, const unsigned char *buf, unsigned int buflen)
 {
   unsigned int ctr, pos;
   int16_t val;
@@ -112,7 +112,7 @@ static unsigned int rej_uniform_ref(int16_t *r, unsigned int len, const unsigned
   ctr = pos = 0;
   while(ctr < len && pos + 2 <= buflen)
   {
-    val = buf[pos] | ((int16_t)buf[pos+1] << 8);
+    val = buf[pos] | ((uint16_t)buf[pos+1] << 8);
     pos += 2;
 
     if(val < 19*KYBER_Q - (1 << 15))
@@ -158,7 +158,7 @@ void gen_matrix(polyvec *a, const unsigned char *seed, int transposed) // Not st
       xof_squeezeblocks(buf, maxnblocks, &state);
       bufbytes = maxnblocks*XOF_BLOCKBYTES;
 
-      ctr = rej_uniform_ref(a[i].vec[j].coeffs, KYBER_N, buf, bufbytes);
+      ctr = rej_uniform(a[i].vec[j].coeffs, KYBER_N, buf, bufbytes);
 
       while(ctr < KYBER_N)
       {
@@ -169,7 +169,7 @@ void gen_matrix(polyvec *a, const unsigned char *seed, int transposed) // Not st
         xof_squeezeblocks(buf+offset, 1, &state);
         bufbytes = XOF_BLOCKBYTES+offset;
 
-        ctr += rej_uniform_ref(a[i].vec[j].coeffs + ctr, KYBER_N - ctr, buf, bufbytes);
+        ctr += rej_uniform(a[i].vec[j].coeffs + ctr, KYBER_N - ctr, buf, bufbytes);
       }
 
       poly_reduce(&a[i].vec[j]);

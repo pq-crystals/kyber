@@ -78,7 +78,7 @@ void poly_decompress(poly *r, const unsigned char *a)
   for(i=0;i<KYBER_N;i+=8)
   {
     r->coeffs[i+0] =  (((a[0] & 7) * KYBER_Q) + 4) >> 3;
-    r->coeffs[i+1] = ((((a[0] >> 3) & 7) * KYBER_Q)+ 4) >> 3;
+    r->coeffs[i+1] = ((((a[0] >> 3) & 7) * KYBER_Q) + 4) >> 3;
     r->coeffs[i+2] = ((((a[0] >> 6) | ((a[1] << 2) & 4)) * KYBER_Q) + 4) >> 3;
     r->coeffs[i+3] = ((((a[1] >> 1) & 7) * KYBER_Q) + 4) >> 3;
     r->coeffs[i+4] = ((((a[1] >> 4) & 7) * KYBER_Q) + 4) >> 3;

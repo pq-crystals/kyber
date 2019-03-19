@@ -167,6 +167,29 @@ void poly_getnoise(poly *r, const unsigned char *seed, unsigned char nonce)
   cbd(r, buf);
 }
 
+#ifndef KYBER_90S
+// FIXME
+void poly_getnoise4x(poly *r0,
+                     poly *r1,
+                     poly *r2,
+                     poly *r3,
+                     const unsigned char *seed,
+                     unsigned char nonce0,
+                     unsigned char nonce1,
+                     unsigned char nonce2,
+                     unsigned char nonce3)
+{
+  unsigned char buf[4][SHAKE256_RATE];
+
+  shake256x4_prf(buf[0], buf[1], buf[2], buf[3], SHAKE256_RATE, seed, nonce0, nonce1, nonce2, nonce3);
+
+  cbd(r0, buf[0]);
+  cbd(r1, buf[1]);
+  cbd(r2, buf[2]);
+  cbd(r3, buf[3]);
+}
+#endif
+
 /*************************************************
 * Name:        poly_ntt
 *
@@ -198,13 +221,6 @@ void poly_invntt(poly *r)
   invntt_levels0t5_avx(r->coeffs, zetas_inv_exp);
   invntt_levels0t5_avx(r->coeffs + 128, zetas_inv_exp + 196);
   invntt_level6_avx(r->coeffs, zetas_inv_exp + 392);
-}
-
-// FIXME
-void poly_nttpack(poly *r)
-{
-  nttpack_avx(r->coeffs);
-  nttpack_avx(r->coeffs + 128);
 }
 
 // FIXME

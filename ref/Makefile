@@ -32,7 +32,7 @@ all: \
   PQCgenKAT_kem \
 
 SOURCES = kem.c poly.c polyvec.c fips202.c reduce.c cbd.c ntt.c verify.c indcpa.c kex.c aes256ctr.c sha256.c sha512.c
-HEADERS = params.h poly.h polyvec.h reduce.h cbd.h ntt.h verify.h indcpa.h kex.h
+HEADERS = params.h poly.h polyvec.h reduce.h cbd.h ntt.h verify.h indcpa.h kex.h fips202.h aes256ctr.h
 
 test_kyber512: $(SOURCES) $(HEADERS) test_kyber.c randombytes.c randombytes.h
 	$(CC) $(CFLAGS) -DKYBER_K=2 $(SOURCES) randombytes.c test_kyber.c -o test_kyber512

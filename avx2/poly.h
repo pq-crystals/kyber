@@ -21,11 +21,22 @@ void poly_frombytes(poly *r, const unsigned char *a);
 void poly_frommsg(poly *r, const unsigned char msg[KYBER_SYMBYTES]);
 void poly_tomsg(unsigned char msg[KYBER_SYMBYTES], poly *r);
 
-void poly_getnoise(poly *r,const unsigned char *seed, unsigned char nonce);
+void poly_getnoise(poly *r, const unsigned char *seed, unsigned char nonce);
+#ifndef KYBER_90S
+void poly_getnoise4x(poly *r0,
+                     poly *r1,
+                     poly *r2,
+                     poly *r3,
+                     const unsigned char *seed,
+                     unsigned char nonce0,
+                     unsigned char nonce1,
+                     unsigned char nonce2,
+                     unsigned char nonce3);
+#endif
+
 
 void poly_ntt(poly *r);
 void poly_invntt(poly *r);
-void poly_nttpack(poly *r);
 void poly_nttunpack(poly *r);
 void poly_basemul(poly *r, const poly *a, const poly *b);
 void poly_frommont(poly *r);

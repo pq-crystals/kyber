@@ -44,9 +44,9 @@ void cbd(poly * restrict r, const unsigned char * restrict buf)
     vec1 = _mm256_sub_epi8(vec0, vec1);
     vec3 = _mm256_sub_epi8(vec2, vec3);
 
-    vec0 = _mm256_cvtepi8_epi16(_mm256_extracti128_si256(vec1,0));
+    vec0 = _mm256_cvtepi8_epi16(_mm256_castsi256_si128(vec1));
     vec1 = _mm256_cvtepi8_epi16(_mm256_extracti128_si256(vec1,1));
-    vec2 = _mm256_cvtepi8_epi16(_mm256_extracti128_si256(vec3,0));
+    vec2 = _mm256_cvtepi8_epi16(_mm256_castsi256_si128(vec3));
     vec3 = _mm256_cvtepi8_epi16(_mm256_extracti128_si256(vec3,1));
 
     tmp = _mm256_unpacklo_epi16(vec0, vec2);

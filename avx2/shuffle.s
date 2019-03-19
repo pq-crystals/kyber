@@ -1,6 +1,7 @@
 .include "fq.h"
 .include "shuffle.h"
 
+/*
 .global nttpack_avx
 nttpack_avx:
 #load
@@ -44,6 +45,7 @@ vmovdqa		%ymm5,192(%rdi)
 vmovdqa		%ymm11,224(%rdi)
 
 ret
+*/
 
 .global nttunpack_avx
 nttunpack_avx:
@@ -206,8 +208,6 @@ shuffle1	4,7,10,7
 shuffle1	5,8,4,8
 shuffle1	6,9,5,9
 
-
- CHECK:
 #bitunpack
 vpsrlw		$12,%ymm10,%ymm11
 vpsllw		$4,%ymm7,%ymm12
