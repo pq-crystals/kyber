@@ -262,6 +262,8 @@ static const unsigned char idx[256][8] = {
   { 0,  2,  4,  6,  8, 10, 12, 14}
 };
 
+#define _mm_cmpge_epu16(a, b)  _mm_cmpeq_epi16(_mm_max_epu16(a, b), a)
+
 unsigned int rej_uniform(int16_t * restrict r,
                          unsigned int len,
                          const unsigned char * restrict buf,
@@ -270,8 +272,9 @@ unsigned int rej_uniform(int16_t * restrict r,
   unsigned int ctr, pos;
   int16_t val;
   uint32_t good0, good1, good2;
-  const __m256i bound = _mm256_set1_epi16(19*KYBER_Q - (1 << 15));
-  const __m256i ones = _mm256_set1_epi8(1);
+  const __m256i bound  = _mm256_set1_epi16((int16_t)(19*KYBER_Q-1)); // -1 to use cheaper >= instead of > comparison
+  const __m256i ones   = _mm256_set1_epi8(1);
+  const __m256i kyberq = _mm256_set1_epi8(KYBER_Q);
   __m256i d0, d1, d2, tmp0, tmp1, tmp2, pi0, pi1, pi2;
   __m128i d, tmp, pilo, pihi;
 
@@ -281,9 +284,9 @@ unsigned int rej_uniform(int16_t * restrict r,
     d1 = _mm256_loadu_si256((__m256i *)&buf[pos+32]);
     d2 = _mm256_loadu_si256((__m256i *)&buf[pos+64]);
 
-    tmp0 = _mm256_cmpgt_epi16(bound, d0);
-    tmp1 = _mm256_cmpgt_epi16(bound, d1);
-    tmp2 = _mm256_cmpgt_epi16(bound, d2);
+    tmp0 = _mm256_cmpge_epu16(bound, d0);
+    tmp1 = _mm256_cmpge_epu16(bound, d1);
+    tmp2 = _mm256_cmpge_epu16(bound, d2);
     good0 = _mm256_movemask_epi8(tmp0);
     good1 = _mm256_movemask_epi8(tmp1);
     good2 = _mm256_movemask_epi8(tmp2);
@@ -316,6 +319,18 @@ unsigned int rej_uniform(int16_t * restrict r,
     d0 = _mm256_shuffle_epi8(d0, pi0);
     d1 = _mm256_shuffle_epi8(d1, pi1);
     d2 = _mm256_shuffle_epi8(d2, pi2);
+
+    /* Barrett reduction of (still unsigned) d values */
+    tmp0 = _mm256_srli_epi16(d0, 12);
+    tmp1 = _mm256_srli_epi16(d1, 12);
+    tmp2 = _mm256_srli_epi16(d2, 12);
+    tmp0 = _mm256_mullo_epi16(tmp0, kyberq);
+    tmp1 = _mm256_mullo_epi16(tmp1, kyberq);
+    tmp2 = _mm256_mullo_epi16(tmp2, kyberq);
+    d0   = _mm256_subs_epi16(d0, tmp0);
+    d1   = _mm256_subs_epi16(d1, tmp1);
+    d2   = _mm256_subs_epi16(d2, tmp2);
+
 
     _mm_storeu_si128((__m128i *)&r[ctr], _mm256_castsi256_si128(d0));
     ctr += __builtin_popcount(good0 & 0xFF);
