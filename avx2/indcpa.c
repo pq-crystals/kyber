@@ -117,7 +117,7 @@ static unsigned int rej_uniform_ref(int16_t *r, unsigned int len, const unsigned
     val = buf[pos] | ((uint16_t)buf[pos+1] << 8);
     pos += 2;
 
-    if(val < 19*KYBER_Q - (1 << 15))
+    if(val < 19*KYBER_Q - (1U << 15))
       r[ctr++] = val;
   }
 
