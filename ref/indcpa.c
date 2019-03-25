@@ -120,6 +120,7 @@ static unsigned int rej_uniform(int16_t *r, unsigned int len, const unsigned cha
       val -= (val >> 12) * KYBER_Q; // Barrett reduction
       r[ctr++] = (int16_t)val;
     }
+  } 
 
   return ctr;
 }

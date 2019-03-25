@@ -109,7 +109,7 @@ static void unpack_ciphertext(polyvec *b, poly *v, const unsigned char *c)
 static unsigned int rej_uniform_ref(int16_t *r, unsigned int len, const unsigned char *buf, unsigned int buflen)
 {
   unsigned int ctr, pos;
-  int16_t val;
+  uint16_t val;
 
   ctr = pos = 0;
   while(ctr < len && pos + 2 <= buflen)
@@ -117,8 +117,11 @@ static unsigned int rej_uniform_ref(int16_t *r, unsigned int len, const unsigned
     val = buf[pos] | ((uint16_t)buf[pos+1] << 8);
     pos += 2;
 
-    if(val < 19*KYBER_Q - (1U << 15))
-      r[ctr++] = val;
+    if(val < 19*KYBER_Q)
+    {
+      val -= (val >> 12)*KYBER_Q; // Barrett reduction
+      r[ctr++] = (int16_t)val;
+    }
   }
 
   return ctr;

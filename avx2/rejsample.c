@@ -262,6 +262,7 @@ static const unsigned char idx[256][8] = {
   { 0,  2,  4,  6,  8, 10, 12, 14}
 };
 
+#define _mm256_cmpge_epu16(a, b)  _mm256_cmpeq_epi16(_mm256_max_epu16(a, b), a)
 #define _mm_cmpge_epu16(a, b)  _mm_cmpeq_epi16(_mm_max_epu16(a, b), a)
 
 unsigned int rej_uniform(int16_t * restrict r,
@@ -270,16 +271,11 @@ unsigned int rej_uniform(int16_t * restrict r,
                          unsigned int buflen)
 {
   unsigned int ctr, pos;
-  int16_t val;
+  uint16_t val;
   uint32_t good0, good1, good2;
-<<<<<<< HEAD
   const __m256i bound  = _mm256_set1_epi16((int16_t)(19*KYBER_Q-1)); // -1 to use cheaper >= instead of > comparison
   const __m256i ones   = _mm256_set1_epi8(1);
-  const __m256i kyberq = _mm256_set1_epi8(KYBER_Q);
-=======
-  const __m256i bound = _mm256_set1_epi16(19*KYBER_Q - (1U << 15));
-  const __m256i ones = _mm256_set1_epi8(1);
->>>>>>> cb314c75eaf71fa7e6e138f207908857254e525c
+  const __m256i kyberq = _mm256_set1_epi16(KYBER_Q);
   __m256i d0, d1, d2, tmp0, tmp1, tmp2, pi0, pi1, pi2;
   __m128i d, tmp, pilo, pihi;
 
@@ -332,9 +328,9 @@ unsigned int rej_uniform(int16_t * restrict r,
     tmp0 = _mm256_mullo_epi16(tmp0, kyberq);
     tmp1 = _mm256_mullo_epi16(tmp1, kyberq);
     tmp2 = _mm256_mullo_epi16(tmp2, kyberq);
-    d0   = _mm256_subs_epi16(d0, tmp0);
-    d1   = _mm256_subs_epi16(d1, tmp1);
-    d2   = _mm256_subs_epi16(d2, tmp2);
+    d0   = _mm256_sub_epi16(d0, tmp0);
+    d1   = _mm256_sub_epi16(d1, tmp1);
+    d2   = _mm256_sub_epi16(d2, tmp2);
 
 
     _mm_storeu_si128((__m128i *)&r[ctr], _mm256_castsi256_si128(d0));
@@ -354,13 +350,19 @@ unsigned int rej_uniform(int16_t * restrict r,
 
   while(ctr + 8 <= len && pos + 16 <= buflen) {
     d = _mm_loadu_si128((__m128i *)&buf[pos]);
-    tmp = _mm_cmpgt_epi16(_mm256_castsi256_si128(bound), d);
+    tmp = _mm_cmpge_epu16(_mm256_castsi256_si128(bound), d);
     good0 = _mm_movemask_epi8(tmp);
     good0 = _pext_u32(good0, 0x55555555);
     pilo = _mm_loadl_epi64((__m128i *)&idx[good0]);
     pihi = _mm_add_epi8(pilo, _mm256_castsi256_si128(ones));
     pilo = _mm_unpacklo_epi8(pilo, pihi);
     d = _mm_shuffle_epi8(d, pilo);
+
+    /* Barrett reduction */
+    tmp = _mm_srli_epi16(d, 12);
+    tmp = _mm_mullo_epi16(tmp, _mm256_castsi256_si128(kyberq));
+    d   = _mm_sub_epi16(d, tmp);
+
     _mm_storeu_si128((__m128i *)&r[ctr], d);
     ctr += __builtin_popcount(good0);
     pos += 16;
@@ -370,8 +372,11 @@ unsigned int rej_uniform(int16_t * restrict r,
     val = buf[pos] | ((uint16_t)buf[pos+1] << 8);
     pos += 2;
 
-    if(val < 19*KYBER_Q - (1 << 15))
+    if(val < 19*KYBER_Q)
+    {
+      val -= (val >> 12) * KYBER_Q;
       r[ctr++] = val;
+    }
   }
 
   return ctr;
