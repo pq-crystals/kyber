@@ -105,7 +105,6 @@ static void unpack_ciphertext(polyvec *b, poly *v, const unsigned char *c)
   poly_decompress(v, c+KYBER_POLYVECCOMPRESSEDBYTES);
 }
 
-// FIXME
 static unsigned int rej_uniform_ref(int16_t *r, unsigned int len, const unsigned char *buf, unsigned int buflen)
 {
   unsigned int ctr, pos;
@@ -147,7 +146,7 @@ void gen_matrix(polyvec *a, const unsigned char *seed, int transposed)
 {
   unsigned int i, j, ctr;
   const unsigned int maxnblocks=(530+XOF_BLOCKBYTES)/XOF_BLOCKBYTES; /* 530 is expected number of required bytes */
-  unsigned char __attribute__((aligned(32))) buf[XOF_BLOCKBYTES*maxnblocks+1];
+  unsigned char __attribute__((aligned(32))) buf[XOF_BLOCKBYTES*maxnblocks];
   aes256ctr_ctx state;
 
   aes256ctr_init(&state, seed, 0);
@@ -180,7 +179,7 @@ void gen_matrix(polyvec *a, const unsigned char *seed, int transposed)
 {
   unsigned int ctr0, ctr1, ctr2, ctr3, bufbytes;
   const unsigned int maxnblocks=(530+XOF_BLOCKBYTES)/XOF_BLOCKBYTES; /* 530 is expected number of required bytes */
-  unsigned char __attribute__((aligned(32))) buf[4][XOF_BLOCKBYTES*maxnblocks+1];
+  unsigned char __attribute__((aligned(32))) buf[4][XOF_BLOCKBYTES*maxnblocks];
   keccak4x_state state;
 
   if(transposed)
@@ -217,7 +216,7 @@ void gen_matrix(polyvec *a, const unsigned char *seed, int transposed)
 {
   unsigned int ctr0, ctr1, ctr2, ctr3, bufbytes;
   const unsigned int maxnblocks=(530+XOF_BLOCKBYTES)/XOF_BLOCKBYTES; /* 530 is expected number of required bytes */
-  unsigned char __attribute__((aligned(32))) buf[4][XOF_BLOCKBYTES*maxnblocks+1];
+  unsigned char __attribute__((aligned(32))) buf[4][XOF_BLOCKBYTES*maxnblocks];
   keccak4x_state state;
   keccak_state state1x;
 
@@ -304,7 +303,7 @@ void gen_matrix(polyvec *a, const unsigned char *seed, int transposed)
 {
   unsigned int i, ctr0, ctr1, ctr2, ctr3, bufbytes;
   const unsigned int maxnblocks=(530+XOF_BLOCKBYTES)/XOF_BLOCKBYTES; /* 530 is expected number of required bytes */
-  unsigned char __attribute__((aligned(32))) buf[4][XOF_BLOCKBYTES*maxnblocks+1];
+  unsigned char __attribute__((aligned(32))) buf[4][XOF_BLOCKBYTES*maxnblocks];
   keccak4x_state state;
 
   for(i = 0; i < 4; i++)
