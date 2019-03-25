@@ -107,7 +107,7 @@ static void unpack_ciphertext(polyvec *b, poly *v, const unsigned char *c)
 static unsigned int rej_uniform(int16_t *r, unsigned int len, const unsigned char *buf, unsigned int buflen)
 {
   unsigned int ctr, pos;
-  int16_t val;
+  uint16_t val;
 
   ctr = pos = 0;
   while(ctr < len && pos + 2 <= buflen)
@@ -115,8 +115,11 @@ static unsigned int rej_uniform(int16_t *r, unsigned int len, const unsigned cha
     val = buf[pos] | ((uint16_t)buf[pos+1] << 8);
     pos += 2;
 
-    if(val < 19*KYBER_Q - (1 << 15))
-      r[ctr++] = val;
+    if(val < 19*KYBER_Q)
+    {
+      val -= (val >> 12) * KYBER_Q; // Barrett reduction
+      r[ctr++] = (int16_t)val;
+    }
   }
 
   return ctr;
@@ -139,7 +142,7 @@ static unsigned int rej_uniform(int16_t *r, unsigned int len, const unsigned cha
 **************************************************/
 void gen_matrix(polyvec *a, const unsigned char *seed, int transposed) // Not static for benchmarking
 {
-  unsigned int ctr, offset, bufbytes, i, j, k;
+  unsigned int ctr, i, j;
   const unsigned int maxnblocks=(530+XOF_BLOCKBYTES)/XOF_BLOCKBYTES; /* 530 is expected number of required bytes */
   unsigned char buf[XOF_BLOCKBYTES*maxnblocks+1];
   xof_state state;
@@ -156,23 +159,13 @@ void gen_matrix(polyvec *a, const unsigned char *seed, int transposed) // Not st
       }
 
       xof_squeezeblocks(buf, maxnblocks, &state);
-      bufbytes = maxnblocks*XOF_BLOCKBYTES;
-
-      ctr = rej_uniform(a[i].vec[j].coeffs, KYBER_N, buf, bufbytes);
+      ctr = rej_uniform(a[i].vec[j].coeffs, KYBER_N, buf, maxnblocks*XOF_BLOCKBYTES);
 
       while(ctr < KYBER_N)
       {
-        offset = bufbytes%2;
-        for(k=0;k<offset;k++)
-          buf[k] = buf[bufbytes-offset+k];
-
-        xof_squeezeblocks(buf+offset, 1, &state);
-        bufbytes = XOF_BLOCKBYTES+offset;
-
-        ctr += rej_uniform(a[i].vec[j].coeffs + ctr, KYBER_N - ctr, buf, bufbytes);
+        xof_squeezeblocks(buf, 1, &state);
+        ctr += rej_uniform(a[i].vec[j].coeffs + ctr, KYBER_N - ctr, buf, XOF_BLOCKBYTES);
       }
-
-      poly_reduce(&a[i].vec[j]);
     }
   }
 }
