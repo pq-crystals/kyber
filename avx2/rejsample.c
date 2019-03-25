@@ -272,9 +272,14 @@ unsigned int rej_uniform(int16_t * restrict r,
   unsigned int ctr, pos;
   int16_t val;
   uint32_t good0, good1, good2;
+<<<<<<< HEAD
   const __m256i bound  = _mm256_set1_epi16((int16_t)(19*KYBER_Q-1)); // -1 to use cheaper >= instead of > comparison
   const __m256i ones   = _mm256_set1_epi8(1);
   const __m256i kyberq = _mm256_set1_epi8(KYBER_Q);
+=======
+  const __m256i bound = _mm256_set1_epi16(19*KYBER_Q - (1U << 15));
+  const __m256i ones = _mm256_set1_epi8(1);
+>>>>>>> cb314c75eaf71fa7e6e138f207908857254e525c
   __m256i d0, d1, d2, tmp0, tmp1, tmp2, pi0, pi1, pi2;
   __m128i d, tmp, pilo, pihi;
 
