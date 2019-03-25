@@ -23,3 +23,23 @@ diff ref/t1024 avx2/t1024
 diff ref/t512-90s avx2/t512-90s
 diff ref/t768-90s avx2/t768-90s
 diff ref/t1024-90s avx2/t1024-90s
+
+diff t512 avx2/t512
+diff t768 avx2/t768
+diff t1024 avx2/t1024
+diff t512-90s avx2/t512-90s
+diff t768-90s avx2/t768-90s
+diff t1024-90s avx2/t1024-90s
+
+rm ref/t512
+rm avx2/t512
+rm ref/t768
+rm avx2/t768
+rm ref/t1024
+rm avx2/t1024
+rm ref/t512-90s 
+rm avx2/t512-90s
+rm ref/t768-90s 
+rm avx2/t768-90s
+rm ref/t1024-90s 
+rm avx2/t1024-90s

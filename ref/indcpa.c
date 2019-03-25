@@ -103,7 +103,19 @@ static void unpack_ciphertext(polyvec *b, poly *v, const unsigned char *c)
   poly_decompress(v, c+KYBER_POLYVECCOMPRESSEDBYTES);
 }
 
-// FIXME
+/*************************************************
+* Name:        rej_uniform
+*
+* Description: Run rejection sampling on uniform random bytes to generate
+*              uniform random integers mod q
+*
+* Arguments:   - int16_t *r:               pointer to output buffer
+*              - unsigned int len:         requested number of 16-bit integers (uniform mod q)
+*              - const unsigned char *buf: pointer to input buffer (assumed to be uniform random bytes)
+*              - unsigned int buflen:      length of input buffer in bytes
+*
+* Returns number of sampled 16-bit integers (at most len)
+**************************************************/
 static unsigned int rej_uniform(int16_t *r, unsigned int len, const unsigned char *buf, unsigned int buflen)
 {
   unsigned int ctr, pos;

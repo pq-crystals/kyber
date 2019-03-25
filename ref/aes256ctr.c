@@ -1,4 +1,6 @@
-/*
+/* Code adapted from bitsliced AES in BearSSL.
+ *
+ *
  * Copyright (c) 2016 Thomas Pornin <pornin@bolet.org>
  *
  * Permission is hereby granted, free of charge, to any person obtaining 
@@ -26,12 +28,6 @@
 #include <string.h>
 
 #include "aes256ctr.h"
-
-/*
-typedef struct {
-	uint64_t skey[30];
-} br_aes_ct64_ctr_keys;
-*/
 
 
 static inline uint32_t br_dec32le(const unsigned char *src)
@@ -579,15 +575,17 @@ static void br_aes_ct64_ctr_run(uint64_t sk_exp[120], const unsigned char *iv, u
   }
 }
 
-/*
-void aes256ctr(unsigned char *out, unsigned long long outlen, const unsigned char *iv, const unsigned char *key)
-{
-  uint64_t sk_exp[120];
-  br_aes_ct64_ctr_init(sk_exp, key);
-  br_aes_ct64_ctr_run(sk_exp, iv, 0, out, outlen);
-}
-*/
-
+/*************************************************
+* Name:        aes256_prf
+*
+* Description: AES256 stream generation in CTR mode using 32-bit counter, 
+*              nonce is zero-padded to 12 bytes, counter starts at zero
+*
+* Arguments:   - unsigned char *output:      pointer to output
+*              - unsigned long long outlen:  length of requested output in bytes
+*              - const unsigned char *key:   pointer to 32-byte key
+*              - const unsigned char nonce:  1-byte nonce (will be zero-padded to 12 bytes)
+**************************************************/
 void aes256_prf(unsigned char *output, unsigned long long outlen, const unsigned char *key, const unsigned char nonce)
 {
   uint64_t sk_exp[120];
@@ -601,7 +599,18 @@ void aes256_prf(unsigned char *output, unsigned long long outlen, const unsigned
   br_aes_ct64_ctr_run(sk_exp, iv, 0, output, outlen);
 }
 
-
+/*************************************************
+* Name:        aes256xof_absorb
+*
+* Description: AES256 CTR used as a replacement for a XOF; this function
+*              "absorbs" a 32-byte key and two additional bytes that are zero-padded
+*              to a 12-byte nonce
+*
+* Arguments:   - aes256xof_ctx *s:          pointer to state to "absorb" key and IV into
+*              - const unsigned char *key:  pointer to 32-byte key
+*              - unsigned char x:           first additional byte to "absorb"
+*              - unsigned char y:           second additional byte to "absorb"
+**************************************************/
 void aes256xof_absorb(aes256xof_ctx *s, const unsigned char *key, unsigned char x, unsigned char y)
 {
 	uint64_t skey[30];
@@ -625,6 +634,16 @@ void aes256xof_absorb(aes256xof_ctx *s, const unsigned char *key, unsigned char 
 	s->ivw[15] = br_swap32(3);
 }
 
+/*************************************************
+* Name:        aes256xof_squeezeblocks
+*
+* Description: AES256 CTR used as a replacement for a XOF; this function
+*              generates 4 blocks out AES256-CTR output
+*
+* Arguments:   - unsigned char *out:         pointer to output
+*              - unsigned long long nblocks: number of reqested 64-byte output blocks
+*              - aes256xof_ctx *s:           AES "state", i.e. expanded key and IV
+**************************************************/
 void aes256xof_squeezeblocks(unsigned char *out, unsigned long long nblocks, aes256xof_ctx *s)
 {
 	while (nblocks > 0) {

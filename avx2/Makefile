@@ -124,6 +124,7 @@ PQCgenKAT_kem: $(SOURCESKECCAK) $(HEADERSKECCAK) PQCgenKAT_kem.c rng.c rng.h
 
 clean:
 	-$(RM) -rf *.o
+	-$(RM) -rf keccak4x/*.o
 	-$(RM) -rf test_kyber512
 	-$(RM) -rf test_kyber768
 	-$(RM) -rf test_kyber1024
