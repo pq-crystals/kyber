@@ -283,14 +283,14 @@ void gen_matrix(polyvec *a, const unsigned char *seed, int transposed)
   else
     kyber_shake128_absorb(&state1x, seed, 2, 2);
 
-  shake128_squeezeblocks(buf[0], maxnblocks, &state1x);
+  kyber_shake128_squeezeblocks(buf[0], maxnblocks, &state1x);
   bufbytes = maxnblocks*XOF_BLOCKBYTES;
 
   ctr0 = rej_uniform(a[2].vec[2].coeffs, KYBER_N, buf[0], bufbytes);
 
   while(ctr0 < KYBER_N)
   {
-    shake128_squeezeblocks(buf[0], 1, &state1x);
+    kyber_shake128_squeezeblocks(buf[0], 1, &state1x);
     bufbytes = XOF_BLOCKBYTES;
 
     ctr0 += rej_uniform_ref(a[2].vec[2].coeffs + ctr0, KYBER_N - ctr0, buf[0], bufbytes);
