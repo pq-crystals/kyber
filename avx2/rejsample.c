@@ -265,6 +265,9 @@ static const unsigned char idx[256][8] = {
 #define _mm256_cmpge_epu16(a, b)  _mm256_cmpeq_epi16(_mm256_max_epu16(a, b), a)
 #define _mm_cmpge_epu16(a, b)  _mm_cmpeq_epi16(_mm_max_epu16(a, b), a)
 
+extern const uint16_t _16xq[16];
+extern const uint16_t _16xv[16];
+
 unsigned int rej_uniform(int16_t * restrict r,
                          unsigned int len,
                          const unsigned char * restrict buf,
@@ -275,7 +278,8 @@ unsigned int rej_uniform(int16_t * restrict r,
   uint32_t good0, good1, good2;
   const __m256i bound  = _mm256_set1_epi16((int16_t)(19*KYBER_Q-1)); // -1 to use cheaper >= instead of > comparison
   const __m256i ones   = _mm256_set1_epi8(1);
-  const __m256i kyberq = _mm256_set1_epi16(KYBER_Q);
+  const __m256i kyberq = _mm256_load_si256((__m256i *)_16xq);
+  const __m256i v = _mm256_load_si256((__m256i *)_16xv);
   __m256i d0, d1, d2, tmp0, tmp1, tmp2, pi0, pi1, pi2;
   __m128i d, tmp, pilo, pihi;
 
@@ -322,16 +326,18 @@ unsigned int rej_uniform(int16_t * restrict r,
     d2 = _mm256_shuffle_epi8(d2, pi2);
 
     /* Barrett reduction of (still unsigned) d values */
-    tmp0 = _mm256_srli_epi16(d0, 12);
-    tmp1 = _mm256_srli_epi16(d1, 12);
-    tmp2 = _mm256_srli_epi16(d2, 12);
+    tmp0 = _mm256_mulhi_epu16(d0, v);
+    tmp1 = _mm256_mulhi_epu16(d1, v);
+    tmp2 = _mm256_mulhi_epu16(d2, v);
+    tmp0 = _mm256_srli_epi16(tmp0, 10);
+    tmp1 = _mm256_srli_epi16(tmp1, 10);
+    tmp2 = _mm256_srli_epi16(tmp2, 10);
     tmp0 = _mm256_mullo_epi16(tmp0, kyberq);
     tmp1 = _mm256_mullo_epi16(tmp1, kyberq);
     tmp2 = _mm256_mullo_epi16(tmp2, kyberq);
     d0   = _mm256_sub_epi16(d0, tmp0);
     d1   = _mm256_sub_epi16(d1, tmp1);
     d2   = _mm256_sub_epi16(d2, tmp2);
-
 
     _mm_storeu_si128((__m128i *)&r[ctr], _mm256_castsi256_si128(d0));
     ctr += __builtin_popcount(good0 & 0xFF);
@@ -359,7 +365,8 @@ unsigned int rej_uniform(int16_t * restrict r,
     d = _mm_shuffle_epi8(d, pilo);
 
     /* Barrett reduction */
-    tmp = _mm_srli_epi16(d, 12);
+    tmp = _mm_mulhi_epu16(d, _mm256_castsi256_si128(v));
+    tmp = _mm_srli_epi16(tmp, 10);
     tmp = _mm_mullo_epi16(tmp, _mm256_castsi256_si128(kyberq));
     d   = _mm_sub_epi16(d, tmp);
 
@@ -374,7 +381,7 @@ unsigned int rej_uniform(int16_t * restrict r,
 
     if(val < 19*KYBER_Q)
     {
-      val -= (val >> 12) * KYBER_Q;
+      val -= ((int32_t)val*20159 >> 26) * KYBER_Q;
       r[ctr++] = val;
     }
   }

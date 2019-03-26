@@ -118,7 +118,7 @@ static unsigned int rej_uniform_ref(int16_t *r, unsigned int len, const unsigned
 
     if(val < 19*KYBER_Q)
     {
-      val -= (val >> 12)*KYBER_Q; // Barrett reduction
+      val -= ((uint32_t)val*20159 >> 26)*KYBER_Q; // Barrett reduction
       r[ctr++] = (int16_t)val;
     }
   }
