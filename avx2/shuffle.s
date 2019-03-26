@@ -122,7 +122,6 @@ vmovdqa		160(%rsi),%ymm10
 vmovdqa		192(%rsi),%ymm11
 vmovdqa		224(%rsi),%ymm12
 
-/*
 #csubq
 csubq		5 13
 csubq		6 14
@@ -132,7 +131,6 @@ csubq		9 13
 csubq		10 14
 csubq		11 15
 csubq		12 1
-*/
 
 #bitpack
 vpsllw		$12,%ymm6,%ymm4

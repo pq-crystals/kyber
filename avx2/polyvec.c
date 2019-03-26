@@ -15,7 +15,7 @@ void polyvec_compress(unsigned char * restrict r, polyvec * restrict a)
 {
   int i,j,k;
 
-  //polyvec_csubq(a);
+  polyvec_csubq(a);
 
 #if (KYBER_POLYVECCOMPRESSEDBYTES == (KYBER_K * 352))
   uint16_t t[8];
