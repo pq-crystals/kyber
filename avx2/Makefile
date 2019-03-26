@@ -111,7 +111,7 @@ speed512-90s: $(SOURCESNINETIES) $(HEADERSNINETIES) cpucycles.h cpucycles.c spee
 	$(CC) $(CFLAGS) -D KYBER_90S -DKYBER_K=2 $(SOURCESNINETIES) kex.c fips202.c randombytes.c cpucycles.c speed.c -o speed512-90s -lcrypto
 
 speed768-90s: $(SOURCESNINETIES) $(HEADERSNINETIES) cpucycles.h cpucycles.c speed.c randombytes.c randombytes.h kex.h kex.c fips202.h fips202.c
-	$(CC) $(CFLAGS) -D KYBER_90S -DKYBER_K=3 $(SOURCESNINETIES) kex.c fips202.c randombytes.c kernelrandombytes.c cpucycles.c speed.c -o speed768-90s -lcrypto
+	$(CC) $(CFLAGS) -D KYBER_90S -DKYBER_K=3 $(SOURCESNINETIES) kex.c fips202.c randombytes.c cpucycles.c speed.c -o speed768-90s -lcrypto
 
 speed1024-90s: $(SOURCESNINETIES) $(HEADERSNINETIES) cpucycles.h cpucycles.c speed.c randombytes.c randombytes.h kex.h kex.c fips202.h fips202.c
 	$(CC) $(CFLAGS) -D KYBER_90S -DKYBER_K=4 $(SOURCESNINETIES) kex.c fips202.c randombytes.c cpucycles.c speed.c -o speed1024-90s -l crypto
