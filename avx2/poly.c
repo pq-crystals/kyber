@@ -20,7 +20,7 @@ void poly_compress(unsigned char * restrict r, poly * restrict a)
   uint8_t t[8];
   int i,j,k=0;
 
-  poly_csubq(a);
+  //poly_csubq(a);
 
 #if (KYBER_POLYCOMPRESSEDBYTES == 96)
   for(i=0;i<KYBER_N;i+=8)
