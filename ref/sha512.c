@@ -259,6 +259,15 @@ static const unsigned char iv[64] = {
 
 typedef unsigned long long uint64;
 
+/*************************************************
+* Name:        sha512
+*
+* Description: SHA512 with non-incremental API
+*
+* Arguments:   - unsigned char *out:       pointer to output (64 bytes)
+*              - const unsigned char *in:  pointer to input
+*              - unsigned long long inlen: length of input in bytes
+**************************************************/
 void sha512(unsigned char *out,const unsigned char *in,unsigned long long inlen)
 {
   unsigned char h[64];

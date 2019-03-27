@@ -10,7 +10,7 @@
 * Name:        pack_pk
 *
 * Description: Serialize the public key as concatenation of the
-*              compressed and serialized vector of polynomials pk
+*              serialized vector of polynomials pk
 *              and the public seed used to generate the matrix A.
 *
 * Arguments:   unsigned char *r:          pointer to the output serialized public key
@@ -28,7 +28,7 @@ static void pack_pk(unsigned char *r, polyvec *pk, const unsigned char *seed)
 /*************************************************
 * Name:        unpack_pk
 *
-* Description: De-serialize and decompress public key from a byte array;
+* Description: De-serialize public key from a byte array;
 *              approximate inverse of pack_pk
 *
 * Arguments:   - polyvec *pk:                   pointer to output public-key vector of polynomials

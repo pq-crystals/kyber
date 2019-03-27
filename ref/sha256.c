@@ -231,6 +231,16 @@ static const char iv[32] = {
   0x5b,0xe0,0xcd,0x19,
 } ;
 
+
+/*************************************************
+* Name:        sha256
+*
+* Description: SHA256 with non-incremental API
+*
+* Arguments:   - unsigned char *out:       pointer to output (32 bytes)
+*              - const unsigned char *in:  pointer to input
+*              - unsigned long long inlen: length of input in bytes
+**************************************************/
 void sha256(unsigned char *out,const unsigned char *in,unsigned long long inlen)
 {
   unsigned char h[32];

@@ -502,7 +502,7 @@ void shake256(unsigned char *output, unsigned long long outlen,
 *
 * Description: SHA3-256 with non-incremental API
 *
-* Arguments:   - unsigned char *output:      pointer to output
+* Arguments:   - unsigned char *output:      pointer to output (32 bytes)
 *              - const unsigned char *input: pointer to input
 *              - unsigned long long inlen:   length of input in bytes
 **************************************************/
@@ -527,7 +527,7 @@ void sha3_256(unsigned char *output, const unsigned char *input,  unsigned long 
 *
 * Description: SHA3-512 with non-incremental API
 *
-* Arguments:   - unsigned char *output:      pointer to output
+* Arguments:   - unsigned char *output:      pointer to output (64 bytes)
 *              - const unsigned char *input: pointer to input
 *              - unsigned long long inlen:   length of input in bytes
 **************************************************/

@@ -78,7 +78,7 @@ int crypto_kem_dec(unsigned char *ss, const unsigned char *ct, const unsigned ch
   int fail;
   unsigned char __attribute__((aligned(32))) cmp[KYBER_CIPHERTEXTBYTES];
   unsigned char buf[2*KYBER_SYMBYTES];
-  unsigned char kr[2*KYBER_SYMBYTES];                                      /* Will contain key, coins, qrom-hash */
+  unsigned char kr[2*KYBER_SYMBYTES];                                      /* Will contain key, coins */
   const unsigned char *pk = sk+KYBER_INDCPA_SECRETKEYBYTES;
 
   indcpa_dec(buf, ct, sk);
@@ -96,6 +96,5 @@ int crypto_kem_dec(unsigned char *ss, const unsigned char *ct, const unsigned ch
   cmov(kr, sk+KYBER_SECRETKEYBYTES-KYBER_SYMBYTES, KYBER_SYMBYTES, fail);  /* Overwrite pre-k with z on re-encryption failure */
 
   kdf(ss, kr, 2*KYBER_SYMBYTES);                                           /* hash concatenation of pre-k and H(c) to k */
-
   return 0;
 }

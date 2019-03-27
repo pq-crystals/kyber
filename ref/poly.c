@@ -11,7 +11,7 @@
 *
 * Description: Compression and subsequent serialization of a polynomial
 *
-* Arguments:   - unsigned char *r: pointer to output byte array
+* Arguments:   - unsigned char *r: pointer to output byte array (needs space for KYBER_POLYCOMPRESSEDBYTES bytes)
 *              - const poly *a:    pointer to input polynomial
 **************************************************/
 void poly_compress(unsigned char *r, poly *a)
@@ -69,7 +69,7 @@ void poly_compress(unsigned char *r, poly *a)
 *              approximate inverse of poly_compress
 *
 * Arguments:   - poly *r:                pointer to output polynomial
-*              - const unsigned char *a: pointer to input byte array
+*              - const unsigned char *a: pointer to input byte array (of length KYBER_POLYCOMPRESSEDBYTES bytes)
 **************************************************/
 void poly_decompress(poly *r, const unsigned char *a)
 {
@@ -123,7 +123,7 @@ void poly_decompress(poly *r, const unsigned char *a)
 *
 * Description: Serialization of a polynomial
 *
-* Arguments:   - unsigned char *r: pointer to output byte array
+* Arguments:   - unsigned char *r: pointer to output byte array (needs space for KYBER_POLYBYTES bytes)
 *              - const poly *a:    pointer to input polynomial
 **************************************************/
 void poly_tobytes(unsigned char *r, poly *a)
@@ -149,7 +149,7 @@ void poly_tobytes(unsigned char *r, poly *a)
 *              inverse of poly_tobytes
 *
 * Arguments:   - poly *r:                pointer to output polynomial
-*              - const unsigned char *a: pointer to input byte array
+*              - const unsigned char *a: pointer to input byte array (of KYBER_POLYBYTES bytes)
 **************************************************/
 void poly_frombytes(poly *r, const unsigned char *a)
 {
@@ -169,7 +169,7 @@ void poly_frombytes(poly *r, const unsigned char *a)
 *              with parameter KYBER_ETA
 *
 * Arguments:   - poly *r:                   pointer to output polynomial
-*              - const unsigned char *seed: pointer to input seed
+*              - const unsigned char *seed: pointer to input seed (pointing to array of length KYBER_SYMBYTES bytes)
 *              - unsigned char nonce:       one-byte input nonce
 **************************************************/
 void poly_getnoise(poly *r, const unsigned char *seed, unsigned char nonce)
@@ -209,7 +209,15 @@ void poly_invntt(poly *r)
   invntt(r->coeffs);
 }
 
-//XXX Add comment
+/*************************************************
+* Name:        poly_basemul
+*
+* Description: Multiplication of two polynomials in NTT domain
+*
+* Arguments:   - poly *r:       pointer to output polynomial
+*              - const poly *a: pointer to first input polynomial
+*              - const poly *b: pointer to second input polynomial
+**************************************************/
 void poly_basemul(poly *r, const poly *a, const poly *b)
 {
   unsigned int i;
@@ -220,7 +228,14 @@ void poly_basemul(poly *r, const poly *a, const poly *b)
   }
 }
 
-// FIXME
+/*************************************************
+* Name:        poly_frommont
+*
+* Description: Inplace conversion of all coefficients of a polynomial 
+*              from Montgomery domain to normal domain
+*
+* Arguments:   - poly *r:       pointer to input/output polynomial
+**************************************************/
 void poly_frommont(poly *r)
 {
   int i;
@@ -230,7 +245,14 @@ void poly_frommont(poly *r)
     r->coeffs[i] = montgomery_reduce((int32_t)r->coeffs[i]*f);
 }
 
-// FIXME
+/*************************************************
+* Name:        poly_reduce
+*
+* Description: Applies Barrett reduction to all coefficients of a polynomial
+*              for details of the Barrett reduction see comments in reduce.c
+*
+* Arguments:   - poly *r:       pointer to input/output polynomial
+**************************************************/
 void poly_reduce(poly *r)
 {
   int i;
@@ -239,7 +261,14 @@ void poly_reduce(poly *r)
     r->coeffs[i] = barrett_reduce(r->coeffs[i]);
 }
 
-// FIXME
+/*************************************************
+* Name:        poly_csubq
+*
+* Description: Applies conditional subtraction of q to each coefficient of a polynomial
+*              for details of conditional subtraction of q see comments in reduce.c
+*
+* Arguments:   - poly *r:       pointer to input/output polynomial
+**************************************************/
 void poly_csubq(poly *r)
 {
   int i;

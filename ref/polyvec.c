@@ -7,7 +7,7 @@
 *
 * Description: Compress and serialize vector of polynomials
 *
-* Arguments:   - unsigned char *r: pointer to output byte array
+* Arguments:   - unsigned char *r: pointer to output byte array (needs space for KYBER_POLYVECCOMPRESSEDBYTES)
 *              - const polyvec *a: pointer to input vector of polynomials
 **************************************************/
 void polyvec_compress(unsigned char *r, polyvec *a)
@@ -68,7 +68,7 @@ void polyvec_compress(unsigned char *r, polyvec *a)
 *              approximate inverse of polyvec_compress
 *
 * Arguments:   - polyvec *r:       pointer to output vector of polynomials
-*              - unsigned char *a: pointer to input byte array
+*              - unsigned char *a: pointer to input byte array (of length KYBER_POLYVECCOMPRESSEDBYTES)
 **************************************************/
 void polyvec_decompress(polyvec *r, const unsigned char *a)
 {
@@ -111,8 +111,8 @@ void polyvec_decompress(polyvec *r, const unsigned char *a)
 *
 * Description: Serialize vector of polynomials
 *
-* Arguments:   - unsigned char *r: pointer to output byte array
-*              - const polyvec *a: pointer to input vector of polynomials
+* Arguments:   - unsigned char *r: pointer to output byte array (needs space for KYBER_POLYVECBYTES)
+*              - const polyvec *a: pointer to input vector of polynomials 
 **************************************************/
 void polyvec_tobytes(unsigned char *r, polyvec *a)
 {
@@ -128,7 +128,7 @@ void polyvec_tobytes(unsigned char *r, polyvec *a)
 *              inverse of polyvec_tobytes
 *
 * Arguments:   - unsigned char *r: pointer to output byte array
-*              - const polyvec *a: pointer to input vector of polynomials
+*              - const polyvec *a: pointer to input vector of polynomials (of length KYBER_POLYVECBYTES)
 **************************************************/
 void polyvec_frombytes(polyvec *r, const unsigned char *a)
 {
@@ -188,7 +188,15 @@ void polyvec_pointwise_acc(poly *r, const polyvec *a, const polyvec *b)
   poly_reduce(r);
 }
 
-// FIXME
+/*************************************************
+* Name:        polyvec_reduce
+*
+* Description: Applies Barrett reduction to each coefficient 
+*              of each element of a vector of polynomials
+*              for details of the Barrett reduction see comments in reduce.c
+*
+* Arguments:   - poly *r:       pointer to input/output polynomial
+**************************************************/
 void polyvec_reduce(polyvec *r)
 {
   int i;
@@ -196,7 +204,15 @@ void polyvec_reduce(polyvec *r)
     poly_reduce(&r->vec[i]);
 }
 
-// FIXME
+/*************************************************
+* Name:        polyvec_csubq
+*
+* Description: Applies conditional subtraction of q to each coefficient 
+*              of each element of a vector of polynomials
+*              for details of conditional subtraction of q see comments in reduce.c
+*
+* Arguments:   - poly *r:       pointer to input/output polynomial
+**************************************************/
 void polyvec_csubq(polyvec *r)
 {
   int i;
