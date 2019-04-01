@@ -131,4 +131,16 @@ clean:
 	-$(RM) -rf speed512
 	-$(RM) -rf speed768
 	-$(RM) -rf speed1024
+	-$(RM) -rf test_kyber512-90s
+	-$(RM) -rf test_kyber768-90s
+	-$(RM) -rf test_kyber1024-90s
+	-$(RM) -rf test_kex512-90s
+	-$(RM) -rf test_kex768-90s
+	-$(RM) -rf test_kex1024-90s
+	-$(RM) -rf testvectors512-90s
+	-$(RM) -rf testvectors768-90s
+	-$(RM) -rf testvectors1024-90s
+	-$(RM) -rf speed512-90s
+	-$(RM) -rf speed768-90s
+	-$(RM) -rf speed1024-90s
 	-$(RM) -rf PQCgenKAT_kem
