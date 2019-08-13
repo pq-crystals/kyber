@@ -6,11 +6,13 @@
 #include <unistd.h>
 #include "randombytes.h"
 #include <sys/syscall.h>
+#include <stddef.h>
+#include <stdint.h>
 
 #define _GNU_SOURCE
 
 static int fd = -1;
-static void randombytes_fallback(unsigned char *x, size_t xlen)
+static void randombytes_fallback(uint8_t *x, size_t xlen)
 {
   int i;
 
@@ -37,7 +39,7 @@ static void randombytes_fallback(unsigned char *x, size_t xlen)
 }
 
 #ifdef SYS_getrandom
-void randombytes(unsigned char *buf,size_t buflen)
+void randombytes(uint8_t *buf,size_t buflen)
 {
   size_t d = 0;
   int r;
@@ -57,7 +59,7 @@ void randombytes(unsigned char *buf,size_t buflen)
   }
 }
 #else
-void randombytes(unsigned char *buf,size_t buflen)
+void randombytes(uint8_t *buf,size_t buflen)
 {
   randombytes_fallback(buf,buflen);
 }

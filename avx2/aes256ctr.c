@@ -10,7 +10,7 @@
 #include <immintrin.h>
 #include "aes256ctr.h"
 
-static inline void aesni_encrypt8(unsigned char *out,
+static inline void aesni_encrypt8(uint8_t *out,
                                   __m128i *n,
                                   const __m128i rkeys[16])
 {
@@ -81,7 +81,7 @@ static inline void aesni_encrypt8(unsigned char *out,
 }
 
 void aes256ctr_init(aes256ctr_ctx *state,
-                    const unsigned char *key,
+                    const uint8_t *key,
                     uint16_t nonce)
 {
   __m128i key0 = _mm_loadu_si128((__m128i *)(key+0));
@@ -142,11 +142,11 @@ void aes256ctr_select(aes256ctr_ctx *state, uint16_t nonce) {
   state->n = _mm_set_epi64x(0, (uint64_t)nonce << 48);
 }
 
-void aes256ctr_squeezeblocks(unsigned char *out,
-                             unsigned long long nblocks,
+void aes256ctr_squeezeblocks(uint8_t *out,
+                             size_t nblocks,
                              aes256ctr_ctx *state)
 {
-  unsigned long long i;
+  size_t i;
 
   for(i=0;i<nblocks;i++) {
     aesni_encrypt8(out, &state->n, state->rkeys);
@@ -154,13 +154,13 @@ void aes256ctr_squeezeblocks(unsigned char *out,
   }
 }
 
-void aes256ctr_prf(unsigned char *out,
-                   unsigned long long outlen,
-                   const unsigned char *seed,
-                   unsigned char nonce)
+void aes256ctr_prf(uint8_t *out,
+                   size_t outlen,
+                   const uint8_t *seed,
+                   uint8_t nonce)
 {
   unsigned int i;
-  unsigned char buf[128];
+  uint8_t buf[128];
   aes256ctr_ctx state;
 
   aes256ctr_init(&state, seed, (uint16_t)nonce << 8);
@@ -176,4 +176,3 @@ void aes256ctr_prf(unsigned char *out,
       out[i] = buf[i];
   }
 }
-

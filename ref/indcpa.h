@@ -1,16 +1,24 @@
 #ifndef INDCPA_H
 #define INDCPA_H
 
-void indcpa_keypair(unsigned char *pk,
-                    unsigned char *sk);
+#include "polyvec.h"
 
-void indcpa_enc(unsigned char *c,
-                const unsigned char *m,
-                const unsigned char *pk,
-                const unsigned char *coins);
+#include <stdint.h>
 
-void indcpa_dec(unsigned char *m,
-                const unsigned char *c,
-                const unsigned char *sk);
+void indcpa_keypair(uint8_t *pk,
+                    uint8_t *sk);
 
+void indcpa_enc(uint8_t *c,
+                const uint8_t *m,
+                const uint8_t *pk,
+                const uint8_t *coins);
+
+void indcpa_dec(uint8_t *m,
+                const uint8_t *c,
+                const uint8_t *sk);
+
+
+void gen_matrix(polyvec *a,
+                const uint8_t *seed,
+                int transposed);
 #endif

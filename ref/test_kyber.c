@@ -1,5 +1,6 @@
 #include "api.h"
 #include "randombytes.h"
+
 #include <stdio.h>
 #include <string.h>
 
@@ -7,10 +8,10 @@
 
 int test_keys()
 {
-  unsigned char key_a[CRYPTO_BYTES], key_b[CRYPTO_BYTES];
-  unsigned char pk[CRYPTO_PUBLICKEYBYTES];
-  unsigned char sendb[CRYPTO_CIPHERTEXTBYTES];
-  unsigned char sk_a[CRYPTO_SECRETKEYBYTES];
+  uint8_t key_a[CRYPTO_BYTES], key_b[CRYPTO_BYTES];
+  uint8_t pk[CRYPTO_PUBLICKEYBYTES];
+  uint8_t sendb[CRYPTO_CIPHERTEXTBYTES];
+  uint8_t sk_a[CRYPTO_SECRETKEYBYTES];
   int i;
 
   for(i=0; i<NTESTS; i++)
@@ -34,10 +35,10 @@ int test_keys()
 
 int test_invalid_sk_a()
 {
-  unsigned char sk_a[CRYPTO_SECRETKEYBYTES];
-  unsigned char key_a[CRYPTO_BYTES], key_b[CRYPTO_BYTES];
-  unsigned char pk[CRYPTO_PUBLICKEYBYTES];
-  unsigned char sendb[CRYPTO_CIPHERTEXTBYTES];
+  uint8_t sk_a[CRYPTO_SECRETKEYBYTES];
+  uint8_t key_a[CRYPTO_BYTES], key_b[CRYPTO_BYTES];
+  uint8_t pk[CRYPTO_PUBLICKEYBYTES];
+  uint8_t sendb[CRYPTO_CIPHERTEXTBYTES];
   int i;
 
   for(i=0; i<NTESTS; i++)
@@ -65,16 +66,16 @@ int test_invalid_sk_a()
 
 int test_invalid_ciphertext()
 {
-  unsigned char sk_a[CRYPTO_SECRETKEYBYTES];
-  unsigned char key_a[CRYPTO_BYTES], key_b[CRYPTO_BYTES];
-  unsigned char pk[CRYPTO_PUBLICKEYBYTES];
-  unsigned char sendb[CRYPTO_CIPHERTEXTBYTES];
+  uint8_t sk_a[CRYPTO_SECRETKEYBYTES];
+  uint8_t key_a[CRYPTO_BYTES], key_b[CRYPTO_BYTES];
+  uint8_t pk[CRYPTO_PUBLICKEYBYTES];
+  uint8_t sendb[CRYPTO_CIPHERTEXTBYTES];
   int i;
   size_t pos;
 
   for(i=0; i<NTESTS; i++)
   {
-    randombytes((unsigned char *)&pos, sizeof(size_t));
+    randombytes((uint8_t *)&pos, sizeof(size_t));
 
     //Alice generates a public key
     crypto_kem_keypair(pk, sk_a);

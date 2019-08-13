@@ -1,21 +1,22 @@
-#include <stdint.h>
-#include <immintrin.h>
+#include "cbd.h"
+#include "ntt.h"
 #include "params.h"
 #include "poly.h"
-#include "ntt.h"
 #include "reduce.h"
-#include "cbd.h"
 #include "symmetric.h"
+
+#include <immintrin.h>
+#include <stdint.h>
 
 /*************************************************
 * Name:        poly_compress
 *
 * Description: Compression and subsequent serialization of a polynomial
 *
-* Arguments:   - unsigned char *r: pointer to output byte array
+* Arguments:   - uint8_t *r: pointer to output byte array
 *              - const poly *a:    pointer to input polynomial
 **************************************************/
-void poly_compress(unsigned char * restrict r, poly * restrict a)
+void poly_compress(uint8_t * restrict r, poly * restrict a)
 {
   uint8_t t[8];
   int i,j,k=0;
@@ -70,9 +71,9 @@ void poly_compress(unsigned char * restrict r, poly * restrict a)
 *              approximate inverse of poly_compress
 *
 * Arguments:   - poly *r:                pointer to output polynomial
-*              - const unsigned char *a: pointer to input byte array
+*              - const uint8_t *a: pointer to input byte array
 **************************************************/
-void poly_decompress(poly * restrict r, const unsigned char * restrict a)
+void poly_decompress(poly * restrict r, const uint8_t * restrict a)
 {
   int i;
 #if (KYBER_POLYCOMPRESSEDBYTES == 96)
@@ -124,10 +125,10 @@ void poly_decompress(poly * restrict r, const unsigned char * restrict a)
 *
 * Description: Serialization of a polynomial
 *
-* Arguments:   - unsigned char *r: pointer to output byte array
+* Arguments:   - uint8_t *r: pointer to output byte array
 *              - const poly *a:    pointer to input polynomial
 **************************************************/
-void poly_tobytes(unsigned char *r, poly *a)
+void poly_tobytes(uint8_t *r, poly *a)
 {
   ntttobytes_avx(r, a->coeffs);
   ntttobytes_avx(r + 192, a->coeffs + 128);
@@ -140,9 +141,9 @@ void poly_tobytes(unsigned char *r, poly *a)
 *              inverse of poly_tobytes
 *
 * Arguments:   - poly *r:                pointer to output polynomial
-*              - const unsigned char *a: pointer to input byte array
+*              - const uint8_t *a: pointer to input byte array
 **************************************************/
-void poly_frombytes(poly *r, const unsigned char *a)
+void poly_frombytes(poly *r, const uint8_t *a)
 {
   nttfrombytes_avx(r->coeffs, a);
   nttfrombytes_avx(r->coeffs + 128, a + 192);
@@ -156,12 +157,12 @@ void poly_frombytes(poly *r, const unsigned char *a)
 *              with parameter KYBER_ETA
 *
 * Arguments:   - poly *r:                   pointer to output polynomial
-*              - const unsigned char *seed: pointer to input seed
-*              - unsigned char nonce:       one-byte input nonce
+*              - const uint8_t *seed: pointer to input seed
+*              - uint8_t nonce:       one-byte input nonce
 **************************************************/
-void poly_getnoise(poly *r, const unsigned char *seed, unsigned char nonce)
+void poly_getnoise(poly *r, const uint8_t *seed, uint8_t nonce)
 {
-  unsigned char buf[KYBER_ETA*KYBER_N/4];
+  uint8_t buf[KYBER_ETA*KYBER_N/4];
 
   prf(buf, KYBER_ETA*KYBER_N/4, seed, nonce);
   cbd(r, buf);
@@ -173,13 +174,13 @@ void poly_getnoise4x(poly *r0,
                      poly *r1,
                      poly *r2,
                      poly *r3,
-                     const unsigned char *seed,
-                     unsigned char nonce0,
-                     unsigned char nonce1,
-                     unsigned char nonce2,
-                     unsigned char nonce3)
+                     const uint8_t *seed,
+                     uint8_t nonce0,
+                     uint8_t nonce1,
+                     uint8_t nonce2,
+                     uint8_t nonce3)
 {
-  unsigned char buf[4][SHAKE256_RATE];
+  uint8_t buf[4][SHAKE256_RATE];
 
   shake256x4_prf(buf[0], buf[1], buf[2], buf[3], SHAKE256_RATE, seed, nonce0, nonce1, nonce2, nonce3);
 
@@ -322,9 +323,9 @@ void poly_sub(poly * restrict r, const poly * restrict a, const poly * restrict 
 * Description: Convert 32-byte message to polynomial
 *
 * Arguments:   - poly *r:                  pointer to output polynomial
-*              - const unsigned char *msg: pointer to input message
+*              - const uint8_t *msg: pointer to input message
 **************************************************/
-void poly_frommsg(poly * restrict r, const unsigned char msg[KYBER_SYMBYTES])
+void poly_frommsg(poly * restrict r, const uint8_t msg[KYBER_SYMBYTES])
 {
   int i;
   __m128i tmp;
@@ -414,12 +415,12 @@ void poly_frommsg(poly * restrict r, const unsigned char msg[KYBER_SYMBYTES])
 *
 * Description: Convert polynomial to 32-byte message
 *
-* Arguments:   - unsigned char *msg: pointer to output message
+* Arguments:   - uint8_t *msg: pointer to output message
 *              - const poly *a:      pointer to input polynomial
 **************************************************/
-void poly_tomsg(unsigned char msg[KYBER_SYMBYTES], poly * restrict a)
+void poly_tomsg(uint8_t msg[KYBER_SYMBYTES], poly * restrict a)
 {
-  int i, small;
+  uint32_t i, small;
   __m256i vec, tmp;
   const __m256i hqs = _mm256_set1_epi16((KYBER_Q - 1)/2);
   const __m256i hhqs = _mm256_set1_epi16((KYBER_Q - 5)/4);

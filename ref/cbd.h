@@ -3,6 +3,6 @@
 
 #include "poly.h"
 
-void cbd(poly *r, const unsigned char *buf);
+void cbd(poly *r, const uint8_t *buf);
 
 #endif

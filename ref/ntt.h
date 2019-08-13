@@ -3,8 +3,8 @@
 
 #include <stdint.h>
 
-extern int16_t zetas[128];
-extern int16_t zetasinv[128];
+extern const int16_t zetas[128];
+extern const int16_t zetasinv[128];
 
 void ntt(int16_t *poly);
 void invntt(int16_t *poly);

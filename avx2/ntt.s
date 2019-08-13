@@ -1,5 +1,5 @@
-.include "shuffle.h"
-.include "fq.h"
+.include "shuffle.inc"
+.include "fq.inc"
 
 .macro butterfly rl0,rl1,rl2,rl3,rh0,rh1,rh2,rh3 zl0=15,zl1=15,zh0=1,zh1=1
 #mul
@@ -76,7 +76,7 @@ vpsubw		%ymm15,%ymm\rl3,%ymm\rl3
 .global ntt_level0_avx
 ntt_level0_avx:
 #consts
-vmovdqa		_16xq(%rip),%ymm0
+vmovdqa		16xq(%rip),%ymm0
 
 level0:
 #zetas
@@ -110,7 +110,7 @@ ret
 .global ntt_levels1t6_avx
 ntt_levels1t6_avx:
 #consts
-vmovdqa		_16xq(%rip),%ymm0
+vmovdqa		16xq(%rip),%ymm0
 
 level1:
 #zetas
@@ -186,7 +186,7 @@ vmovdqu		360(%rsi),%ymm2
 
 butterfly2	10,5,8,3,9,4,7,11 6,1,14,15,1,2
 
-vmovdqa		_16xv(%rip),%ymm1
+vmovdqa		16xv(%rip),%ymm1
 red16		10 12
 red16		5 13
 red16		9 14

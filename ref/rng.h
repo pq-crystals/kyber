@@ -8,7 +8,8 @@
 #ifndef rng_h
 #define rng_h
 
-#include <stdio.h>
+#include <stddef.h>
+#include <stdint.h>
 
 #define RNG_SUCCESS      0
 #define RNG_BAD_MAXLEN  -1
@@ -16,40 +17,40 @@
 #define RNG_BAD_REQ_LEN -3
 
 typedef struct {
-    unsigned char   buffer[16];
+    uint8_t   buffer[16];
     int             buffer_pos;
     unsigned long   length_remaining;
-    unsigned char   key[32];
-    unsigned char   ctr[16];
+    uint8_t   key[32];
+    uint8_t   ctr[16];
 } AES_XOF_struct;
 
 typedef struct {
-    unsigned char   Key[32];
-    unsigned char   V[16];
+    uint8_t   Key[32];
+    uint8_t   V[16];
     int             reseed_counter;
 } AES256_CTR_DRBG_struct;
 
 
 void
-AES256_CTR_DRBG_Update(unsigned char *provided_data,
-                       unsigned char *Key,
-                       unsigned char *V);
+AES256_CTR_DRBG_Update(uint8_t *provided_data,
+                       uint8_t *Key,
+                       uint8_t *V);
 
 int
 seedexpander_init(AES_XOF_struct *ctx,
-                  unsigned char *seed,
-                  unsigned char *diversifier,
+                  uint8_t *seed,
+                  uint8_t *diversifier,
                   unsigned long maxlen);
 
 int
-seedexpander(AES_XOF_struct *ctx, unsigned char *x, unsigned long xlen);
+seedexpander(AES_XOF_struct *ctx, uint8_t *x, unsigned long xlen);
 
 void
-randombytes_init(unsigned char *entropy_input,
-                 unsigned char *personalization_string,
+randombytes_init(uint8_t *entropy_input,
+                 uint8_t *personalization_string,
                  int security_strength);
 
 int
-randombytes(unsigned char *x, unsigned long long xlen);
+randombytes(uint8_t *x, unsigned long long xlen);
 
 #endif /* rng_h */

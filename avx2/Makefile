@@ -34,7 +34,7 @@ all: \
 SOURCES = kem.c poly.c polyvec.c fq.s shuffle.s cbd.c ntt.s invntt.s basemul.S consts.c verify.c indcpa.c rejsample.c
 SOURCESKECCAK   = $(SOURCES) fips202.c fips202x4.c symmetric-fips202.c keccak4x/KeccakP-1600-times4-SIMD256.o
 SOURCESNINETIES = $(SOURCES) aes256ctr.c
-HEADERS = params.h poly.h polyvec.h reduce.h fq.h cbd.h ntt.h shuffle.h verify.h indcpa.h rejsample.h symmetric.h randombytes.h
+HEADERS = params.h poly.h polyvec.h reduce.h fq.inc cbd.h ntt.h shuffle.inc verify.h indcpa.h rejsample.h symmetric.h randombytes.h
 HEADERSKECCAK   = $(HEADERS) fips202.h fips202x4.h
 HEADERSNINETIES = $(HEADERS) aes256ctr.h
 
@@ -70,13 +70,13 @@ testvectors768: $(SOURCESKECCAK) $(HEADERSKECCAK) cpucycles.h cpucycles.c testve
 testvectors1024: $(SOURCESKECCAK) $(HEADERSKECCAK) cpucycles.h cpucycles.c testvectors.c randombytes.h
 	$(CC) $(CFLAGS) -DKYBER_K=4 $(SOURCESKECCAK) cpucycles.c testvectors.c -o testvectors1024
 
-speed512: $(SOURCESKECCAK) $(HEADERSKECCAK) cpucycles.h cpucycles.c speed.c randombytes.c randombytes.h kex.h kex.c 
+speed512: $(SOURCESKECCAK) $(HEADERSKECCAK) cpucycles.h cpucycles.c speed.c randombytes.c randombytes.h kex.h kex.c
 	$(CC) $(CFLAGS) -DKYBER_K=2 $(SOURCESKECCAK) kex.c randombytes.c cpucycles.c speed.c -o speed512
 
-speed768: $(SOURCESKECCAK) $(HEADERSKECCAK) cpucycles.h cpucycles.c speed.c randombytes.c randombytes.h kex.h kex.c 
+speed768: $(SOURCESKECCAK) $(HEADERSKECCAK) cpucycles.h cpucycles.c speed.c randombytes.c randombytes.h kex.h kex.c
 	$(CC) $(CFLAGS) -DKYBER_K=3 $(SOURCESKECCAK) kex.c randombytes.c cpucycles.c speed.c -o speed768
 
-speed1024: $(SOURCESKECCAK) $(HEADERSKECCAK) cpucycles.h cpucycles.c speed.c randombytes.c randombytes.h kex.h kex.c 
+speed1024: $(SOURCESKECCAK) $(HEADERSKECCAK) cpucycles.h cpucycles.c speed.c randombytes.c randombytes.h kex.h kex.c
 	$(CC) $(CFLAGS) -DKYBER_K=4 $(SOURCESKECCAK) kex.c randombytes.c cpucycles.c speed.c -o speed1024
 
 

@@ -6,9 +6,11 @@ Public domain.
 
 #include "sha2.h"
 
+#include <stdint.h>
+
 typedef unsigned long long uint64;
 
-static uint64 load_bigendian(const unsigned char *x)
+static uint64 load_bigendian(const uint8_t *x)
 {
   return
       (uint64) (x[7]) \
@@ -22,7 +24,7 @@ static uint64 load_bigendian(const unsigned char *x)
   ;
 }
 
-static void store_bigendian(unsigned char *x,uint64 u)
+static void store_bigendian(uint8_t *x,uint64 u)
 {
   x[7] = u; u >>= 8;
   x[6] = u; u >>= 8;
@@ -76,7 +78,7 @@ static void store_bigendian(unsigned char *x,uint64 u)
   b = a; \
   a = T1 + T2;
 
-static int crypto_hashblocks_sha512(unsigned char *statebytes,const unsigned char *in,unsigned long long inlen)
+static int crypto_hashblocks_sha512(uint8_t *statebytes,const unsigned char *in,unsigned long long inlen)
 {
   uint64 state[8];
   uint64 a;
@@ -246,7 +248,7 @@ static int crypto_hashblocks_sha512(unsigned char *statebytes,const unsigned cha
 
 #define blocks crypto_hashblocks_sha512
 
-static const unsigned char iv[64] = {
+static const uint8_t iv[64] = {
   0x6a,0x09,0xe6,0x67,0xf3,0xbc,0xc9,0x08,
   0xbb,0x67,0xae,0x85,0x84,0xca,0xa7,0x3b,
   0x3c,0x6e,0xf3,0x72,0xfe,0x94,0xf8,0x2b,
@@ -264,14 +266,14 @@ typedef unsigned long long uint64;
 *
 * Description: SHA512 with non-incremental API
 *
-* Arguments:   - unsigned char *out:       pointer to output (64 bytes)
-*              - const unsigned char *in:  pointer to input
+* Arguments:   - uint8_t *out:       pointer to output (64 bytes)
+*              - const uint8_t *in:  pointer to input
 *              - unsigned long long inlen: length of input in bytes
 **************************************************/
-void sha512(unsigned char *out,const unsigned char *in,unsigned long long inlen)
+void sha512(uint8_t *out,const unsigned char *in,unsigned long long inlen)
 {
-  unsigned char h[64];
-  unsigned char padded[256];
+  uint8_t h[64];
+  uint8_t padded[256];
   unsigned int i;
   unsigned long long bytes = inlen;
 

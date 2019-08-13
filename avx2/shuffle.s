@@ -1,5 +1,5 @@
-.include "fq.h"
-.include "shuffle.h"
+.include "fq.inc"
+.include "shuffle.inc"
 
 /*
 .global nttpack_avx
@@ -50,8 +50,8 @@ ret
 .global nttunpack_avx
 nttunpack_avx:
 #consts
-vmovdqa		_16xq(%rip),%ymm0
-vmovdqa		_16xv(%rip),%ymm1
+vmovdqa		16xq(%rip),%ymm0
+vmovdqa		16xv(%rip),%ymm1
 
 #load
 vmovdqa		(%rdi),%ymm4
@@ -110,7 +110,7 @@ ret
 .global ntttobytes_avx
 ntttobytes_avx:
 #consts
-vmovdqa		_16xq(%rip),%ymm0
+vmovdqa		16xq(%rip),%ymm0
 
 #load
 vmovdqa		(%rsi),%ymm5
@@ -184,7 +184,7 @@ ret
 .global nttfrombytes_avx
 nttfrombytes_avx:
 #consts
-vmovdqa		_16xmask(%rip),%ymm0
+vmovdqa		16xmask(%rip),%ymm0
 
 #load
 vmovdqu		(%rsi),%ymm4

@@ -23,14 +23,13 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
-#include <stdint.h>
-#include <string.h>
-
 #include "aes256ctr.h"
 
+#include <string.h>
+#include <stddef.h>
+#include <stdint.h>
 
-static inline uint32_t br_dec32le(const unsigned char *src)
+static inline uint32_t br_dec32le(const uint8_t *src)
 {
 	return (uint32_t)src[0]
 		| ((uint32_t)src[1] << 8)
@@ -39,7 +38,7 @@ static inline uint32_t br_dec32le(const unsigned char *src)
 }
 
 
-static void br_range_dec32le(uint32_t *v, size_t num, const unsigned char *src)
+static void br_range_dec32le(uint32_t *v, size_t num, const uint8_t *src)
 {
 	while (num-- > 0) {
 		*v ++ = br_dec32le(src);
@@ -56,16 +55,16 @@ static inline uint32_t br_swap32(uint32_t x)
 }
 
 
-static inline void br_enc32le(unsigned char *dst, uint32_t x)
+static inline void br_enc32le(uint8_t *dst, uint32_t x)
 {
-	dst[0] = (unsigned char)x;
-	dst[1] = (unsigned char)(x >> 8);
-	dst[2] = (unsigned char)(x >> 16);
-	dst[3] = (unsigned char)(x >> 24);
+	dst[0] = (uint8_t)x;
+	dst[1] = (uint8_t)(x >> 8);
+	dst[2] = (uint8_t)(x >> 16);
+	dst[3] = (uint8_t)(x >> 24);
 }
 
 
-void br_range_enc32le(unsigned char *dst, const uint32_t *v, size_t num)
+static void br_range_enc32le(uint8_t *dst, const uint32_t *v, size_t num)
 {
 	while (num-- > 0) {
 		br_enc32le(dst, *v ++);
@@ -331,7 +330,7 @@ static void br_aes_ct64_interleave_out(uint32_t *w, uint64_t q0, uint64_t q1)
 	w[3] = (uint32_t)x3 | (uint32_t)(x3 >> 16);
 }
 
-static const unsigned char Rcon[] = {
+static const uint8_t Rcon[] = {
 	0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80, 0x1B, 0x36
 };
 
@@ -347,7 +346,7 @@ static uint32_t sub_word(uint32_t x)
 	return (uint32_t)q[0];
 }
 
-static void br_aes_ct64_keysched(uint64_t *comp_skey, const unsigned char *key)
+static void br_aes_ct64_keysched(uint64_t *comp_skey, const uint8_t *key)
 {
 	int i, j, k, nk, nkf;
 	uint32_t tmp;
@@ -497,7 +496,7 @@ static void inc4_be(uint32_t *x)
 }
 
 
-static void aes_ctr4x(unsigned char out[64], uint32_t ivw[16], uint64_t sk_exp[64])
+static void aes_ctr4x(uint8_t out[64], uint32_t ivw[16], uint64_t sk_exp[64])
 {
   uint32_t w[16];
   uint64_t q[8];
@@ -537,7 +536,7 @@ static void aes_ctr4x(unsigned char out[64], uint32_t ivw[16], uint64_t sk_exp[6
 
 
 
-static void br_aes_ct64_ctr_init(uint64_t sk_exp[120], const unsigned char *key)
+static void br_aes_ct64_ctr_init(uint64_t sk_exp[120], const uint8_t *key)
 {
 	uint64_t skey[30];
 
@@ -546,7 +545,7 @@ static void br_aes_ct64_ctr_init(uint64_t sk_exp[120], const unsigned char *key)
 }
 
 
-static void br_aes_ct64_ctr_run(uint64_t sk_exp[120], const unsigned char *iv, uint32_t cc, unsigned char *data, size_t len)
+static void br_aes_ct64_ctr_run(uint64_t sk_exp[120], const uint8_t *iv, uint32_t cc, unsigned char *data, size_t len)
 {
 	uint32_t ivw[16];
 	size_t i;
@@ -568,7 +567,7 @@ static void br_aes_ct64_ctr_run(uint64_t sk_exp[120], const unsigned char *iv, u
   }
   if(len > 0)
   {
-	  unsigned char tmp[64];
+	  uint8_t tmp[64];
     aes_ctr4x(tmp, ivw, sk_exp);
     for(i=0;i<len;i++)
       data[i] = tmp[i];
@@ -581,15 +580,15 @@ static void br_aes_ct64_ctr_run(uint64_t sk_exp[120], const unsigned char *iv, u
 * Description: AES256 stream generation in CTR mode using 32-bit counter, 
 *              nonce is zero-padded to 12 bytes, counter starts at zero
 *
-* Arguments:   - unsigned char *output:      pointer to output
+* Arguments:   - uint8_t *output:      pointer to output
 *              - unsigned long long outlen:  length of requested output in bytes
-*              - const unsigned char *key:   pointer to 32-byte key
-*              - const unsigned char nonce:  1-byte nonce (will be zero-padded to 12 bytes)
+*              - const uint8_t *key:   pointer to 32-byte key
+*              - const uint8_t nonce:  1-byte nonce (will be zero-padded to 12 bytes)
 **************************************************/
-void aes256_prf(unsigned char *output, unsigned long long outlen, const unsigned char *key, const unsigned char nonce)
+void aes256_prf(uint8_t *output, unsigned long long outlen, const unsigned char *key, const unsigned char nonce)
 {
   uint64_t sk_exp[120];
-  unsigned char iv[12];
+  uint8_t iv[12];
 
   for(int i=1;i<12;i++)
     iv[i] = 0;
@@ -607,14 +606,14 @@ void aes256_prf(unsigned char *output, unsigned long long outlen, const unsigned
 *              to a 12-byte nonce
 *
 * Arguments:   - aes256xof_ctx *s:          pointer to state to "absorb" key and IV into
-*              - const unsigned char *key:  pointer to 32-byte key
-*              - unsigned char x:           first additional byte to "absorb"
-*              - unsigned char y:           second additional byte to "absorb"
+*              - const uint8_t *key:  pointer to 32-byte key
+*              - uint8_t x:           first additional byte to "absorb"
+*              - uint8_t y:           second additional byte to "absorb"
 **************************************************/
-void aes256xof_absorb(aes256xof_ctx *s, const unsigned char *key, unsigned char x, unsigned char y)
+void aes256xof_absorb(aes256xof_ctx *s, const uint8_t *key, unsigned char x, unsigned char y)
 {
 	uint64_t skey[30];
-  unsigned char iv[12];
+  uint8_t iv[12];
 
   br_aes_ct64_keysched(skey, key);
 	br_aes_ct64_skey_expand(s->sk_exp, skey);
@@ -628,7 +627,7 @@ void aes256xof_absorb(aes256xof_ctx *s, const unsigned char *key, unsigned char 
 	memcpy(s->ivw +  4, s->ivw, 3 * sizeof(uint32_t));
 	memcpy(s->ivw +  8, s->ivw, 3 * sizeof(uint32_t));
 	memcpy(s->ivw + 12, s->ivw, 3 * sizeof(uint32_t));
-  s->ivw[ 3] = br_swap32(0);
+    s->ivw[ 3] = br_swap32(0);
 	s->ivw[ 7] = br_swap32(1);
 	s->ivw[11] = br_swap32(2);
 	s->ivw[15] = br_swap32(3);
@@ -640,11 +639,11 @@ void aes256xof_absorb(aes256xof_ctx *s, const unsigned char *key, unsigned char 
 * Description: AES256 CTR used as a replacement for a XOF; this function
 *              generates 4 blocks out AES256-CTR output
 *
-* Arguments:   - unsigned char *out:         pointer to output
+* Arguments:   - uint8_t *out:         pointer to output
 *              - unsigned long long nblocks: number of reqested 64-byte output blocks
 *              - aes256xof_ctx *s:           AES "state", i.e. expanded key and IV
 **************************************************/
-void aes256xof_squeezeblocks(unsigned char *out, unsigned long long nblocks, aes256xof_ctx *s)
+void aes256xof_squeezeblocks(uint8_t *out, unsigned long long nblocks, aes256xof_ctx *s)
 {
 	while (nblocks > 0) {
     aes_ctr4x(out, s->ivw, s->sk_exp);

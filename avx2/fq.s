@@ -1,4 +1,4 @@
-.include "fq.h"
+.include "fq.inc"
 
 .global reduce_avx
 reduce_avx:

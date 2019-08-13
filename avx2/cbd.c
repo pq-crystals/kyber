@@ -1,7 +1,8 @@
-#include <stdint.h>
-#include <immintrin.h>
-#include "params.h"
 #include "cbd.h"
+#include "params.h"
+
+#include <immintrin.h>
+#include <stdint.h>
 
 /*************************************************
 * Name:        cbd
@@ -11,9 +12,9 @@
 *              a centered binomial distribution with parameter KYBER_ETA
 *
 * Arguments:   - poly *r:                  pointer to output polynomial
-*              - const unsigned char *buf: pointer to input byte array
+*              - const uint8_t *buf: pointer to input byte array
 **************************************************/
-void cbd(poly * restrict r, const unsigned char * restrict buf)
+void cbd(poly * restrict r, const uint8_t * restrict buf)
 {
   int i;
   __m256i vec0, vec1, vec2, vec3, tmp;

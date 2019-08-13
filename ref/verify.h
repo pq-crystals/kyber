@@ -1,10 +1,11 @@
 #ifndef VERIFY_H
 #define VERIFY_H
 
-#include <stdio.h>
+#include <stddef.h>
+#include <stdint.h>
 
-int verify(const unsigned char *a, const unsigned char *b, size_t len);
+int verify(const uint8_t *a, const uint8_t *b, size_t len);
 
-void cmov(unsigned char *r, const unsigned char *x, size_t len, unsigned char b);
+void cmov(uint8_t *r, const uint8_t *x, size_t len, uint8_t b);
 
 #endif

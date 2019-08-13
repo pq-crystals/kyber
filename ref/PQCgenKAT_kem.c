@@ -19,20 +19,20 @@
 #define KAT_CRYPTO_FAILURE  -4
 
 int		FindMarker(FILE *infile, const char *marker);
-int		ReadHex(FILE *infile, unsigned char *A, int Length, char *str);
-void	fprintBstr(FILE *fp, char *S, unsigned char *A, unsigned long long L);
+int		ReadHex(FILE *infile, uint8_t *A, int Length, char *str);
+void	fprintBstr(FILE *fp, char *S, uint8_t *A, unsigned long long L);
 
 int
 main()
 {
     char                fn_req[32], fn_rsp[32];
     FILE                *fp_req, *fp_rsp;
-    unsigned char       seed[48];
-    unsigned char       entropy_input[48];
-    unsigned char       ct[CRYPTO_CIPHERTEXTBYTES], ss[CRYPTO_BYTES], ss1[CRYPTO_BYTES];
+    uint8_t       seed[48];
+    uint8_t       entropy_input[48];
+    uint8_t       ct[CRYPTO_CIPHERTEXTBYTES], ss[CRYPTO_BYTES], ss1[CRYPTO_BYTES];
     int                 count;
     int                 done;
-    unsigned char       pk[CRYPTO_PUBLICKEYBYTES], sk[CRYPTO_SECRETKEYBYTES];
+    uint8_t       pk[CRYPTO_PUBLICKEYBYTES], sk[CRYPTO_SECRETKEYBYTES];
     int                 ret_val;
 
     // Create the REQUEST file
@@ -171,10 +171,10 @@ FindMarker(FILE *infile, const char *marker)
 // ALLOW TO READ HEXADECIMAL ENTRY (KEYS, DATA, TEXT, etc.)
 //
 int
-ReadHex(FILE *infile, unsigned char *A, int Length, char *str)
+ReadHex(FILE *infile, uint8_t *A, int Length, char *str)
 {
 	int			i, ch, started;
-	unsigned char	ich;
+	uint8_t	ich;
 
 	if ( Length == 0 ) {
 		A[0] = 0x00;
@@ -215,7 +215,7 @@ ReadHex(FILE *infile, unsigned char *A, int Length, char *str)
 }
 
 void
-fprintBstr(FILE *fp, char *S, unsigned char *A, unsigned long long L)
+fprintBstr(FILE *fp, char *S, uint8_t *A, unsigned long long L)
 {
 	unsigned long long  i;
 

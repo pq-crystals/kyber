@@ -1,4 +1,6 @@
-#include <string.h>
+#include "verify.h"
+
+#include <stddef.h>
 #include <stdint.h>
 
 /*************************************************
@@ -6,13 +8,13 @@
 *
 * Description: Compare two arrays for equality in constant time.
 *
-* Arguments:   const unsigned char *a: pointer to first byte array
-*              const unsigned char *b: pointer to second byte array
+* Arguments:   const uint8_t *a: pointer to first byte array
+*              const uint8_t *b: pointer to second byte array
 *              size_t len:             length of the byte arrays
 *
 * Returns 0 if the byte arrays are equal, 1 otherwise
 **************************************************/
-int verify(const unsigned char *a, const unsigned char *b, size_t len)
+int verify(const uint8_t *a, const unsigned char *b, size_t len)
 {
   uint64_t r;
   size_t i;
@@ -33,12 +35,12 @@ int verify(const unsigned char *a, const unsigned char *b, size_t len)
 *              assumes two's complement representation of negative integers.
 *              Runs in constant time.
 *
-* Arguments:   unsigned char *r:       pointer to output byte array
-*              const unsigned char *x: pointer to input byte array
+* Arguments:   uint8_t *r:       pointer to output byte array
+*              const uint8_t *x: pointer to input byte array
 *              size_t len:             Amount of bytes to be copied
-*              unsigned char b:        Condition bit; has to be in {0,1}
+*              uint8_t b:        Condition bit; has to be in {0,1}
 **************************************************/
-void cmov(unsigned char *r, const unsigned char *x, size_t len, unsigned char b)
+void cmov(uint8_t *r, const unsigned char *x, size_t len, unsigned char b)
 {
   size_t i;
 

@@ -1,37 +1,40 @@
 #ifndef POLY_H
 #define POLY_H
 
-#include <stdint.h>
 #include "params.h"
+
+#include <immintrin.h>
+#include <stdint.h>
 
 /*
  * Elements of R_q = Z_q[X]/(X^n + 1). Represents polynomial
  * coeffs[0] + X*coeffs[1] + X^2*xoeffs[2] + ... + X^{n-1}*coeffs[n-1]
  */
-typedef struct{
-  int16_t __attribute__((aligned(32))) coeffs[KYBER_N];
+typedef union{
+  int16_t coeffs[KYBER_N];
+  __m256i _dummy;
 } poly;
 
-void poly_compress(unsigned char *r, poly *a);
-void poly_decompress(poly *r, const unsigned char *a);
+void poly_compress(uint8_t *r, poly *a);
+void poly_decompress(poly *r, const uint8_t *a);
 
-void poly_tobytes(unsigned char *r, poly *a);
-void poly_frombytes(poly *r, const unsigned char *a);
+void poly_tobytes(uint8_t *r, poly *a);
+void poly_frombytes(poly *r, const uint8_t *a);
 
-void poly_frommsg(poly *r, const unsigned char msg[KYBER_SYMBYTES]);
-void poly_tomsg(unsigned char msg[KYBER_SYMBYTES], poly *r);
+void poly_frommsg(poly *r, const uint8_t msg[KYBER_SYMBYTES]);
+void poly_tomsg(uint8_t msg[KYBER_SYMBYTES], poly *a);
 
-void poly_getnoise(poly *r, const unsigned char *seed, unsigned char nonce);
+void poly_getnoise(poly *r, const uint8_t *seed, uint8_t nonce);
 #ifndef KYBER_90S
 void poly_getnoise4x(poly *r0,
                      poly *r1,
                      poly *r2,
                      poly *r3,
-                     const unsigned char *seed,
-                     unsigned char nonce0,
-                     unsigned char nonce1,
-                     unsigned char nonce2,
-                     unsigned char nonce3);
+                     const uint8_t *seed,
+                     uint8_t nonce0,
+                     uint8_t nonce1,
+                     uint8_t nonce2,
+                     uint8_t nonce3);
 #endif
 
 
