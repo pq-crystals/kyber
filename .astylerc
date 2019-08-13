@@ -1,0 +1,14 @@
+--style=google 
+--indent=spaces
+--indent-preproc-define
+--indent-preproc-cond
+--pad-oper 
+--pad-comma 
+--pad-header
+#--unpad-paren 
+--align-pointer=name 
+--add-braces 
+--convert-tabs
+--mode=c 
+# disable backup files
+--suffix=none
