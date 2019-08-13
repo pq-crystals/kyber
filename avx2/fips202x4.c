@@ -37,7 +37,7 @@ static void keccak_absorb4x(__m256i *s,
                             const uint8_t *m1,
                             const uint8_t *m2,
                             const uint8_t *m3,
-                            unsigned long long int mlen,
+                            size_t mlen,
                             uint8_t p)
 {
   unsigned long long i;
@@ -104,7 +104,7 @@ static void keccak_squeezeblocks4x(uint8_t *h0,
                                    uint8_t *h1,
                                    uint8_t *h2,
                                    uint8_t *h3,
-                                   unsigned long long int nblocks,
+                                   size_t nblocks,
                                    __m256i *s,
                                    unsigned int r)
 {
@@ -167,7 +167,7 @@ void PQCLEAN_NAMESPACE_shake128x4_squeezeblocks(uint8_t *out0,
                               uint8_t *out1,
                               uint8_t *out2,
                               uint8_t *out3,
-                              unsigned long long nblocks,
+                              size_t nblocks,
                               keccak4x_state *state)
 {
   keccak_squeezeblocks4x(out0, out1, out2, out3, nblocks, state->s, SHAKE128_RATE);
@@ -176,11 +176,11 @@ void PQCLEAN_NAMESPACE_shake128x4_squeezeblocks(uint8_t *out0,
 static void shake256x4(uint8_t *out0,
                        uint8_t *out1,
                        uint8_t *out2,
-                       uint8_t *out3, unsigned long long outlen,
+                       uint8_t *out3, size_t outlen,
                        const uint8_t *in0,
                        const uint8_t *in1,
                        const uint8_t *in2,
-                       const uint8_t *in3, unsigned long long inlen)
+                       const uint8_t *in3, size_t inlen)
 {
   __m256i s[25];
   uint8_t t0[SHAKE256_RATE];
@@ -221,7 +221,7 @@ void PQCLEAN_NAMESPACE_shake256x4_prf(uint8_t *out0,
                     uint8_t *out1,
                     uint8_t *out2,
                     uint8_t *out3,
-                    unsigned long long outlen,
+                    size_t outlen,
                     const uint8_t *key,
                     uint8_t nonce0,
                     uint8_t nonce1,

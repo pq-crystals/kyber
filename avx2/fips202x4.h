@@ -1,6 +1,7 @@
 #ifndef FIPS202X4_H
 #define FIPS202X4_H
 
+#include <stddef.h>
 #include <stdint.h>
 #include <immintrin.h>
 
@@ -19,14 +20,14 @@ void PQCLEAN_NAMESPACE_shake128x4_squeezeblocks(uint8_t *out0,
                               uint8_t *out1,
                               uint8_t *out2,
                               uint8_t *out3,
-                              unsigned long long nblocks,
+                              size_t nblocks,
                               keccak4x_state *state);
 
 void PQCLEAN_NAMESPACE_shake256x4_prf(uint8_t *out0,
                     uint8_t *out1,
                     uint8_t *out2,
                     uint8_t *out3,
-                    unsigned long long outlen,
+                    size_t outlen,
                     const uint8_t *key,
                     uint8_t nonce0,
                     uint8_t nonce1,
