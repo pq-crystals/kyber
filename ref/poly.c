@@ -14,12 +14,12 @@
 * Arguments:   - unsigned char *r: pointer to output byte array (needs space for KYBER_POLYCOMPRESSEDBYTES bytes)
 *              - const poly *a:    pointer to input polynomial
 **************************************************/
-void poly_compress(unsigned char *r, poly *a)
+void PQCLEAN_NAMESPACE_poly_compress(unsigned char *r, poly *a)
 {
   uint8_t t[8];
   int i,j,k=0;
 
-  poly_csubq(a);
+  PQCLEAN_NAMESPACE_poly_csubq(a);
 
 #if (KYBER_POLYCOMPRESSEDBYTES == 96)
   for(i=0;i<KYBER_N;i+=8)
@@ -71,7 +71,7 @@ void poly_compress(unsigned char *r, poly *a)
 * Arguments:   - poly *r:                pointer to output polynomial
 *              - const unsigned char *a: pointer to input byte array (of length KYBER_POLYCOMPRESSEDBYTES bytes)
 **************************************************/
-void poly_decompress(poly *r, const unsigned char *a)
+void PQCLEAN_NAMESPACE_poly_decompress(poly *r, const unsigned char *a)
 {
   int i;
 #if (KYBER_POLYCOMPRESSEDBYTES == 96)
@@ -126,12 +126,12 @@ void poly_decompress(poly *r, const unsigned char *a)
 * Arguments:   - unsigned char *r: pointer to output byte array (needs space for KYBER_POLYBYTES bytes)
 *              - const poly *a:    pointer to input polynomial
 **************************************************/
-void poly_tobytes(unsigned char *r, poly *a)
+void PQCLEAN_NAMESPACE_poly_tobytes(unsigned char *r, poly *a)
 {
   int i;
   uint16_t t0, t1;
 
-  poly_csubq(a);
+  PQCLEAN_NAMESPACE_poly_csubq(a);
 
   for(i=0;i<KYBER_N/2;i++){
     t0 = a->coeffs[2*i];
@@ -151,7 +151,7 @@ void poly_tobytes(unsigned char *r, poly *a)
 * Arguments:   - poly *r:                pointer to output polynomial
 *              - const unsigned char *a: pointer to input byte array (of KYBER_POLYBYTES bytes)
 **************************************************/
-void poly_frombytes(poly *r, const unsigned char *a)
+void PQCLEAN_NAMESPACE_poly_frombytes(poly *r, const unsigned char *a)
 {
   int i;
 
@@ -172,12 +172,12 @@ void poly_frombytes(poly *r, const unsigned char *a)
 *              - const unsigned char *seed: pointer to input seed (pointing to array of length KYBER_SYMBYTES bytes)
 *              - unsigned char nonce:       one-byte input nonce
 **************************************************/
-void poly_getnoise(poly *r, const unsigned char *seed, unsigned char nonce)
+void PQCLEAN_NAMESPACE_poly_getnoise(poly *r, const unsigned char *seed, unsigned char nonce)
 {
   unsigned char buf[KYBER_ETA*KYBER_N/4];
 
   prf(buf, KYBER_ETA*KYBER_N/4, seed, nonce);
-  cbd(r, buf);
+  PQCLEAN_NAMESPACE_cbd(r, buf);
 }
 
 /*************************************************
@@ -189,10 +189,10 @@ void poly_getnoise(poly *r, const unsigned char *seed, unsigned char nonce)
 *
 * Arguments:   - uint16_t *r: pointer to in/output polynomial
 **************************************************/
-void poly_ntt(poly *r)
+void PQCLEAN_NAMESPACE_poly_ntt(poly *r)
 {
-  ntt(r->coeffs);
-  poly_reduce(r);
+  PQCLEAN_NAMESPACE_ntt(r->coeffs);
+  PQCLEAN_NAMESPACE_poly_reduce(r);
 }
 
 /*************************************************
@@ -204,9 +204,9 @@ void poly_ntt(poly *r)
 *
 * Arguments:   - uint16_t *a: pointer to in/output polynomial
 **************************************************/
-void poly_invntt(poly *r)
+void PQCLEAN_NAMESPACE_poly_invntt(poly *r)
 {
-  invntt(r->coeffs);
+  PQCLEAN_NAMESPACE_invntt(r->coeffs);
 }
 
 /*************************************************
@@ -218,13 +218,13 @@ void poly_invntt(poly *r)
 *              - const poly *a: pointer to first input polynomial
 *              - const poly *b: pointer to second input polynomial
 **************************************************/
-void poly_basemul(poly *r, const poly *a, const poly *b)
+void PQCLEAN_NAMESPACE_poly_basemul(poly *r, const poly *a, const poly *b)
 {
   unsigned int i;
 
   for(i = 0; i < KYBER_N/4; ++i) {
-    basemul(r->coeffs + 4*i, a->coeffs + 4*i, b->coeffs + 4*i, zetas[64 + i]);
-    basemul(r->coeffs + 4*i + 2, a->coeffs + 4*i + 2, b->coeffs + 4*i + 2, -zetas[64 + i]);
+    PQCLEAN_NAMESPACE_basemul(r->coeffs + 4*i, a->coeffs + 4*i, b->coeffs + 4*i, PQCLEAN_NAMESPACE_zetas[64 + i]);
+    PQCLEAN_NAMESPACE_basemul(r->coeffs + 4*i + 2, a->coeffs + 4*i + 2, b->coeffs + 4*i + 2, -PQCLEAN_NAMESPACE_zetas[64 + i]);
   }
 }
 
@@ -236,13 +236,13 @@ void poly_basemul(poly *r, const poly *a, const poly *b)
 *
 * Arguments:   - poly *r:       pointer to input/output polynomial
 **************************************************/
-void poly_frommont(poly *r)
+void PQCLEAN_NAMESPACE_poly_frommont(poly *r)
 {
   int i;
   const int16_t f = (1ULL << 32) % KYBER_Q;
 
   for(i=0;i<KYBER_N;i++)
-    r->coeffs[i] = montgomery_reduce((int32_t)r->coeffs[i]*f);
+    r->coeffs[i] = PQCLEAN_NAMESPACE_montgomery_reduce((int32_t)r->coeffs[i]*f);
 }
 
 /*************************************************
@@ -253,12 +253,12 @@ void poly_frommont(poly *r)
 *
 * Arguments:   - poly *r:       pointer to input/output polynomial
 **************************************************/
-void poly_reduce(poly *r)
+void PQCLEAN_NAMESPACE_poly_reduce(poly *r)
 {
   int i;
 
   for(i=0;i<KYBER_N;i++)
-    r->coeffs[i] = barrett_reduce(r->coeffs[i]);
+    r->coeffs[i] = PQCLEAN_NAMESPACE_barrett_reduce(r->coeffs[i]);
 }
 
 /*************************************************
@@ -269,12 +269,12 @@ void poly_reduce(poly *r)
 *
 * Arguments:   - poly *r:       pointer to input/output polynomial
 **************************************************/
-void poly_csubq(poly *r)
+void PQCLEAN_NAMESPACE_poly_csubq(poly *r)
 {
   int i;
 
   for(i=0;i<KYBER_N;i++)
-    r->coeffs[i] = csubq(r->coeffs[i]);
+    r->coeffs[i] = PQCLEAN_NAMESPACE_csubq(r->coeffs[i]);
 }
 
 /*************************************************
@@ -286,7 +286,7 @@ void poly_csubq(poly *r)
 *            - const poly *a: pointer to first input polynomial
 *            - const poly *b: pointer to second input polynomial
 **************************************************/
-void poly_add(poly *r, const poly *a, const poly *b)
+void PQCLEAN_NAMESPACE_poly_add(poly *r, const poly *a, const poly *b)
 {
   int i;
   for(i=0;i<KYBER_N;i++)
@@ -302,7 +302,7 @@ void poly_add(poly *r, const poly *a, const poly *b)
 *            - const poly *a: pointer to first input polynomial
 *            - const poly *b: pointer to second input polynomial
 **************************************************/
-void poly_sub(poly *r, const poly *a, const poly *b)
+void PQCLEAN_NAMESPACE_poly_sub(poly *r, const poly *a, const poly *b)
 {
   int i;
   for(i=0;i<KYBER_N;i++)
@@ -317,7 +317,7 @@ void poly_sub(poly *r, const poly *a, const poly *b)
 * Arguments:   - poly *r:                  pointer to output polynomial
 *              - const unsigned char *msg: pointer to input message
 **************************************************/
-void poly_frommsg(poly *r, const unsigned char msg[KYBER_SYMBYTES])
+void PQCLEAN_NAMESPACE_poly_frommsg(poly *r, const unsigned char msg[KYBER_SYMBYTES])
 {
   int i,j;
   uint16_t mask;
@@ -340,12 +340,12 @@ void poly_frommsg(poly *r, const unsigned char msg[KYBER_SYMBYTES])
 * Arguments:   - unsigned char *msg: pointer to output message
 *              - const poly *a:      pointer to input polynomial
 **************************************************/
-void poly_tomsg(unsigned char msg[KYBER_SYMBYTES], poly *a)
+void PQCLEAN_NAMESPACE_poly_tomsg(unsigned char msg[KYBER_SYMBYTES], poly *a)
 {
   uint16_t t;
   int i,j;
 
-  poly_csubq(a);
+  PQCLEAN_NAMESPACE_poly_csubq(a);
 
   for(i=0;i<KYBER_SYMBYTES;i++)
   {

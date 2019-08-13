@@ -12,26 +12,26 @@ typedef struct{
   int16_t coeffs[KYBER_N];
 } poly;
 
-void poly_compress(unsigned char *r, poly *a);
-void poly_decompress(poly *r, const unsigned char *a);
+void PQCLEAN_NAMESPACE_poly_compress(unsigned char *r, poly *a);
+void PQCLEAN_NAMESPACE_poly_decompress(poly *r, const unsigned char *a);
 
-void poly_tobytes(unsigned char *r, poly *a);
-void poly_frombytes(poly *r, const unsigned char *a);
+void PQCLEAN_NAMESPACE_poly_tobytes(unsigned char *r, poly *a);
+void PQCLEAN_NAMESPACE_poly_frombytes(poly *r, const unsigned char *a);
 
-void poly_frommsg(poly *r, const unsigned char msg[KYBER_SYMBYTES]);
-void poly_tomsg(unsigned char msg[KYBER_SYMBYTES], poly *r);
+void PQCLEAN_NAMESPACE_poly_frommsg(poly *r, const unsigned char msg[KYBER_SYMBYTES]);
+void PQCLEAN_NAMESPACE_poly_tomsg(unsigned char msg[KYBER_SYMBYTES], poly *r);
 
-void poly_getnoise(poly *r,const unsigned char *seed, unsigned char nonce);
+void PQCLEAN_NAMESPACE_poly_getnoise(poly *r,const unsigned char *seed, unsigned char nonce);
 
-void poly_ntt(poly *r);
-void poly_invntt(poly *r);
-void poly_basemul(poly *r, const poly *a, const poly *b);
-void poly_frommont(poly *r);
+void PQCLEAN_NAMESPACE_poly_ntt(poly *r);
+void PQCLEAN_NAMESPACE_poly_invntt(poly *r);
+void PQCLEAN_NAMESPACE_poly_basemul(poly *r, const poly *a, const poly *b);
+void PQCLEAN_NAMESPACE_poly_frommont(poly *r);
 
-void poly_reduce(poly *r);
-void poly_csubq(poly *r);
+void PQCLEAN_NAMESPACE_poly_reduce(poly *r);
+void PQCLEAN_NAMESPACE_poly_csubq(poly *r);
 
-void poly_add(poly *r, const poly *a, const poly *b);
-void poly_sub(poly *r, const poly *a, const poly *b);
+void PQCLEAN_NAMESPACE_poly_add(poly *r, const poly *a, const poly *b);
+void PQCLEAN_NAMESPACE_poly_sub(poly *r, const poly *a, const poly *b);
 
 #endif

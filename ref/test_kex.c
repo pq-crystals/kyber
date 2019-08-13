@@ -2,6 +2,7 @@
 #include <string.h>
 
 #include "api.h"
+#include "params.h"
 #include "kex.h"
 
 #define CRYPTO_BYTES PQCLEAN_NAMESPACE_CRYPTO_BYTES

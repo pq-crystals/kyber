@@ -32,7 +32,7 @@ static uint32_t load32_littleendian(const unsigned char *x)
 * Arguments:   - poly *r:                  pointer to output polynomial
 *              - const unsigned char *buf: pointer to input byte array
 **************************************************/
-void cbd(poly *r, const unsigned char *buf)
+void PQCLEAN_NAMESPACE_cbd(poly *r, const unsigned char *buf)
 {
 #if KYBER_ETA == 2
   uint32_t d,t;

@@ -65,7 +65,7 @@ static inline void br_enc32le(unsigned char *dst, uint32_t x)
 }
 
 
-void br_range_enc32le(unsigned char *dst, const uint32_t *v, size_t num)
+static void br_range_enc32le(unsigned char *dst, const uint32_t *v, size_t num)
 {
 	while (num-- > 0) {
 		br_enc32le(dst, *v ++);
@@ -586,7 +586,7 @@ static void br_aes_ct64_ctr_run(uint64_t sk_exp[120], const unsigned char *iv, u
 *              - const unsigned char *key:   pointer to 32-byte key
 *              - const unsigned char nonce:  1-byte nonce (will be zero-padded to 12 bytes)
 **************************************************/
-void aes256_prf(unsigned char *output, unsigned long long outlen, const unsigned char *key, const unsigned char nonce)
+void PQCLEAN_NAMESPACE_aes256_prf(unsigned char *output, unsigned long long outlen, const unsigned char *key, const unsigned char nonce)
 {
   uint64_t sk_exp[120];
   unsigned char iv[12];
@@ -611,7 +611,7 @@ void aes256_prf(unsigned char *output, unsigned long long outlen, const unsigned
 *              - unsigned char x:           first additional byte to "absorb"
 *              - unsigned char y:           second additional byte to "absorb"
 **************************************************/
-void aes256xof_absorb(aes256xof_ctx *s, const unsigned char *key, unsigned char x, unsigned char y)
+void PQCLEAN_NAMESPACE_aes256xof_absorb(aes256xof_ctx *s, const unsigned char *key, unsigned char x, unsigned char y)
 {
 	uint64_t skey[30];
   unsigned char iv[12];
@@ -628,7 +628,7 @@ void aes256xof_absorb(aes256xof_ctx *s, const unsigned char *key, unsigned char 
 	memcpy(s->ivw +  4, s->ivw, 3 * sizeof(uint32_t));
 	memcpy(s->ivw +  8, s->ivw, 3 * sizeof(uint32_t));
 	memcpy(s->ivw + 12, s->ivw, 3 * sizeof(uint32_t));
-  s->ivw[ 3] = br_swap32(0);
+    s->ivw[ 3] = br_swap32(0);
 	s->ivw[ 7] = br_swap32(1);
 	s->ivw[11] = br_swap32(2);
 	s->ivw[15] = br_swap32(3);
@@ -644,7 +644,7 @@ void aes256xof_absorb(aes256xof_ctx *s, const unsigned char *key, unsigned char 
 *              - unsigned long long nblocks: number of reqested 64-byte output blocks
 *              - aes256xof_ctx *s:           AES "state", i.e. expanded key and IV
 **************************************************/
-void aes256xof_squeezeblocks(unsigned char *out, unsigned long long nblocks, aes256xof_ctx *s)
+void PQCLEAN_NAMESPACE_aes256xof_squeezeblocks(unsigned char *out, unsigned long long nblocks, aes256xof_ctx *s)
 {
 	while (nblocks > 0) {
     aes_ctr4x(out, s->ivw, s->sk_exp);

@@ -8,7 +8,11 @@
 
 #define NTESTS 10000
 
-extern void gen_matrix(polyvec *a, const unsigned char *seed, int transposed);
+extern void PQCLEAN_NAMESPACE_gen_matrix(polyvec *a, const unsigned char *seed, int transposed);
+#define CRYPTO_BYTES PQCLEAN_NAMESPACE_CRYPTO_BYTES
+#define CRYPTO_PUBLICKEYBYTES PQCLEAN_NAMESPACE_CRYPTO_PUBLICKEYBYTES
+#define CRYPTO_CIPHERTEXTBYTES PQCLEAN_NAMESPACE_CRYPTO_CIPHERTEXTBYTES
+#define CRYPTO_SECRETKEYBYTES PQCLEAN_NAMESPACE_CRYPTO_SECRETKEYBYTES
 
 static int cmp_llu(const void *a, const void*b)
 {
@@ -77,77 +81,77 @@ int main()
   for(i=0; i<NTESTS; i++)
   {
     t[i] = cpucycles();
-    poly_ntt(&ap);
+    PQCLEAN_NAMESPACE_poly_ntt(&ap);
   }
   print_results("NTT:           ", t, NTESTS);
 
   for(i=0; i<NTESTS; i++)
   {
     t[i] = cpucycles();
-    poly_invntt(&ap);
+    PQCLEAN_NAMESPACE_poly_invntt(&ap);
   }
   print_results("INVNTT:        ", t, NTESTS);
 
   for(i=0; i<NTESTS; i++)
   {
     t[i] = cpucycles();
-    gen_matrix(matrix, seed, 0);
+    PQCLEAN_NAMESPACE_gen_matrix(matrix, seed, 0);
   }
   print_results("gen_a:         ", t, NTESTS);
 
   for(i=0; i<NTESTS; i++)
   {
     t[i] = cpucycles();
-    poly_getnoise(&ap, seed, 0);
+    PQCLEAN_NAMESPACE_poly_getnoise(&ap, seed, 0);
   }
   print_results("poly_getnoise: ", t, NTESTS);
 
   for(i=0; i<NTESTS; i++)
   {
     t[i] = cpucycles();
-    crypto_kem_keypair(senda+i*CRYPTO_PUBLICKEYBYTES, sk_a);
+    PQCLEAN_NAMESPACE_crypto_kem_keypair(senda+i*CRYPTO_PUBLICKEYBYTES, sk_a);
   }
   print_results("kyber_keypair: ", t, NTESTS);
 
   for(i=0; i<NTESTS; i++)
   {
     t[i] = cpucycles();
-    crypto_kem_enc(sendb+i*CRYPTO_CIPHERTEXTBYTES, key_b, senda+i*CRYPTO_PUBLICKEYBYTES);
+    PQCLEAN_NAMESPACE_crypto_kem_enc(sendb+i*CRYPTO_CIPHERTEXTBYTES, key_b, senda+i*CRYPTO_PUBLICKEYBYTES);
   }
   print_results("kyber_encaps:  ", t, NTESTS);
 
   for(i=0; i<NTESTS; i++)
   {
     t[i] = cpucycles();
-    crypto_kem_dec(key_a, sendb+i*CRYPTO_CIPHERTEXTBYTES, sk_a);
+    PQCLEAN_NAMESPACE_crypto_kem_dec(key_a, sendb+i*CRYPTO_CIPHERTEXTBYTES, sk_a);
   }
   print_results("kyber_decaps:  ", t, NTESTS);
 
 
   /* Generating static keys for AKE */
-  crypto_kem_keypair(pk_a, sk_a); // Generate static key for Alice
-  crypto_kem_keypair(pk_b, sk_b); // Generate static key for Bob
+  PQCLEAN_NAMESPACE_crypto_kem_keypair(pk_a, sk_a); // Generate static key for Alice
+  PQCLEAN_NAMESPACE_crypto_kem_keypair(pk_b, sk_b); // Generate static key for Bob
 
 
 
   for(i=0; i<NTESTS; i++)
   {
     t[i] = cpucycles();
-    kex_uake_initA(kexsenda+i*KEX_AKE_SENDABYTES, tk, eska, pk_b); // Run by Alice
+    PQCLEAN_NAMESPACE_kex_uake_initA(kexsenda+i*KEX_AKE_SENDABYTES, tk, eska, pk_b); // Run by Alice
   }
   print_results("kex_uake_initA: ", t, NTESTS);
 
   for(i=0; i<NTESTS; i++)
   {
     t[i] = cpucycles();
-    kex_uake_sharedB(kexsendb+i*KEX_AKE_SENDBBYTES, key_b, kexsenda+i*KEX_AKE_SENDABYTES, sk_b); // Run by Bob
+    PQCLEAN_NAMESPACE_kex_uake_sharedB(kexsendb+i*KEX_AKE_SENDBBYTES, key_b, kexsenda+i*KEX_AKE_SENDABYTES, sk_b); // Run by Bob
   }
   print_results("kex_uake_sharedB:  ", t, NTESTS);
 
   for(i=0; i<NTESTS; i++)
   {
     t[i] = cpucycles();
-    kex_uake_sharedA(key_a, kexsendb+i*KEX_AKE_SENDBBYTES, tk, eska); // Run by Alice
+    PQCLEAN_NAMESPACE_kex_uake_sharedA(key_a, kexsendb+i*KEX_AKE_SENDBBYTES, tk, eska); // Run by Alice
   }
   print_results("kex_uake_sharedA:  ", t, NTESTS);
 
@@ -156,21 +160,21 @@ int main()
   for(i=0; i<NTESTS; i++)
   {
     t[i] = cpucycles();
-    kex_ake_initA(kexsenda+i*KEX_AKE_SENDABYTES, tk, eska, pk_b); // Run by Alice
+    PQCLEAN_NAMESPACE_kex_ake_initA(kexsenda+i*KEX_AKE_SENDABYTES, tk, eska, pk_b); // Run by Alice
   }
   print_results("kex_ake_initA: ", t, NTESTS);
 
   for(i=0; i<NTESTS; i++)
   {
     t[i] = cpucycles();
-    kex_ake_sharedB(kexsendb+i*KEX_AKE_SENDBBYTES, key_b, kexsenda+i*KEX_AKE_SENDABYTES, sk_b, pk_a); // Run by Bob
+    PQCLEAN_NAMESPACE_kex_ake_sharedB(kexsendb+i*KEX_AKE_SENDBBYTES, key_b, kexsenda+i*KEX_AKE_SENDABYTES, sk_b, pk_a); // Run by Bob
   }
   print_results("kex_ake_sharedB:  ", t, NTESTS);
 
   for(i=0; i<NTESTS; i++)
   {
     t[i] = cpucycles();
-    kex_ake_sharedA(key_a, kexsendb+i*KEX_AKE_SENDBBYTES, tk, eska, sk_a); // Run by Alice
+    PQCLEAN_NAMESPACE_kex_ake_sharedA(key_a, kexsendb+i*KEX_AKE_SENDBBYTES, tk, eska, sk_a); // Run by Alice
   }
   print_results("kex_ake_sharedA:  ", t, NTESTS);
 

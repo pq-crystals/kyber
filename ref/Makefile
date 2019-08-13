@@ -28,8 +28,7 @@ all: \
   testvectors1024-90s \
   speed512-90s \
   speed768-90s \
-  speed1024-90s \
-  PQCgenKAT_kem \
+  speed1024-90s
 
 SOURCES = kem.c poly.c polyvec.c reduce.c cbd.c ntt.c verify.c indcpa.c
 SOURCESKECCAK = $(SOURCES) fips202.c symmetric-fips202.c

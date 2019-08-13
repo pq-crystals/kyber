@@ -14,9 +14,9 @@
 
 #define hash_h(OUT, IN, INBYTES) sha256(OUT, IN, INBYTES)
 #define hash_g(OUT, IN, INBYTES) sha512(OUT, IN, INBYTES)
-#define xof_absorb(STATE, IN, X, Y) aes256xof_absorb(STATE, IN, X, Y)
-#define xof_squeezeblocks(OUT, OUTBLOCKS, STATE) aes256xof_squeezeblocks(OUT, OUTBLOCKS, STATE)
-#define prf(OUT, OUTBYTES, KEY, NONCE) aes256_prf(OUT, OUTBYTES, KEY, NONCE)
+#define xof_absorb(STATE, IN, X, Y) PQCLEAN_NAMESPACE_aes256xof_absorb(STATE, IN, X, Y)
+#define xof_squeezeblocks(OUT, OUTBLOCKS, STATE) PQCLEAN_NAMESPACE_aes256xof_squeezeblocks(OUT, OUTBLOCKS, STATE)
+#define prf(OUT, OUTBYTES, KEY, NONCE) PQCLEAN_NAMESPACE_aes256_prf(OUT, OUTBYTES, KEY, NONCE)
 #define kdf(OUT, IN, INBYTES) sha256(OUT, IN, INBYTES)
 
 #define XOF_BLOCKBYTES 64
@@ -31,15 +31,15 @@ typedef struct {
   uint64_t s[25];
 } keccak_state;
 
-void kyber_shake128_absorb(keccak_state *s, const unsigned char *input, unsigned char x, unsigned char y);
-void kyber_shake128_squeezeblocks(unsigned char *output, unsigned long long nblocks, keccak_state *s);
-void shake256_prf(unsigned char *output, unsigned long long outlen, const unsigned char *key, const unsigned char nonce);
+void PQCLEAN_NAMESPACE_kyber_shake128_absorb(keccak_state *s, const unsigned char *input, unsigned char x, unsigned char y);
+void PQCLEAN_NAMESPACE_kyber_shake128_squeezeblocks(unsigned char *output, unsigned long long nblocks, keccak_state *s);
+void PQCLEAN_NAMESPACE_shake256_prf(unsigned char *output, unsigned long long outlen, const unsigned char *key, const unsigned char nonce);
 
 #define hash_h(OUT, IN, INBYTES) sha3_256(OUT, IN, INBYTES)
 #define hash_g(OUT, IN, INBYTES) sha3_512(OUT, IN, INBYTES)
-#define xof_absorb(STATE, IN, X, Y) kyber_shake128_absorb(STATE, IN, X, Y)
-#define xof_squeezeblocks(OUT, OUTBLOCKS, STATE) kyber_shake128_squeezeblocks(OUT, OUTBLOCKS, STATE)
-#define prf(OUT, OUTBYTES, KEY, NONCE) shake256_prf(OUT, OUTBYTES, KEY, NONCE)
+#define xof_absorb(STATE, IN, X, Y) PQCLEAN_NAMESPACE_kyber_shake128_absorb(STATE, IN, X, Y)
+#define xof_squeezeblocks(OUT, OUTBLOCKS, STATE) PQCLEAN_NAMESPACE_kyber_shake128_squeezeblocks(OUT, OUTBLOCKS, STATE)
+#define prf(OUT, OUTBYTES, KEY, NONCE) PQCLEAN_NAMESPACE_shake256_prf(OUT, OUTBYTES, KEY, NONCE)
 #define kdf(OUT, IN, INBYTES) shake256(OUT, KYBER_SSBYTES, IN, INBYTES)
 
 #define XOF_BLOCKBYTES 168
