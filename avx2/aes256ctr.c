@@ -143,10 +143,10 @@ void PQCLEAN_NAMESPACE_aes256ctr_select(aes256ctr_ctx *state, uint16_t nonce) {
 }
 
 void PQCLEAN_NAMESPACE_aes256ctr_squeezeblocks(uint8_t *out,
-                             unsigned long long nblocks,
+                             size_t nblocks,
                              aes256ctr_ctx *state)
 {
-  unsigned long long i;
+  size_t i;
 
   for(i=0;i<nblocks;i++) {
     aesni_encrypt8(out, &state->n, state->rkeys);
@@ -155,7 +155,7 @@ void PQCLEAN_NAMESPACE_aes256ctr_squeezeblocks(uint8_t *out,
 }
 
 void PQCLEAN_NAMESPACE_aes256ctr_prf(uint8_t *out,
-                   unsigned long long outlen,
+                   size_t outlen,
                    const uint8_t *seed,
                    uint8_t nonce)
 {

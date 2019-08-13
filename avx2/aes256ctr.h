@@ -1,6 +1,7 @@
 #ifndef AES256CTR_H
 #define AES256CTR_H
 
+#include <stddef.h>
 #include <stdint.h>
 #include <immintrin.h>
 
@@ -14,11 +15,11 @@ void PQCLEAN_NAMESPACE_aes256ctr_init(aes256ctr_ctx *state,
                     uint16_t nonce);
 void PQCLEAN_NAMESPACE_aes256ctr_select(aes256ctr_ctx *state, uint16_t nonce);
 void PQCLEAN_NAMESPACE_aes256ctr_squeezeblocks(uint8_t *out,
-                             unsigned long long nblocks,
+                             size_t nblocks,
                              aes256ctr_ctx *state);
 
 void PQCLEAN_NAMESPACE_aes256ctr_prf(uint8_t *out,
-                   unsigned long long outlen,
+                   size_t outlen,
                    const uint8_t *seed,
                    uint8_t nonce);
 
