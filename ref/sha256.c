@@ -6,10 +6,11 @@ Public domain.
 
 #include "sha2.h"
 
+#include <stdint.h>
 
 typedef unsigned int uint32;
 
-static uint32 load_bigendian(const unsigned char *x)
+static uint32 load_bigendian(const uint8_t *x)
 {
   return
       (uint32) (x[3]) \
@@ -19,7 +20,7 @@ static uint32 load_bigendian(const unsigned char *x)
   ;
 }
 
-static void store_bigendian(unsigned char *x,uint32 u)
+static void store_bigendian(uint8_t *x,uint32 u)
 {
   x[3] = u; u >>= 8;
   x[2] = u; u >>= 8;
@@ -69,7 +70,7 @@ static void store_bigendian(unsigned char *x,uint32 u)
   b = a; \
   a = T1 + T2;
 
-static int crypto_hashblocks_sha256(unsigned char *statebytes,const unsigned char *in,unsigned long long inlen)
+static int crypto_hashblocks_sha256(uint8_t *statebytes,const unsigned char *in,unsigned long long inlen)
 {
   uint32 state[8];
   uint32 a;
@@ -237,14 +238,14 @@ static const char iv[32] = {
 *
 * Description: SHA256 with non-incremental API
 *
-* Arguments:   - unsigned char *out:       pointer to output (32 bytes)
-*              - const unsigned char *in:  pointer to input
+* Arguments:   - uint8_t *out:       pointer to output (32 bytes)
+*              - const uint8_t *in:  pointer to input
 *              - unsigned long long inlen: length of input in bytes
 **************************************************/
-void sha256(unsigned char *out,const unsigned char *in,unsigned long long inlen)
+void sha256(uint8_t *out,const unsigned char *in,unsigned long long inlen)
 {
-  unsigned char h[32];
-  unsigned char padded[128];
+  uint8_t h[32];
+  uint8_t padded[128];
   unsigned long long i;
   unsigned long long bits = inlen << 3;
 

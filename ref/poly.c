@@ -1,20 +1,20 @@
-#include <stdint.h>
+#include "cbd.h"
+#include "ntt.h"
 #include "params.h"
 #include "poly.h"
-#include "ntt.h"
 #include "reduce.h"
-#include "cbd.h"
 #include "symmetric.h"
 
+#include <stdint.h>
 /*************************************************
 * Name:        poly_compress
 *
 * Description: Compression and subsequent serialization of a polynomial
 *
-* Arguments:   - unsigned char *r: pointer to output byte array (needs space for KYBER_POLYCOMPRESSEDBYTES bytes)
+* Arguments:   - uint8_t *r: pointer to output byte array (needs space for KYBER_POLYCOMPRESSEDBYTES bytes)
 *              - const poly *a:    pointer to input polynomial
 **************************************************/
-void PQCLEAN_NAMESPACE_poly_compress(unsigned char *r, poly *a)
+void PQCLEAN_NAMESPACE_poly_compress(uint8_t *r, poly *a)
 {
   uint8_t t[8];
   int i,j,k=0;
@@ -69,9 +69,9 @@ void PQCLEAN_NAMESPACE_poly_compress(unsigned char *r, poly *a)
 *              approximate inverse of poly_compress
 *
 * Arguments:   - poly *r:                pointer to output polynomial
-*              - const unsigned char *a: pointer to input byte array (of length KYBER_POLYCOMPRESSEDBYTES bytes)
+*              - const uint8_t *a: pointer to input byte array (of length KYBER_POLYCOMPRESSEDBYTES bytes)
 **************************************************/
-void PQCLEAN_NAMESPACE_poly_decompress(poly *r, const unsigned char *a)
+void PQCLEAN_NAMESPACE_poly_decompress(poly *r, const uint8_t *a)
 {
   int i;
 #if (KYBER_POLYCOMPRESSEDBYTES == 96)
@@ -123,10 +123,10 @@ void PQCLEAN_NAMESPACE_poly_decompress(poly *r, const unsigned char *a)
 *
 * Description: Serialization of a polynomial
 *
-* Arguments:   - unsigned char *r: pointer to output byte array (needs space for KYBER_POLYBYTES bytes)
+* Arguments:   - uint8_t *r: pointer to output byte array (needs space for KYBER_POLYBYTES bytes)
 *              - const poly *a:    pointer to input polynomial
 **************************************************/
-void PQCLEAN_NAMESPACE_poly_tobytes(unsigned char *r, poly *a)
+void PQCLEAN_NAMESPACE_poly_tobytes(uint8_t *r, poly *a)
 {
   int i;
   uint16_t t0, t1;
@@ -149,9 +149,9 @@ void PQCLEAN_NAMESPACE_poly_tobytes(unsigned char *r, poly *a)
 *              inverse of poly_tobytes
 *
 * Arguments:   - poly *r:                pointer to output polynomial
-*              - const unsigned char *a: pointer to input byte array (of KYBER_POLYBYTES bytes)
+*              - const uint8_t *a: pointer to input byte array (of KYBER_POLYBYTES bytes)
 **************************************************/
-void PQCLEAN_NAMESPACE_poly_frombytes(poly *r, const unsigned char *a)
+void PQCLEAN_NAMESPACE_poly_frombytes(poly *r, const uint8_t *a)
 {
   int i;
 
@@ -169,12 +169,12 @@ void PQCLEAN_NAMESPACE_poly_frombytes(poly *r, const unsigned char *a)
 *              with parameter KYBER_ETA
 *
 * Arguments:   - poly *r:                   pointer to output polynomial
-*              - const unsigned char *seed: pointer to input seed (pointing to array of length KYBER_SYMBYTES bytes)
-*              - unsigned char nonce:       one-byte input nonce
+*              - const uint8_t *seed: pointer to input seed (pointing to array of length KYBER_SYMBYTES bytes)
+*              - uint8_t nonce:       one-byte input nonce
 **************************************************/
-void PQCLEAN_NAMESPACE_poly_getnoise(poly *r, const unsigned char *seed, unsigned char nonce)
+void PQCLEAN_NAMESPACE_poly_getnoise(poly *r, const uint8_t *seed, unsigned char nonce)
 {
-  unsigned char buf[KYBER_ETA*KYBER_N/4];
+  uint8_t buf[KYBER_ETA*KYBER_N/4];
 
   prf(buf, KYBER_ETA*KYBER_N/4, seed, nonce);
   PQCLEAN_NAMESPACE_cbd(r, buf);
@@ -315,9 +315,9 @@ void PQCLEAN_NAMESPACE_poly_sub(poly *r, const poly *a, const poly *b)
 * Description: Convert 32-byte message to polynomial
 *
 * Arguments:   - poly *r:                  pointer to output polynomial
-*              - const unsigned char *msg: pointer to input message
+*              - const uint8_t *msg: pointer to input message
 **************************************************/
-void PQCLEAN_NAMESPACE_poly_frommsg(poly *r, const unsigned char msg[KYBER_SYMBYTES])
+void PQCLEAN_NAMESPACE_poly_frommsg(poly *r, const uint8_t msg[KYBER_SYMBYTES])
 {
   int i,j;
   uint16_t mask;
@@ -337,10 +337,10 @@ void PQCLEAN_NAMESPACE_poly_frommsg(poly *r, const unsigned char msg[KYBER_SYMBY
 *
 * Description: Convert polynomial to 32-byte message
 *
-* Arguments:   - unsigned char *msg: pointer to output message
+* Arguments:   - uint8_t *msg: pointer to output message
 *              - const poly *a:      pointer to input polynomial
 **************************************************/
-void PQCLEAN_NAMESPACE_poly_tomsg(unsigned char msg[KYBER_SYMBYTES], poly *a)
+void PQCLEAN_NAMESPACE_poly_tomsg(uint8_t msg[KYBER_SYMBYTES], poly *a)
 {
   uint16_t t;
   int i,j;

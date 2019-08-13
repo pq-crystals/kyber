@@ -8,7 +8,7 @@
 
 #define NTESTS 10000
 
-extern void PQCLEAN_NAMESPACE_gen_matrix(polyvec *a, const unsigned char *seed, int transposed);
+extern void PQCLEAN_NAMESPACE_gen_matrix(polyvec *a, const uint8_t *seed, int transposed);
 #define CRYPTO_BYTES PQCLEAN_NAMESPACE_CRYPTO_BYTES
 #define CRYPTO_PUBLICKEYBYTES PQCLEAN_NAMESPACE_CRYPTO_PUBLICKEYBYTES
 #define CRYPTO_CIPHERTEXTBYTES PQCLEAN_NAMESPACE_CRYPTO_CIPHERTEXTBYTES
@@ -54,24 +54,24 @@ static void print_results(const char *s, unsigned long long *t, size_t tlen)
 
 
 unsigned long long t[NTESTS];
-unsigned char seed[32] = {0};
+uint8_t seed[32] = {0};
 
 int main()
 {
-  unsigned char sk_a[CRYPTO_SECRETKEYBYTES];
-  unsigned char pk_a[CRYPTO_PUBLICKEYBYTES];
-  unsigned char sk_b[CRYPTO_SECRETKEYBYTES];
-  unsigned char pk_b[CRYPTO_PUBLICKEYBYTES];
+  uint8_t sk_a[CRYPTO_SECRETKEYBYTES];
+  uint8_t pk_a[CRYPTO_PUBLICKEYBYTES];
+  uint8_t sk_b[CRYPTO_SECRETKEYBYTES];
+  uint8_t pk_b[CRYPTO_PUBLICKEYBYTES];
 
-  unsigned char eska[CRYPTO_SECRETKEYBYTES];
-  unsigned char tk[CRYPTO_BYTES];
+  uint8_t eska[CRYPTO_SECRETKEYBYTES];
+  uint8_t tk[CRYPTO_BYTES];
 
-  unsigned char key_a[32], key_b[32];
-  unsigned char* senda = (unsigned char*) malloc(NTESTS*CRYPTO_PUBLICKEYBYTES);
-  unsigned char* sendb = (unsigned char*) malloc(NTESTS*CRYPTO_CIPHERTEXTBYTES);
+  uint8_t key_a[32], key_b[32];
+  uint8_t* senda = (unsigned char*) malloc(NTESTS*CRYPTO_PUBLICKEYBYTES);
+  uint8_t* sendb = (unsigned char*) malloc(NTESTS*CRYPTO_CIPHERTEXTBYTES);
 
-  unsigned char* kexsenda = (unsigned char*) malloc(NTESTS*KEX_AKE_SENDABYTES);
-  unsigned char* kexsendb = (unsigned char*) malloc(NTESTS*KEX_AKE_SENDBBYTES);
+  uint8_t* kexsenda = (unsigned char*) malloc(NTESTS*KEX_AKE_SENDABYTES);
+  uint8_t* kexsendb = (unsigned char*) malloc(NTESTS*KEX_AKE_SENDBBYTES);
 
 
   poly ap;

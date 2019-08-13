@@ -1,16 +1,17 @@
-#include <stdint.h>
 #include "polyvec.h"
+
 #include "poly.h"
 
+#include <stdint.h>
 /*************************************************
 * Name:        polyvec_compress
 *
 * Description: Compress and serialize vector of polynomials
 *
-* Arguments:   - unsigned char *r: pointer to output byte array (needs space for KYBER_POLYVECCOMPRESSEDBYTES)
+* Arguments:   - uint8_t *r: pointer to output byte array (needs space for KYBER_POLYVECCOMPRESSEDBYTES)
 *              - const polyvec *a: pointer to input vector of polynomials
 **************************************************/
-void PQCLEAN_NAMESPACE_polyvec_compress(unsigned char *r, polyvec *a)
+void PQCLEAN_NAMESPACE_polyvec_compress(uint8_t *r, polyvec *a)
 {
   int i,j,k;
 
@@ -68,9 +69,9 @@ void PQCLEAN_NAMESPACE_polyvec_compress(unsigned char *r, polyvec *a)
 *              approximate inverse of polyvec_compress
 *
 * Arguments:   - polyvec *r:       pointer to output vector of polynomials
-*              - unsigned char *a: pointer to input byte array (of length KYBER_POLYVECCOMPRESSEDBYTES)
+*              - uint8_t *a: pointer to input byte array (of length KYBER_POLYVECCOMPRESSEDBYTES)
 **************************************************/
-void PQCLEAN_NAMESPACE_polyvec_decompress(polyvec *r, const unsigned char *a)
+void PQCLEAN_NAMESPACE_polyvec_decompress(polyvec *r, const uint8_t *a)
 {
   int i,j;
 #if (KYBER_POLYVECCOMPRESSEDBYTES == (KYBER_K * 352))
@@ -111,10 +112,10 @@ void PQCLEAN_NAMESPACE_polyvec_decompress(polyvec *r, const unsigned char *a)
 *
 * Description: Serialize vector of polynomials
 *
-* Arguments:   - unsigned char *r: pointer to output byte array (needs space for KYBER_POLYVECBYTES)
+* Arguments:   - uint8_t *r: pointer to output byte array (needs space for KYBER_POLYVECBYTES)
 *              - const polyvec *a: pointer to input vector of polynomials 
 **************************************************/
-void PQCLEAN_NAMESPACE_polyvec_tobytes(unsigned char *r, polyvec *a)
+void PQCLEAN_NAMESPACE_polyvec_tobytes(uint8_t *r, polyvec *a)
 {
   int i;
   for(i=0;i<KYBER_K;i++)
@@ -127,10 +128,10 @@ void PQCLEAN_NAMESPACE_polyvec_tobytes(unsigned char *r, polyvec *a)
 * Description: De-serialize vector of polynomials;
 *              inverse of polyvec_tobytes
 *
-* Arguments:   - unsigned char *r: pointer to output byte array
+* Arguments:   - uint8_t *r: pointer to output byte array
 *              - const polyvec *a: pointer to input vector of polynomials (of length KYBER_POLYVECBYTES)
 **************************************************/
-void PQCLEAN_NAMESPACE_polyvec_frombytes(polyvec *r, const unsigned char *a)
+void PQCLEAN_NAMESPACE_polyvec_frombytes(polyvec *r, const uint8_t *a)
 {
   int i;
   for(i=0;i<KYBER_K;i++)

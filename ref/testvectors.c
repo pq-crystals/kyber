@@ -45,7 +45,7 @@ static void surf(void)
   }
 }
 
-void randombytes(unsigned char *x,unsigned long long xlen)
+void randombytes(uint8_t *x,unsigned long long xlen)
 {
   while (xlen > 0) {
     if (!outleft) {
@@ -65,10 +65,10 @@ void randombytes(unsigned char *x,unsigned long long xlen)
 
 int main(void)
 {
-  unsigned char key_a[CRYPTO_BYTES], key_b[CRYPTO_BYTES];
-  unsigned char pk[CRYPTO_PUBLICKEYBYTES];
-  unsigned char sendb[CRYPTO_CIPHERTEXTBYTES];
-  unsigned char sk_a[CRYPTO_SECRETKEYBYTES];
+  uint8_t key_a[CRYPTO_BYTES], key_b[CRYPTO_BYTES];
+  uint8_t pk[CRYPTO_PUBLICKEYBYTES];
+  uint8_t sendb[CRYPTO_CIPHERTEXTBYTES];
+  uint8_t sk_a[CRYPTO_SECRETKEYBYTES];
   int i,j;
 
   for(i=0;i<NTESTS;i++)

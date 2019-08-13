@@ -1,9 +1,9 @@
-#include <stdio.h>
-#include <string.h>
-
 #include "api.h"
 #include "params.h"
 #include "kex.h"
+
+#include <stdio.h>
+#include <string.h>
 
 #define CRYPTO_BYTES PQCLEAN_NAMESPACE_CRYPTO_BYTES
 #define CRYPTO_PUBLICKEYBYTES PQCLEAN_NAMESPACE_CRYPTO_PUBLICKEYBYTES
@@ -12,24 +12,24 @@
 
 int main(void)
 {
-  unsigned char pkb[CRYPTO_PUBLICKEYBYTES];
-  unsigned char skb[CRYPTO_SECRETKEYBYTES];
+  uint8_t pkb[CRYPTO_PUBLICKEYBYTES];
+  uint8_t skb[CRYPTO_SECRETKEYBYTES];
 
-  unsigned char pka[CRYPTO_PUBLICKEYBYTES];
-  unsigned char ska[CRYPTO_SECRETKEYBYTES];
+  uint8_t pka[CRYPTO_PUBLICKEYBYTES];
+  uint8_t ska[CRYPTO_SECRETKEYBYTES];
 
-  unsigned char eska[CRYPTO_SECRETKEYBYTES];
+  uint8_t eska[CRYPTO_SECRETKEYBYTES];
 
-  unsigned char uake_senda[KEX_UAKE_SENDABYTES];
-  unsigned char uake_sendb[KEX_UAKE_SENDBBYTES];
+  uint8_t uake_senda[KEX_UAKE_SENDABYTES];
+  uint8_t uake_sendb[KEX_UAKE_SENDBBYTES];
 
-  unsigned char ake_senda[KEX_AKE_SENDABYTES];
-  unsigned char ake_sendb[KEX_AKE_SENDBBYTES];
+  uint8_t ake_senda[KEX_AKE_SENDABYTES];
+  uint8_t ake_sendb[KEX_AKE_SENDBBYTES];
 
-  unsigned char tk[KEX_SSBYTES];
-  unsigned char ka[KEX_SSBYTES];
-  unsigned char kb[KEX_SSBYTES];
-  unsigned char zero[KEX_SSBYTES];
+  uint8_t tk[KEX_SSBYTES];
+  uint8_t ka[KEX_SSBYTES];
+  uint8_t kb[KEX_SSBYTES];
+  uint8_t zero[KEX_SSBYTES];
   int i;
 
   for(i=0;i<KEX_SSBYTES;i++)
