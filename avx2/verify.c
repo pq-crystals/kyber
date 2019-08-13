@@ -1,3 +1,5 @@
+#include "verify.h"
+
 #include <stdlib.h>
 #include <stdint.h>
 #include <immintrin.h>

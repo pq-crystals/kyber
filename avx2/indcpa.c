@@ -126,8 +126,8 @@ static unsigned int rej_uniform_ref(int16_t *r, unsigned int len, const uint8_t 
   return ctr;
 }
 
-#define gen_a(A,B)  PQCLEAN_NAMESPACE_gen_matrix(A,B,0)
-#define gen_at(A,B) PQCLEAN_NAMESPACE_gen_matrix(A,B,1)
+#define gen_a(A,B)  gen_matrix(A,B,0)
+#define gen_at(A,B) gen_matrix(A,B,1)
 
 /*************************************************
 * Name:        gen_matrix
@@ -142,7 +142,7 @@ static unsigned int rej_uniform_ref(int16_t *r, unsigned int len, const uint8_t 
 *              - int transposed:            boolean deciding whether A or A^T is generated
 **************************************************/
 #ifdef KYBER_90S
-void PQCLEAN_NAMESPACE_gen_matrix(polyvec *a, const uint8_t *seed, int transposed)
+static void gen_matrix(polyvec *a, const uint8_t *seed, int transposed)
 {
   unsigned int i, j, ctr;
   const unsigned int maxnblocks=(530+XOF_BLOCKBYTES)/XOF_BLOCKBYTES; /* 530 is expected number of required bytes */
@@ -175,7 +175,7 @@ void PQCLEAN_NAMESPACE_gen_matrix(polyvec *a, const uint8_t *seed, int transpose
 }
 #else
 #if KYBER_K == 2
-void PQCLEAN_NAMESPACE_gen_matrix(polyvec *a, const uint8_t *seed, int transposed)
+static void gen_matrix(polyvec *a, const uint8_t *seed, int transposed)
 {
   unsigned int ctr0, ctr1, ctr2, ctr3, bufbytes;
   const unsigned int maxnblocks=(530+XOF_BLOCKBYTES)/XOF_BLOCKBYTES; /* 530 is expected number of required bytes */
@@ -212,7 +212,7 @@ void PQCLEAN_NAMESPACE_gen_matrix(polyvec *a, const uint8_t *seed, int transpose
   PQCLEAN_NAMESPACE_poly_nttunpack(&a[1].vec[1]);
 }
 #elif KYBER_K == 3
-void PQCLEAN_NAMESPACE_gen_matrix(polyvec *a, const uint8_t *seed, int transposed)
+static void gen_matrix(polyvec *a, const uint8_t *seed, int transposed)
 {
   unsigned int ctr0, ctr1, ctr2, ctr3, bufbytes;
   const unsigned int maxnblocks=(530+XOF_BLOCKBYTES)/XOF_BLOCKBYTES; /* 530 is expected number of required bytes */
@@ -299,7 +299,7 @@ void PQCLEAN_NAMESPACE_gen_matrix(polyvec *a, const uint8_t *seed, int transpose
   PQCLEAN_NAMESPACE_poly_nttunpack(&a[2].vec[2]);
 }
 #elif KYBER_K == 4
-void PQCLEAN_NAMESPACE_gen_matrix(polyvec *a, const uint8_t *seed, int transposed)
+static void gen_matrix(polyvec *a, const uint8_t *seed, int transposed)
 {
   unsigned int i, ctr0, ctr1, ctr2, ctr3, bufbytes;
   const unsigned int maxnblocks=(530+XOF_BLOCKBYTES)/XOF_BLOCKBYTES; /* 530 is expected number of required bytes */

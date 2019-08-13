@@ -1,0 +1,20 @@
+# This Makefile can be used with Microsoft Visual Studio's nmake using the command:
+#    nmake /f Makefile.Microsoft_nmake
+
+LIBRARY=libSCHEME_NAME_clean.lib
+OBJECTS=kem.obj poly.obj polyvec.obj fq.obj shuffle.obj cbd.obj ntt.obj invntt.obj basemul.obj consts.obj \
+		verify.obj indcpa.obj rejsample.obj fips202x4.obj symmetric-fips202.obj KeccakP-1600-times4-SIMD256.obj
+
+CFLAGS=/nologo /I ..\..\..\common /W4 /WX /arch:AVX2
+
+all: $(LIBRARY)
+
+# Make sure objects are recompiled if headers change.
+$(OBJECTS): *.h *.inc
+
+$(LIBRARY): $(OBJECTS)
+    LIB.EXE /NOLOGO /WX /OUT:$@ $**
+
+clean:
+    -DEL $(OBJECTS)
+    -DEL $(LIBRARY)

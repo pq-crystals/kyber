@@ -27,16 +27,56 @@ KYBER_FILES = [
     'verify.h',
 ]
 
+KYBER_AVX2_FILES = [
+    'LICENSE',
+    'api.h',
+    'basemul.S',
+    'cbd.h',
+    'cbd.c',
+    'consts.c',
+    'fips202x4.c',
+    'fips202x4.h',
+    'fq.inc',
+    'fq.s',
+    'indcpa.c',
+    'indcpa.h',
+    'invntt.s',
+    'kem.c',
+    'ntt.h',
+    'ntt.s',
+    'params.h',
+    'poly.c',
+    'poly.h',
+    'polyvec.c',
+    'polyvec.h',
+    'reduce.h',
+    'rejsample.c',
+    'rejsample.h',
+    'shuffle.inc',
+    'shuffle.s',
+    'symmetric-fips202.c',
+    'symmetric.h',
+    'verify.c',
+    'verify.h',
+]
+
 params = [
-    {'name': 'kyber512', 'impl': 'clean', 'def': ['KYBER_K=2'],
+#    {'name': 'kyber512', 'impl': 'clean', 'def': ['KYBER_K=2'],
+#     'src': 'ref',
+#     'undef': ['KYBER_90S'],
+#     'files': KYBER_FILES},
+    {'name': 'kyber512', 'impl': 'avx2', 'def': ['KYBER_K=2'],
+     'src': 'avx2',
      'undef': ['KYBER_90S'],
-     'files': KYBER_FILES},
-    {'name': 'kyber768', 'impl': 'clean', 'def': ['KYBER_K=3'],
-     'undef': ['KYBER_90S'],
-     'files': KYBER_FILES},
-    {'name': 'kyber1024', 'impl': 'clean', 'def': ['KYBER_K=4'],
-     'undef': ['KYBER_90S'],
-     'files': KYBER_FILES},
+     'files': KYBER_AVX2_FILES},
+#    {'name': 'kyber768', 'impl': 'clean', 'def': ['KYBER_K=3'],
+#     'src': 'ref',
+#     'undef': ['KYBER_90S'],
+#     'files': KYBER_FILES},
+#    {'name': 'kyber1024', 'impl': 'clean', 'def': ['KYBER_K=4'],
+#     'src': 'ref',
+#     'undef': ['KYBER_90S'],
+#     'files': KYBER_FILES},
 ]
 
 for param in params:
@@ -52,7 +92,7 @@ for param in params:
              f"_{param['impl'].upper()}")
     for f in param['files']:
         # copy over common source files
-        shutil.copyfile(f"ref/{f}", f"{pqcleanDir}/{f}")
+        shutil.copyfile(f"{param['src']}/{f}", f"{pqcleanDir}/{f}")
 
         # namespace source files
         cmd = f"sed -i 's/PQCLEAN_NAMESPACE/{nmspc}/g' '{pqcleanDir}/{f}'"
