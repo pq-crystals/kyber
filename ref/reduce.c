@@ -51,7 +51,7 @@ int16_t PQCLEAN_NAMESPACE_barrett_reduce(int16_t a) {
 *
 * Description: Conditionallly subtract q
 *
-* Arguments:   - int16_t x: input integer
+* Arguments:   - int16_t a: input integer
 *
 * Returns:     a - q if a >= q, else a
 **************************************************/

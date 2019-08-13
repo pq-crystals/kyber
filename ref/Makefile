@@ -14,9 +14,6 @@ all: \
   testvectors512 \
   testvectors768 \
   testvectors1024 \
-  speed512 \
-  speed768 \
-  speed1024 \
   test_kyber512-90s \
   test_kyber768-90s \
   test_kyber1024-90s \
@@ -25,10 +22,7 @@ all: \
   test_kex1024-90s \
   testvectors512-90s \
   testvectors768-90s \
-  testvectors1024-90s \
-  speed512-90s \
-  speed768-90s \
-  speed1024-90s
+  testvectors1024-90s
 
 SOURCES = kem.c poly.c polyvec.c reduce.c cbd.c ntt.c verify.c indcpa.c
 SOURCESKECCAK = $(SOURCES) fips202.c symmetric-fips202.c
@@ -64,16 +58,6 @@ testvectors768: $(SOURCESKECCAK) $(HEADERSKECCAK) cpucycles.h cpucycles.c testve
 testvectors1024: $(SOURCESKECCAK) $(HEADERSKECCAK) cpucycles.h cpucycles.c testvectors.c randombytes.h
 	$(CC) $(CFLAGS) -DKYBER_K=4 $(SOURCESKECCAK) cpucycles.c testvectors.c -o testvectors1024
 
-speed512: $(SOURCESKECCAK) $(HEADERSKECCAK) cpucycles.h cpucycles.c speed.c randombytes.c randombytes.h kex.c kex.h
-	$(CC) $(CFLAGS) -DKYBER_K=2 $(SOURCESKECCAK) randombytes.c cpucycles.c kex.c speed.c -o speed512
-
-speed768: $(SOURCESKECCAK) $(HEADERSKECCAK) cpucycles.h cpucycles.c speed.c randombytes.c randombytes.h kex.c kex.h
-	$(CC) $(CFLAGS) -DKYBER_K=3 $(SOURCESKECCAK) randombytes.c cpucycles.c kex.c speed.c -o speed768
-
-speed1024: $(SOURCESKECCAK) $(HEADERSKECCAK) cpucycles.h cpucycles.c speed.c randombytes.c randombytes.h kex.c kex.h
-	$(CC) $(CFLAGS) -DKYBER_K=4 $(SOURCESKECCAK) randombytes.c cpucycles.c kex.c speed.c -o speed1024
-
-
 test_kyber512-90s: $(SOURCESNINETIES) $(HEADERSNINETIES) test_kyber.c randombytes.c randombytes.h
 	$(CC) $(CFLAGS) -D KYBER_90S -DKYBER_K=2 $(SOURCESNINETIES) randombytes.c test_kyber.c -o test_kyber512-90s
 
@@ -101,16 +85,6 @@ testvectors768-90s: $(SOURCESNINETIES) $(HEADERS90S) cpucycles.h cpucycles.c tes
 testvectors1024-90s: $(SOURCESNINETIES) $(HEADERS90S) cpucycles.h cpucycles.c testvectors.c randombytes.h
 	$(CC) $(CFLAGS) -D KYBER_90S -DKYBER_K=4 $(SOURCESNINETIES) cpucycles.c testvectors.c -o testvectors1024-90s
 
-speed512-90s: $(SOURCESNINETIES) $(HEADERS90S) cpucycles.h cpucycles.c speed.c randombytes.c randombytes.h kex.c kex.h fips202.c fips202.h
-	$(CC) $(CFLAGS) -D KYBER_90S -DKYBER_K=2 $(SOURCESNINETIES) randombytes.c cpucycles.c kex.c fips202.c speed.c -o speed512-90s
-
-speed768-90s: $(SOURCESNINETIES) $(HEADERS90S) cpucycles.h cpucycles.c speed.c randombytes.c randombytes.h kex.c kex.h fips202.c fips202.h
-	$(CC) $(CFLAGS) -D KYBER_90S -DKYBER_K=3 $(SOURCESNINETIES) randombytes.c cpucycles.c kex.c fips202.c speed.c -o speed768-90s
-
-speed1024-90s: $(SOURCESNINETIES) $(HEADERS90S) cpucycles.h cpucycles.c speed.c randombytes.c randombytes.h kex.c kex.h fips202.c fips202.h
-	$(CC) $(CFLAGS) -D KYBER_90S -DKYBER_K=4 $(SOURCESNINETIES) randombytes.c cpucycles.c kex.c fips202.c speed.c -o speed1024-90s
-
-
 PQCgenKAT_kem: $(SOURCESKECCAK) $(HEADERSKECCAK) PQCgenKAT_kem.c rng.c rng.h
 	$(CC) $(NISTFLAGS) -o $@ $(SOURCESKECCAK) -I. rng.c PQCgenKAT_kem.c -lcrypto
 
@@ -127,9 +101,6 @@ clean:
 	-$(RM) -rf testvectors512
 	-$(RM) -rf testvectors768
 	-$(RM) -rf testvectors1024
-	-$(RM) -rf speed512
-	-$(RM) -rf speed768
-	-$(RM) -rf speed1024
 	-$(RM) -rf test_kyber512-90s
 	-$(RM) -rf test_kyber768-90s
 	-$(RM) -rf test_kyber1024-90s
@@ -139,7 +110,4 @@ clean:
 	-$(RM) -rf testvectors512-90s
 	-$(RM) -rf testvectors768-90s
 	-$(RM) -rf testvectors1024-90s
-	-$(RM) -rf speed512-90s
-	-$(RM) -rf speed768-90s
-	-$(RM) -rf speed1024-90s
 	-$(RM) -rf PQCgenKAT_kem

@@ -1,3 +1,5 @@
+#include "verify.h"
+
 #include <stddef.h>
 #include <stdint.h>
 

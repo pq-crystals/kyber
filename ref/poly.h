@@ -19,7 +19,7 @@ void PQCLEAN_NAMESPACE_poly_tobytes(uint8_t *r, poly *a);
 void PQCLEAN_NAMESPACE_poly_frombytes(poly *r, const uint8_t *a);
 
 void PQCLEAN_NAMESPACE_poly_frommsg(poly *r, const uint8_t msg[KYBER_SYMBYTES]);
-void PQCLEAN_NAMESPACE_poly_tomsg(uint8_t msg[KYBER_SYMBYTES], poly *r);
+void PQCLEAN_NAMESPACE_poly_tomsg(uint8_t msg[KYBER_SYMBYTES], poly *a);
 
 void PQCLEAN_NAMESPACE_poly_getnoise(poly *r,const uint8_t *seed, uint8_t nonce);
 

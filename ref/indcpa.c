@@ -1,5 +1,6 @@
 #include "indcpa.h"
 #include "ntt.h"
+#include "params.h"
 #include "poly.h"
 #include "polyvec.h"
 #include "randombytes.h"
@@ -138,8 +139,8 @@ static unsigned int rej_uniform(int16_t *r, unsigned int len, const uint8_t *buf
   return ctr;
 }
 
-#define gen_a(A,B)  PQCLEAN_NAMESPACE_gen_matrix(A,B,0)
-#define gen_at(A,B) PQCLEAN_NAMESPACE_gen_matrix(A,B,1)
+#define gen_a(A,B)  gen_matrix(A,B,0)
+#define gen_at(A,B) gen_matrix(A,B,1)
 
 /*************************************************
 * Name:        gen_matrix
@@ -153,7 +154,7 @@ static unsigned int rej_uniform(int16_t *r, unsigned int len, const uint8_t *buf
 *              - const uint8_t *seed: pointer to input seed
 *              - int transposed:            boolean deciding whether A or A^T is generated
 **************************************************/
-void PQCLEAN_NAMESPACE_gen_matrix(polyvec *a, const uint8_t *seed, int transposed) // Not static for benchmarking
+static void gen_matrix(polyvec *a, const uint8_t *seed, int transposed)
 {
   unsigned int ctr, i, j;
   const unsigned int maxnblocks=(530+XOF_BLOCKBYTES)/XOF_BLOCKBYTES; /* 530 is expected number of required bytes */

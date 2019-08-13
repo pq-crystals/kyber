@@ -7,12 +7,12 @@
 *
 * Description: Absorb step of the SHAKE128 specialized for the Kyber context.
 *
-* Arguments:   - uint64_t *s:                     pointer to (uninitialized) output Keccak state
+* Arguments:   - keccak_state *s:                     pointer to (uninitialized) output Keccak state
 *              - const uint8_t *input:      pointer to KYBER_SYMBYTES input to be absorbed into s
 *              - uint8_t i                  additional byte of input
 *              - uint8_t j                  additional byte of input
 **************************************************/
-void PQCLEAN_NAMESPACE_kyber_shake128_absorb(keccak_state *s, const uint8_t *input, unsigned char x, unsigned char y)
+void PQCLEAN_NAMESPACE_kyber_shake128_absorb(keccak_state *s, const uint8_t *input, uint8_t x, uint8_t y)
 {
   uint8_t extseed[KYBER_SYMBYTES+2];
   int i;
@@ -21,7 +21,7 @@ void PQCLEAN_NAMESPACE_kyber_shake128_absorb(keccak_state *s, const uint8_t *inp
     extseed[i] = input[i];
   extseed[i++] = x;
   extseed[i]   = y;
-  shake128_absorb(s->s, extseed, KYBER_SYMBYTES+2);
+  shake128_absorb(s, extseed, KYBER_SYMBYTES+2);
 }
 
 /*************************************************
@@ -35,9 +35,9 @@ void PQCLEAN_NAMESPACE_kyber_shake128_absorb(keccak_state *s, const uint8_t *inp
 *              - unsigned long long nblocks: number of blocks to be squeezed (written to output)
 *              - keccak_state *s:            pointer to in/output Keccak state
 **************************************************/
-void PQCLEAN_NAMESPACE_kyber_shake128_squeezeblocks(uint8_t *output, unsigned long long nblocks, keccak_state *s)
+void PQCLEAN_NAMESPACE_kyber_shake128_squeezeblocks(uint8_t *output, size_t nblocks, keccak_state *s)
 {
-  shake128_squeezeblocks(output, nblocks, s->s);
+  shake128_squeezeblocks(output, nblocks, s);
 }
 
 /*************************************************
@@ -45,13 +45,13 @@ void PQCLEAN_NAMESPACE_kyber_shake128_squeezeblocks(uint8_t *output, unsigned lo
 *
 * Description: Usage of SHAKE256 as a PRF, concatenates secret and public input
 *              and then generates outlen bytes of SHAKE256 output
-*              
+*
 * Arguments:   - uint8_t *output:      pointer to output
-*              - unsigned long long outlen:  number of requested output bytes
+*              - size_t outlen:  number of requested output bytes
 *              - const uint8_t * key:  pointer to the key (of length KYBER_SYMBYTES)
 *              - const uint8_t nonce:  single-byte nonce (public PRF input)
 **************************************************/
-void PQCLEAN_NAMESPACE_shake256_prf(uint8_t *output, unsigned long long outlen, const unsigned char *key, const unsigned char nonce)
+void PQCLEAN_NAMESPACE_shake256_prf(uint8_t *output, size_t outlen, const uint8_t *key, uint8_t nonce)
 {
   uint8_t extkey[KYBER_SYMBYTES+1];
   size_t i;

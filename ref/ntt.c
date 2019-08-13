@@ -84,9 +84,9 @@ static int16_t fqmul(int16_t a, int16_t b) {
 * Description: Inplace number-theoretic transform (NTT) in Rq
 *              input is in standard order, output is in bitreversed order
 *
-* Arguments:   - int16_t r[256]: pointer to input/output vector of elements of Zq
+* Arguments:   - int16_t poly[256]: pointer to input/output vector of elements of Zq
 **************************************************/
-void PQCLEAN_NAMESPACE_ntt(int16_t r[256]) {
+void PQCLEAN_NAMESPACE_ntt(int16_t poly[256]) {
   unsigned int len, start, j, k;
   int16_t t, zeta;
 
@@ -95,9 +95,9 @@ void PQCLEAN_NAMESPACE_ntt(int16_t r[256]) {
     for(start = 0; start < 256; start = j + len) {
       zeta = PQCLEAN_NAMESPACE_zetas[k++];
       for(j = start; j < start + len; ++j) {
-        t = fqmul(zeta, r[j + len]);
-        r[j + len] = r[j] - t;
-        r[j] = r[j] + t;
+        t = fqmul(zeta, poly[j + len]);
+        poly[j + len] = poly[j] - t;
+        poly[j] = poly[j] + t;
       }
     }
   }
@@ -109,9 +109,9 @@ void PQCLEAN_NAMESPACE_ntt(int16_t r[256]) {
 * Description: Inplace inverse number-theoretic transform in Rq
 *              input is in bitreversed order, output is in standard order
 *
-* Arguments:   - int16_t r[256]: pointer to input/output vector of elements of Zq
+* Arguments:   - int16_t poly[256]: pointer to input/output vector of elements of Zq
 **************************************************/
-void PQCLEAN_NAMESPACE_invntt(int16_t r[256]) {
+void PQCLEAN_NAMESPACE_invntt(int16_t poly[256]) {
   unsigned int start, len, j, k;
   int16_t t, zeta;
 
@@ -120,16 +120,16 @@ void PQCLEAN_NAMESPACE_invntt(int16_t r[256]) {
     for(start = 0; start < 256; start = j + len) {
       zeta = PQCLEAN_NAMESPACE_zetas_inv[k++];
       for(j = start; j < start + len; ++j) {
-        t = r[j];
-        r[j] = PQCLEAN_NAMESPACE_barrett_reduce(t + r[j + len]);
-        r[j + len] = t - r[j + len];
-        r[j + len] = fqmul(zeta, r[j + len]);
+        t = poly[j];
+        poly[j] = PQCLEAN_NAMESPACE_barrett_reduce(t + poly[j + len]);
+        poly[j + len] = t - poly[j + len];
+        poly[j + len] = fqmul(zeta, poly[j + len]);
       }
     }
   }
 
   for(j = 0; j < 256; ++j)
-    r[j] = fqmul(r[j], PQCLEAN_NAMESPACE_zetas_inv[127]);
+    poly[j] = fqmul(poly[j], PQCLEAN_NAMESPACE_zetas_inv[127]);
 }
 
 /*************************************************
