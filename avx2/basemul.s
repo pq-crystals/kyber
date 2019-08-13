@@ -73,11 +73,11 @@ vpsubw		%ymm\z,%ymm\a0,%ymm\a0
 vpsubw		%ymm\y,%ymm\b0,%ymm\b0
 .endm
 
-.global basemul_acc_avx
-basemul_acc_avx:
+.global PQCLEAN_NAMESPACE_basemul_acc_avx
+PQCLEAN_NAMESPACE_basemul_acc_avx:
 #consts
-vmovdqa		_16xq(%rip),%ymm0
-vmovdqa		_16xqinv(%rip),%ymm1
+vmovdqa		PQCLEAN_NAMESPACE_16xq(%rip),%ymm0
+vmovdqa		PQCLEAN_NAMESPACE_16xqinv(%rip),%ymm1
 vmovdqu		(%rcx),%ymm2
 
 poly0.0:
@@ -176,11 +176,11 @@ vmovdqa		%ymm5,96(%rdi)
 
 ret
 
-.global basemul_avx
-basemul_avx:
+.global PQCLEAN_NAMESPACE_basemul_avx
+PQCLEAN_NAMESPACE_basemul_avx:
 #consts
-vmovdqa		_16xq(%rip),%ymm0
-vmovdqa		_16xqinv(%rip),%ymm1
+vmovdqa		PQCLEAN_NAMESPACE_16xq(%rip),%ymm0
+vmovdqa		PQCLEAN_NAMESPACE_16xqinv(%rip),%ymm1
 vmovdqu		(%rcx),%ymm2
 
 schoolbook	0,0

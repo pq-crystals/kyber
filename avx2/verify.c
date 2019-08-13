@@ -13,7 +13,7 @@
 *
 * Returns 0 if the byte arrays are equal, 1 otherwise
 **************************************************/
-int verify(const unsigned char * restrict a, const unsigned char * restrict b, size_t len)
+int PQCLEAN_NAMESPACE_verify(const unsigned char * restrict a, const unsigned char * restrict b, size_t len)
 {
   size_t pos;
   uint64_t r;
@@ -54,7 +54,7 @@ int verify(const unsigned char * restrict a, const unsigned char * restrict b, s
 *              size_t len:             Amount of bytes to be copied
 *              unsigned char b:        Condition bit; has to be in {0,1}
 **************************************************/
-void cmov(unsigned char * restrict r, const unsigned char * restrict x, size_t len, unsigned char b)
+void PQCLEAN_NAMESPACE_cmov(unsigned char * restrict r, const unsigned char * restrict x, size_t len, unsigned char b)
 {
   size_t pos;
   __m256i xvec, rvec, bvec;

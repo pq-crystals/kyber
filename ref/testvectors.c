@@ -10,6 +10,12 @@
 #define NTESTS 10000
 
 
+#define CRYPTO_BYTES PQCLEAN_NAMESPACE_CRYPTO_BYTES
+#define CRYPTO_PUBLICKEYBYTES PQCLEAN_NAMESPACE_CRYPTO_PUBLICKEYBYTES
+#define CRYPTO_CIPHERTEXTBYTES PQCLEAN_NAMESPACE_CRYPTO_CIPHERTEXTBYTES
+#define CRYPTO_SECRETKEYBYTES PQCLEAN_NAMESPACE_CRYPTO_SECRETKEYBYTES
+
+
 typedef uint32_t uint32;
 
 static uint32 seed[32] = { 3,1,4,1,5,9,2,6,5,3,5,8,9,7,9,3,2,3,8,4,6,2,6,4,3,3,8,3,2,7,9,5 } ;
@@ -68,7 +74,7 @@ int main(void)
   for(i=0;i<NTESTS;i++)
   {
     // Key-pair generation
-    crypto_kem_keypair(pk, sk_a);
+    PQCLEAN_NAMESPACE_crypto_kem_keypair(pk, sk_a);
 
     printf("Public Key: ");
     for(j=0;j<CRYPTO_PUBLICKEYBYTES;j++)
@@ -80,7 +86,7 @@ int main(void)
     printf("\n");
 
     // Encapsulation
-    crypto_kem_enc(sendb, key_b, pk);
+    PQCLEAN_NAMESPACE_crypto_kem_enc(sendb, key_b, pk);
 
     printf("Ciphertext: ");
     for(j=0;j<CRYPTO_CIPHERTEXTBYTES;j++)
@@ -92,7 +98,7 @@ int main(void)
     printf("\n");
 
     // Decapsulation
-    crypto_kem_dec(key_a, sendb, sk_a);
+    PQCLEAN_NAMESPACE_crypto_kem_dec(key_a, sendb, sk_a);
     printf("Shared Secret A: ");
     for(j=0;j<CRYPTO_BYTES;j++)
       printf("%02x",key_a[j]);

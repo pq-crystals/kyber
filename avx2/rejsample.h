@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-unsigned int rej_uniform(int16_t *r,
+unsigned int PQCLEAN_NAMESPACE_rej_uniform(int16_t *r,
                          unsigned int len,
                          const unsigned char *buf,
                          unsigned int buflen);

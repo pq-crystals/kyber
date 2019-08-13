@@ -5,6 +5,11 @@
 
 #define NTESTS 10
 
+#define CRYPTO_BYTES PQCLEAN_NAMESPACE_CRYPTO_BYTES
+#define CRYPTO_PUBLICKEYBYTES PQCLEAN_NAMESPACE_CRYPTO_PUBLICKEYBYTES
+#define CRYPTO_CIPHERTEXTBYTES PQCLEAN_NAMESPACE_CRYPTO_CIPHERTEXTBYTES
+#define CRYPTO_SECRETKEYBYTES PQCLEAN_NAMESPACE_CRYPTO_SECRETKEYBYTES
+
 int test_keys()
 {
   unsigned char key_a[CRYPTO_BYTES], key_b[CRYPTO_BYTES];
@@ -16,13 +21,13 @@ int test_keys()
   for(i=0; i<NTESTS; i++)
   {
     //Alice generates a public key
-    crypto_kem_keypair(pk, sk_a);
+    PQCLEAN_NAMESPACE_crypto_kem_keypair(pk, sk_a);
 
     //Bob derives a secret key and creates a response
-    crypto_kem_enc(sendb, key_b, pk);
+    PQCLEAN_NAMESPACE_crypto_kem_enc(sendb, key_b, pk);
 
     //Alice uses Bobs response to get her secret key
-    crypto_kem_dec(key_a, sendb, sk_a);
+    PQCLEAN_NAMESPACE_crypto_kem_dec(key_a, sendb, sk_a);
 
     if(memcmp(key_a, key_b, CRYPTO_BYTES))
       printf("ERROR keys\n");
@@ -43,17 +48,17 @@ int test_invalid_sk_a()
   for(i=0; i<NTESTS; i++)
   {
     //Alice generates a public key
-    crypto_kem_keypair(pk, sk_a);
+    PQCLEAN_NAMESPACE_crypto_kem_keypair(pk, sk_a);
 
     //Bob derives a secret key and creates a response
-    crypto_kem_enc(sendb, key_b, pk);
+    PQCLEAN_NAMESPACE_crypto_kem_enc(sendb, key_b, pk);
 
     //Replace secret key with random values
     randombytes(sk_a, CRYPTO_SECRETKEYBYTES);
 
 
     //Alice uses Bobs response to get her secre key
-    crypto_kem_dec(key_a, sendb, sk_a);
+    PQCLEAN_NAMESPACE_crypto_kem_dec(key_a, sendb, sk_a);
 
     if(!memcmp(key_a, key_b, CRYPTO_BYTES))
       printf("ERROR invalid sk_a\n");
@@ -77,16 +82,16 @@ int test_invalid_ciphertext()
     randombytes((unsigned char *)&pos, sizeof(size_t));
 
     //Alice generates a public key
-    crypto_kem_keypair(pk, sk_a);
+    PQCLEAN_NAMESPACE_crypto_kem_keypair(pk, sk_a);
 
     //Bob derives a secret key and creates a response
-    crypto_kem_enc(sendb, key_b, pk);
+    PQCLEAN_NAMESPACE_crypto_kem_enc(sendb, key_b, pk);
 
     //Change some byte in the ciphertext (i.e., encapsulated key)
     sendb[pos % CRYPTO_CIPHERTEXTBYTES] ^= 23;
 
     //Alice uses Bobs response to get her secre key
-    crypto_kem_dec(key_a, sendb, sk_a);
+    PQCLEAN_NAMESPACE_crypto_kem_dec(key_a, sendb, sk_a);
 
     if(!memcmp(key_a, key_b, CRYPTO_BYTES))
       printf("ERROR invalid ciphertext\n");

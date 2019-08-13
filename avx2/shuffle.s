@@ -47,11 +47,11 @@ vmovdqa		%ymm11,224(%rdi)
 ret
 */
 
-.global nttunpack_avx
-nttunpack_avx:
+.global PQCLEAN_NAMESPACE_nttunpack_avx
+PQCLEAN_NAMESPACE_nttunpack_avx:
 #consts
-vmovdqa		_16xq(%rip),%ymm0
-vmovdqa		_16xv(%rip),%ymm1
+vmovdqa		PQCLEAN_NAMESPACE_16xq(%rip),%ymm0
+vmovdqa		PQCLEAN_NAMESPACE_16xv(%rip),%ymm1
 
 #load
 vmovdqa		(%rdi),%ymm4
@@ -107,10 +107,10 @@ vmovdqa		%ymm11,224(%rdi)
 
 ret
 
-.global ntttobytes_avx
-ntttobytes_avx:
+.global PQCLEAN_NAMESPACE_ntttobytes_avx
+PQCLEAN_NAMESPACE_ntttobytes_avx:
 #consts
-vmovdqa		_16xq(%rip),%ymm0
+vmovdqa		PQCLEAN_NAMESPACE_16xq(%rip),%ymm0
 
 #load
 vmovdqa		(%rsi),%ymm5
@@ -181,10 +181,10 @@ vmovdqu		%ymm9,160(%rdi)
 
 ret
 
-.global nttfrombytes_avx
-nttfrombytes_avx:
+.global PQCLEAN_NAMESPACE_nttfrombytes_avx
+PQCLEAN_NAMESPACE_nttfrombytes_avx:
 #consts
-vmovdqa		_16xmask(%rip),%ymm0
+vmovdqa		PQCLEAN_NAMESPACE_16xmask(%rip),%ymm0
 
 #load
 vmovdqu		(%rsi),%ymm4

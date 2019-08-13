@@ -36,11 +36,11 @@ vpsubw		%ymm\rh2,%ymm14,%ymm\rh2
 vpsubw		%ymm\rh3,%ymm15,%ymm\rh3
 .endm
 
-.global invntt_levels0t5_avx
+.global PQCLEAN_NAMESPACE_invntt_levels0t5_avx
 .p2align 5
-invntt_levels0t5_avx:
+PQCLEAN_NAMESPACE_invntt_levels0t5_avx:
 #consts
-vmovdqa         _16xq(%rip),%ymm0
+vmovdqa         PQCLEAN_NAMESPACE_16xq(%rip),%ymm0
 
 level0:
 #zetas
@@ -79,7 +79,7 @@ vmovdqu		192(%rsi),%ymm10
 vmovdqu		224(%rsi),%ymm2
 
 #consts
-vmovdqa		_16xv(%rip),%ymm1
+vmovdqa		PQCLEAN_NAMESPACE_16xv(%rip),%ymm1
 
 butterfly	3,4,6,8,5,7,9,11 10,10,2,2
 
@@ -139,10 +139,10 @@ vmovdqa         %ymm11,224(%rdi)
 
 ret
 
-.global invntt_level6_avx
-invntt_level6_avx:
+.global PQCLEAN_NAMESPACE_invntt_level6_avx
+PQCLEAN_NAMESPACE_invntt_level6_avx:
 #consts
-vmovdqa		_16xq(%rip),%ymm0
+vmovdqa		PQCLEAN_NAMESPACE_16xq(%rip),%ymm0
 
 #zetas
 vpbroadcastd	(%rsi),%ymm1
@@ -161,8 +161,8 @@ vmovdqa         352(%rdi),%ymm11
 butterfly	4,5,6,7,8,9,10,11
 
 #consts
-vmovdqa		_16xflo(%rip),%ymm12
-vmovdqa		_16xfhi(%rip),%ymm13
+vmovdqa		PQCLEAN_NAMESPACE_16xflo(%rip),%ymm12
+vmovdqa		PQCLEAN_NAMESPACE_16xfhi(%rip),%ymm13
 
 #store
 vmovdqa		%ymm8,256(%rdi)
@@ -194,8 +194,8 @@ vmovdqa         480(%rdi),%ymm11
 butterfly	4,5,6,7,8,9,10,11
 
 #consts
-vmovdqa		_16xflo(%rip),%ymm12
-vmovdqa		_16xfhi(%rip),%ymm13
+vmovdqa		PQCLEAN_NAMESPACE_16xflo(%rip),%ymm12
+vmovdqa		PQCLEAN_NAMESPACE_16xfhi(%rip),%ymm13
 
 #store
 vmovdqa		%ymm8,384(%rdi)

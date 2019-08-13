@@ -12,7 +12,7 @@
 *              - unsigned char i                  additional byte of input
 *              - unsigned char j                  additional byte of input
 **************************************************/
-void kyber_shake128_absorb(keccak_state *s, const unsigned char *input, unsigned char x, unsigned char y)
+void PQCLEAN_NAMESPACE_kyber_shake128_absorb(keccak_state *s, const unsigned char *input, unsigned char x, unsigned char y)
 {
   unsigned char extseed[KYBER_SYMBYTES+2];
   int i;
@@ -35,7 +35,7 @@ void kyber_shake128_absorb(keccak_state *s, const unsigned char *input, unsigned
 *              - unsigned long long nblocks: number of blocks to be squeezed (written to output)
 *              - keccak_state *s:            pointer to in/output Keccak state
 **************************************************/
-void kyber_shake128_squeezeblocks(unsigned char *output, unsigned long long nblocks, keccak_state *s)
+void PQCLEAN_NAMESPACE_kyber_shake128_squeezeblocks(unsigned char *output, unsigned long long nblocks, keccak_state *s)
 {
   shake128_squeezeblocks(output, nblocks, s->s);
 }
@@ -51,7 +51,7 @@ void kyber_shake128_squeezeblocks(unsigned char *output, unsigned long long nblo
 *              - const unsigned char * key:  pointer to the key (of length KYBER_SYMBYTES)
 *              - const unsigned char nonce:  single-byte nonce (public PRF input)
 **************************************************/
-void shake256_prf(unsigned char *output, unsigned long long outlen, const unsigned char *key, const unsigned char nonce)
+void PQCLEAN_NAMESPACE_shake256_prf(unsigned char *output, unsigned long long outlen, const unsigned char *key, const unsigned char nonce)
 {
   unsigned char extkey[KYBER_SYMBYTES+1];
   size_t i;
