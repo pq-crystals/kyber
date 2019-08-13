@@ -1,5 +1,5 @@
-.include "fq.h"
-.include "shuffle.h"
+.include "fq.inc"
+.include "shuffle.inc"
 
 /*
 .global nttpack_avx

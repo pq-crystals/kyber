@@ -1,4 +1,4 @@
-.include "fq.h"
+.include "fq.inc"
 
 .global PQCLEAN_NAMESPACE_reduce_avx
 PQCLEAN_NAMESPACE_reduce_avx:
