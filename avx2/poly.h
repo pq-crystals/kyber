@@ -12,26 +12,26 @@ typedef struct{
   int16_t __attribute__((aligned(32))) coeffs[KYBER_N];
 } poly;
 
-void PQCLEAN_NAMESPACE_poly_compress(unsigned char *r, poly *a);
-void PQCLEAN_NAMESPACE_poly_decompress(poly *r, const unsigned char *a);
+void PQCLEAN_NAMESPACE_poly_compress(uint8_t *r, poly *a);
+void PQCLEAN_NAMESPACE_poly_decompress(poly *r, const uint8_t *a);
 
-void PQCLEAN_NAMESPACE_poly_tobytes(unsigned char *r, poly *a);
-void PQCLEAN_NAMESPACE_poly_frombytes(poly *r, const unsigned char *a);
+void PQCLEAN_NAMESPACE_poly_tobytes(uint8_t *r, poly *a);
+void PQCLEAN_NAMESPACE_poly_frombytes(poly *r, const uint8_t *a);
 
-void PQCLEAN_NAMESPACE_poly_frommsg(poly *r, const unsigned char msg[KYBER_SYMBYTES]);
-void PQCLEAN_NAMESPACE_poly_tomsg(unsigned char msg[KYBER_SYMBYTES], poly *r);
+void PQCLEAN_NAMESPACE_poly_frommsg(poly *r, const uint8_t msg[KYBER_SYMBYTES]);
+void PQCLEAN_NAMESPACE_poly_tomsg(uint8_t msg[KYBER_SYMBYTES], poly *r);
 
-void PQCLEAN_NAMESPACE_poly_getnoise(poly *r, const unsigned char *seed, unsigned char nonce);
+void PQCLEAN_NAMESPACE_poly_getnoise(poly *r, const uint8_t *seed, uint8_t nonce);
 #ifndef KYBER_90S
 void PQCLEAN_NAMESPACE_poly_getnoise4x(poly *r0,
                      poly *r1,
                      poly *r2,
                      poly *r3,
-                     const unsigned char *seed,
-                     unsigned char nonce0,
-                     unsigned char nonce1,
-                     unsigned char nonce2,
-                     unsigned char nonce3);
+                     const uint8_t *seed,
+                     uint8_t nonce0,
+                     uint8_t nonce1,
+                     uint8_t nonce2,
+                     uint8_t nonce3);
 #endif
 
 

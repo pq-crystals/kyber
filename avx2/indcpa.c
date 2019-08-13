@@ -15,11 +15,11 @@
 *              compressed and serialized vector of polynomials pk
 *              and the public seed used to generate the matrix A.
 *
-* Arguments:   unsigned char *r:          pointer to the output serialized public key
+* Arguments:   uint8_t *r:          pointer to the output serialized public key
 *              const poly *pk:            pointer to the input public-key polynomial
-*              const unsigned char *seed: pointer to the input public seed
+*              const uint8_t *seed: pointer to the input public seed
 **************************************************/
-static void pack_pk(unsigned char *r, polyvec *pk, const unsigned char *seed)
+static void pack_pk(uint8_t *r, polyvec *pk, const uint8_t *seed)
 {
   int i;
   PQCLEAN_NAMESPACE_polyvec_tobytes(r, pk);
@@ -34,10 +34,10 @@ static void pack_pk(unsigned char *r, polyvec *pk, const unsigned char *seed)
 *              approximate inverse of pack_pk
 *
 * Arguments:   - polyvec *pk:                   pointer to output public-key vector of polynomials
-*              - unsigned char *seed:           pointer to output seed to generate matrix A
-*              - const unsigned char *packedpk: pointer to input serialized public key
+*              - uint8_t *seed:           pointer to output seed to generate matrix A
+*              - const uint8_t *packedpk: pointer to input serialized public key
 **************************************************/
-static void unpack_pk(polyvec *pk, unsigned char *seed, const unsigned char *packedpk)
+static void unpack_pk(polyvec *pk, uint8_t *seed, const uint8_t *packedpk)
 {
   int i;
   PQCLEAN_NAMESPACE_polyvec_frombytes(pk, packedpk);
@@ -50,10 +50,10 @@ static void unpack_pk(polyvec *pk, unsigned char *seed, const unsigned char *pac
 *
 * Description: Serialize the secret key
 *
-* Arguments:   - unsigned char *r:  pointer to output serialized secret key
+* Arguments:   - uint8_t *r:  pointer to output serialized secret key
 *              - const polyvec *sk: pointer to input vector of polynomials (secret key)
 **************************************************/
-static void pack_sk(unsigned char *r, polyvec *sk)
+static void pack_sk(uint8_t *r, polyvec *sk)
 {
   PQCLEAN_NAMESPACE_polyvec_tobytes(r, sk);
 }
@@ -65,9 +65,9 @@ static void pack_sk(unsigned char *r, polyvec *sk)
 *              inverse of pack_sk
 *
 * Arguments:   - polyvec *sk:                   pointer to output vector of polynomials (secret key)
-*              - const unsigned char *packedsk: pointer to input serialized secret key
+*              - const uint8_t *packedsk: pointer to input serialized secret key
 **************************************************/
-static void unpack_sk(polyvec *sk, const unsigned char *packedsk)
+static void unpack_sk(polyvec *sk, const uint8_t *packedsk)
 {
   PQCLEAN_NAMESPACE_polyvec_frombytes(sk, packedsk);
 }
@@ -79,11 +79,11 @@ static void unpack_sk(polyvec *sk, const unsigned char *packedsk)
 *              compressed and serialized vector of polynomials b
 *              and the compressed and serialized polynomial v
 *
-* Arguments:   unsigned char *r:          pointer to the output serialized ciphertext
+* Arguments:   uint8_t *r:          pointer to the output serialized ciphertext
 *              const poly *pk:            pointer to the input vector of polynomials b
-*              const unsigned char *seed: pointer to the input polynomial v
+*              const uint8_t *seed: pointer to the input polynomial v
 **************************************************/
-static void pack_ciphertext(unsigned char *r, polyvec *b, poly *v)
+static void pack_ciphertext(uint8_t *r, polyvec *b, poly *v)
 {
   PQCLEAN_NAMESPACE_polyvec_compress(r, b);
   PQCLEAN_NAMESPACE_poly_compress(r+KYBER_POLYVECCOMPRESSEDBYTES, v);
@@ -97,15 +97,15 @@ static void pack_ciphertext(unsigned char *r, polyvec *b, poly *v)
 *
 * Arguments:   - polyvec *b:             pointer to the output vector of polynomials b
 *              - poly *v:                pointer to the output polynomial v
-*              - const unsigned char *c: pointer to the input serialized ciphertext
+*              - const uint8_t *c: pointer to the input serialized ciphertext
 **************************************************/
-static void unpack_ciphertext(polyvec *b, poly *v, const unsigned char *c)
+static void unpack_ciphertext(polyvec *b, poly *v, const uint8_t *c)
 {
   PQCLEAN_NAMESPACE_polyvec_decompress(b, c);
   PQCLEAN_NAMESPACE_poly_decompress(v, c+KYBER_POLYVECCOMPRESSEDBYTES);
 }
 
-static unsigned int rej_uniform_ref(int16_t *r, unsigned int len, const unsigned char *buf, unsigned int buflen)
+static unsigned int rej_uniform_ref(int16_t *r, unsigned int len, const uint8_t *buf, unsigned int buflen)
 {
   unsigned int ctr, pos;
   uint16_t val;
@@ -138,15 +138,15 @@ static unsigned int rej_uniform_ref(int16_t *r, unsigned int len, const unsigned
 *              a XOF
 *
 * Arguments:   - polyvec *a:                pointer to ouptput matrix A
-*              - const unsigned char *seed: pointer to input seed
+*              - const uint8_t *seed: pointer to input seed
 *              - int transposed:            boolean deciding whether A or A^T is generated
 **************************************************/
 #ifdef KYBER_90S
-void PQCLEAN_NAMESPACE_gen_matrix(polyvec *a, const unsigned char *seed, int transposed)
+void PQCLEAN_NAMESPACE_gen_matrix(polyvec *a, const uint8_t *seed, int transposed)
 {
   unsigned int i, j, ctr;
   const unsigned int maxnblocks=(530+XOF_BLOCKBYTES)/XOF_BLOCKBYTES; /* 530 is expected number of required bytes */
-  unsigned char __attribute__((aligned(32))) buf[XOF_BLOCKBYTES*maxnblocks];
+  uint8_t __attribute__((aligned(32))) buf[XOF_BLOCKBYTES*maxnblocks];
   aes256ctr_ctx state;
 
   PQCLEAN_NAMESPACE_aes256ctr_init(&state, seed, 0);
@@ -175,11 +175,11 @@ void PQCLEAN_NAMESPACE_gen_matrix(polyvec *a, const unsigned char *seed, int tra
 }
 #else
 #if KYBER_K == 2
-void PQCLEAN_NAMESPACE_gen_matrix(polyvec *a, const unsigned char *seed, int transposed)
+void PQCLEAN_NAMESPACE_gen_matrix(polyvec *a, const uint8_t *seed, int transposed)
 {
   unsigned int ctr0, ctr1, ctr2, ctr3, bufbytes;
   const unsigned int maxnblocks=(530+XOF_BLOCKBYTES)/XOF_BLOCKBYTES; /* 530 is expected number of required bytes */
-  unsigned char __attribute__((aligned(32))) buf[4][XOF_BLOCKBYTES*maxnblocks];
+  uint8_t __attribute__((aligned(32))) buf[4][XOF_BLOCKBYTES*maxnblocks];
   keccak4x_state state;
 
   if(transposed)
@@ -212,11 +212,11 @@ void PQCLEAN_NAMESPACE_gen_matrix(polyvec *a, const unsigned char *seed, int tra
   PQCLEAN_NAMESPACE_poly_nttunpack(&a[1].vec[1]);
 }
 #elif KYBER_K == 3
-void PQCLEAN_NAMESPACE_gen_matrix(polyvec *a, const unsigned char *seed, int transposed)
+void PQCLEAN_NAMESPACE_gen_matrix(polyvec *a, const uint8_t *seed, int transposed)
 {
   unsigned int ctr0, ctr1, ctr2, ctr3, bufbytes;
   const unsigned int maxnblocks=(530+XOF_BLOCKBYTES)/XOF_BLOCKBYTES; /* 530 is expected number of required bytes */
-  unsigned char __attribute__((aligned(32))) buf[4][XOF_BLOCKBYTES*maxnblocks];
+  uint8_t __attribute__((aligned(32))) buf[4][XOF_BLOCKBYTES*maxnblocks];
   keccak4x_state state;
   keccak_state state1x;
 
@@ -299,11 +299,11 @@ void PQCLEAN_NAMESPACE_gen_matrix(polyvec *a, const unsigned char *seed, int tra
   PQCLEAN_NAMESPACE_poly_nttunpack(&a[2].vec[2]);
 }
 #elif KYBER_K == 4
-void PQCLEAN_NAMESPACE_gen_matrix(polyvec *a, const unsigned char *seed, int transposed)
+void PQCLEAN_NAMESPACE_gen_matrix(polyvec *a, const uint8_t *seed, int transposed)
 {
   unsigned int i, ctr0, ctr1, ctr2, ctr3, bufbytes;
   const unsigned int maxnblocks=(530+XOF_BLOCKBYTES)/XOF_BLOCKBYTES; /* 530 is expected number of required bytes */
-  unsigned char __attribute__((aligned(32))) buf[4][XOF_BLOCKBYTES*maxnblocks];
+  uint8_t __attribute__((aligned(32))) buf[4][XOF_BLOCKBYTES*maxnblocks];
   keccak4x_state state;
 
   for(i = 0; i < 4; i++)
@@ -347,17 +347,17 @@ void PQCLEAN_NAMESPACE_gen_matrix(polyvec *a, const unsigned char *seed, int tra
 * Description: Generates public and private key for the CPA-secure
 *              public-key encryption scheme underlying Kyber
 *
-* Arguments:   - unsigned char *pk: pointer to output public key (of length KYBER_INDCPA_PUBLICKEYBYTES bytes)
-*              - unsigned char *sk: pointer to output private key (of length KYBER_INDCPA_SECRETKEYBYTES bytes)
+* Arguments:   - uint8_t *pk: pointer to output public key (of length KYBER_INDCPA_PUBLICKEYBYTES bytes)
+*              - uint8_t *sk: pointer to output private key (of length KYBER_INDCPA_SECRETKEYBYTES bytes)
 **************************************************/
-void PQCLEAN_NAMESPACE_indcpa_keypair(unsigned char *pk, unsigned char *sk)
+void PQCLEAN_NAMESPACE_indcpa_keypair(uint8_t *pk, uint8_t *sk)
 {
   int i;
   polyvec a[KYBER_K], skpv, e, pkpv;
-  unsigned char buf[2*KYBER_SYMBYTES];
-  const unsigned char *publicseed = buf;
-  const unsigned char *noiseseed = buf+KYBER_SYMBYTES;
-  unsigned char nonce=0;
+  uint8_t buf[2*KYBER_SYMBYTES];
+  const uint8_t *publicseed = buf;
+  const uint8_t *noiseseed = buf+KYBER_SYMBYTES;
+  uint8_t nonce=0;
 
   randombytes(buf, KYBER_SYMBYTES);
   hash_g(buf, buf, KYBER_SYMBYTES);
@@ -366,7 +366,7 @@ void PQCLEAN_NAMESPACE_indcpa_keypair(unsigned char *pk, unsigned char *sk)
 
 #if KYBER_90S
   aes256ctr_ctx state;
-  unsigned char coins[128];
+  uint8_t coins[128];
   PQCLEAN_NAMESPACE_aes256ctr_init(&state, noiseseed, 0);
   for(i=0;i<KYBER_K;i++) {
     PQCLEAN_NAMESPACE_aes256ctr_select(&state, (uint16_t)nonce++ << 8);
@@ -415,22 +415,22 @@ void PQCLEAN_NAMESPACE_indcpa_keypair(unsigned char *pk, unsigned char *sk)
 * Description: Encryption function of the CPA-secure
 *              public-key encryption scheme underlying Kyber.
 *
-* Arguments:   - unsigned char *c:          pointer to output ciphertext (of length KYBER_INDCPA_BYTES bytes)
-*              - const unsigned char *m:    pointer to input message (of length KYBER_INDCPA_MSGBYTES bytes)
-*              - const unsigned char *pk:   pointer to input public key (of length KYBER_INDCPA_PUBLICKEYBYTES bytes)
-*              - const unsigned char *coin: pointer to input random coins used as seed (of length KYBER_SYMBYTES bytes)
+* Arguments:   - uint8_t *c:          pointer to output ciphertext (of length KYBER_INDCPA_BYTES bytes)
+*              - const uint8_t *m:    pointer to input message (of length KYBER_INDCPA_MSGBYTES bytes)
+*              - const uint8_t *pk:   pointer to input public key (of length KYBER_INDCPA_PUBLICKEYBYTES bytes)
+*              - const uint8_t *coin: pointer to input random coins used as seed (of length KYBER_SYMBYTES bytes)
 *                                           to deterministically generate all randomness
 **************************************************/
-void PQCLEAN_NAMESPACE_indcpa_enc(unsigned char *c,
-                const unsigned char *m,
-                const unsigned char *pk,
-                const unsigned char *coins)
+void PQCLEAN_NAMESPACE_indcpa_enc(uint8_t *c,
+                const uint8_t *m,
+                const uint8_t *pk,
+                const uint8_t *coins)
 {
   int i;
   polyvec at[KYBER_K], pkpv, sp, ep, bp;
   poly k, v, epp;
-  unsigned char seed[KYBER_SYMBYTES];
-  unsigned char nonce=0;
+  uint8_t seed[KYBER_SYMBYTES];
+  uint8_t nonce=0;
 
   unpack_pk(&pkpv, seed, pk);
   PQCLEAN_NAMESPACE_poly_frommsg(&k, m);
@@ -438,7 +438,7 @@ void PQCLEAN_NAMESPACE_indcpa_enc(unsigned char *c,
 
 #if KYBER_90S
   aes256ctr_ctx state;
-  unsigned char buf[128];
+  uint8_t buf[128];
   PQCLEAN_NAMESPACE_aes256ctr_init(&state, coins, 0);
   for(i=0;i<KYBER_K;i++) {
     PQCLEAN_NAMESPACE_aes256ctr_select(&state, (uint16_t)nonce++ << 8);
@@ -496,13 +496,13 @@ void PQCLEAN_NAMESPACE_indcpa_enc(unsigned char *c,
 * Description: Decryption function of the CPA-secure
 *              public-key encryption scheme underlying Kyber.
 *
-* Arguments:   - unsigned char *m:        pointer to output decrypted message (of length KYBER_INDCPA_MSGBYTES)
-*              - const unsigned char *c:  pointer to input ciphertext (of length KYBER_INDCPA_BYTES)
-*              - const unsigned char *sk: pointer to input secret key (of length KYBER_INDCPA_SECRETKEYBYTES)
+* Arguments:   - uint8_t *m:        pointer to output decrypted message (of length KYBER_INDCPA_MSGBYTES)
+*              - const uint8_t *c:  pointer to input ciphertext (of length KYBER_INDCPA_BYTES)
+*              - const uint8_t *sk: pointer to input secret key (of length KYBER_INDCPA_SECRETKEYBYTES)
 **************************************************/
-void PQCLEAN_NAMESPACE_indcpa_dec(unsigned char *m,
-                const unsigned char *c,
-                const unsigned char *sk)
+void PQCLEAN_NAMESPACE_indcpa_dec(uint8_t *m,
+                const uint8_t *c,
+                const uint8_t *sk)
 {
   polyvec bp, skpv;
   poly v, mp;

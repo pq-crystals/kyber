@@ -7,7 +7,7 @@
 #define NROUNDS 24
 #define ROL(a, offset) ((a << offset) ^ (a >> (64-offset)))
 
-static uint64_t load64(const unsigned char *x)
+static uint64_t load64(const uint8_t *x)
 {
   unsigned long long r = 0, i;
 
@@ -33,18 +33,18 @@ extern void KeccakP1600times4_PermuteAll_24rounds(__m256i *s);
 
 static void keccak_absorb4x(__m256i *s,
                             unsigned int r,
-                            const unsigned char *m0,
-                            const unsigned char *m1,
-                            const unsigned char *m2,
-                            const unsigned char *m3,
+                            const uint8_t *m0,
+                            const uint8_t *m1,
+                            const uint8_t *m2,
+                            const uint8_t *m3,
                             unsigned long long int mlen,
-                            unsigned char p)
+                            uint8_t p)
 {
   unsigned long long i;
-  unsigned char t0[200];
-  unsigned char t1[200];
-  unsigned char t2[200];
-  unsigned char t3[200];
+  uint8_t t0[200];
+  uint8_t t1[200];
+  uint8_t t2[200];
+  uint8_t t3[200];
 
   unsigned long long *ss = (unsigned long long *)s;
 
@@ -100,10 +100,10 @@ static void keccak_absorb4x(__m256i *s,
   }
 }
 
-static void keccak_squeezeblocks4x(unsigned char *h0,
-                                   unsigned char *h1,
-                                   unsigned char *h2,
-                                   unsigned char *h3,
+static void keccak_squeezeblocks4x(uint8_t *h0,
+                                   uint8_t *h1,
+                                   uint8_t *h2,
+                                   uint8_t *h3,
                                    unsigned long long int nblocks,
                                    __m256i *s,
                                    unsigned int r)
@@ -131,14 +131,14 @@ static void keccak_squeezeblocks4x(unsigned char *h0,
 }
 
 void PQCLEAN_NAMESPACE_kyber_shake128x4_absorb(keccak4x_state *state,
-                             const unsigned char *seed,
+                             const uint8_t *seed,
                              uint16_t nonce0,
                              uint16_t nonce1,
                              uint16_t nonce2,
                              uint16_t nonce3)
 {
   unsigned int i;
-  unsigned char extseed[4][KYBER_SYMBYTES+2];
+  uint8_t extseed[4][KYBER_SYMBYTES+2];
 
   for(i = 0; i < KYBER_SYMBYTES; ++i) {
     extseed[0][i] = seed[i];
@@ -163,30 +163,30 @@ void PQCLEAN_NAMESPACE_kyber_shake128x4_absorb(keccak4x_state *state,
   keccak_absorb4x(state->s, SHAKE128_RATE, extseed[0], extseed[1], extseed[2], extseed[3], KYBER_SYMBYTES+2, 0x1F);
 }
 
-void PQCLEAN_NAMESPACE_shake128x4_squeezeblocks(unsigned char *out0,
-                              unsigned char *out1,
-                              unsigned char *out2,
-                              unsigned char *out3,
+void PQCLEAN_NAMESPACE_shake128x4_squeezeblocks(uint8_t *out0,
+                              uint8_t *out1,
+                              uint8_t *out2,
+                              uint8_t *out3,
                               unsigned long long nblocks,
                               keccak4x_state *state)
 {
   keccak_squeezeblocks4x(out0, out1, out2, out3, nblocks, state->s, SHAKE128_RATE);
 }
 
-static void shake256x4(unsigned char *out0,
-                       unsigned char *out1,
-                       unsigned char *out2,
-                       unsigned char *out3, unsigned long long outlen,
-                       const unsigned char *in0,
-                       const unsigned char *in1,
-                       const unsigned char *in2,
-                       const unsigned char *in3, unsigned long long inlen)
+static void shake256x4(uint8_t *out0,
+                       uint8_t *out1,
+                       uint8_t *out2,
+                       uint8_t *out3, unsigned long long outlen,
+                       const uint8_t *in0,
+                       const uint8_t *in1,
+                       const uint8_t *in2,
+                       const uint8_t *in3, unsigned long long inlen)
 {
   __m256i s[25];
-  unsigned char t0[SHAKE256_RATE];
-  unsigned char t1[SHAKE256_RATE];
-  unsigned char t2[SHAKE256_RATE];
-  unsigned char t3[SHAKE256_RATE];
+  uint8_t t0[SHAKE256_RATE];
+  uint8_t t1[SHAKE256_RATE];
+  uint8_t t2[SHAKE256_RATE];
+  uint8_t t3[SHAKE256_RATE];
   unsigned int i;
 
   /* zero state */
@@ -217,19 +217,19 @@ static void shake256x4(unsigned char *out0,
   }
 }
 
-void PQCLEAN_NAMESPACE_shake256x4_prf(unsigned char *out0,
-                    unsigned char *out1,
-                    unsigned char *out2,
-                    unsigned char *out3,
+void PQCLEAN_NAMESPACE_shake256x4_prf(uint8_t *out0,
+                    uint8_t *out1,
+                    uint8_t *out2,
+                    uint8_t *out3,
                     unsigned long long outlen,
-                    const unsigned char *key,
-                    unsigned char nonce0,
-                    unsigned char nonce1,
-                    unsigned char nonce2,
-                    unsigned char nonce3)
+                    const uint8_t *key,
+                    uint8_t nonce0,
+                    uint8_t nonce1,
+                    uint8_t nonce2,
+                    uint8_t nonce3)
 {
   unsigned int i;
-  unsigned char extseed[4][KYBER_SYMBYTES+1];
+  uint8_t extseed[4][KYBER_SYMBYTES+1];
 
   for(i = 0; i < KYBER_SYMBYTES; i++) {
     extseed[0][i] = key[i];

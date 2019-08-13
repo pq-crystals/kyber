@@ -33,7 +33,7 @@ all: \
 SOURCES = kem.c poly.c polyvec.c fq.s shuffle.s cbd.c ntt.s invntt.s basemul.S consts.c verify.c indcpa.c rejsample.c
 SOURCESKECCAK   = $(SOURCES) fips202.c fips202x4.c symmetric-fips202.c keccak4x/KeccakP-1600-times4-SIMD256.o
 SOURCESNINETIES = $(SOURCES) aes256ctr.c
-HEADERS = params.h poly.h polyvec.h reduce.h fq.h cbd.h ntt.h shuffle.h verify.h indcpa.h rejsample.h symmetric.h randombytes.h
+HEADERS = params.h poly.h polyvec.h reduce.h fq.inc cbd.h ntt.h shuffle.inc verify.h indcpa.h rejsample.h symmetric.h randombytes.h
 HEADERSKECCAK   = $(HEADERS) fips202.h fips202x4.h
 HEADERSNINETIES = $(HEADERS) aes256ctr.h
 

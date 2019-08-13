@@ -15,7 +15,7 @@ void PQCLEAN_NAMESPACE_nttunpack_avx(int16_t *r);
 void PQCLEAN_NAMESPACE_basemul_avx(int16_t *r, const int16_t *a, const int16_t *b, uint16_t *zeta);
 void PQCLEAN_NAMESPACE_basemul_acc_avx(int16_t *r, const int16_t *a, const int16_t *b, uint16_t *zeta);
 
-void PQCLEAN_NAMESPACE_ntttobytes_avx(unsigned char *r, const int16_t *a);
-void PQCLEAN_NAMESPACE_nttfrombytes_avx(int16_t *r, const unsigned char *a);
+void PQCLEAN_NAMESPACE_ntttobytes_avx(uint8_t *r, const int16_t *a);
+void PQCLEAN_NAMESPACE_nttfrombytes_avx(int16_t *r, const uint8_t *a);
 
 #endif

@@ -1,5 +1,5 @@
-.include "shuffle.h"
-.include "fq.h"
+.include "shuffle.inc"
+.include "fq.inc"
 
 .macro butterfly rl0,rl1,rl2,rl3,rh0,rh1,rh2,rh3 zl0=15,zl1=15,zh0=1,zh1=1
 #mul

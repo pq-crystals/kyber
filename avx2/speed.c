@@ -14,10 +14,10 @@
 #define CRYPTO_CIPHERTEXTBYTES PQCLEAN_NAMESPACE_CRYPTO_CIPHERTEXTBYTES
 #define CRYPTO_SECRETKEYBYTES PQCLEAN_NAMESPACE_CRYPTO_SECRETKEYBYTES
 
-extern void PQCLEAN_NAMESPACE_gen_matrix(polyvec *a, const unsigned char *seed, int transposed);
+extern void PQCLEAN_NAMESPACE_gen_matrix(polyvec *a, const uint8_t *seed, int transposed);
 
 unsigned long long t[NTESTS], overhead;
-unsigned char seed[32] = {0};
+uint8_t seed[32] = {0};
 
 static int cmp_llu(const void *a, const void*b)
 {
@@ -59,20 +59,20 @@ static void print_results(const char *s, unsigned long long *t, size_t tlen)
 
 int main()
 {
-  unsigned char __attribute__((aligned(32))) sk_a[CRYPTO_SECRETKEYBYTES];
-  unsigned char __attribute__((aligned(32))) pk_a[CRYPTO_PUBLICKEYBYTES];
-  unsigned char __attribute__((aligned(32))) sk_b[CRYPTO_SECRETKEYBYTES];
-  unsigned char __attribute__((aligned(32))) pk_b[CRYPTO_PUBLICKEYBYTES];
+  uint8_t __attribute__((aligned(32))) sk_a[CRYPTO_SECRETKEYBYTES];
+  uint8_t __attribute__((aligned(32))) pk_a[CRYPTO_PUBLICKEYBYTES];
+  uint8_t __attribute__((aligned(32))) sk_b[CRYPTO_SECRETKEYBYTES];
+  uint8_t __attribute__((aligned(32))) pk_b[CRYPTO_PUBLICKEYBYTES];
 
-  unsigned char eska[CRYPTO_SECRETKEYBYTES];
-  unsigned char tk[CRYPTO_BYTES];
+  uint8_t eska[CRYPTO_SECRETKEYBYTES];
+  uint8_t tk[CRYPTO_BYTES];
 
-  unsigned char key_a[32], key_b[32];
-  unsigned char* senda = (unsigned char*) malloc(NTESTS*CRYPTO_PUBLICKEYBYTES);
-  unsigned char* sendb = (unsigned char*) malloc(NTESTS*CRYPTO_CIPHERTEXTBYTES);
+  uint8_t key_a[32], key_b[32];
+  uint8_t* senda = (uint8_t*) malloc(NTESTS*CRYPTO_PUBLICKEYBYTES);
+  uint8_t* sendb = (uint8_t*) malloc(NTESTS*CRYPTO_CIPHERTEXTBYTES);
 
-  unsigned char* kexsenda = (unsigned char*) malloc(NTESTS*KEX_AKE_SENDABYTES);
-  unsigned char* kexsendb = (unsigned char*) malloc(NTESTS*KEX_AKE_SENDBBYTES);
+  uint8_t* kexsenda = (uint8_t*) malloc(NTESTS*KEX_AKE_SENDABYTES);
+  uint8_t* kexsendb = (uint8_t*) malloc(NTESTS*KEX_AKE_SENDBBYTES);
 
   poly ap;
   polyvec matrix[KYBER_K];

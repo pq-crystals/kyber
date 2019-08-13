@@ -13,7 +13,7 @@
 
 AES256_CTR_DRBG_struct  DRBG_ctx;
 
-void    AES256_ECB(uint8_t *key, unsigned char *ctr, unsigned char *buffer);
+void    AES256_ECB(uint8_t *key, uint8_t *ctr, uint8_t *buffer);
 
 /*
  seedexpander_init()
@@ -113,7 +113,7 @@ void handleErrors(void)
 //    ctr - a 128-bit plaintext value
 //    buffer - a 128-bit ciphertext value
 void
-AES256_ECB(uint8_t *key, unsigned char *ctr, unsigned char *buffer)
+AES256_ECB(uint8_t *key, uint8_t *ctr, uint8_t *buffer)
 {
     EVP_CIPHER_CTX *ctx;
 

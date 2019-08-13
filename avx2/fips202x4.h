@@ -9,28 +9,28 @@ typedef struct {
 } keccak4x_state;
 
 void PQCLEAN_NAMESPACE_kyber_shake128x4_absorb(keccak4x_state *state,
-                             const unsigned char *seed,
+                             const uint8_t *seed,
                              uint16_t nonce0,
                              uint16_t nonce1,
                              uint16_t nonce2,
                              uint16_t nonce3);
 
-void PQCLEAN_NAMESPACE_shake128x4_squeezeblocks(unsigned char *out0,
-                              unsigned char *out1,
-                              unsigned char *out2,
-                              unsigned char *out3,
+void PQCLEAN_NAMESPACE_shake128x4_squeezeblocks(uint8_t *out0,
+                              uint8_t *out1,
+                              uint8_t *out2,
+                              uint8_t *out3,
                               unsigned long long nblocks,
                               keccak4x_state *state);
 
-void PQCLEAN_NAMESPACE_shake256x4_prf(unsigned char *out0,
-                    unsigned char *out1,
-                    unsigned char *out2,
-                    unsigned char *out3,
+void PQCLEAN_NAMESPACE_shake256x4_prf(uint8_t *out0,
+                    uint8_t *out1,
+                    uint8_t *out2,
+                    uint8_t *out3,
                     unsigned long long outlen,
-                    const unsigned char *key,
-                    unsigned char nonce0,
-                    unsigned char nonce1,
-                    unsigned char nonce2,
-                    unsigned char nonce3);
+                    const uint8_t *key,
+                    uint8_t nonce0,
+                    uint8_t nonce1,
+                    uint8_t nonce2,
+                    uint8_t nonce3);
 
 #endif

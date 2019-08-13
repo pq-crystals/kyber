@@ -5,7 +5,7 @@
 
 unsigned int PQCLEAN_NAMESPACE_rej_uniform(int16_t *r,
                          unsigned int len,
-                         const unsigned char *buf,
+                         const uint8_t *buf,
                          unsigned int buflen);
 
 #endif

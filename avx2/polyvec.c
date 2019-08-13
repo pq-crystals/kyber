@@ -8,10 +8,10 @@
 *
 * Description: Compress and serialize vector of polynomials
 *
-* Arguments:   - unsigned char *r: pointer to output byte array
+* Arguments:   - uint8_t *r: pointer to output byte array
 *              - const polyvec *a: pointer to input vector of polynomials
 **************************************************/
-void PQCLEAN_NAMESPACE_polyvec_compress(unsigned char * restrict r, polyvec * restrict a)
+void PQCLEAN_NAMESPACE_polyvec_compress(uint8_t * restrict r, polyvec * restrict a)
 {
   int i,j,k;
 
@@ -69,9 +69,9 @@ void PQCLEAN_NAMESPACE_polyvec_compress(unsigned char * restrict r, polyvec * re
 *              approximate inverse of polyvec_compress
 *
 * Arguments:   - polyvec *r:       pointer to output vector of polynomials
-*              - unsigned char *a: pointer to input byte array
+*              - uint8_t *a: pointer to input byte array
 **************************************************/
-void PQCLEAN_NAMESPACE_polyvec_decompress(polyvec * restrict r, const unsigned char * restrict a)
+void PQCLEAN_NAMESPACE_polyvec_decompress(polyvec * restrict r, const uint8_t * restrict a)
 {
   int i,j;
 #if (KYBER_POLYVECCOMPRESSEDBYTES == (KYBER_K * 352))
@@ -112,10 +112,10 @@ void PQCLEAN_NAMESPACE_polyvec_decompress(polyvec * restrict r, const unsigned c
 *
 * Description: Serialize vector of polynomials
 *
-* Arguments:   - unsigned char *r: pointer to output byte array
+* Arguments:   - uint8_t *r: pointer to output byte array
 *              - const polyvec *a: pointer to input vector of polynomials
 **************************************************/
-void PQCLEAN_NAMESPACE_polyvec_tobytes(unsigned char *r, polyvec *a)
+void PQCLEAN_NAMESPACE_polyvec_tobytes(uint8_t *r, polyvec *a)
 {
   int i;
   for(i=0;i<KYBER_K;i++)
@@ -128,10 +128,10 @@ void PQCLEAN_NAMESPACE_polyvec_tobytes(unsigned char *r, polyvec *a)
 * Description: De-serialize vector of polynomials;
 *              inverse of polyvec_tobytes
 *
-* Arguments:   - unsigned char *r: pointer to output byte array
+* Arguments:   - uint8_t *r: pointer to output byte array
 *              - const polyvec *a: pointer to input vector of polynomials
 **************************************************/
-void PQCLEAN_NAMESPACE_polyvec_frombytes(polyvec *r, const unsigned char *a)
+void PQCLEAN_NAMESPACE_polyvec_frombytes(polyvec *r, const uint8_t *a)
 {
   int i;
   for(i=0;i<KYBER_K;i++)

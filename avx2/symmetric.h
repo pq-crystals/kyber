@@ -28,13 +28,11 @@ typedef aes256ctr_ctx xof_state;
 #include "fips202.h"
 #include "fips202x4.h"
 
-typedef struct {
-  uint64_t s[25];
-} keccak_state;
+typedef shake128ctx keccak_state;
 
-void PQCLEAN_NAMESPACE_kyber_shake128_absorb(keccak_state *s, const unsigned char *input, unsigned char x, unsigned char y);
-void PQCLEAN_NAMESPACE_kyber_shake128_squeezeblocks(unsigned char *output, unsigned long long nblocks, keccak_state *s);
-void PQCLEAN_NAMESPACE_shake256_prf(unsigned char *output, unsigned long long outlen, const unsigned char *key, const unsigned char nonce);
+void PQCLEAN_NAMESPACE_kyber_shake128_absorb(keccak_state *s, const uint8_t *input, uint8_t x, uint8_t y);
+void PQCLEAN_NAMESPACE_kyber_shake128_squeezeblocks(uint8_t *output, size_t nblocks, keccak_state *s);
+void PQCLEAN_NAMESPACE_shake256_prf(uint8_t *output, size_t outlen, const uint8_t *key, uint8_t nonce);
 
 #define hash_h(OUT, IN, INBYTES) sha3_256(OUT, IN, INBYTES)
 #define hash_g(OUT, IN, INBYTES) sha3_512(OUT, IN, INBYTES)

@@ -3,7 +3,7 @@
 #include "params.h"
 #include "rejsample.h"
 
-static const unsigned char idx[256][8] = {
+static const uint8_t idx[256][8] = {
   { 0,  0,  0,  0,  0,  0,  0,  0},
   { 0,  0,  0,  0,  0,  0,  0,  0},
   { 2,  0,  0,  0,  0,  0,  0,  0},
@@ -270,7 +270,7 @@ extern const uint16_t PQCLEAN_NAMESPACE_16xv[16];
 
 unsigned int PQCLEAN_NAMESPACE_rej_uniform(int16_t * restrict r,
                          unsigned int len,
-                         const unsigned char * restrict buf,
+                         const uint8_t * restrict buf,
                          unsigned int buflen)
 {
   unsigned int ctr, pos;

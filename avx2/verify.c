@@ -7,13 +7,13 @@
 *
 * Description: Compare two arrays for equality in constant time.
 *
-* Arguments:   const unsigned char *a: pointer to first byte array
-*              const unsigned char *b: pointer to second byte array
+* Arguments:   const uint8_t *a: pointer to first byte array
+*              const uint8_t *b: pointer to second byte array
 *              size_t len:             length of the byte arrays
 *
 * Returns 0 if the byte arrays are equal, 1 otherwise
 **************************************************/
-int PQCLEAN_NAMESPACE_verify(const unsigned char * restrict a, const unsigned char * restrict b, size_t len)
+int PQCLEAN_NAMESPACE_verify(const uint8_t * restrict a, const uint8_t * restrict b, size_t len)
 {
   size_t pos;
   uint64_t r;
@@ -49,12 +49,12 @@ int PQCLEAN_NAMESPACE_verify(const unsigned char * restrict a, const unsigned ch
 *              assumes two's complement representation of negative integers.
 *              Runs in constant time.
 *
-* Arguments:   unsigned char *r:       pointer to output byte array
-*              const unsigned char *x: pointer to input byte array
+* Arguments:   uint8_t *r:       pointer to output byte array
+*              const uint8_t *x: pointer to input byte array
 *              size_t len:             Amount of bytes to be copied
-*              unsigned char b:        Condition bit; has to be in {0,1}
+*              uint8_t b:        Condition bit; has to be in {0,1}
 **************************************************/
-void PQCLEAN_NAMESPACE_cmov(unsigned char * restrict r, const unsigned char * restrict x, size_t len, unsigned char b)
+void PQCLEAN_NAMESPACE_cmov(uint8_t * restrict r, const uint8_t * restrict x, size_t len, uint8_t b)
 {
   size_t pos;
   __m256i xvec, rvec, bvec;

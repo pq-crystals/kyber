@@ -10,16 +10,16 @@ typedef struct {
 } aes256ctr_ctx;
 
 void PQCLEAN_NAMESPACE_aes256ctr_init(aes256ctr_ctx *state,
-                    const unsigned char *key,
+                    const uint8_t *key,
                     uint16_t nonce);
 void PQCLEAN_NAMESPACE_aes256ctr_select(aes256ctr_ctx *state, uint16_t nonce);
-void PQCLEAN_NAMESPACE_aes256ctr_squeezeblocks(unsigned char *out,
+void PQCLEAN_NAMESPACE_aes256ctr_squeezeblocks(uint8_t *out,
                              unsigned long long nblocks,
                              aes256ctr_ctx *state);
 
-void PQCLEAN_NAMESPACE_aes256ctr_prf(unsigned char *out,
+void PQCLEAN_NAMESPACE_aes256ctr_prf(uint8_t *out,
                    unsigned long long outlen,
-                   const unsigned char *seed,
-                   unsigned char nonce);
+                   const uint8_t *seed,
+                   uint8_t nonce);
 
 #endif
