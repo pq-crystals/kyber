@@ -76,7 +76,11 @@ int PQCLEAN_NAMESPACE_crypto_kem_dec(uint8_t *ss, const uint8_t *ct, const uint8
 {
   size_t i;
   int fail;
-  uint8_t __attribute__((aligned(32))) cmp[KYBER_CIPHERTEXTBYTES];
+  union {
+      uint8_t x[KYBER_CIPHERTEXTBYTES];
+      __m256i __dummy;
+  } _cmp;
+  uint8_t *cmp = _cmp.x;
   uint8_t buf[2*KYBER_SYMBYTES];
   uint8_t kr[2*KYBER_SYMBYTES];                                      /* Will contain key, coins */
   const uint8_t *pk = sk+KYBER_INDCPA_SECRETKEYBYTES;

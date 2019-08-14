@@ -1,7 +1,10 @@
-#include <stdint.h>
-#include <immintrin.h>
+#include "consts.h"
 #include "params.h"
 #include "rejsample.h"
+
+#include <stdint.h>
+#include <immintrin.h>
+
 
 static const uint8_t idx[256][8] = {
   { 0,  0,  0,  0,  0,  0,  0,  0},
@@ -265,9 +268,6 @@ static const uint8_t idx[256][8] = {
 #define _mm256_cmpge_epu16(a, b)  _mm256_cmpeq_epi16(_mm256_max_epu16(a, b), a)
 #define _mm_cmpge_epu16(a, b)  _mm_cmpeq_epi16(_mm_max_epu16(a, b), a)
 
-extern const uint16_t PQCLEAN_NAMESPACE_16xq[16];
-extern const uint16_t PQCLEAN_NAMESPACE_16xv[16];
-
 unsigned int PQCLEAN_NAMESPACE_rej_uniform(int16_t * restrict r,
                          unsigned int len,
                          const uint8_t * restrict buf,
@@ -278,8 +278,8 @@ unsigned int PQCLEAN_NAMESPACE_rej_uniform(int16_t * restrict r,
   uint32_t good0, good1, good2;
   const __m256i bound  = _mm256_set1_epi16((int16_t)(19*KYBER_Q-1)); // -1 to use cheaper >= instead of > comparison
   const __m256i ones   = _mm256_set1_epi8(1);
-  const __m256i kyberq = _mm256_load_si256((__m256i *)PQCLEAN_NAMESPACE_16xq);
-  const __m256i v = _mm256_load_si256((__m256i *)PQCLEAN_NAMESPACE_16xv);
+  const __m256i kyberq = _mm256_load_si256(&PQCLEAN_NAMESPACE_16xq.as_vec);
+  const __m256i v = _mm256_load_si256(&PQCLEAN_NAMESPACE_16xv.as_vec);
   __m256i d0, d1, d2, tmp0, tmp1, tmp2, pi0, pi1, pi2;
   __m128i d, tmp, pilo, pihi;
 

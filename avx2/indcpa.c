@@ -141,12 +141,15 @@ static unsigned int rej_uniform_ref(int16_t *r, unsigned int len, const uint8_t 
 *              - const uint8_t *seed: pointer to input seed
 *              - int transposed:            boolean deciding whether A or A^T is generated
 **************************************************/
+#define  GEN_MATRIX_MAXNBLOCKS (530+XOF_BLOCKBYTES)/XOF_BLOCKBYTES    /* 530 is expected number of required bytes */
 #ifdef KYBER_90S
 static void gen_matrix(polyvec *a, const uint8_t *seed, int transposed)
 {
   unsigned int i, j, ctr;
-  const unsigned int maxnblocks=(530+XOF_BLOCKBYTES)/XOF_BLOCKBYTES; /* 530 is expected number of required bytes */
-  uint8_t __attribute__((aligned(32))) buf[XOF_BLOCKBYTES*maxnblocks];
+  union {
+      uint8_t x[XOF_BLOCKBYTES*GEN_MATRIX_MAXNBLOCKS];
+      __m256i _dummy;
+  } buf;
   aes256ctr_ctx state;
 
   PQCLEAN_NAMESPACE_aes256ctr_init(&state, seed, 0);
@@ -160,13 +163,13 @@ static void gen_matrix(polyvec *a, const uint8_t *seed, int transposed)
       else
         PQCLEAN_NAMESPACE_aes256ctr_select(&state, (j << 8) + i);
 
-      PQCLEAN_NAMESPACE_aes256ctr_squeezeblocks(buf, maxnblocks, &state);
-      ctr = PQCLEAN_NAMESPACE_rej_uniform(a[i].vec[j].coeffs, KYBER_N, buf, maxnblocks*XOF_BLOCKBYTES);
+      PQCLEAN_NAMESPACE_aes256ctr_squeezeblocks(buf.x, GEN_MATRIX_MAXNBLOCKS, &state);
+      ctr = PQCLEAN_NAMESPACE_rej_uniform(a[i].vec[j].coeffs, KYBER_N, buf.x, GEN_MATRIX_MAXNBLOCKS*XOF_BLOCKBYTES);
 
       while(ctr < KYBER_N)
       {
-        PQCLEAN_NAMESPACE_aes256ctr_squeezeblocks(buf, 1, &state);
-        ctr += rej_uniform_ref(a[i].vec[j].coeffs + ctr, KYBER_N - ctr, buf, XOF_BLOCKBYTES);
+        PQCLEAN_NAMESPACE_aes256ctr_squeezeblocks(buf.x, 1, &state);
+        ctr += rej_uniform_ref(a[i].vec[j].coeffs + ctr, KYBER_N - ctr, buf.x, XOF_BLOCKBYTES);
       }
 
       PQCLEAN_NAMESPACE_poly_nttunpack(&a[i].vec[j]);
@@ -178,8 +181,10 @@ static void gen_matrix(polyvec *a, const uint8_t *seed, int transposed)
 static void gen_matrix(polyvec *a, const uint8_t *seed, int transposed)
 {
   unsigned int ctr0, ctr1, ctr2, ctr3, bufbytes;
-  const unsigned int maxnblocks=(530+XOF_BLOCKBYTES)/XOF_BLOCKBYTES; /* 530 is expected number of required bytes */
-  uint8_t __attribute__((aligned(32))) buf[4][XOF_BLOCKBYTES*maxnblocks];
+  union {
+      uint8_t x[4][XOF_BLOCKBYTES*GEN_MATRIX_MAXNBLOCKS];
+      __m256i _dummy;
+  } buf;
   keccak4x_state state;
 
   if(transposed)
@@ -187,23 +192,23 @@ static void gen_matrix(polyvec *a, const uint8_t *seed, int transposed)
   else
     PQCLEAN_NAMESPACE_kyber_shake128x4_absorb(&state, seed, 0, 1, 256, 257);
 
-  PQCLEAN_NAMESPACE_shake128x4_squeezeblocks(buf[0], buf[1], buf[2], buf[3], maxnblocks, &state);
-  bufbytes = maxnblocks*XOF_BLOCKBYTES;
+  PQCLEAN_NAMESPACE_shake128x4_squeezeblocks(buf.x[0], buf.x[1], buf.x[2], buf.x[3], GEN_MATRIX_MAXNBLOCKS, &state);
+  bufbytes = GEN_MATRIX_MAXNBLOCKS*XOF_BLOCKBYTES;
 
-  ctr0 = PQCLEAN_NAMESPACE_rej_uniform(a[0].vec[0].coeffs, KYBER_N, buf[0], bufbytes);
-  ctr1 = PQCLEAN_NAMESPACE_rej_uniform(a[0].vec[1].coeffs, KYBER_N, buf[1], bufbytes);
-  ctr2 = PQCLEAN_NAMESPACE_rej_uniform(a[1].vec[0].coeffs, KYBER_N, buf[2], bufbytes);
-  ctr3 = PQCLEAN_NAMESPACE_rej_uniform(a[1].vec[1].coeffs, KYBER_N, buf[3], bufbytes);
+  ctr0 = PQCLEAN_NAMESPACE_rej_uniform(a[0].vec[0].coeffs, KYBER_N, buf.x[0], bufbytes);
+  ctr1 = PQCLEAN_NAMESPACE_rej_uniform(a[0].vec[1].coeffs, KYBER_N, buf.x[1], bufbytes);
+  ctr2 = PQCLEAN_NAMESPACE_rej_uniform(a[1].vec[0].coeffs, KYBER_N, buf.x[2], bufbytes);
+  ctr3 = PQCLEAN_NAMESPACE_rej_uniform(a[1].vec[1].coeffs, KYBER_N, buf.x[3], bufbytes);
 
   while(ctr0 < KYBER_N || ctr1 < KYBER_N || ctr2 < KYBER_N || ctr3 < KYBER_N)
   {
-    PQCLEAN_NAMESPACE_shake128x4_squeezeblocks(buf[0], buf[1], buf[2], buf[3], 1, &state);
+    PQCLEAN_NAMESPACE_shake128x4_squeezeblocks(buf.x[0], buf.x[1], buf.x[2], buf.x[3], 1, &state);
     bufbytes = XOF_BLOCKBYTES;
 
-    ctr0 += rej_uniform_ref(a[0].vec[0].coeffs + ctr0, KYBER_N - ctr0, buf[0], bufbytes);
-    ctr1 += rej_uniform_ref(a[0].vec[1].coeffs + ctr1, KYBER_N - ctr1, buf[1], bufbytes);
-    ctr2 += rej_uniform_ref(a[1].vec[0].coeffs + ctr2, KYBER_N - ctr2, buf[2], bufbytes);
-    ctr3 += rej_uniform_ref(a[1].vec[1].coeffs + ctr3, KYBER_N - ctr3, buf[3], bufbytes);
+    ctr0 += rej_uniform_ref(a[0].vec[0].coeffs + ctr0, KYBER_N - ctr0, buf.x[0], bufbytes);
+    ctr1 += rej_uniform_ref(a[0].vec[1].coeffs + ctr1, KYBER_N - ctr1, buf.x[1], bufbytes);
+    ctr2 += rej_uniform_ref(a[1].vec[0].coeffs + ctr2, KYBER_N - ctr2, buf.x[2], bufbytes);
+    ctr3 += rej_uniform_ref(a[1].vec[1].coeffs + ctr3, KYBER_N - ctr3, buf.x[3], bufbytes);
   }
 
   PQCLEAN_NAMESPACE_poly_nttunpack(&a[0].vec[0]);
@@ -215,8 +220,10 @@ static void gen_matrix(polyvec *a, const uint8_t *seed, int transposed)
 static void gen_matrix(polyvec *a, const uint8_t *seed, int transposed)
 {
   unsigned int ctr0, ctr1, ctr2, ctr3, bufbytes;
-  const unsigned int maxnblocks=(530+XOF_BLOCKBYTES)/XOF_BLOCKBYTES; /* 530 is expected number of required bytes */
-  uint8_t __attribute__((aligned(32))) buf[4][XOF_BLOCKBYTES*maxnblocks];
+  union {
+      uint8_t x[4][XOF_BLOCKBYTES*GEN_MATRIX_MAXNBLOCKS];
+      __m256i _dummy;
+  } buf;
   keccak4x_state state;
   keccak_state state1x;
 
@@ -225,23 +232,23 @@ static void gen_matrix(polyvec *a, const uint8_t *seed, int transposed)
   else
     PQCLEAN_NAMESPACE_kyber_shake128x4_absorb(&state, seed, 0, 1, 2, 256);
 
-  PQCLEAN_NAMESPACE_shake128x4_squeezeblocks(buf[0], buf[1], buf[2], buf[3], maxnblocks, &state);
-  bufbytes = maxnblocks*XOF_BLOCKBYTES;
+  PQCLEAN_NAMESPACE_shake128x4_squeezeblocks(buf.x[0], buf.x[1], buf.x[2], buf.x[3], GEN_MATRIX_MAXNBLOCKS, &state);
+  bufbytes = GEN_MATRIX_MAXNBLOCKS*XOF_BLOCKBYTES;
 
-  ctr0 = PQCLEAN_NAMESPACE_rej_uniform(a[0].vec[0].coeffs, KYBER_N, buf[0], bufbytes);
-  ctr1 = PQCLEAN_NAMESPACE_rej_uniform(a[0].vec[1].coeffs, KYBER_N, buf[1], bufbytes);
-  ctr2 = PQCLEAN_NAMESPACE_rej_uniform(a[0].vec[2].coeffs, KYBER_N, buf[2], bufbytes);
-  ctr3 = PQCLEAN_NAMESPACE_rej_uniform(a[1].vec[0].coeffs, KYBER_N, buf[3], bufbytes);
+  ctr0 = PQCLEAN_NAMESPACE_rej_uniform(a[0].vec[0].coeffs, KYBER_N, buf.x[0], bufbytes);
+  ctr1 = PQCLEAN_NAMESPACE_rej_uniform(a[0].vec[1].coeffs, KYBER_N, buf.x[1], bufbytes);
+  ctr2 = PQCLEAN_NAMESPACE_rej_uniform(a[0].vec[2].coeffs, KYBER_N, buf.x[2], bufbytes);
+  ctr3 = PQCLEAN_NAMESPACE_rej_uniform(a[1].vec[0].coeffs, KYBER_N, buf.x[3], bufbytes);
 
   while(ctr0 < KYBER_N || ctr1 < KYBER_N || ctr2 < KYBER_N || ctr3 < KYBER_N)
   {
-    PQCLEAN_NAMESPACE_shake128x4_squeezeblocks(buf[0], buf[1], buf[2], buf[3], 1, &state);
+    PQCLEAN_NAMESPACE_shake128x4_squeezeblocks(buf.x[0], buf.x[1], buf.x[2], buf.x[3], 1, &state);
     bufbytes = XOF_BLOCKBYTES;
 
-    ctr0 += rej_uniform_ref(a[0].vec[0].coeffs + ctr0, KYBER_N - ctr0, buf[0], bufbytes);
-    ctr1 += rej_uniform_ref(a[0].vec[1].coeffs + ctr1, KYBER_N - ctr1, buf[1], bufbytes);
-    ctr2 += rej_uniform_ref(a[0].vec[2].coeffs + ctr2, KYBER_N - ctr2, buf[2], bufbytes);
-    ctr3 += rej_uniform_ref(a[1].vec[0].coeffs + ctr3, KYBER_N - ctr3, buf[3], bufbytes);
+    ctr0 += rej_uniform_ref(a[0].vec[0].coeffs + ctr0, KYBER_N - ctr0, buf.x[0], bufbytes);
+    ctr1 += rej_uniform_ref(a[0].vec[1].coeffs + ctr1, KYBER_N - ctr1, buf.x[1], bufbytes);
+    ctr2 += rej_uniform_ref(a[0].vec[2].coeffs + ctr2, KYBER_N - ctr2, buf.x[2], bufbytes);
+    ctr3 += rej_uniform_ref(a[1].vec[0].coeffs + ctr3, KYBER_N - ctr3, buf.x[3], bufbytes);
   }
 
   PQCLEAN_NAMESPACE_poly_nttunpack(&a[0].vec[0]);
@@ -254,23 +261,23 @@ static void gen_matrix(polyvec *a, const uint8_t *seed, int transposed)
   else
     PQCLEAN_NAMESPACE_kyber_shake128x4_absorb(&state, seed, 257, 258, 512, 513);
 
-  PQCLEAN_NAMESPACE_shake128x4_squeezeblocks(buf[0], buf[1], buf[2], buf[3], maxnblocks, &state);
-  bufbytes = maxnblocks*XOF_BLOCKBYTES;
+  PQCLEAN_NAMESPACE_shake128x4_squeezeblocks(buf.x[0], buf.x[1], buf.x[2], buf.x[3], GEN_MATRIX_MAXNBLOCKS, &state);
+  bufbytes = GEN_MATRIX_MAXNBLOCKS*XOF_BLOCKBYTES;
 
-  ctr0 = PQCLEAN_NAMESPACE_rej_uniform(a[1].vec[1].coeffs, KYBER_N, buf[0], bufbytes);
-  ctr1 = PQCLEAN_NAMESPACE_rej_uniform(a[1].vec[2].coeffs, KYBER_N, buf[1], bufbytes);
-  ctr2 = PQCLEAN_NAMESPACE_rej_uniform(a[2].vec[0].coeffs, KYBER_N, buf[2], bufbytes);
-  ctr3 = PQCLEAN_NAMESPACE_rej_uniform(a[2].vec[1].coeffs, KYBER_N, buf[3], bufbytes);
+  ctr0 = PQCLEAN_NAMESPACE_rej_uniform(a[1].vec[1].coeffs, KYBER_N, buf.x[0], bufbytes);
+  ctr1 = PQCLEAN_NAMESPACE_rej_uniform(a[1].vec[2].coeffs, KYBER_N, buf.x[1], bufbytes);
+  ctr2 = PQCLEAN_NAMESPACE_rej_uniform(a[2].vec[0].coeffs, KYBER_N, buf.x[2], bufbytes);
+  ctr3 = PQCLEAN_NAMESPACE_rej_uniform(a[2].vec[1].coeffs, KYBER_N, buf.x[3], bufbytes);
 
   while(ctr0 < KYBER_N || ctr1 < KYBER_N || ctr2 < KYBER_N || ctr3 < KYBER_N)
   {
-    PQCLEAN_NAMESPACE_shake128x4_squeezeblocks(buf[0], buf[1], buf[2], buf[3], 1, &state);
+    PQCLEAN_NAMESPACE_shake128x4_squeezeblocks(buf.x[0], buf.x[1], buf.x[2], buf.x[3], 1, &state);
     bufbytes = XOF_BLOCKBYTES;
 
-    ctr0 += rej_uniform_ref(a[1].vec[1].coeffs + ctr0, KYBER_N - ctr0, buf[0], bufbytes);
-    ctr1 += rej_uniform_ref(a[1].vec[2].coeffs + ctr1, KYBER_N - ctr1, buf[1], bufbytes);
-    ctr2 += rej_uniform_ref(a[2].vec[0].coeffs + ctr2, KYBER_N - ctr2, buf[2], bufbytes);
-    ctr3 += rej_uniform_ref(a[2].vec[1].coeffs + ctr3, KYBER_N - ctr3, buf[3], bufbytes);
+    ctr0 += rej_uniform_ref(a[1].vec[1].coeffs + ctr0, KYBER_N - ctr0, buf.x[0], bufbytes);
+    ctr1 += rej_uniform_ref(a[1].vec[2].coeffs + ctr1, KYBER_N - ctr1, buf.x[1], bufbytes);
+    ctr2 += rej_uniform_ref(a[2].vec[0].coeffs + ctr2, KYBER_N - ctr2, buf.x[2], bufbytes);
+    ctr3 += rej_uniform_ref(a[2].vec[1].coeffs + ctr3, KYBER_N - ctr3, buf.x[3], bufbytes);
   }
 
   PQCLEAN_NAMESPACE_poly_nttunpack(&a[1].vec[1]);
@@ -283,17 +290,17 @@ static void gen_matrix(polyvec *a, const uint8_t *seed, int transposed)
   else
     PQCLEAN_NAMESPACE_kyber_shake128_absorb(&state1x, seed, 2, 2);
 
-  PQCLEAN_NAMESPACE_kyber_shake128_squeezeblocks(buf[0], maxnblocks, &state1x);
-  bufbytes = maxnblocks*XOF_BLOCKBYTES;
+  PQCLEAN_NAMESPACE_kyber_shake128_squeezeblocks(buf.x[0], GEN_MATRIX_MAXNBLOCKS, &state1x);
+  bufbytes = GEN_MATRIX_MAXNBLOCKS*XOF_BLOCKBYTES;
 
-  ctr0 = PQCLEAN_NAMESPACE_rej_uniform(a[2].vec[2].coeffs, KYBER_N, buf[0], bufbytes);
+  ctr0 = PQCLEAN_NAMESPACE_rej_uniform(a[2].vec[2].coeffs, KYBER_N, buf.x[0], bufbytes);
 
   while(ctr0 < KYBER_N)
   {
-    PQCLEAN_NAMESPACE_kyber_shake128_squeezeblocks(buf[0], 1, &state1x);
+    PQCLEAN_NAMESPACE_kyber_shake128_squeezeblocks(buf.x[0], 1, &state1x);
     bufbytes = XOF_BLOCKBYTES;
 
-    ctr0 += rej_uniform_ref(a[2].vec[2].coeffs + ctr0, KYBER_N - ctr0, buf[0], bufbytes);
+    ctr0 += rej_uniform_ref(a[2].vec[2].coeffs + ctr0, KYBER_N - ctr0, buf.x[0], bufbytes);
   }
 
   PQCLEAN_NAMESPACE_poly_nttunpack(&a[2].vec[2]);
@@ -302,8 +309,10 @@ static void gen_matrix(polyvec *a, const uint8_t *seed, int transposed)
 static void gen_matrix(polyvec *a, const uint8_t *seed, int transposed)
 {
   unsigned int i, ctr0, ctr1, ctr2, ctr3, bufbytes;
-  const unsigned int maxnblocks=(530+XOF_BLOCKBYTES)/XOF_BLOCKBYTES; /* 530 is expected number of required bytes */
-  uint8_t __attribute__((aligned(32))) buf[4][XOF_BLOCKBYTES*maxnblocks];
+  union {
+      uint8_t x[4][XOF_BLOCKBYTES*GEN_MATRIX_MAXNBLOCKS];
+      __m256i _dummy;
+  } buf;
   keccak4x_state state;
 
   for(i = 0; i < 4; i++)
@@ -313,23 +322,23 @@ static void gen_matrix(polyvec *a, const uint8_t *seed, int transposed)
     else
       PQCLEAN_NAMESPACE_kyber_shake128x4_absorb(&state, seed, 256*i+0, 256*i+1, 256*i+2, 256*i+3);
 
-    PQCLEAN_NAMESPACE_shake128x4_squeezeblocks(buf[0], buf[1], buf[2], buf[3], maxnblocks, &state);
-    bufbytes = maxnblocks*XOF_BLOCKBYTES;
+    PQCLEAN_NAMESPACE_shake128x4_squeezeblocks(buf.x[0], buf.x[1], buf.x[2], buf.x[3], GEN_MATRIX_MAXNBLOCKS, &state);
+    bufbytes = GEN_MATRIX_MAXNBLOCKS*XOF_BLOCKBYTES;
 
-    ctr0 = PQCLEAN_NAMESPACE_rej_uniform(a[i].vec[0].coeffs, KYBER_N, buf[0], bufbytes);
-    ctr1 = PQCLEAN_NAMESPACE_rej_uniform(a[i].vec[1].coeffs, KYBER_N, buf[1], bufbytes);
-    ctr2 = PQCLEAN_NAMESPACE_rej_uniform(a[i].vec[2].coeffs, KYBER_N, buf[2], bufbytes);
-    ctr3 = PQCLEAN_NAMESPACE_rej_uniform(a[i].vec[3].coeffs, KYBER_N, buf[3], bufbytes);
+    ctr0 = PQCLEAN_NAMESPACE_rej_uniform(a[i].vec[0].coeffs, KYBER_N, buf.x[0], bufbytes);
+    ctr1 = PQCLEAN_NAMESPACE_rej_uniform(a[i].vec[1].coeffs, KYBER_N, buf.x[1], bufbytes);
+    ctr2 = PQCLEAN_NAMESPACE_rej_uniform(a[i].vec[2].coeffs, KYBER_N, buf.x[2], bufbytes);
+    ctr3 = PQCLEAN_NAMESPACE_rej_uniform(a[i].vec[3].coeffs, KYBER_N, buf.x[3], bufbytes);
 
     while(ctr0 < KYBER_N || ctr1 < KYBER_N || ctr2 < KYBER_N || ctr3 < KYBER_N)
     {
-      PQCLEAN_NAMESPACE_shake128x4_squeezeblocks(buf[0], buf[1], buf[2], buf[3], 1, &state);
+      PQCLEAN_NAMESPACE_shake128x4_squeezeblocks(buf.x[0], buf.x[1], buf.x[2], buf.x[3], 1, &state);
       bufbytes = XOF_BLOCKBYTES;
 
-      ctr0 += rej_uniform_ref(a[i].vec[0].coeffs + ctr0, KYBER_N - ctr0, buf[0], bufbytes);
-      ctr1 += rej_uniform_ref(a[i].vec[1].coeffs + ctr1, KYBER_N - ctr1, buf[1], bufbytes);
-      ctr2 += rej_uniform_ref(a[i].vec[2].coeffs + ctr2, KYBER_N - ctr2, buf[2], bufbytes);
-      ctr3 += rej_uniform_ref(a[i].vec[3].coeffs + ctr3, KYBER_N - ctr3, buf[3], bufbytes);
+      ctr0 += rej_uniform_ref(a[i].vec[0].coeffs + ctr0, KYBER_N - ctr0, buf.x[0], bufbytes);
+      ctr1 += rej_uniform_ref(a[i].vec[1].coeffs + ctr1, KYBER_N - ctr1, buf.x[1], bufbytes);
+      ctr2 += rej_uniform_ref(a[i].vec[2].coeffs + ctr2, KYBER_N - ctr2, buf.x[2], bufbytes);
+      ctr3 += rej_uniform_ref(a[i].vec[3].coeffs + ctr3, KYBER_N - ctr3, buf.x[3], bufbytes);
     }
 
     PQCLEAN_NAMESPACE_poly_nttunpack(&a[i].vec[0]);
