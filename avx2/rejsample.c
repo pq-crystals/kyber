@@ -2,8 +2,8 @@
 #include "params.h"
 #include "rejsample.h"
 
-#include <stdint.h>
 #include <immintrin.h>
+#include <stdint.h>
 
 
 static const uint8_t idx[256][8] = {

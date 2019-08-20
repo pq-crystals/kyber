@@ -1,9 +1,9 @@
 #ifndef FIPS202X4_H
 #define FIPS202X4_H
 
+#include <immintrin.h>
 #include <stddef.h>
 #include <stdint.h>
-#include <immintrin.h>
 
 typedef struct {
   __m256i s[25];

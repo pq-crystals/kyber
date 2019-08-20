@@ -1,7 +1,8 @@
-#include <stdint.h>
-#include <immintrin.h>
-#include "params.h"
 #include "cbd.h"
+#include "params.h"
+
+#include <immintrin.h>
+#include <stdint.h>
 
 /*************************************************
 * Name:        cbd

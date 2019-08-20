@@ -1,7 +1,7 @@
 # This Makefile can be used with GNU Make or BSD Make
 
 LIB=libSCHEME_NAME_avx2.a
-HEADERS=params.h poly.h polyvec.h reduce.h fq.inc cbd.h ntt.h shuffle.inc verify.h indcpa.h rejsample.h symmetric.h randombytes.h fips202.h fips202x4.h
+HEADERS=api.h params.h poly.h polyvec.h reduce.h fq.inc cbd.h consts.h ntt.h shuffle.inc verify.h indcpa.h rejsample.h symmetric.h fips202x4.h
 OBJECTS=kem.o poly.o polyvec.o fq.o shuffle.o cbd.o ntt.o invntt.o basemul.o consts.o \
 		verify.o indcpa.o rejsample.o fips202x4.o symmetric-fips202.o
 
@@ -16,7 +16,13 @@ all: $(LIB)
 %.o: %.c $(HEADERS)
 	$(CC) $(CFLAGS) -c -o $@ $<
 
-$(LIB): $(OBJECTS) $(KECCACK4X)
+%.o: %.s $(HEADERS)
+	$(AS) -o $@ $<
+
+%.o: %.S $(HEADERS)
+	$(AS) -c -o $@ $<
+
+$(LIB): $(OBJECTS) $(KECCAK4X)
 	$(AR) -r $@ $(OBJECTS) $(KECCAK4X)
 
 $(KECCAK4X):

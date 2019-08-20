@@ -1,12 +1,11 @@
-#include <stdint.h>
-#include "randombytes.h"
+#include "cbd.h"
 #include "indcpa.h"
+#include "ntt.h"
 #include "poly.h"
 #include "polyvec.h"
-#include "ntt.h"
-#include "symmetric.h"
+#include "randombytes.h"
 #include "rejsample.h"
-#include "cbd.h"
+#include "symmetric.h"
 
 /*************************************************
 * Name:        pack_pk
@@ -141,7 +140,7 @@ static unsigned int rej_uniform_ref(int16_t *r, unsigned int len, const uint8_t 
 *              - const uint8_t *seed: pointer to input seed
 *              - int transposed:            boolean deciding whether A or A^T is generated
 **************************************************/
-#define  GEN_MATRIX_MAXNBLOCKS (530+XOF_BLOCKBYTES)/XOF_BLOCKBYTES    /* 530 is expected number of required bytes */
+#define  GEN_MATRIX_MAXNBLOCKS ((530+XOF_BLOCKBYTES)/XOF_BLOCKBYTES)    /* 530 is expected number of required bytes */
 #ifdef KYBER_90S
 static void gen_matrix(polyvec *a, const uint8_t *seed, int transposed)
 {
@@ -390,15 +389,12 @@ void PQCLEAN_NAMESPACE_indcpa_keypair(uint8_t *pk, uint8_t *sk)
 #else
 #if KYBER_K == 2
   PQCLEAN_NAMESPACE_poly_getnoise4x(skpv.vec+0, skpv.vec+1, e.vec+0, e.vec+1, noiseseed, nonce+0, nonce+1, nonce+2, nonce+3);
-  nonce += 4;
 #elif KYBER_K == 3
   PQCLEAN_NAMESPACE_poly_getnoise4x(skpv.vec+0, skpv.vec+1, skpv.vec+2, e.vec+0, noiseseed, nonce+0, nonce+1, nonce+2, nonce+3);
   PQCLEAN_NAMESPACE_poly_getnoise4x(e.vec+1, e.vec+2, pkpv.vec+0, pkpv.vec+1, noiseseed, nonce+4, nonce+5, 0, 0);
-  nonce += 6;
 #elif KYBER_K == 4
   PQCLEAN_NAMESPACE_poly_getnoise4x(skpv.vec+0, skpv.vec+1, skpv.vec+2, skpv.vec+3, noiseseed, nonce+0, nonce+1, nonce+2, nonce+3);
   PQCLEAN_NAMESPACE_poly_getnoise4x(e.vec+0, e.vec+1, e.vec+2, e.vec+3, noiseseed, nonce+4, nonce+5, nonce+6, nonce+7);
-  nonce += 8;
 #endif
 #endif
 
@@ -466,16 +462,13 @@ void PQCLEAN_NAMESPACE_indcpa_enc(uint8_t *c,
 #if KYBER_K == 2
   PQCLEAN_NAMESPACE_poly_getnoise4x(sp.vec+0, sp.vec+1, ep.vec+0, ep.vec+1, coins, nonce+0, nonce+1, nonce+2, nonce+3);
   PQCLEAN_NAMESPACE_poly_getnoise(&epp, coins, nonce+4);
-  nonce += 5;
 #elif KYBER_K == 3
   PQCLEAN_NAMESPACE_poly_getnoise4x(sp.vec+0, sp.vec+1, sp.vec+2, ep.vec+0, coins, nonce+0, nonce+1, nonce+2, nonce+3);
   PQCLEAN_NAMESPACE_poly_getnoise4x(ep.vec+1, ep.vec+2, &epp, bp.vec+0, coins, nonce+4, nonce+5, nonce+6, 0);
-  nonce += 7;
 #elif KYBER_K == 4
   PQCLEAN_NAMESPACE_poly_getnoise4x(sp.vec+0, sp.vec+1, sp.vec+2, sp.vec+3, coins, nonce+0, nonce+1, nonce+2, nonce+3);
   PQCLEAN_NAMESPACE_poly_getnoise4x(ep.vec+0, ep.vec+1, ep.vec+2, ep.vec+3, coins, nonce+4, nonce+5, nonce+6, nonce+7);
   PQCLEAN_NAMESPACE_poly_getnoise(&epp, coins, nonce+8);
-  nonce += 9;
 #endif
 #endif
 

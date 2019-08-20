@@ -1,7 +1,8 @@
-#include <stdint.h>
-#include "polyvec.h"
-#include "poly.h"
 #include "ntt.h"
+#include "poly.h"
+#include "polyvec.h"
+
+#include <stdint.h>
 
 /*************************************************
 * Name:        polyvec_compress

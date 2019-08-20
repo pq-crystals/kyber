@@ -1,11 +1,13 @@
-#include <immintrin.h>
-#include <stdint.h>
-#include "params.h"
 #include "fips202.h"
 #include "fips202x4.h"
+#include "params.h"
+
+#include <immintrin.h>
+#include <stdint.h>
+
 
 #define NROUNDS 24
-#define ROL(a, offset) ((a << offset) ^ (a >> (64-offset)))
+#define ROL(a, offset) (((a) << (offset)) ^ ((a) >> (64-(offset))))
 
 static uint64_t load64(const uint8_t *x)
 {
@@ -40,11 +42,11 @@ static void keccak_absorb4x(__m256i *s,
                             size_t mlen,
                             uint8_t p)
 {
-  unsigned long long i;
-  uint8_t t0[200];
-  uint8_t t1[200];
-  uint8_t t2[200];
-  uint8_t t3[200];
+  size_t i;
+  uint8_t t0[200] = {0};
+  uint8_t t1[200] = {0};
+  uint8_t t2[200] = {0};
+  uint8_t t3[200] = {0};
 
   unsigned long long *ss = (unsigned long long *)s;
 
@@ -66,13 +68,6 @@ static void keccak_absorb4x(__m256i *s,
     m3 += r;
   }
 
-  for (i = 0; i < r; ++i)
-  {
-    t0[i] = 0;
-    t1[i] = 0;
-    t2[i] = 0;
-    t3[i] = 0;
-  }
   for (i = 0; i < mlen; ++i)
   {
     t0[i] = m0[i];
@@ -187,7 +182,7 @@ static void shake256x4(uint8_t *out0,
   uint8_t t1[SHAKE256_RATE];
   uint8_t t2[SHAKE256_RATE];
   uint8_t t3[SHAKE256_RATE];
-  unsigned int i;
+  size_t i;
 
   /* zero state */
   for(i=0;i<25;i++)

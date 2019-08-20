@@ -1,5 +1,5 @@
 CC = /usr/bin/cc
-CFLAGS += -Wall -Wextra -O3 -fomit-frame-pointer -march=native -mtune=native
+CFLAGS += -Wall -Wextra -O3 -fomit-frame-pointer -march=native -mtune=native -fsanitize=address,undefined
 #CFLAGS += -DUSE_RDPMC
 NISTFLAGS = -O3 -fomit-frame-pointer -march=native -mtune=native -fPIC
 RM = /bin/rm

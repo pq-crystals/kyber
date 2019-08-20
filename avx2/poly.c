@@ -1,11 +1,12 @@
-#include <stdint.h>
-#include <immintrin.h>
+#include "cbd.h"
+#include "ntt.h"
 #include "params.h"
 #include "poly.h"
-#include "ntt.h"
 #include "reduce.h"
-#include "cbd.h"
 #include "symmetric.h"
+
+#include <immintrin.h>
+#include <stdint.h>
 
 /*************************************************
 * Name:        poly_compress
@@ -419,7 +420,7 @@ void PQCLEAN_NAMESPACE_poly_frommsg(poly * restrict r, const uint8_t msg[KYBER_S
 **************************************************/
 void PQCLEAN_NAMESPACE_poly_tomsg(uint8_t msg[KYBER_SYMBYTES], poly * restrict a)
 {
-  int i, small;
+  uint32_t i, small;
   __m256i vec, tmp;
   const __m256i hqs = _mm256_set1_epi16((KYBER_Q - 1)/2);
   const __m256i hhqs = _mm256_set1_epi16((KYBER_Q - 5)/4);
