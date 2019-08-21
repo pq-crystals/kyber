@@ -25,9 +25,9 @@
  */
 #include "aes256ctr.h"
 
-#include <string.h>
 #include <stddef.h>
 #include <stdint.h>
+#include <string.h>
 
 static inline uint32_t br_dec32le(const uint8_t *src)
 {
@@ -254,13 +254,13 @@ static void br_aes_ct64_ortho(uint64_t *q)
 		uint64_t a, b; \
 		a = (x); \
 		b = (y); \
-		(x) = (a & (uint64_t)cl) | ((b & (uint64_t)cl) << (s)); \
-		(y) = ((a & (uint64_t)ch) >> (s)) | (b & (uint64_t)ch); \
+		(x) = (a & (uint64_t)(cl)) | ((b & (uint64_t)(cl)) << (s)); \
+		(y) = ((a & (uint64_t)(ch)) >> (s)) | (b & (uint64_t)(ch)); \
 	} while (0)
 
-#define SWAP2(x, y)    SWAPN(0x5555555555555555, 0xAAAAAAAAAAAAAAAA,  1, x, y)
-#define SWAP4(x, y)    SWAPN(0x3333333333333333, 0xCCCCCCCCCCCCCCCC,  2, x, y)
-#define SWAP8(x, y)    SWAPN(0x0F0F0F0F0F0F0F0F, 0xF0F0F0F0F0F0F0F0,  4, x, y)
+#define SWAP2(x, y)    SWAPN(0x5555555555555555, 0xAAAAAAAAAAAAAAAA,  1, (x), (y))
+#define SWAP4(x, y)    SWAPN(0x3333333333333333, 0xCCCCCCCCCCCCCCCC,  2, (x), (y))
+#define SWAP8(x, y)    SWAPN(0x0F0F0F0F0F0F0F0F, 0xF0F0F0F0F0F0F0F0,  4, (x), (y))
 
 	SWAP2(q[0], q[1]);
 	SWAP2(q[2], q[3]);
@@ -352,10 +352,10 @@ static void br_aes_ct64_keysched(uint64_t *comp_skey, const uint8_t *key)
 	uint32_t tmp;
 	uint32_t skey[60];
 
-  int key_len = 32;
+    int key_len = 32;
 
-	nk = (int)(key_len >> 2);
-	nkf = (int)((14 + 1) << 2);
+	nk = key_len >> 2;
+	nkf = (14 + 1) << 2;
 	br_range_dec32le(skey, (key_len >> 2), key);
 	tmp = skey[(key_len >> 2) - 1];
 	for (i = nk, j = 0, k = 0; i < nkf; i ++) {
@@ -397,7 +397,7 @@ static void br_aes_ct64_keysched(uint64_t *comp_skey, const uint8_t *key)
 	}
 }
 
-void br_aes_ct64_skey_expand(uint64_t *skey, const uint64_t *comp_skey)
+static void br_aes_ct64_skey_expand(uint64_t *skey, const uint64_t *comp_skey)
 {
 	unsigned u, v, n;
 
@@ -581,11 +581,11 @@ static void br_aes_ct64_ctr_run(uint64_t sk_exp[120], const uint8_t *iv, uint32_
 *              nonce is zero-padded to 12 bytes, counter starts at zero
 *
 * Arguments:   - uint8_t *output:      pointer to output
-*              - unsigned long long outlen:  length of requested output in bytes
+*              - size_t outlen:        length of requested output in bytes
 *              - const uint8_t *key:   pointer to 32-byte key
-*              - const uint8_t nonce:  1-byte nonce (will be zero-padded to 12 bytes)
+*              - uint8_t nonce:        1-byte nonce (will be zero-padded to 12 bytes)
 **************************************************/
-void PQCLEAN_NAMESPACE_aes256_prf(uint8_t *output, unsigned long long outlen, const unsigned char *key, const unsigned char nonce)
+void PQCLEAN_NAMESPACE_aes256_prf(uint8_t *output, size_t outlen, const uint8_t *key, uint8_t nonce)
 {
   uint64_t sk_exp[120];
   uint8_t iv[12];
@@ -605,12 +605,12 @@ void PQCLEAN_NAMESPACE_aes256_prf(uint8_t *output, unsigned long long outlen, co
 *              "absorbs" a 32-byte key and two additional bytes that are zero-padded
 *              to a 12-byte nonce
 *
-* Arguments:   - aes256xof_ctx *s:          pointer to state to "absorb" key and IV into
+* Arguments:   - aes256xof_ctx *s:    pointer to state to "absorb" key and IV into
 *              - const uint8_t *key:  pointer to 32-byte key
 *              - uint8_t x:           first additional byte to "absorb"
 *              - uint8_t y:           second additional byte to "absorb"
 **************************************************/
-void PQCLEAN_NAMESPACE_aes256xof_absorb(aes256xof_ctx *s, const uint8_t *key, unsigned char x, unsigned char y)
+void PQCLEAN_NAMESPACE_aes256xof_absorb(aes256xof_ctx *s, const uint8_t *key, uint8_t x, uint8_t y)
 {
 	uint64_t skey[30];
   uint8_t iv[12];
@@ -639,11 +639,11 @@ void PQCLEAN_NAMESPACE_aes256xof_absorb(aes256xof_ctx *s, const uint8_t *key, un
 * Description: AES256 CTR used as a replacement for a XOF; this function
 *              generates 4 blocks out AES256-CTR output
 *
-* Arguments:   - uint8_t *out:         pointer to output
-*              - unsigned long long nblocks: number of reqested 64-byte output blocks
-*              - aes256xof_ctx *s:           AES "state", i.e. expanded key and IV
+* Arguments:   - uint8_t *out:          pointer to output
+*              - size_t nblocks:        number of reqested 64-byte output blocks
+*              - aes256xof_ctx *s:      AES "state", i.e. expanded key and IV
 **************************************************/
-void PQCLEAN_NAMESPACE_aes256xof_squeezeblocks(uint8_t *out, unsigned long long nblocks, aes256xof_ctx *s)
+void PQCLEAN_NAMESPACE_aes256xof_squeezeblocks(uint8_t *out, size_t nblocks, aes256xof_ctx *s)
 {
 	while (nblocks > 0) {
     aes_ctr4x(out, s->ivw, s->sk_exp);
