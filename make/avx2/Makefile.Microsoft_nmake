@@ -1,20 +1,27 @@
 # This Makefile can be used with Microsoft Visual Studio's nmake using the command:
 #    nmake /f Makefile.Microsoft_nmake
 
-LIBRARY=libSCHEME_NAME_avx2.lib
+LIBRARY=libkyber512_avx2.lib
 OBJECTS=kem.obj poly.obj polyvec.obj fq.obj shuffle.obj cbd.obj ntt.obj invntt.obj basemul.obj consts.obj \
-		verify.obj indcpa.obj rejsample.obj fips202x4.obj symmetric-fips202.obj KeccakP-1600-times4-SIMD256.obj
+		verify.obj indcpa.obj rejsample.obj fips202x4.obj symmetric-fips202.obj
 
-CFLAGS=/nologo /I ..\..\..\common /W4 /WX /arch:AVX2
+KECCAK4XOBJ=KeccakP-1600-times4-SIMD256.obj
+KECCAK4XDIR=..\..\..\common\keccak4x
+KECCAK4X=$(KECCAK4XDIR)\$(KECCAK4XOBJ)
+
+CFLAGS=/nologo /I ..\..\..\common /W4 /WX /O2 /arch:AVX2
 
 all: $(LIBRARY)
 
 # Make sure objects are recompiled if headers change.
 $(OBJECTS): *.h *.inc
 
-$(LIBRARY): $(OBJECTS)
+$(LIBRARY): $(OBJECTS) $(KECCAK4X)
     LIB.EXE /NOLOGO /WX /OUT:$@ $**
 
+$(KECCAK4X):
+	cd $(KECCAK4XDIR) && $(MAKE) $(KECCAK4XOBJ)
+
 clean:
-    -DEL $(OBJECTS)
-    -DEL $(LIBRARY)
+	-DEL $(OBJECTS)
+	-DEL $(LIBRARY)

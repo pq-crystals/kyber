@@ -14,7 +14,7 @@
 *
 * Returns 0 if the byte arrays are equal, 1 otherwise
 **************************************************/
-int PQCLEAN_NAMESPACE_verify(const uint8_t *a, const unsigned char *b, size_t len)
+uint8_t PQCLEAN_NAMESPACE_verify(const uint8_t *a, const unsigned char *b, size_t len)
 {
   uint64_t r;
   size_t i;
@@ -24,7 +24,7 @@ int PQCLEAN_NAMESPACE_verify(const uint8_t *a, const unsigned char *b, size_t le
     r |= a[i] ^ b[i];
 
   r = (-r) >> 63;
-  return r;
+  return (uint8_t)r;
 }
 
 /*************************************************

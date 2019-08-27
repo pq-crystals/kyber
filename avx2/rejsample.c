@@ -292,9 +292,9 @@ unsigned int PQCLEAN_NAMESPACE_rej_uniform(int16_t * restrict r,
     tmp0 = _mm256_cmpge_epu16(bound, d0);
     tmp1 = _mm256_cmpge_epu16(bound, d1);
     tmp2 = _mm256_cmpge_epu16(bound, d2);
-    good0 = _mm256_movemask_epi8(tmp0);
-    good1 = _mm256_movemask_epi8(tmp1);
-    good2 = _mm256_movemask_epi8(tmp2);
+    good0 = (uint32_t)_mm256_movemask_epi8(tmp0);
+    good1 = (uint32_t)_mm256_movemask_epi8(tmp1);
+    good2 = (uint32_t)_mm256_movemask_epi8(tmp2);
     good0 = _pext_u32(good0, 0x55555555);
     good1 = _pext_u32(good1, 0x55555555);
     good2 = _pext_u32(good2, 0x55555555);
@@ -340,24 +340,24 @@ unsigned int PQCLEAN_NAMESPACE_rej_uniform(int16_t * restrict r,
     d2   = _mm256_sub_epi16(d2, tmp2);
 
     _mm_storeu_si128((__m128i *)&r[ctr], _mm256_castsi256_si128(d0));
-    ctr += __builtin_popcount(good0 & 0xFF);
+    ctr += (unsigned int)__builtin_popcount(good0 & 0xFF);
     _mm_storeu_si128((__m128i *)&r[ctr], _mm256_extracti128_si256(d0, 1));
-    ctr += __builtin_popcount((good0 >> 8) & 0xFF);
+    ctr += (unsigned int)__builtin_popcount((good0 >> 8) & 0xFF);
     _mm_storeu_si128((__m128i *)&r[ctr], _mm256_castsi256_si128(d1));
-    ctr += __builtin_popcount(good1 & 0xFF);
+    ctr += (unsigned int)__builtin_popcount(good1 & 0xFF);
     _mm_storeu_si128((__m128i *)&r[ctr], _mm256_extracti128_si256(d1, 1));
-    ctr += __builtin_popcount((good1 >> 8) & 0xFF);
+    ctr += (unsigned int)__builtin_popcount((good1 >> 8) & 0xFF);
     _mm_storeu_si128((__m128i *)&r[ctr], _mm256_castsi256_si128(d2));
-    ctr += __builtin_popcount(good2 & 0xFF);
+    ctr += (unsigned int)__builtin_popcount(good2 & 0xFF);
     _mm_storeu_si128((__m128i *)&r[ctr], _mm256_extracti128_si256(d2, 1));
-    ctr += __builtin_popcount((good2 >> 8) & 0xFF);
+    ctr += (unsigned int)__builtin_popcount((good2 >> 8) & 0xFF);
     pos += 96;
   }
 
   while(ctr + 8 <= len && pos + 16 <= buflen) {
     d = _mm_loadu_si128((__m128i *)&buf[pos]);
     tmp = _mm_cmpge_epu16(_mm256_castsi256_si128(bound), d);
-    good0 = _mm_movemask_epi8(tmp);
+    good0 = (uint32_t)_mm_movemask_epi8(tmp);
     good0 = _pext_u32(good0, 0x55555555);
     pilo = _mm_loadl_epi64((__m128i *)&idx[good0]);
     pihi = _mm_add_epi8(pilo, _mm256_castsi256_si128(ones));
@@ -371,18 +371,18 @@ unsigned int PQCLEAN_NAMESPACE_rej_uniform(int16_t * restrict r,
     d   = _mm_sub_epi16(d, tmp);
 
     _mm_storeu_si128((__m128i *)&r[ctr], d);
-    ctr += __builtin_popcount(good0);
+    ctr += (unsigned int)__builtin_popcount(good0);
     pos += 16;
   }
 
   while(ctr < len && pos + 2 <= buflen) {
-    val = buf[pos] | ((uint16_t)buf[pos+1] << 8);
+    val = (uint16_t)(buf[pos] | ((uint16_t)buf[pos+1] << 8));
     pos += 2;
 
     if(val < 19*KYBER_Q)
     {
       val -= ((int32_t)val*20159 >> 26) * KYBER_Q;
-      r[ctr++] = val;
+      r[ctr++] = (int16_t)val;
     }
   }
 

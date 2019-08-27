@@ -75,7 +75,7 @@ int PQCLEAN_NAMESPACE_crypto_kem_enc(uint8_t *ct, uint8_t *ss, const uint8_t *pk
 int PQCLEAN_NAMESPACE_crypto_kem_dec(uint8_t *ss, const uint8_t *ct, const uint8_t *sk)
 {
   size_t i;
-  int fail;
+  uint8_t fail;
   union {
       uint8_t x[KYBER_CIPHERTEXTBYTES];
       __m256i __dummy;

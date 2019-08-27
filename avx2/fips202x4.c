@@ -21,10 +21,10 @@ static uint64_t load64(const uint8_t *x)
 
 static void store64(uint8_t *x, uint64_t u)
 {
-  unsigned int i;
+  size_t i;
 
   for(i=0; i<8; ++i) {
-    x[i] = u;
+    x[i] = (uint8_t)u;
     u >>= 8;
   }
 }
@@ -141,14 +141,14 @@ void PQCLEAN_NAMESPACE_kyber_shake128x4_absorb(keccak4x_state *state,
     extseed[2][i] = seed[i];
     extseed[3][i] = seed[i];
   }
-  extseed[0][KYBER_SYMBYTES+0] = nonce0;
-  extseed[0][KYBER_SYMBYTES+1] = nonce0 >> 8;
-  extseed[1][KYBER_SYMBYTES+0] = nonce1;
-  extseed[1][KYBER_SYMBYTES+1] = nonce1 >> 8;
-  extseed[2][KYBER_SYMBYTES+0] = nonce2;
-  extseed[2][KYBER_SYMBYTES+1] = nonce2 >> 8;
-  extseed[3][KYBER_SYMBYTES+0] = nonce3;
-  extseed[3][KYBER_SYMBYTES+1] = nonce3 >> 8;
+  extseed[0][KYBER_SYMBYTES+0] = (uint8_t)nonce0;
+  extseed[0][KYBER_SYMBYTES+1] = (uint8_t)(nonce0 >> 8);
+  extseed[1][KYBER_SYMBYTES+0] = (uint8_t)nonce1;
+  extseed[1][KYBER_SYMBYTES+1] = (uint8_t)(nonce1 >> 8);
+  extseed[2][KYBER_SYMBYTES+0] = (uint8_t)nonce2;
+  extseed[2][KYBER_SYMBYTES+1] = (uint8_t)(nonce2 >> 8);
+  extseed[3][KYBER_SYMBYTES+0] = (uint8_t)nonce3;
+  extseed[3][KYBER_SYMBYTES+1] = (uint8_t)(nonce3 >> 8);
 
   /* zero state */
   for(i=0;i<25;i++)

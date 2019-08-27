@@ -19,7 +19,7 @@
 void PQCLEAN_NAMESPACE_poly_compress(uint8_t * restrict r, poly * restrict a)
 {
   uint8_t t[8];
-  int i,j,k=0;
+  size_t i,j,k=0;
 
   PQCLEAN_NAMESPACE_poly_csubq(a);
 
@@ -27,36 +27,36 @@ void PQCLEAN_NAMESPACE_poly_compress(uint8_t * restrict r, poly * restrict a)
   for(i=0;i<KYBER_N;i+=8)
   {
     for(j=0;j<8;j++)
-      t[j] = ((((uint16_t)a->coeffs[i+j] << 3) + KYBER_Q/2) / KYBER_Q) & 7;
+      t[j] = (uint8_t)(((((uint16_t)a->coeffs[i+j] << 3) + KYBER_Q/2) / KYBER_Q) & 7);
 
-    r[k]   =  t[0]       | (t[1] << 3) | (t[2] << 6);
-    r[k+1] = (t[2] >> 2) | (t[3] << 1) | (t[4] << 4) | (t[5] << 7);
-    r[k+2] = (t[5] >> 1) | (t[6] << 2) | (t[7] << 5);
+    r[k]   = (uint8_t)( t[0]       | (t[1] << 3) | (t[2] << 6));
+    r[k+1] = (uint8_t)((t[2] >> 2) | (t[3] << 1) | (t[4] << 4) | (t[5] << 7));
+    r[k+2] = (uint8_t)((t[5] >> 1) | (t[6] << 2) | (t[7] << 5));
     k += 3;
   }
 #elif (KYBER_POLYCOMPRESSEDBYTES == 128)
   for(i=0;i<KYBER_N;i+=8)
   {
     for(j=0;j<8;j++)
-      t[j] = ((((uint16_t)a->coeffs[i+j] << 4) + KYBER_Q/2) / KYBER_Q) & 15;
+      t[j] = (uint8_t)(((((uint16_t)a->coeffs[i+j] << 4) + KYBER_Q/2) / KYBER_Q) & 15);
 
-    r[k]   = t[0] | (t[1] << 4);
-    r[k+1] = t[2] | (t[3] << 4);
-    r[k+2] = t[4] | (t[5] << 4);
-    r[k+3] = t[6] | (t[7] << 4);
+    r[k]   = (uint8_t)(t[0] | (t[1] << 4));
+    r[k+1] = (uint8_t)(t[2] | (t[3] << 4));
+    r[k+2] = (uint8_t)(t[4] | (t[5] << 4));
+    r[k+3] = (uint8_t)(t[6] | (t[7] << 4));
     k += 4;
   }
 #elif (KYBER_POLYCOMPRESSEDBYTES == 160)
   for(i=0;i<KYBER_N;i+=8)
   {
     for(j=0;j<8;j++)
-      t[j] = ((((uint32_t)a->coeffs[i+j] << 5) + KYBER_Q/2) / KYBER_Q) & 31;
+      t[j] = (uint8_t)(((((uint32_t)a->coeffs[i+j] << 5) + KYBER_Q/2) / KYBER_Q) & 31);
 
-    r[k]   =  t[0]       | (t[1] << 5);
-    r[k+1] = (t[1] >> 3) | (t[2] << 2) | (t[3] << 7);
-    r[k+2] = (t[3] >> 1) | (t[4] << 4);
-    r[k+3] = (t[4] >> 4) | (t[5] << 1) | (t[6] << 6);
-    r[k+4] = (t[6] >> 2) | (t[7] << 3);
+    r[k]   = (uint8_t)( t[0]       | (t[1] << 5));
+    r[k+1] = (uint8_t)((t[1] >> 3) | (t[2] << 2) | (t[3] << 7));
+    r[k+2] = (uint8_t)((t[3] >> 1) | (t[4] << 4));
+    r[k+3] = (uint8_t)((t[4] >> 4) | (t[5] << 1) | (t[6] << 6));
+    r[k+4] = (uint8_t)((t[6] >> 2) | (t[7] << 3));
     k += 5;
   }
 #else
@@ -75,44 +75,44 @@ void PQCLEAN_NAMESPACE_poly_compress(uint8_t * restrict r, poly * restrict a)
 **************************************************/
 void PQCLEAN_NAMESPACE_poly_decompress(poly * restrict r, const uint8_t * restrict a)
 {
-  int i;
+  size_t i;
 #if (KYBER_POLYCOMPRESSEDBYTES == 96)
   for(i=0;i<KYBER_N;i+=8)
   {
-    r->coeffs[i+0] =  (((a[0] & 7) * KYBER_Q) + 4) >> 3;
-    r->coeffs[i+1] = ((((a[0] >> 3) & 7) * KYBER_Q) + 4) >> 3;
-    r->coeffs[i+2] = ((((a[0] >> 6) | ((a[1] << 2) & 4)) * KYBER_Q) + 4) >> 3;
-    r->coeffs[i+3] = ((((a[1] >> 1) & 7) * KYBER_Q) + 4) >> 3;
-    r->coeffs[i+4] = ((((a[1] >> 4) & 7) * KYBER_Q) + 4) >> 3;
-    r->coeffs[i+5] = ((((a[1] >> 7) | ((a[2] << 1) & 6)) * KYBER_Q) + 4) >> 3;
-    r->coeffs[i+6] = ((((a[2] >> 2) & 7) * KYBER_Q) + 4) >> 3;
-    r->coeffs[i+7] = ((((a[2] >> 5)) * KYBER_Q) + 4) >> 3;
+    r->coeffs[i+0] = (int16_t)((((a[0] & 7) * KYBER_Q) + 4) >> 3);
+    r->coeffs[i+1] = (int16_t)(((((a[0] >> 3) & 7) * KYBER_Q) + 4) >> 3);
+    r->coeffs[i+2] = (int16_t)(((((a[0] >> 6) | ((a[1] << 2) & 4)) * KYBER_Q) + 4) >> 3);
+    r->coeffs[i+3] = (int16_t)(((((a[1] >> 1) & 7) * KYBER_Q) + 4) >> 3);
+    r->coeffs[i+4] = (int16_t)(((((a[1] >> 4) & 7) * KYBER_Q) + 4) >> 3);
+    r->coeffs[i+5] = (int16_t)(((((a[1] >> 7) | ((a[2] << 1) & 6)) * KYBER_Q) + 4) >> 3);
+    r->coeffs[i+6] = (int16_t)(((((a[2] >> 2) & 7) * KYBER_Q) + 4) >> 3);
+    r->coeffs[i+7] = (int16_t)(((((a[2] >> 5)) * KYBER_Q) + 4) >> 3);
     a += 3;
   }
 #elif (KYBER_POLYCOMPRESSEDBYTES == 128)
   for(i=0;i<KYBER_N;i+=8)
   {
-    r->coeffs[i+0] = (((a[0] & 15) * KYBER_Q) + 8) >> 4;
-    r->coeffs[i+1] = (((a[0] >> 4) * KYBER_Q) + 8) >> 4;
-    r->coeffs[i+2] = (((a[1] & 15) * KYBER_Q) + 8) >> 4;
-    r->coeffs[i+3] = (((a[1] >> 4) * KYBER_Q) + 8) >> 4;
-    r->coeffs[i+4] = (((a[2] & 15) * KYBER_Q) + 8) >> 4;
-    r->coeffs[i+5] = (((a[2] >> 4) * KYBER_Q) + 8) >> 4;
-    r->coeffs[i+6] = (((a[3] & 15) * KYBER_Q) + 8) >> 4;
-    r->coeffs[i+7] = (((a[3] >> 4) * KYBER_Q) + 8) >> 4;
+    r->coeffs[i+0] = (int16_t)((((a[0] & 15) * KYBER_Q) + 8) >> 4);
+    r->coeffs[i+1] = (int16_t)((((a[0] >> 4) * KYBER_Q) + 8) >> 4);
+    r->coeffs[i+2] = (int16_t)((((a[1] & 15) * KYBER_Q) + 8) >> 4);
+    r->coeffs[i+3] = (int16_t)((((a[1] >> 4) * KYBER_Q) + 8) >> 4);
+    r->coeffs[i+4] = (int16_t)((((a[2] & 15) * KYBER_Q) + 8) >> 4);
+    r->coeffs[i+5] = (int16_t)((((a[2] >> 4) * KYBER_Q) + 8) >> 4);
+    r->coeffs[i+6] = (int16_t)((((a[3] & 15) * KYBER_Q) + 8) >> 4);
+    r->coeffs[i+7] = (int16_t)((((a[3] >> 4) * KYBER_Q) + 8) >> 4);
     a += 4;
   }
 #elif (KYBER_POLYCOMPRESSEDBYTES == 160)
   for(i=0;i<KYBER_N;i+=8)
   {
-    r->coeffs[i+0] =  (((a[0] & 31) * KYBER_Q) + 16) >> 5;
-    r->coeffs[i+1] = ((((a[0] >> 5) | ((a[1] & 3) << 3)) * KYBER_Q) + 16) >> 5;
-    r->coeffs[i+2] = ((((a[1] >> 2) & 31) * KYBER_Q) + 16) >> 5;
-    r->coeffs[i+3] = ((((a[1] >> 7) | ((a[2] & 15) << 1)) * KYBER_Q) + 16) >> 5;
-    r->coeffs[i+4] = ((((a[2] >> 4) | ((a[3] &  1) << 4)) * KYBER_Q) + 16) >> 5;
-    r->coeffs[i+5] = ((((a[3] >> 1) & 31) * KYBER_Q) + 16) >> 5;
-    r->coeffs[i+6] = ((((a[3] >> 6) | ((a[4] &  7) << 2)) * KYBER_Q) + 16) >> 5;
-    r->coeffs[i+7] =  (((a[4] >> 3) * KYBER_Q) + 16) >> 5;
+    r->coeffs[i+0] = (int16_t)( (((a[0] & 31) * KYBER_Q) + 16) >> 5);
+    r->coeffs[i+1] = (int16_t)(((((a[0] >> 5) | ((a[1] & 3) << 3)) * KYBER_Q) + 16) >> 5);
+    r->coeffs[i+2] = (int16_t)(((((a[1] >> 2) & 31) * KYBER_Q) + 16) >> 5);
+    r->coeffs[i+3] = (int16_t)(((((a[1] >> 7) | ((a[2] & 15) << 1)) * KYBER_Q) + 16) >> 5);
+    r->coeffs[i+4] = (int16_t)(((((a[2] >> 4) | ((a[3] &  1) << 4)) * KYBER_Q) + 16) >> 5);
+    r->coeffs[i+5] = (int16_t)(((((a[3] >> 1) & 31) * KYBER_Q) + 16) >> 5);
+    r->coeffs[i+6] = (int16_t)(((((a[3] >> 6) | ((a[4] &  7) << 2)) * KYBER_Q) + 16) >> 5);
+    r->coeffs[i+7] = (int16_t)( (((a[4] >> 3) * KYBER_Q) + 16) >> 5);
     a += 5;
   }
 #else
@@ -432,10 +432,10 @@ void PQCLEAN_NAMESPACE_poly_tomsg(uint8_t msg[KYBER_SYMBYTES], poly * restrict a
     tmp = _mm256_srai_epi16(vec, 15);
     vec = _mm256_xor_si256(vec, tmp);
     vec = _mm256_sub_epi16(hhqs, vec);
-    small = _mm256_movemask_epi8(vec);
+    small = (uint32_t)_mm256_movemask_epi8(vec);
     small = _pext_u32(small, 0xAAAAAAAA);
     small = ~small;
-    msg[2*i+0] = small;
-    msg[2*i+1] = small >> 8;
+    msg[2*i+0] = (uint8_t)small;
+    msg[2*i+1] = (uint8_t)(small >> 8);
   }
 }

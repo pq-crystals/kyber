@@ -126,7 +126,7 @@ static unsigned int rej_uniform(int16_t *r, unsigned int len, const uint8_t *buf
   ctr = pos = 0;
   while(ctr < len && pos + 2 <= buflen)
   {
-    val = buf[pos] | ((uint16_t)buf[pos+1] << 8);
+    val = (uint16_t)(buf[pos] | ((uint16_t)buf[pos+1] << 8));
     pos += 2;
 
     if(val < 19*KYBER_Q)
@@ -134,7 +134,7 @@ static unsigned int rej_uniform(int16_t *r, unsigned int len, const uint8_t *buf
       val -= (val >> 12) * KYBER_Q; // Barrett reduction
       r[ctr++] = (int16_t)val;
     }
-  } 
+  }
 
   return ctr;
 }
@@ -156,7 +156,8 @@ static unsigned int rej_uniform(int16_t *r, unsigned int len, const uint8_t *buf
 **************************************************/
 static void gen_matrix(polyvec *a, const uint8_t *seed, int transposed)
 {
-  unsigned int ctr, i, j;
+  unsigned int ctr;
+  uint8_t i, j;
   const unsigned int maxnblocks=(530+XOF_BLOCKBYTES)/XOF_BLOCKBYTES; /* 530 is expected number of required bytes */
   uint8_t buf[XOF_BLOCKBYTES*maxnblocks+1];
   xof_state state;

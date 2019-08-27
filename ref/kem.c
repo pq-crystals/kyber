@@ -75,7 +75,7 @@ int PQCLEAN_NAMESPACE_crypto_kem_enc(uint8_t *ct, unsigned char *ss, const unsig
 int PQCLEAN_NAMESPACE_crypto_kem_dec(uint8_t *ss, const unsigned char *ct, const unsigned char *sk)
 {
   size_t i;
-  int fail;
+  uint8_t fail;
   uint8_t cmp[KYBER_CIPHERTEXTBYTES];
   uint8_t buf[2*KYBER_SYMBYTES];
   uint8_t kr[2*KYBER_SYMBYTES];                                      /* Will contain key, coins */

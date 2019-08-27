@@ -112,7 +112,7 @@ static unsigned int rej_uniform_ref(int16_t *r, unsigned int len, const uint8_t 
   ctr = pos = 0;
   while(ctr < len && pos + 2 <= buflen)
   {
-    val = buf[pos] | ((uint16_t)buf[pos+1] << 8);
+    val = (uint16_t)(buf[pos] | ((uint16_t)buf[pos+1] << 8));
     pos += 2;
 
     if(val < 19*KYBER_Q)
@@ -307,7 +307,8 @@ static void gen_matrix(polyvec *a, const uint8_t *seed, int transposed)
 #elif KYBER_K == 4
 static void gen_matrix(polyvec *a, const uint8_t *seed, int transposed)
 {
-  unsigned int i, ctr0, ctr1, ctr2, ctr3, bufbytes;
+  uint16_t i;
+  unsigned int ctr0, ctr1, ctr2, ctr3, bufbytes;
   union {
       uint8_t x[4][XOF_BLOCKBYTES*GEN_MATRIX_MAXNBLOCKS];
       __m256i _dummy;
