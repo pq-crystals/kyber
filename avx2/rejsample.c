@@ -2,6 +2,7 @@
 #include "params.h"
 #include "rejsample.h"
 
+#include <x86intrin.h>
 #include <immintrin.h>
 #include <stdint.h>
 
@@ -340,17 +341,17 @@ unsigned int PQCLEAN_NAMESPACE_rej_uniform(int16_t *r,
     d2   = _mm256_sub_epi16(d2, tmp2);
 
     _mm_storeu_si128((__m128i *)&r[ctr], _mm256_castsi256_si128(d0));
-    ctr += (unsigned int)__builtin_popcount(good0 & 0xFF);
+    ctr += (unsigned int)_popcnt32(good0 & 0xFF);
     _mm_storeu_si128((__m128i *)&r[ctr], _mm256_extracti128_si256(d0, 1));
-    ctr += (unsigned int)__builtin_popcount((good0 >> 8) & 0xFF);
+    ctr += (unsigned int)_popcnt32((good0 >> 8) & 0xFF);
     _mm_storeu_si128((__m128i *)&r[ctr], _mm256_castsi256_si128(d1));
-    ctr += (unsigned int)__builtin_popcount(good1 & 0xFF);
+    ctr += (unsigned int)_popcnt32(good1 & 0xFF);
     _mm_storeu_si128((__m128i *)&r[ctr], _mm256_extracti128_si256(d1, 1));
-    ctr += (unsigned int)__builtin_popcount((good1 >> 8) & 0xFF);
+    ctr += (unsigned int)_popcnt32((good1 >> 8) & 0xFF);
     _mm_storeu_si128((__m128i *)&r[ctr], _mm256_castsi256_si128(d2));
-    ctr += (unsigned int)__builtin_popcount(good2 & 0xFF);
+    ctr += (unsigned int)_popcnt32(good2 & 0xFF);
     _mm_storeu_si128((__m128i *)&r[ctr], _mm256_extracti128_si256(d2, 1));
-    ctr += (unsigned int)__builtin_popcount((good2 >> 8) & 0xFF);
+    ctr += (unsigned int)_popcnt32((good2 >> 8) & 0xFF);
     pos += 96;
   }
 
@@ -371,7 +372,7 @@ unsigned int PQCLEAN_NAMESPACE_rej_uniform(int16_t *r,
     d   = _mm_sub_epi16(d, tmp);
 
     _mm_storeu_si128((__m128i *)&r[ctr], d);
-    ctr += (unsigned int)__builtin_popcount(good0);
+    ctr += (unsigned int)_popcnt32(good0);
     pos += 16;
   }
 
