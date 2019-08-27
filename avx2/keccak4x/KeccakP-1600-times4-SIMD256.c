@@ -1,25 +1,28 @@
 /*
-Implementation by the Keccak, Keyak and Ketje Teams, namely, Guido Bertoni,
-Joan Daemen, Michaël Peeters, Gilles Van Assche and Ronny Van Keer, hereby
-denoted as "the implementer".
+Implementation by Gilles Van Assche and Ronny Van Keer, hereby denoted as "the implementer".
 
-For more information, feedback or questions, please refer to our websites:
-http://keccak.noekeon.org/
-http://keyak.noekeon.org/
-http://ketje.noekeon.org/
+For more information, feedback or questions, please refer to our website:
+https://keccak.team/
 
 To the extent possible under law, the implementer has waived all copyright
 and related or neighboring rights to the source code in this file.
 http://creativecommons.org/publicdomain/zero/1.0/
+
+---
+
+This file implements Keccak-p[1600]×4 in a PlSnP-compatible way.
+Please refer to PlSnP-documentation.h for more details.
+
+This implementation comes with KeccakP-1600-times4-SnP.h in the same folder.
+Please refer to LowLevel.build for the exact list of other files it must be combined with.
 */
 
+#include <immintrin.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <smmintrin.h>
-#include <wmmintrin.h>
-#include <immintrin.h>
-#include <emmintrin.h>
+
 #include "align.h"
 #include "KeccakP-1600-times4-SnP.h"
 #include "SIMD256-config.h"
@@ -34,12 +37,14 @@ typedef unsigned long long int UINT64;
 typedef __m128i V128;
 typedef __m256i V256;
 
+//#define UseGatherScatter
+
 #define laneIndex(instanceIndex, lanePosition) ((lanePosition)*4 + instanceIndex)
 
 #if defined(KeccakP1600times4_useAVX2)
     #define ANDnu256(a, b)          _mm256_andnot_si256(a, b)
     #define CONST256(a)             _mm256_load_si256((const V256 *)&(a))
-    #define CONST256_64(a)          (V256)_mm256_broadcast_sd((const double*)(&a))
+    #define CONST256_64(a)          _mm256_set1_epi64x(a)
     #define LOAD256(a)              _mm256_load_si256((const V256 *)&(a))
     #define LOAD256u(a)             _mm256_loadu_si256((const V256 *)&(a))
     #define LOAD4_64(a, b, c, d)    _mm256_set_epi64x((UINT64)(a), (UINT64)(b), (UINT64)(c), (UINT64)(d))
@@ -50,13 +55,13 @@ static const UINT64 rho8[4] = {0x0605040302010007, 0x0E0D0C0B0A09080F, 0x1615141
 static const UINT64 rho56[4] = {0x0007060504030201, 0x080F0E0D0C0B0A09, 0x1017161514131211, 0x181F1E1D1C1B1A19};
     #define STORE256(a, b)          _mm256_store_si256((V256 *)&(a), b)
     #define STORE256u(a, b)         _mm256_storeu_si256((V256 *)&(a), b)
-    #define STORE2_128(ah, al, v)   _mm256_storeu2_m128d((V128*)&(ah), (V128*)&(al), v)
+    #define STORE2_128(ah, al, v)   _mm256_storeu2_m128i(&(ah), &(al), v)
     #define XOR256(a, b)            _mm256_xor_si256(a, b)
     #define XOReq256(a, b)          a = _mm256_xor_si256(a, b)
     #define UNPACKL( a, b )         _mm256_unpacklo_epi64((a), (b))
     #define UNPACKH( a, b )         _mm256_unpackhi_epi64((a), (b))
-    #define PERM128( a, b, c )      (V256)_mm256_permute2f128_ps((__m256)(a), (__m256)(b), c)
-    #define SHUFFLE64( a, b, c )    (V256)_mm256_shuffle_pd((__m256d)(a), (__m256d)(b), c)
+    #define PERM128( a, b, c )      _mm256_permute2f128_si256((a), (b), c)
+    #define SHUFFLE64( a, b, c )    _mm256_castpd_si256(_mm256_shuffle_pd(_mm256_castsi256_pd(a), _mm256_castsi256_pd(b), c))
 
     #define UNINTLEAVE()            lanesL01 = UNPACKL( lanes0, lanes1 ),                   \
                                     lanesH01 = UNPACKH( lanes0, lanes1 ),                   \
