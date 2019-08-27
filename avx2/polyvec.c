@@ -12,7 +12,7 @@
 * Arguments:   - uint8_t *r: pointer to output byte array
 *              - const polyvec *a: pointer to input vector of polynomials
 **************************************************/
-void PQCLEAN_NAMESPACE_polyvec_compress(uint8_t * restrict r, polyvec * restrict a)
+void PQCLEAN_NAMESPACE_polyvec_compress(uint8_t *r, polyvec *a)
 {
   int i,j,k;
 
@@ -72,7 +72,7 @@ void PQCLEAN_NAMESPACE_polyvec_compress(uint8_t * restrict r, polyvec * restrict
 * Arguments:   - polyvec *r:       pointer to output vector of polynomials
 *              - uint8_t *a: pointer to input byte array
 **************************************************/
-void PQCLEAN_NAMESPACE_polyvec_decompress(polyvec * restrict r, const uint8_t * restrict a)
+void PQCLEAN_NAMESPACE_polyvec_decompress(polyvec *r, const uint8_t *a)
 {
   int i,j;
 #if (KYBER_POLYVECCOMPRESSEDBYTES == (KYBER_K * 352))

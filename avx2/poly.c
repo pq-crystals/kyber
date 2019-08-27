@@ -16,7 +16,7 @@
 * Arguments:   - uint8_t *r: pointer to output byte array
 *              - const poly *a:    pointer to input polynomial
 **************************************************/
-void PQCLEAN_NAMESPACE_poly_compress(uint8_t * restrict r, poly * restrict a)
+void PQCLEAN_NAMESPACE_poly_compress(uint8_t *r, poly *a)
 {
   uint8_t t[8];
   size_t i,j,k=0;
@@ -73,7 +73,7 @@ void PQCLEAN_NAMESPACE_poly_compress(uint8_t * restrict r, poly * restrict a)
 * Arguments:   - poly *r:                pointer to output polynomial
 *              - const uint8_t *a: pointer to input byte array
 **************************************************/
-void PQCLEAN_NAMESPACE_poly_decompress(poly * restrict r, const uint8_t * restrict a)
+void PQCLEAN_NAMESPACE_poly_decompress(poly *r, const uint8_t *a)
 {
   size_t i;
 #if (KYBER_POLYCOMPRESSEDBYTES == 96)
@@ -282,7 +282,7 @@ void PQCLEAN_NAMESPACE_poly_csubq(poly *r)
 *            - const poly *a: pointer to first input polynomial
 *            - const poly *b: pointer to second input polynomial
 **************************************************/
-void PQCLEAN_NAMESPACE_poly_add(poly * restrict r, const poly * restrict a, const poly * restrict b)
+void PQCLEAN_NAMESPACE_poly_add(poly *r, const poly *a, const poly *b)
 {
   int i;
   __m256i vec0, vec1;
@@ -304,7 +304,7 @@ void PQCLEAN_NAMESPACE_poly_add(poly * restrict r, const poly * restrict a, cons
 *            - const poly *a: pointer to first input polynomial
 *            - const poly *b: pointer to second input polynomial
 **************************************************/
-void PQCLEAN_NAMESPACE_poly_sub(poly * restrict r, const poly * restrict a, const poly * restrict b)
+void PQCLEAN_NAMESPACE_poly_sub(poly *r, const poly *a, const poly *b)
 {
   int i;
   __m256i vec0, vec1;
@@ -325,7 +325,7 @@ void PQCLEAN_NAMESPACE_poly_sub(poly * restrict r, const poly * restrict a, cons
 * Arguments:   - poly *r:                  pointer to output polynomial
 *              - const uint8_t *msg: pointer to input message
 **************************************************/
-void PQCLEAN_NAMESPACE_poly_frommsg(poly * restrict r, const uint8_t msg[KYBER_SYMBYTES])
+void PQCLEAN_NAMESPACE_poly_frommsg(poly *r, const uint8_t msg[KYBER_SYMBYTES])
 {
   int i;
   __m128i tmp;
@@ -418,7 +418,7 @@ void PQCLEAN_NAMESPACE_poly_frommsg(poly * restrict r, const uint8_t msg[KYBER_S
 * Arguments:   - uint8_t *msg: pointer to output message
 *              - const poly *a:      pointer to input polynomial
 **************************************************/
-void PQCLEAN_NAMESPACE_poly_tomsg(uint8_t msg[KYBER_SYMBYTES], poly * restrict a)
+void PQCLEAN_NAMESPACE_poly_tomsg(uint8_t msg[KYBER_SYMBYTES], poly *a)
 {
   uint32_t i, small;
   __m256i vec, tmp;

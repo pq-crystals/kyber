@@ -268,9 +268,9 @@ static const uint8_t idx[256][8] = {
 #define _mm256_cmpge_epu16(a, b)  _mm256_cmpeq_epi16(_mm256_max_epu16(a, b), a)
 #define _mm_cmpge_epu16(a, b)  _mm_cmpeq_epi16(_mm_max_epu16(a, b), a)
 
-unsigned int PQCLEAN_NAMESPACE_rej_uniform(int16_t * restrict r,
+unsigned int PQCLEAN_NAMESPACE_rej_uniform(int16_t *r,
                          unsigned int len,
-                         const uint8_t * restrict buf,
+                         const uint8_t *buf,
                          unsigned int buflen)
 {
   unsigned int ctr, pos;
