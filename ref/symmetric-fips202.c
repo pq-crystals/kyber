@@ -21,7 +21,7 @@ void kyber_shake128_absorb(keccak_state *s, const uint8_t *input, uint8_t x, uin
     extseed[i] = input[i];
   extseed[i++] = x;
   extseed[i]   = y;
-  shake128_absorb(s->s, extseed, KYBER_SYMBYTES+2);
+  shake128_absorb(s, extseed, KYBER_SYMBYTES+2);
 }
 
 /*************************************************
@@ -37,7 +37,7 @@ void kyber_shake128_absorb(keccak_state *s, const uint8_t *input, uint8_t x, uin
 **************************************************/
 void kyber_shake128_squeezeblocks(uint8_t *output, size_t nblocks, keccak_state *s)
 {
-  shake128_squeezeblocks(output, nblocks, s->s);
+  shake128_squeezeblocks(output, nblocks, s);
 }
 
 /*************************************************

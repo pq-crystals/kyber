@@ -28,9 +28,7 @@ typedef aes256ctr_ctx xof_state;
 #include "fips202.h"
 #include "fips202x4.h"
 
-typedef struct {
-  uint64_t s[25];
-} keccak_state;
+typedef shake128ctx keccak_state;
 
 void kyber_shake128_absorb(keccak_state *s, const uint8_t *input, uint8_t x, uint8_t y);
 void kyber_shake128_squeezeblocks(uint8_t *output, size_t nblocks, keccak_state *s);

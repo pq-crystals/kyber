@@ -14,7 +14,7 @@
 *
 * Returns 0 if the byte arrays are equal, 1 otherwise
 **************************************************/
-int verify(const uint8_t *a, const unsigned char *b, size_t len)
+uint8_t verify(const uint8_t *a, const unsigned char *b, size_t len)
 {
   uint64_t r;
   size_t i;
@@ -24,7 +24,7 @@ int verify(const uint8_t *a, const unsigned char *b, size_t len)
     r |= a[i] ^ b[i];
 
   r = (-r) >> 63;
-  return r;
+  return (uint8_t)r;
 }
 
 /*************************************************

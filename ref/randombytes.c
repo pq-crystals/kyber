@@ -14,7 +14,7 @@
 static int fd = -1;
 static void randombytes_fallback(uint8_t *x, size_t xlen)
 {
-  int i;
+  ssize_t i = 0;
 
   if (fd == -1) {
     for (;;) {
@@ -25,16 +25,18 @@ static void randombytes_fallback(uint8_t *x, size_t xlen)
   }
 
   while (xlen > 0) {
-    if (xlen < 1048576) i = xlen; else i = 1048576;
+    if (xlen < 1048576)
+        i = (ssize_t)xlen;
+    else i = 1048576;
 
-    i = read(fd,x,i);
+    i = read(fd, x, (size_t)i);
     if (i < 1) {
       sleep(1);
       continue;
     }
 
     x += i;
-    xlen -= i;
+    xlen -= (size_t)i;
   }
 }
 
@@ -42,7 +44,7 @@ static void randombytes_fallback(uint8_t *x, size_t xlen)
 void randombytes(uint8_t *buf,size_t buflen)
 {
   size_t d = 0;
-  int r;
+  long r;
 
   while(d<buflen)
   {
@@ -55,7 +57,7 @@ void randombytes(uint8_t *buf,size_t buflen)
       return;
     }
     buf += r;
-    d += r;
+    d += (size_t)r;
   }
 }
 #else

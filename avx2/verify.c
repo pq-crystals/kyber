@@ -15,7 +15,7 @@
 *
 * Returns 0 if the byte arrays are equal, 1 otherwise
 **************************************************/
-int verify(const uint8_t * restrict a, const uint8_t * restrict b, size_t len)
+uint8_t verify(const uint8_t *a, const uint8_t *b, size_t len)
 {
   size_t pos;
   uint64_t r;
@@ -40,7 +40,7 @@ int verify(const uint8_t * restrict a, const uint8_t * restrict b, size_t len)
   }
 
   r = (-r) >> 63;
-  return r;
+  return (uint8_t)r;
 }
 
 /*************************************************
@@ -56,13 +56,13 @@ int verify(const uint8_t * restrict a, const uint8_t * restrict b, size_t len)
 *              size_t len:             Amount of bytes to be copied
 *              uint8_t b:        Condition bit; has to be in {0,1}
 **************************************************/
-void cmov(uint8_t * restrict r, const uint8_t * restrict x, size_t len, uint8_t b)
+void cmov(uint8_t *r, const uint8_t *x, size_t len, uint8_t b)
 {
   size_t pos;
   __m256i xvec, rvec, bvec;
 
   b = -b;
-  bvec = _mm256_set1_epi8(b);
+  bvec = _mm256_set1_epi8((char)b);
 
   for(pos = 0; pos + 32 <= len; pos += 32)
   {

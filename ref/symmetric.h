@@ -8,10 +8,6 @@
 #include "aes256ctr.h"
 #include "sha2.h"
 
-#if (KYBER_SSBYTES != 32)
-#error "90s variant of Kyber can only generate keys of length 256 bits"
-#endif
-
 #define hash_h(OUT, IN, INBYTES) sha256(OUT, IN, INBYTES)
 #define hash_g(OUT, IN, INBYTES) sha512(OUT, IN, INBYTES)
 #define xof_absorb(STATE, IN, X, Y) aes256xof_absorb(STATE, IN, X, Y)
@@ -29,9 +25,7 @@ typedef aes256xof_ctx xof_state;
 
 #include <stdint.h>
 
-typedef struct {
-  uint64_t s[25];
-} keccak_state;
+typedef shake128ctx keccak_state;
 
 void kyber_shake128_absorb(keccak_state *s, const uint8_t *input, uint8_t x, uint8_t y);
 void kyber_shake128_squeezeblocks(uint8_t *output, size_t nblocks, keccak_state *s);

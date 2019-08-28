@@ -18,6 +18,11 @@
 #define KAT_DATA_ERROR      -3
 #define KAT_CRYPTO_FAILURE  -4
 
+#define CRYPTO_BYTES CRYPTO_BYTES
+#define CRYPTO_PUBLICKEYBYTES CRYPTO_PUBLICKEYBYTES
+#define CRYPTO_CIPHERTEXTBYTES CRYPTO_CIPHERTEXTBYTES
+#define CRYPTO_SECRETKEYBYTES CRYPTO_SECRETKEYBYTES
+
 int		FindMarker(FILE *infile, const char *marker);
 int		ReadHex(FILE *infile, uint8_t *A, int Length, char *str);
 void	fprintBstr(FILE *fp, char *S, uint8_t *A, unsigned long long L);

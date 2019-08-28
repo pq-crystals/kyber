@@ -27,9 +27,9 @@ void poly_compress(uint8_t *r, poly *a)
     for(j=0;j<8;j++)
       t[j] = ((((uint32_t)a->coeffs[i+j] << 3) + KYBER_Q/2) / KYBER_Q) & 7;
 
-    r[k]   =  t[0]       | (t[1] << 3) | (t[2] << 6);
-    r[k+1] = (t[2] >> 2) | (t[3] << 1) | (t[4] << 4) | (t[5] << 7);
-    r[k+2] = (t[5] >> 1) | (t[6] << 2) | (t[7] << 5);
+    r[k]   = (uint8_t)( t[0]       | (t[1] << 3) | (t[2] << 6));
+    r[k+1] = (uint8_t)((t[2] >> 2) | (t[3] << 1) | (t[4] << 4) | (t[5] << 7));
+    r[k+2] = (uint8_t)((t[5] >> 1) | (t[6] << 2) | (t[7] << 5));
     k += 3;
   }
 #elif (KYBER_POLYCOMPRESSEDBYTES == 128)
@@ -38,10 +38,10 @@ void poly_compress(uint8_t *r, poly *a)
     for(j=0;j<8;j++)
       t[j] = ((((uint32_t)a->coeffs[i+j] << 4) + KYBER_Q/2) / KYBER_Q) & 15;
 
-    r[k]   = t[0] | (t[1] << 4);
-    r[k+1] = t[2] | (t[3] << 4);
-    r[k+2] = t[4] | (t[5] << 4);
-    r[k+3] = t[6] | (t[7] << 4);
+    r[k]   = (uint8_t)(t[0] | (t[1] << 4));
+    r[k+1] = (uint8_t)(t[2] | (t[3] << 4));
+    r[k+2] = (uint8_t)(t[4] | (t[5] << 4));
+    r[k+3] = (uint8_t)(t[6] | (t[7] << 4));
     k += 4;
   }
 #elif (KYBER_POLYCOMPRESSEDBYTES == 160)
@@ -50,11 +50,11 @@ void poly_compress(uint8_t *r, poly *a)
     for(j=0;j<8;j++)
       t[j] = ((((uint32_t)a->coeffs[i+j] << 5) + KYBER_Q/2) / KYBER_Q) & 31;
 
-    r[k]   =  t[0]       | (t[1] << 5);
-    r[k+1] = (t[1] >> 3) | (t[2] << 2) | (t[3] << 7);
-    r[k+2] = (t[3] >> 1) | (t[4] << 4);
-    r[k+3] = (t[4] >> 4) | (t[5] << 1) | (t[6] << 6);
-    r[k+4] = (t[6] >> 2) | (t[7] << 3);
+    r[k]   = (uint8_t)( t[0]       | (t[1] << 5));
+    r[k+1] = (uint8_t)((t[1] >> 3) | (t[2] << 2) | (t[3] << 7));
+    r[k+2] = (uint8_t)((t[3] >> 1) | (t[4] << 4));
+    r[k+3] = (uint8_t)((t[4] >> 4) | (t[5] << 1) | (t[6] << 6));
+    r[k+4] = (uint8_t)((t[6] >> 2) | (t[7] << 3));
     k += 5;
   }
 #else
@@ -77,40 +77,40 @@ void poly_decompress(poly *r, const uint8_t *a)
 #if (KYBER_POLYCOMPRESSEDBYTES == 96)
   for(i=0;i<KYBER_N;i+=8)
   {
-    r->coeffs[i+0] =  (((a[0] & 7) * KYBER_Q) + 4) >> 3;
-    r->coeffs[i+1] = ((((a[0] >> 3) & 7) * KYBER_Q) + 4) >> 3;
-    r->coeffs[i+2] = ((((a[0] >> 6) | ((a[1] << 2) & 4)) * KYBER_Q) + 4) >> 3;
-    r->coeffs[i+3] = ((((a[1] >> 1) & 7) * KYBER_Q) + 4) >> 3;
-    r->coeffs[i+4] = ((((a[1] >> 4) & 7) * KYBER_Q) + 4) >> 3;
-    r->coeffs[i+5] = ((((a[1] >> 7) | ((a[2] << 1) & 6)) * KYBER_Q) + 4) >> 3;
-    r->coeffs[i+6] = ((((a[2] >> 2) & 7) * KYBER_Q) + 4) >> 3;
-    r->coeffs[i+7] = ((((a[2] >> 5)) * KYBER_Q) + 4) >> 3;
+    r->coeffs[i+0] = (int16_t)( (((a[0] & 7) * KYBER_Q) + 4) >> 3);
+    r->coeffs[i+1] = (int16_t)(((((a[0] >> 3) & 7) * KYBER_Q) + 4) >> 3);
+    r->coeffs[i+2] = (int16_t)(((((a[0] >> 6) | ((a[1] << 2) & 4)) * KYBER_Q) + 4) >> 3);
+    r->coeffs[i+3] = (int16_t)(((((a[1] >> 1) & 7) * KYBER_Q) + 4) >> 3);
+    r->coeffs[i+4] = (int16_t)(((((a[1] >> 4) & 7) * KYBER_Q) + 4) >> 3);
+    r->coeffs[i+5] = (int16_t)(((((a[1] >> 7) | ((a[2] << 1) & 6)) * KYBER_Q) + 4) >> 3);
+    r->coeffs[i+6] = (int16_t)(((((a[2] >> 2) & 7) * KYBER_Q) + 4) >> 3);
+    r->coeffs[i+7] = (int16_t)(((((a[2] >> 5)) * KYBER_Q) + 4) >> 3);
     a += 3;
   }
 #elif (KYBER_POLYCOMPRESSEDBYTES == 128)
   for(i=0;i<KYBER_N;i+=8)
   {
-    r->coeffs[i+0] = (((a[0] & 15) * KYBER_Q) + 8) >> 4;
-    r->coeffs[i+1] = (((a[0] >> 4) * KYBER_Q) + 8) >> 4;
-    r->coeffs[i+2] = (((a[1] & 15) * KYBER_Q) + 8) >> 4;
-    r->coeffs[i+3] = (((a[1] >> 4) * KYBER_Q) + 8) >> 4;
-    r->coeffs[i+4] = (((a[2] & 15) * KYBER_Q) + 8) >> 4;
-    r->coeffs[i+5] = (((a[2] >> 4) * KYBER_Q) + 8) >> 4;
-    r->coeffs[i+6] = (((a[3] & 15) * KYBER_Q) + 8) >> 4;
-    r->coeffs[i+7] = (((a[3] >> 4) * KYBER_Q) + 8) >> 4;
+    r->coeffs[i+0] = (int16_t)((((a[0] & 15) * KYBER_Q) + 8) >> 4);
+    r->coeffs[i+1] = (int16_t)((((a[0] >> 4) * KYBER_Q) + 8) >> 4);
+    r->coeffs[i+2] = (int16_t)((((a[1] & 15) * KYBER_Q) + 8) >> 4);
+    r->coeffs[i+3] = (int16_t)((((a[1] >> 4) * KYBER_Q) + 8) >> 4);
+    r->coeffs[i+4] = (int16_t)((((a[2] & 15) * KYBER_Q) + 8) >> 4);
+    r->coeffs[i+5] = (int16_t)((((a[2] >> 4) * KYBER_Q) + 8) >> 4);
+    r->coeffs[i+6] = (int16_t)((((a[3] & 15) * KYBER_Q) + 8) >> 4);
+    r->coeffs[i+7] = (int16_t)((((a[3] >> 4) * KYBER_Q) + 8) >> 4);
     a += 4;
   }
 #elif (KYBER_POLYCOMPRESSEDBYTES == 160)
   for(i=0;i<KYBER_N;i+=8)
   {
-    r->coeffs[i+0] =  (((a[0] & 31) * KYBER_Q) + 16) >> 5;
-    r->coeffs[i+1] = ((((a[0] >> 5) | ((a[1] & 3) << 3)) * KYBER_Q) + 16) >> 5;
-    r->coeffs[i+2] = ((((a[1] >> 2) & 31) * KYBER_Q) + 16) >> 5;
-    r->coeffs[i+3] = ((((a[1] >> 7) | ((a[2] & 15) << 1)) * KYBER_Q) + 16) >> 5;
-    r->coeffs[i+4] = ((((a[2] >> 4) | ((a[3] &  1) << 4)) * KYBER_Q) + 16) >> 5;
-    r->coeffs[i+5] = ((((a[3] >> 1) & 31) * KYBER_Q) + 16) >> 5;
-    r->coeffs[i+6] = ((((a[3] >> 6) | ((a[4] &  7) << 2)) * KYBER_Q) + 16) >> 5;
-    r->coeffs[i+7] =  (((a[4] >> 3) * KYBER_Q) + 16) >> 5;
+    r->coeffs[i+0] = (int16_t)( (((a[0] & 31) * KYBER_Q) + 16) >> 5);
+    r->coeffs[i+1] = (int16_t)(((((a[0] >> 5) | ((a[1] & 3) << 3)) * KYBER_Q) + 16) >> 5);
+    r->coeffs[i+2] = (int16_t)(((((a[1] >> 2) & 31) * KYBER_Q) + 16) >> 5);
+    r->coeffs[i+3] = (int16_t)(((((a[1] >> 7) | ((a[2] & 15) << 1)) * KYBER_Q) + 16) >> 5);
+    r->coeffs[i+4] = (int16_t)(((((a[2] >> 4) | ((a[3] &  1) << 4)) * KYBER_Q) + 16) >> 5);
+    r->coeffs[i+5] = (int16_t)(((((a[3] >> 1) & 31) * KYBER_Q) + 16) >> 5);
+    r->coeffs[i+6] = (int16_t)(((((a[3] >> 6) | ((a[4] &  7) << 2)) * KYBER_Q) + 16) >> 5);
+    r->coeffs[i+7] = (int16_t)( (((a[4] >> 3) * KYBER_Q) + 16) >> 5);
     a += 5;
   }
 #else
@@ -129,7 +129,7 @@ void poly_decompress(poly *r, const uint8_t *a)
 void poly_tobytes(uint8_t *r, poly *a)
 {
   int i;
-  uint16_t t0, t1;
+  int16_t t0, t1;
 
   poly_csubq(a);
 
@@ -137,8 +137,8 @@ void poly_tobytes(uint8_t *r, poly *a)
     t0 = a->coeffs[2*i];
     t1 = a->coeffs[2*i+1];
     r[3*i] = t0 & 0xff;
-    r[3*i+1] = (t0 >> 8) | ((t1 & 0xf) << 4);
-    r[3*i+2] = t1 >> 4;
+    r[3*i+1] = (uint8_t)((t0 >> 8) | ((t1 & 0xf) << 4));
+    r[3*i+2] = (uint8_t)(t1 >> 4);
   }
 }
 
@@ -156,8 +156,8 @@ void poly_frombytes(poly *r, const uint8_t *a)
   int i;
 
   for(i=0;i<KYBER_N/2;i++){
-    r->coeffs[2*i]   = a[3*i]        | ((uint16_t)a[3*i+1] & 0x0f) << 8;
-    r->coeffs[2*i+1] = a[3*i+1] >> 4 | ((uint16_t)a[3*i+2] & 0xff) << 4;
+    r->coeffs[2*i]   = (int16_t)(a[3*i]        | ((uint16_t)a[3*i+1] & 0x0f) << 8);
+    r->coeffs[2*i+1] = (int16_t)(a[3*i+1] >> 4 | ((uint16_t)a[3*i+2] & 0xff) << 4);
   }
 }
 

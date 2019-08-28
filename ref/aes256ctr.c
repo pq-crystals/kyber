@@ -585,11 +585,7 @@ static void br_aes_ct64_ctr_run(uint64_t sk_exp[120], const uint8_t *iv, uint32_
 *              - const uint8_t *key:   pointer to 32-byte key
 *              - uint8_t nonce:        1-byte nonce (will be zero-padded to 12 bytes)
 **************************************************/
-<<<<<<< HEAD
-void aes256_prf(uint8_t *output, unsigned long long outlen, const unsigned char *key, const unsigned char nonce)
-=======
-void PQCLEAN_NAMESPACE_aes256_prf(uint8_t *output, size_t outlen, const uint8_t *key, uint8_t nonce)
->>>>>>> 940ccb3... Clean up aes256ctr
+void aes256_prf(uint8_t *output, size_t outlen, const uint8_t *key, uint8_t nonce)
 {
   uint64_t sk_exp[120];
   uint8_t iv[12];
