@@ -154,7 +154,7 @@ static unsigned int rej_uniform(int16_t *r, unsigned int len, const uint8_t *buf
 *              - const uint8_t *seed: pointer to input seed
 *              - int transposed:            boolean deciding whether A or A^T is generated
 **************************************************/
-static void gen_matrix(polyvec *a, const uint8_t *seed, int transposed)
+void gen_matrix(polyvec *a, const uint8_t *seed, int transposed)
 {
   unsigned int ctr;
   uint8_t i, j;

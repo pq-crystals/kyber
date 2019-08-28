@@ -142,7 +142,7 @@ static unsigned int rej_uniform_ref(int16_t *r, unsigned int len, const uint8_t 
 **************************************************/
 #define  GEN_MATRIX_MAXNBLOCKS ((530+XOF_BLOCKBYTES)/XOF_BLOCKBYTES)    /* 530 is expected number of required bytes */
 #ifdef KYBER_90S
-static void gen_matrix(polyvec *a, const uint8_t *seed, int transposed)
+void gen_matrix(polyvec *a, const uint8_t *seed, int transposed)
 {
   unsigned int i, j, ctr;
   union {
@@ -177,7 +177,7 @@ static void gen_matrix(polyvec *a, const uint8_t *seed, int transposed)
 }
 #else
 #if KYBER_K == 2
-static void gen_matrix(polyvec *a, const uint8_t *seed, int transposed)
+void gen_matrix(polyvec *a, const uint8_t *seed, int transposed)
 {
   unsigned int ctr0, ctr1, ctr2, ctr3, bufbytes;
   union {
@@ -216,7 +216,7 @@ static void gen_matrix(polyvec *a, const uint8_t *seed, int transposed)
   poly_nttunpack(&a[1].vec[1]);
 }
 #elif KYBER_K == 3
-static void gen_matrix(polyvec *a, const uint8_t *seed, int transposed)
+void gen_matrix(polyvec *a, const uint8_t *seed, int transposed)
 {
   unsigned int ctr0, ctr1, ctr2, ctr3, bufbytes;
   union {
@@ -305,7 +305,7 @@ static void gen_matrix(polyvec *a, const uint8_t *seed, int transposed)
   poly_nttunpack(&a[2].vec[2]);
 }
 #elif KYBER_K == 4
-static void gen_matrix(polyvec *a, const uint8_t *seed, int transposed)
+void gen_matrix(polyvec *a, const uint8_t *seed, int transposed)
 {
   uint16_t i;
   unsigned int ctr0, ctr1, ctr2, ctr3, bufbytes;

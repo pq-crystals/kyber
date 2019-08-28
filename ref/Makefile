@@ -113,7 +113,7 @@ speed1024-90s: $(SOURCESNINETIES) $(HEADERS90S) cpucycles.h cpucycles.c speed.c 
 
 
 PQCgenKAT_kem: $(SOURCESKECCAK) $(HEADERSKECCAK) PQCgenKAT_kem.c rng.c rng.h
-	$(CC) $(NISTFLAGS) -o $@ $(SOURCESKECCAK) -I. rng.c PQCgenKAT_kem.c -lcrypto
+	$(CC) $(NISTFLAGS) -o $@ $(SOURCESKECCAK) -I. -DKYBER_K=3 rng.c PQCgenKAT_kem.c -lcrypto
 
 .PHONY: clean test
 

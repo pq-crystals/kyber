@@ -1,6 +1,8 @@
 #ifndef INDCPA_H
 #define INDCPA_H
 
+#include "polyvec.h"
+
 #include <stdint.h>
 
 void indcpa_keypair(
