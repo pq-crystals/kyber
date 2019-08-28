@@ -1,1 +1,0 @@
-params-kyber512.h
