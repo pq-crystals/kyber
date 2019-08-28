@@ -80,7 +80,7 @@ static inline void aesni_encrypt8(uint8_t *out,
   _mm_storeu_si128((__m128i*)(out+112), temp7);
 }
 
-void PQCLEAN_NAMESPACE_aes256ctr_init(aes256ctr_ctx *state,
+void aes256ctr_init(aes256ctr_ctx *state,
                     const uint8_t *key,
                     uint16_t nonce)
 {
@@ -138,11 +138,11 @@ void PQCLEAN_NAMESPACE_aes256ctr_init(aes256ctr_ctx *state,
   state->rkeys[idx++] = temp0;
 }
 
-void PQCLEAN_NAMESPACE_aes256ctr_select(aes256ctr_ctx *state, uint16_t nonce) {
+void aes256ctr_select(aes256ctr_ctx *state, uint16_t nonce) {
   state->n = _mm_set_epi64x(0, (uint64_t)nonce << 48);
 }
 
-void PQCLEAN_NAMESPACE_aes256ctr_squeezeblocks(uint8_t *out,
+void aes256ctr_squeezeblocks(uint8_t *out,
                              size_t nblocks,
                              aes256ctr_ctx *state)
 {
@@ -154,7 +154,7 @@ void PQCLEAN_NAMESPACE_aes256ctr_squeezeblocks(uint8_t *out,
   }
 }
 
-void PQCLEAN_NAMESPACE_aes256ctr_prf(uint8_t *out,
+void aes256ctr_prf(uint8_t *out,
                    size_t outlen,
                    const uint8_t *seed,
                    uint8_t nonce)
@@ -163,7 +163,7 @@ void PQCLEAN_NAMESPACE_aes256ctr_prf(uint8_t *out,
   uint8_t buf[128];
   aes256ctr_ctx state;
 
-  PQCLEAN_NAMESPACE_aes256ctr_init(&state, seed, (uint16_t)nonce << 8);
+  aes256ctr_init(&state, seed, (uint16_t)nonce << 8);
 
   while(outlen >= 128) {
     aesni_encrypt8(out, &state.n, state.rkeys);

@@ -5,11 +5,6 @@
 #include <stdio.h>
 #include <string.h>
 
-#define CRYPTO_BYTES PQCLEAN_NAMESPACE_CRYPTO_BYTES
-#define CRYPTO_PUBLICKEYBYTES PQCLEAN_NAMESPACE_CRYPTO_PUBLICKEYBYTES
-#define CRYPTO_CIPHERTEXTBYTES PQCLEAN_NAMESPACE_CRYPTO_CIPHERTEXTBYTES
-#define CRYPTO_SECRETKEYBYTES PQCLEAN_NAMESPACE_CRYPTO_SECRETKEYBYTES
-
 int main(void)
 {
   uint8_t pkb[CRYPTO_PUBLICKEYBYTES];
@@ -35,18 +30,18 @@ int main(void)
   for(i=0;i<KEX_SSBYTES;i++)
     zero[i] = 0;
 
-  PQCLEAN_NAMESPACE_crypto_kem_keypair(pkb, skb); // Generate static key for Bob
+  crypto_kem_keypair(pkb, skb); // Generate static key for Bob
 
-  PQCLEAN_NAMESPACE_crypto_kem_keypair(pka, ska); // Generate static key for Alice
+  crypto_kem_keypair(pka, ska); // Generate static key for Alice
 
 
   // Perform unilaterally authenticated key exchange
 
-  PQCLEAN_NAMESPACE_kex_uake_initA(uake_senda, tk, eska, pkb); // Run by Alice
+  kex_uake_initA(uake_senda, tk, eska, pkb); // Run by Alice
 
-  PQCLEAN_NAMESPACE_kex_uake_sharedB(uake_sendb, kb, uake_senda, skb); // Run by Bob
+  kex_uake_sharedB(uake_sendb, kb, uake_senda, skb); // Run by Bob
 
-  PQCLEAN_NAMESPACE_kex_uake_sharedA(ka, uake_sendb, tk, eska); // Run by Alice
+  kex_uake_sharedA(ka, uake_sendb, tk, eska); // Run by Alice
 
   if(memcmp(ka,kb,KEX_SSBYTES))
     printf("Error in UAKE\n");
@@ -56,11 +51,11 @@ int main(void)
 
   // Perform mutually authenticated key exchange
 
-  PQCLEAN_NAMESPACE_kex_ake_initA(ake_senda, tk, eska, pkb); // Run by Alice
+  kex_ake_initA(ake_senda, tk, eska, pkb); // Run by Alice
 
-  PQCLEAN_NAMESPACE_kex_ake_sharedB(ake_sendb, kb, ake_senda, skb, pka); // Run by Bob
+  kex_ake_sharedB(ake_sendb, kb, ake_senda, skb, pka); // Run by Bob
 
-  PQCLEAN_NAMESPACE_kex_ake_sharedA(ka, ake_sendb, tk, eska, ska); // Run by Alice
+  kex_ake_sharedA(ka, ake_sendb, tk, eska, ska); // Run by Alice
 
   if(memcmp(ka,kb,KEX_SSBYTES))
     printf("Error in AKE\n");

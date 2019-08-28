@@ -12,26 +12,26 @@ typedef struct{
   int16_t coeffs[KYBER_N];
 } poly;
 
-void PQCLEAN_NAMESPACE_poly_compress(uint8_t *r, poly *a);
-void PQCLEAN_NAMESPACE_poly_decompress(poly *r, const uint8_t *a);
+void poly_compress(uint8_t *r, poly *a);
+void poly_decompress(poly *r, const uint8_t *a);
 
-void PQCLEAN_NAMESPACE_poly_tobytes(uint8_t *r, poly *a);
-void PQCLEAN_NAMESPACE_poly_frombytes(poly *r, const uint8_t *a);
+void poly_tobytes(uint8_t *r, poly *a);
+void poly_frombytes(poly *r, const uint8_t *a);
 
-void PQCLEAN_NAMESPACE_poly_frommsg(poly *r, const uint8_t msg[KYBER_SYMBYTES]);
-void PQCLEAN_NAMESPACE_poly_tomsg(uint8_t msg[KYBER_SYMBYTES], poly *a);
+void poly_frommsg(poly *r, const uint8_t msg[KYBER_SYMBYTES]);
+void poly_tomsg(uint8_t msg[KYBER_SYMBYTES], poly *a);
 
-void PQCLEAN_NAMESPACE_poly_getnoise(poly *r,const uint8_t *seed, uint8_t nonce);
+void poly_getnoise(poly *r,const uint8_t *seed, uint8_t nonce);
 
-void PQCLEAN_NAMESPACE_poly_ntt(poly *r);
-void PQCLEAN_NAMESPACE_poly_invntt(poly *r);
-void PQCLEAN_NAMESPACE_poly_basemul(poly *r, const poly *a, const poly *b);
-void PQCLEAN_NAMESPACE_poly_frommont(poly *r);
+void poly_ntt(poly *r);
+void poly_invntt(poly *r);
+void poly_basemul(poly *r, const poly *a, const poly *b);
+void poly_frommont(poly *r);
 
-void PQCLEAN_NAMESPACE_poly_reduce(poly *r);
-void PQCLEAN_NAMESPACE_poly_csubq(poly *r);
+void poly_reduce(poly *r);
+void poly_csubq(poly *r);
 
-void PQCLEAN_NAMESPACE_poly_add(poly *r, const poly *a, const poly *b);
-void PQCLEAN_NAMESPACE_poly_sub(poly *r, const poly *a, const poly *b);
+void poly_add(poly *r, const poly *a, const poly *b);
+void poly_sub(poly *r, const poly *a, const poly *b);
 
 #endif

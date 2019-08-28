@@ -16,12 +16,12 @@
 * Arguments:   - uint8_t *r: pointer to output byte array
 *              - const poly *a:    pointer to input polynomial
 **************************************************/
-void PQCLEAN_NAMESPACE_poly_compress(uint8_t *r, poly *a)
+void poly_compress(uint8_t *r, poly *a)
 {
   uint8_t t[8];
   size_t i,j,k=0;
 
-  PQCLEAN_NAMESPACE_poly_csubq(a);
+  poly_csubq(a);
 
 #if (KYBER_POLYCOMPRESSEDBYTES == 96)
   for(i=0;i<KYBER_N;i+=8)
@@ -73,7 +73,7 @@ void PQCLEAN_NAMESPACE_poly_compress(uint8_t *r, poly *a)
 * Arguments:   - poly *r:                pointer to output polynomial
 *              - const uint8_t *a: pointer to input byte array
 **************************************************/
-void PQCLEAN_NAMESPACE_poly_decompress(poly *r, const uint8_t *a)
+void poly_decompress(poly *r, const uint8_t *a)
 {
   size_t i;
 #if (KYBER_POLYCOMPRESSEDBYTES == 96)
@@ -128,10 +128,10 @@ void PQCLEAN_NAMESPACE_poly_decompress(poly *r, const uint8_t *a)
 * Arguments:   - uint8_t *r: pointer to output byte array
 *              - const poly *a:    pointer to input polynomial
 **************************************************/
-void PQCLEAN_NAMESPACE_poly_tobytes(uint8_t *r, poly *a)
+void poly_tobytes(uint8_t *r, poly *a)
 {
-  PQCLEAN_NAMESPACE_ntttobytes_avx(r, a->coeffs);
-  PQCLEAN_NAMESPACE_ntttobytes_avx(r + 192, a->coeffs + 128);
+  ntttobytes_avx(r, a->coeffs);
+  ntttobytes_avx(r + 192, a->coeffs + 128);
 }
 
 /*************************************************
@@ -143,10 +143,10 @@ void PQCLEAN_NAMESPACE_poly_tobytes(uint8_t *r, poly *a)
 * Arguments:   - poly *r:                pointer to output polynomial
 *              - const uint8_t *a: pointer to input byte array
 **************************************************/
-void PQCLEAN_NAMESPACE_poly_frombytes(poly *r, const uint8_t *a)
+void poly_frombytes(poly *r, const uint8_t *a)
 {
-  PQCLEAN_NAMESPACE_nttfrombytes_avx(r->coeffs, a);
-  PQCLEAN_NAMESPACE_nttfrombytes_avx(r->coeffs + 128, a + 192);
+  nttfrombytes_avx(r->coeffs, a);
+  nttfrombytes_avx(r->coeffs + 128, a + 192);
 }
 
 /*************************************************
@@ -160,17 +160,17 @@ void PQCLEAN_NAMESPACE_poly_frombytes(poly *r, const uint8_t *a)
 *              - const uint8_t *seed: pointer to input seed
 *              - uint8_t nonce:       one-byte input nonce
 **************************************************/
-void PQCLEAN_NAMESPACE_poly_getnoise(poly *r, const uint8_t *seed, uint8_t nonce)
+void poly_getnoise(poly *r, const uint8_t *seed, uint8_t nonce)
 {
   uint8_t buf[KYBER_ETA*KYBER_N/4];
 
   prf(buf, KYBER_ETA*KYBER_N/4, seed, nonce);
-  PQCLEAN_NAMESPACE_cbd(r, buf);
+  cbd(r, buf);
 }
 
 #ifndef KYBER_90S
 // FIXME
-void PQCLEAN_NAMESPACE_poly_getnoise4x(poly *r0,
+void poly_getnoise4x(poly *r0,
                      poly *r1,
                      poly *r2,
                      poly *r3,
@@ -182,12 +182,12 @@ void PQCLEAN_NAMESPACE_poly_getnoise4x(poly *r0,
 {
   uint8_t buf[4][SHAKE256_RATE];
 
-  PQCLEAN_NAMESPACE_shake256x4_prf(buf[0], buf[1], buf[2], buf[3], SHAKE256_RATE, seed, nonce0, nonce1, nonce2, nonce3);
+  shake256x4_prf(buf[0], buf[1], buf[2], buf[3], SHAKE256_RATE, seed, nonce0, nonce1, nonce2, nonce3);
 
-  PQCLEAN_NAMESPACE_cbd(r0, buf[0]);
-  PQCLEAN_NAMESPACE_cbd(r1, buf[1]);
-  PQCLEAN_NAMESPACE_cbd(r2, buf[2]);
-  PQCLEAN_NAMESPACE_cbd(r3, buf[3]);
+  cbd(r0, buf[0]);
+  cbd(r1, buf[1]);
+  cbd(r2, buf[2]);
+  cbd(r3, buf[3]);
 }
 #endif
 
@@ -200,12 +200,12 @@ void PQCLEAN_NAMESPACE_poly_getnoise4x(poly *r0,
 *
 * Arguments:   - uint16_t *r: pointer to in/output polynomial
 **************************************************/
-void PQCLEAN_NAMESPACE_poly_ntt(poly *r)
+void poly_ntt(poly *r)
 {
-  PQCLEAN_NAMESPACE_ntt_level0_avx(r->coeffs, PQCLEAN_NAMESPACE_zetas_exp);
-  PQCLEAN_NAMESPACE_ntt_level0_avx(r->coeffs + 64, PQCLEAN_NAMESPACE_zetas_exp);
-  PQCLEAN_NAMESPACE_ntt_levels1t6_avx(r->coeffs, PQCLEAN_NAMESPACE_zetas_exp + 4);
-  PQCLEAN_NAMESPACE_ntt_levels1t6_avx(r->coeffs + 128, PQCLEAN_NAMESPACE_zetas_exp + 200);
+  ntt_level0_avx(r->coeffs, zetas_exp);
+  ntt_level0_avx(r->coeffs + 64, zetas_exp);
+  ntt_levels1t6_avx(r->coeffs, zetas_exp + 4);
+  ntt_levels1t6_avx(r->coeffs + 128, zetas_exp + 200);
 }
 
 /*************************************************
@@ -217,60 +217,60 @@ void PQCLEAN_NAMESPACE_poly_ntt(poly *r)
 *
 * Arguments:   - uint16_t *a: pointer to in/output polynomial
 **************************************************/
-void PQCLEAN_NAMESPACE_poly_invntt(poly *r)
+void poly_invntt(poly *r)
 {
-  PQCLEAN_NAMESPACE_invntt_levels0t5_avx(r->coeffs, PQCLEAN_NAMESPACE_zetas_inv_exp);
-  PQCLEAN_NAMESPACE_invntt_levels0t5_avx(r->coeffs + 128, PQCLEAN_NAMESPACE_zetas_inv_exp + 196);
-  PQCLEAN_NAMESPACE_invntt_level6_avx(r->coeffs, PQCLEAN_NAMESPACE_zetas_inv_exp + 392);
+  invntt_levels0t5_avx(r->coeffs, zetas_inv_exp);
+  invntt_levels0t5_avx(r->coeffs + 128, zetas_inv_exp + 196);
+  invntt_level6_avx(r->coeffs, zetas_inv_exp + 392);
 }
 
 // FIXME
-void PQCLEAN_NAMESPACE_poly_nttunpack(poly *r)
+void poly_nttunpack(poly *r)
 {
-  PQCLEAN_NAMESPACE_nttunpack_avx(r->coeffs);
-  PQCLEAN_NAMESPACE_nttunpack_avx(r->coeffs + 128);
+  nttunpack_avx(r->coeffs);
+  nttunpack_avx(r->coeffs + 128);
 }
 
 //XXX Add comment
-void PQCLEAN_NAMESPACE_poly_basemul(poly *r, const poly *a, const poly *b)
+void poly_basemul(poly *r, const poly *a, const poly *b)
 {
-  PQCLEAN_NAMESPACE_basemul_avx(r->coeffs,
+  basemul_avx(r->coeffs,
               a->coeffs,
               b->coeffs,
-              PQCLEAN_NAMESPACE_zetas_exp + 152);
-  PQCLEAN_NAMESPACE_basemul_avx(r->coeffs + 64,
+              zetas_exp + 152);
+  basemul_avx(r->coeffs + 64,
               a->coeffs + 64,
               b->coeffs + 64,
-              PQCLEAN_NAMESPACE_zetas_exp + 184);
-  PQCLEAN_NAMESPACE_basemul_avx(r->coeffs + 128,
+              zetas_exp + 184);
+  basemul_avx(r->coeffs + 128,
               a->coeffs + 128,
               b->coeffs + 128,
-              PQCLEAN_NAMESPACE_zetas_exp + 348);
-  PQCLEAN_NAMESPACE_basemul_avx(r->coeffs + 192,
+              zetas_exp + 348);
+  basemul_avx(r->coeffs + 192,
               a->coeffs + 192,
               b->coeffs + 192,
-              PQCLEAN_NAMESPACE_zetas_exp + 380);
+              zetas_exp + 380);
 }
 
 // FIXME
-void PQCLEAN_NAMESPACE_poly_frommont(poly *r)
+void poly_frommont(poly *r)
 {
-  PQCLEAN_NAMESPACE_frommont_avx(r->coeffs);
-  PQCLEAN_NAMESPACE_frommont_avx(r->coeffs + 128);
+  frommont_avx(r->coeffs);
+  frommont_avx(r->coeffs + 128);
 }
 
 // FIXME
-void PQCLEAN_NAMESPACE_poly_reduce(poly *r)
+void poly_reduce(poly *r)
 {
-  PQCLEAN_NAMESPACE_reduce_avx(r->coeffs);
-  PQCLEAN_NAMESPACE_reduce_avx(r->coeffs + 128);
+  reduce_avx(r->coeffs);
+  reduce_avx(r->coeffs + 128);
 }
 
 // FIXME
-void PQCLEAN_NAMESPACE_poly_csubq(poly *r)
+void poly_csubq(poly *r)
 {
-  PQCLEAN_NAMESPACE_csubq_avx(r->coeffs);
-  PQCLEAN_NAMESPACE_csubq_avx(r->coeffs + 128);
+  csubq_avx(r->coeffs);
+  csubq_avx(r->coeffs + 128);
 }
 
 /*************************************************
@@ -282,7 +282,7 @@ void PQCLEAN_NAMESPACE_poly_csubq(poly *r)
 *            - const poly *a: pointer to first input polynomial
 *            - const poly *b: pointer to second input polynomial
 **************************************************/
-void PQCLEAN_NAMESPACE_poly_add(poly *r, const poly *a, const poly *b)
+void poly_add(poly *r, const poly *a, const poly *b)
 {
   int i;
   __m256i vec0, vec1;
@@ -304,7 +304,7 @@ void PQCLEAN_NAMESPACE_poly_add(poly *r, const poly *a, const poly *b)
 *            - const poly *a: pointer to first input polynomial
 *            - const poly *b: pointer to second input polynomial
 **************************************************/
-void PQCLEAN_NAMESPACE_poly_sub(poly *r, const poly *a, const poly *b)
+void poly_sub(poly *r, const poly *a, const poly *b)
 {
   int i;
   __m256i vec0, vec1;
@@ -325,7 +325,7 @@ void PQCLEAN_NAMESPACE_poly_sub(poly *r, const poly *a, const poly *b)
 * Arguments:   - poly *r:                  pointer to output polynomial
 *              - const uint8_t *msg: pointer to input message
 **************************************************/
-void PQCLEAN_NAMESPACE_poly_frommsg(poly *r, const uint8_t msg[KYBER_SYMBYTES])
+void poly_frommsg(poly *r, const uint8_t msg[KYBER_SYMBYTES])
 {
   int i;
   __m128i tmp;
@@ -418,7 +418,7 @@ void PQCLEAN_NAMESPACE_poly_frommsg(poly *r, const uint8_t msg[KYBER_SYMBYTES])
 * Arguments:   - uint8_t *msg: pointer to output message
 *              - const poly *a:      pointer to input polynomial
 **************************************************/
-void PQCLEAN_NAMESPACE_poly_tomsg(uint8_t msg[KYBER_SYMBYTES], poly *a)
+void poly_tomsg(uint8_t msg[KYBER_SYMBYTES], poly *a)
 {
   uint32_t i, small;
   __m256i vec, tmp;

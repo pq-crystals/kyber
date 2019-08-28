@@ -34,7 +34,7 @@ static uint32_t load32_littleendian(const uint8_t *x)
 * Arguments:   - poly *r:                  pointer to output polynomial
 *              - const uint8_t *buf: pointer to input byte array
 **************************************************/
-void PQCLEAN_NAMESPACE_cbd(poly *r, const uint8_t *buf)
+void cbd(poly *r, const uint8_t *buf)
 {
   uint32_t d,t;
   int16_t a,b;

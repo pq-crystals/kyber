@@ -9,16 +9,16 @@ typedef union {
     __m256i as_vec;
 } aligned_uint16_t;
 
-extern const uint16_t PQCLEAN_NAMESPACE_zetas_exp[396];
-extern const uint16_t PQCLEAN_NAMESPACE_zetas_inv_exp[396];
+extern const uint16_t zetas_exp[396];
+extern const uint16_t zetas_inv_exp[396];
 
-extern const aligned_uint16_t PQCLEAN_NAMESPACE_16xq;
-extern const aligned_uint16_t PQCLEAN_NAMESPACE_16xqinv;
-extern const aligned_uint16_t PQCLEAN_NAMESPACE_16xv;
-extern const aligned_uint16_t PQCLEAN_NAMESPACE_16xflo;
-extern const aligned_uint16_t PQCLEAN_NAMESPACE_16xfhi;
-extern const aligned_uint16_t PQCLEAN_NAMESPACE_16xmontsqlo;
-extern const aligned_uint16_t PQCLEAN_NAMESPACE_16xmontsqhi;
-extern const aligned_uint16_t PQCLEAN_NAMESPACE_16xmask;
+extern const aligned_uint16_t _16xq;
+extern const aligned_uint16_t _16xqinv;
+extern const aligned_uint16_t _16xv;
+extern const aligned_uint16_t _16xflo;
+extern const aligned_uint16_t _16xfhi;
+extern const aligned_uint16_t _16xmontsqlo;
+extern const aligned_uint16_t _16xmontsqhi;
+extern const aligned_uint16_t _16xmask;
 
 #endif

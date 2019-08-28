@@ -17,10 +17,10 @@
 *
 * Returns 0 (success)
 **************************************************/
-int PQCLEAN_NAMESPACE_crypto_kem_keypair(uint8_t *pk, unsigned char *sk)
+int crypto_kem_keypair(uint8_t *pk, unsigned char *sk)
 {
   size_t i;
-  PQCLEAN_NAMESPACE_indcpa_keypair(pk,sk);
+  indcpa_keypair(pk,sk);
   for(i=0;i<KYBER_INDCPA_PUBLICKEYBYTES;i++)
     sk[i+KYBER_INDCPA_SECRETKEYBYTES] = pk[i];
   hash_h(sk+KYBER_SECRETKEYBYTES-2*KYBER_SYMBYTES, pk, KYBER_PUBLICKEYBYTES);
@@ -40,7 +40,7 @@ int PQCLEAN_NAMESPACE_crypto_kem_keypair(uint8_t *pk, unsigned char *sk)
 *
 * Returns 0 (success)
 **************************************************/
-int PQCLEAN_NAMESPACE_crypto_kem_enc(uint8_t *ct, unsigned char *ss, const unsigned char *pk)
+int crypto_kem_enc(uint8_t *ct, unsigned char *ss, const unsigned char *pk)
 {
   uint8_t  kr[2*KYBER_SYMBYTES];                                     /* Will contain key, coins */
   uint8_t buf[2*KYBER_SYMBYTES];
@@ -51,7 +51,7 @@ int PQCLEAN_NAMESPACE_crypto_kem_enc(uint8_t *ct, unsigned char *ss, const unsig
   hash_h(buf+KYBER_SYMBYTES, pk, KYBER_PUBLICKEYBYTES);                    /* Multitarget countermeasure for coins + contributory KEM */
   hash_g(kr, buf, 2*KYBER_SYMBYTES);
 
-  PQCLEAN_NAMESPACE_indcpa_enc(ct, buf, pk, kr+KYBER_SYMBYTES);                              /* coins are in kr+KYBER_SYMBYTES */
+  indcpa_enc(ct, buf, pk, kr+KYBER_SYMBYTES);                              /* coins are in kr+KYBER_SYMBYTES */
 
   hash_h(kr+KYBER_SYMBYTES, ct, KYBER_CIPHERTEXTBYTES);                    /* overwrite coins in kr with H(c) */
   kdf(ss, kr, 2*KYBER_SYMBYTES);                                           /* hash concatenation of pre-k and H(c) to k */
@@ -72,7 +72,7 @@ int PQCLEAN_NAMESPACE_crypto_kem_enc(uint8_t *ct, unsigned char *ss, const unsig
 *
 * On failure, ss will contain a pseudo-random value.
 **************************************************/
-int PQCLEAN_NAMESPACE_crypto_kem_dec(uint8_t *ss, const unsigned char *ct, const unsigned char *sk)
+int crypto_kem_dec(uint8_t *ss, const unsigned char *ct, const unsigned char *sk)
 {
   size_t i;
   uint8_t fail;
@@ -81,19 +81,19 @@ int PQCLEAN_NAMESPACE_crypto_kem_dec(uint8_t *ss, const unsigned char *ct, const
   uint8_t kr[2*KYBER_SYMBYTES];                                      /* Will contain key, coins */
   const uint8_t *pk = sk+KYBER_INDCPA_SECRETKEYBYTES;
 
-  PQCLEAN_NAMESPACE_indcpa_dec(buf, ct, sk);
+  indcpa_dec(buf, ct, sk);
 
   for(i=0;i<KYBER_SYMBYTES;i++)                                            /* Multitarget countermeasure for coins + contributory KEM */
     buf[KYBER_SYMBYTES+i] = sk[KYBER_SECRETKEYBYTES-2*KYBER_SYMBYTES+i];   /* Save hash by storing H(pk) in sk */
   hash_g(kr, buf, 2*KYBER_SYMBYTES);
 
-  PQCLEAN_NAMESPACE_indcpa_enc(cmp, buf, pk, kr+KYBER_SYMBYTES);                             /* coins are in kr+KYBER_SYMBYTES */
+  indcpa_enc(cmp, buf, pk, kr+KYBER_SYMBYTES);                             /* coins are in kr+KYBER_SYMBYTES */
 
-  fail = PQCLEAN_NAMESPACE_verify(ct, cmp, KYBER_CIPHERTEXTBYTES);
+  fail = verify(ct, cmp, KYBER_CIPHERTEXTBYTES);
 
   hash_h(kr+KYBER_SYMBYTES, ct, KYBER_CIPHERTEXTBYTES);                    /* overwrite coins in kr with H(c)  */
 
-  PQCLEAN_NAMESPACE_cmov(kr, sk+KYBER_SECRETKEYBYTES-KYBER_SYMBYTES, KYBER_SYMBYTES, fail);  /* Overwrite pre-k with z on re-encryption failure */
+  cmov(kr, sk+KYBER_SECRETKEYBYTES-KYBER_SYMBYTES, KYBER_SYMBYTES, fail);  /* Overwrite pre-k with z on re-encryption failure */
 
   kdf(ss, kr, 2*KYBER_SYMBYTES);                                           /* hash concatenation of pre-k and H(c) to k */
   return 0;

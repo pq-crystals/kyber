@@ -125,7 +125,7 @@ static void keccak_squeezeblocks4x(uint8_t *h0,
   }
 }
 
-void PQCLEAN_NAMESPACE_kyber_shake128x4_absorb(keccak4x_state *state,
+void kyber_shake128x4_absorb(keccak4x_state *state,
                              const uint8_t *seed,
                              uint16_t nonce0,
                              uint16_t nonce1,
@@ -158,7 +158,7 @@ void PQCLEAN_NAMESPACE_kyber_shake128x4_absorb(keccak4x_state *state,
   keccak_absorb4x(state->s, SHAKE128_RATE, extseed[0], extseed[1], extseed[2], extseed[3], KYBER_SYMBYTES+2, 0x1F);
 }
 
-void PQCLEAN_NAMESPACE_shake128x4_squeezeblocks(uint8_t *out0,
+void shake128x4_squeezeblocks(uint8_t *out0,
                               uint8_t *out1,
                               uint8_t *out2,
                               uint8_t *out3,
@@ -212,7 +212,7 @@ static void shake256x4(uint8_t *out0,
   }
 }
 
-void PQCLEAN_NAMESPACE_shake256x4_prf(uint8_t *out0,
+void shake256x4_prf(uint8_t *out0,
                     uint8_t *out1,
                     uint8_t *out2,
                     uint8_t *out3,

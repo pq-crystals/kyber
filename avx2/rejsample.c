@@ -269,7 +269,7 @@ static const uint8_t idx[256][8] = {
 #define _mm256_cmpge_epu16(a, b)  _mm256_cmpeq_epi16(_mm256_max_epu16(a, b), a)
 #define _mm_cmpge_epu16(a, b)  _mm_cmpeq_epi16(_mm_max_epu16(a, b), a)
 
-unsigned int PQCLEAN_NAMESPACE_rej_uniform(int16_t *r,
+unsigned int rej_uniform(int16_t *r,
                          unsigned int len,
                          const uint8_t *buf,
                          unsigned int buflen)
@@ -279,8 +279,8 @@ unsigned int PQCLEAN_NAMESPACE_rej_uniform(int16_t *r,
   uint32_t good0, good1, good2;
   const __m256i bound  = _mm256_set1_epi16((int16_t)(19*KYBER_Q-1)); // -1 to use cheaper >= instead of > comparison
   const __m256i ones   = _mm256_set1_epi8(1);
-  const __m256i kyberq = _mm256_load_si256(&PQCLEAN_NAMESPACE_16xq.as_vec);
-  const __m256i v = _mm256_load_si256(&PQCLEAN_NAMESPACE_16xv.as_vec);
+  const __m256i kyberq = _mm256_load_si256(&_16xq.as_vec);
+  const __m256i v = _mm256_load_si256(&_16xv.as_vec);
   __m256i d0, d1, d2, tmp0, tmp1, tmp2, pi0, pi1, pi2;
   __m128i d, tmp, pilo, pihi;
 

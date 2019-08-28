@@ -3,6 +3,6 @@
 
 #include "poly.h"
 
-void PQCLEAN_NAMESPACE_cbd(poly *r, const uint8_t *buf);
+void cbd(poly *r, const uint8_t *buf);
 
 #endif

@@ -11,11 +11,11 @@
 * Arguments:   - uint8_t *r: pointer to output byte array (needs space for KYBER_POLYVECCOMPRESSEDBYTES)
 *              - const polyvec *a: pointer to input vector of polynomials
 **************************************************/
-void PQCLEAN_NAMESPACE_polyvec_compress(uint8_t *r, polyvec *a)
+void polyvec_compress(uint8_t *r, polyvec *a)
 {
   int i,j,k;
 
-  PQCLEAN_NAMESPACE_polyvec_csubq(a);
+  polyvec_csubq(a);
 
 #if (KYBER_POLYVECCOMPRESSEDBYTES == (KYBER_K * 352))
   uint16_t t[8];
@@ -71,7 +71,7 @@ void PQCLEAN_NAMESPACE_polyvec_compress(uint8_t *r, polyvec *a)
 * Arguments:   - polyvec *r:       pointer to output vector of polynomials
 *              - uint8_t *a: pointer to input byte array (of length KYBER_POLYVECCOMPRESSEDBYTES)
 **************************************************/
-void PQCLEAN_NAMESPACE_polyvec_decompress(polyvec *r, const uint8_t *a)
+void polyvec_decompress(polyvec *r, const uint8_t *a)
 {
   int i,j;
 #if (KYBER_POLYVECCOMPRESSEDBYTES == (KYBER_K * 352))
@@ -115,11 +115,11 @@ void PQCLEAN_NAMESPACE_polyvec_decompress(polyvec *r, const uint8_t *a)
 * Arguments:   - uint8_t *r: pointer to output byte array (needs space for KYBER_POLYVECBYTES)
 *              - const polyvec *a: pointer to input vector of polynomials 
 **************************************************/
-void PQCLEAN_NAMESPACE_polyvec_tobytes(uint8_t *r, polyvec *a)
+void polyvec_tobytes(uint8_t *r, polyvec *a)
 {
   int i;
   for(i=0;i<KYBER_K;i++)
-    PQCLEAN_NAMESPACE_poly_tobytes(r+i*KYBER_POLYBYTES, &a->vec[i]);
+    poly_tobytes(r+i*KYBER_POLYBYTES, &a->vec[i]);
 }
 
 /*************************************************
@@ -131,11 +131,11 @@ void PQCLEAN_NAMESPACE_polyvec_tobytes(uint8_t *r, polyvec *a)
 * Arguments:   - uint8_t *r: pointer to output byte array
 *              - const polyvec *a: pointer to input vector of polynomials (of length KYBER_POLYVECBYTES)
 **************************************************/
-void PQCLEAN_NAMESPACE_polyvec_frombytes(polyvec *r, const uint8_t *a)
+void polyvec_frombytes(polyvec *r, const uint8_t *a)
 {
   int i;
   for(i=0;i<KYBER_K;i++)
-    PQCLEAN_NAMESPACE_poly_frombytes(&r->vec[i], a+i*KYBER_POLYBYTES);
+    poly_frombytes(&r->vec[i], a+i*KYBER_POLYBYTES);
 }
 
 /*************************************************
@@ -145,11 +145,11 @@ void PQCLEAN_NAMESPACE_polyvec_frombytes(polyvec *r, const uint8_t *a)
 *
 * Arguments:   - polyvec *r: pointer to in/output vector of polynomials
 **************************************************/
-void PQCLEAN_NAMESPACE_polyvec_ntt(polyvec *r)
+void polyvec_ntt(polyvec *r)
 {
   int i;
   for(i=0;i<KYBER_K;i++)
-    PQCLEAN_NAMESPACE_poly_ntt(&r->vec[i]);
+    poly_ntt(&r->vec[i]);
 }
 
 /*************************************************
@@ -159,11 +159,11 @@ void PQCLEAN_NAMESPACE_polyvec_ntt(polyvec *r)
 *
 * Arguments:   - polyvec *r: pointer to in/output vector of polynomials
 **************************************************/
-void PQCLEAN_NAMESPACE_polyvec_invntt(polyvec *r)
+void polyvec_invntt(polyvec *r)
 {
   int i;
   for(i=0;i<KYBER_K;i++)
-    PQCLEAN_NAMESPACE_poly_invntt(&r->vec[i]);
+    poly_invntt(&r->vec[i]);
 }
 
 /*************************************************
@@ -175,18 +175,18 @@ void PQCLEAN_NAMESPACE_polyvec_invntt(polyvec *r)
 *            - const polyvec *a: pointer to first input vector of polynomials
 *            - const polyvec *b: pointer to second input vector of polynomials
 **************************************************/
-void PQCLEAN_NAMESPACE_polyvec_pointwise_acc(poly *r, const polyvec *a, const polyvec *b)
+void polyvec_pointwise_acc(poly *r, const polyvec *a, const polyvec *b)
 {
   int i;
   poly t;
 
-  PQCLEAN_NAMESPACE_poly_basemul(r, &a->vec[0], &b->vec[0]);
+  poly_basemul(r, &a->vec[0], &b->vec[0]);
   for(i=1;i<KYBER_K;i++) {
-    PQCLEAN_NAMESPACE_poly_basemul(&t, &a->vec[i], &b->vec[i]);
-    PQCLEAN_NAMESPACE_poly_add(r, r, &t);
+    poly_basemul(&t, &a->vec[i], &b->vec[i]);
+    poly_add(r, r, &t);
   }
 
-  PQCLEAN_NAMESPACE_poly_reduce(r);
+  poly_reduce(r);
 }
 
 /*************************************************
@@ -198,11 +198,11 @@ void PQCLEAN_NAMESPACE_polyvec_pointwise_acc(poly *r, const polyvec *a, const po
 *
 * Arguments:   - poly *r:       pointer to input/output polynomial
 **************************************************/
-void PQCLEAN_NAMESPACE_polyvec_reduce(polyvec *r)
+void polyvec_reduce(polyvec *r)
 {
   int i;
   for(i=0;i<KYBER_K;i++)
-    PQCLEAN_NAMESPACE_poly_reduce(&r->vec[i]);
+    poly_reduce(&r->vec[i]);
 }
 
 /*************************************************
@@ -214,11 +214,11 @@ void PQCLEAN_NAMESPACE_polyvec_reduce(polyvec *r)
 *
 * Arguments:   - poly *r:       pointer to input/output polynomial
 **************************************************/
-void PQCLEAN_NAMESPACE_polyvec_csubq(polyvec *r)
+void polyvec_csubq(polyvec *r)
 {
   int i;
   for(i=0;i<KYBER_K;i++)
-    PQCLEAN_NAMESPACE_poly_csubq(&r->vec[i]);
+    poly_csubq(&r->vec[i]);
 }
 
 /*************************************************
@@ -230,9 +230,9 @@ void PQCLEAN_NAMESPACE_polyvec_csubq(polyvec *r)
 *            - const polyvec *a: pointer to first input vector of polynomials
 *            - const polyvec *b: pointer to second input vector of polynomials
 **************************************************/
-void PQCLEAN_NAMESPACE_polyvec_add(polyvec *r, const polyvec *a, const polyvec *b)
+void polyvec_add(polyvec *r, const polyvec *a, const polyvec *b)
 {
   int i;
   for(i=0;i<KYBER_K;i++)
-    PQCLEAN_NAMESPACE_poly_add(&r->vec[i], &a->vec[i], &b->vec[i]);
+    poly_add(&r->vec[i], &a->vec[i], &b->vec[i]);
 }

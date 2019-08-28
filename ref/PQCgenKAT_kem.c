@@ -18,10 +18,10 @@
 #define KAT_DATA_ERROR      -3
 #define KAT_CRYPTO_FAILURE  -4
 
-#define CRYPTO_BYTES PQCLEAN_NAMESPACE_CRYPTO_BYTES
-#define CRYPTO_PUBLICKEYBYTES PQCLEAN_NAMESPACE_CRYPTO_PUBLICKEYBYTES
-#define CRYPTO_CIPHERTEXTBYTES PQCLEAN_NAMESPACE_CRYPTO_CIPHERTEXTBYTES
-#define CRYPTO_SECRETKEYBYTES PQCLEAN_NAMESPACE_CRYPTO_SECRETKEYBYTES
+#define CRYPTO_BYTES CRYPTO_BYTES
+#define CRYPTO_PUBLICKEYBYTES CRYPTO_PUBLICKEYBYTES
+#define CRYPTO_CIPHERTEXTBYTES CRYPTO_CIPHERTEXTBYTES
+#define CRYPTO_SECRETKEYBYTES CRYPTO_SECRETKEYBYTES
 
 int		FindMarker(FILE *infile, const char *marker);
 int		ReadHex(FILE *infile, uint8_t *A, int Length, char *str);
@@ -93,14 +93,14 @@ main()
         randombytes_init(seed, NULL, 256);
 
         // Generate the public/private keypair
-        if ( (ret_val = PQCLEAN_NAMESPACE_crypto_kem_keypair(pk, sk)) != 0) {
+        if ( (ret_val = crypto_kem_keypair(pk, sk)) != 0) {
             printf("crypto_kem_keypair returned <%d>\n", ret_val);
             return KAT_CRYPTO_FAILURE;
         }
         fprintBstr(fp_rsp, "pk = ", pk, CRYPTO_PUBLICKEYBYTES);
         fprintBstr(fp_rsp, "sk = ", sk, CRYPTO_SECRETKEYBYTES);
 
-        if ( (ret_val = PQCLEAN_NAMESPACE_crypto_kem_enc(ct, ss, pk)) != 0) {
+        if ( (ret_val = crypto_kem_enc(ct, ss, pk)) != 0) {
             printf("crypto_kem_enc returned <%d>\n", ret_val);
             return KAT_CRYPTO_FAILURE;
         }
@@ -109,7 +109,7 @@ main()
 
         fprintf(fp_rsp, "\n");
 
-        if ( (ret_val = PQCLEAN_NAMESPACE_crypto_kem_dec(ss1, ct, sk)) != 0) {
+        if ( (ret_val = crypto_kem_dec(ss1, ct, sk)) != 0) {
             printf("crypto_kem_dec returned <%d>\n", ret_val);
             return KAT_CRYPTO_FAILURE;
         }

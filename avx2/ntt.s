@@ -73,10 +73,10 @@ vpaddw		%ymm15,%ymm\rh3,%ymm\rh3
 vpsubw		%ymm15,%ymm\rl3,%ymm\rl3
 .endm
 
-.global PQCLEAN_NAMESPACE_ntt_level0_avx
-PQCLEAN_NAMESPACE_ntt_level0_avx:
+.global ntt_level0_avx
+ntt_level0_avx:
 #consts
-vmovdqa		PQCLEAN_NAMESPACE_16xq(%rip),%ymm0
+vmovdqa		_16xq(%rip),%ymm0
 
 level0:
 #zetas
@@ -107,10 +107,10 @@ vmovdqa		%ymm11,352(%rdi)
 
 ret
 
-.global PQCLEAN_NAMESPACE_ntt_levels1t6_avx
-PQCLEAN_NAMESPACE_ntt_levels1t6_avx:
+.global ntt_levels1t6_avx
+ntt_levels1t6_avx:
 #consts
-vmovdqa		PQCLEAN_NAMESPACE_16xq(%rip),%ymm0
+vmovdqa		_16xq(%rip),%ymm0
 
 level1:
 #zetas
@@ -186,7 +186,7 @@ vmovdqu		360(%rsi),%ymm2
 
 butterfly2	10,5,8,3,9,4,7,11 6,1,14,15,1,2
 
-vmovdqa		PQCLEAN_NAMESPACE_16xv(%rip),%ymm1
+vmovdqa		_16xv(%rip),%ymm1
 red16		10 12
 red16		5 13
 red16		9 14

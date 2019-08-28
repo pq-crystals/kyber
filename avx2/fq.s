@@ -1,10 +1,10 @@
 .include "fq.inc"
 
-.global PQCLEAN_NAMESPACE_reduce_avx
-PQCLEAN_NAMESPACE_reduce_avx:
+.global reduce_avx
+reduce_avx:
 #consts
-vmovdqa		PQCLEAN_NAMESPACE_16xq(%rip),%ymm0
-vmovdqa		PQCLEAN_NAMESPACE_16xv(%rip),%ymm1
+vmovdqa		_16xq(%rip),%ymm0
+vmovdqa		_16xv(%rip),%ymm1
 
 #load
 vmovdqa		(%rdi),%ymm2
@@ -37,10 +37,10 @@ vmovdqa		%ymm9,224(%rdi)
 
 ret
 
-.global PQCLEAN_NAMESPACE_csubq_avx
-PQCLEAN_NAMESPACE_csubq_avx:
+.global csubq_avx
+csubq_avx:
 #consts
-vmovdqa		PQCLEAN_NAMESPACE_16xq(%rip),%ymm0
+vmovdqa		_16xq(%rip),%ymm0
 
 #load
 vmovdqa		(%rdi),%ymm1
@@ -73,12 +73,12 @@ vmovdqa		%ymm8,224(%rdi)
 
 ret
 
-.global PQCLEAN_NAMESPACE_frommont_avx
-PQCLEAN_NAMESPACE_frommont_avx:
+.global frommont_avx
+frommont_avx:
 #consts
-vmovdqa		PQCLEAN_NAMESPACE_16xq(%rip),%ymm0
-vmovdqa		PQCLEAN_NAMESPACE_16xmontsqlo(%rip),%ymm1
-vmovdqa		PQCLEAN_NAMESPACE_16xmontsqhi(%rip),%ymm2
+vmovdqa		_16xq(%rip),%ymm0
+vmovdqa		_16xmontsqlo(%rip),%ymm1
+vmovdqa		_16xmontsqhi(%rip),%ymm2
 
 #load
 vmovdqa		(%rdi),%ymm3

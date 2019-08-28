@@ -12,7 +12,7 @@
 *              - uint8_t i                  additional byte of input
 *              - uint8_t j                  additional byte of input
 **************************************************/
-void PQCLEAN_NAMESPACE_kyber_shake128_absorb(keccak_state *s, const uint8_t *input, uint8_t x, uint8_t y)
+void kyber_shake128_absorb(keccak_state *s, const uint8_t *input, uint8_t x, uint8_t y)
 {
   uint8_t extseed[KYBER_SYMBYTES+2];
   int i;
@@ -35,7 +35,7 @@ void PQCLEAN_NAMESPACE_kyber_shake128_absorb(keccak_state *s, const uint8_t *inp
 *              - unsigned long long nblocks: number of blocks to be squeezed (written to output)
 *              - keccak_state *s:            pointer to in/output Keccak state
 **************************************************/
-void PQCLEAN_NAMESPACE_kyber_shake128_squeezeblocks(uint8_t *output, size_t nblocks, keccak_state *s)
+void kyber_shake128_squeezeblocks(uint8_t *output, size_t nblocks, keccak_state *s)
 {
   shake128_squeezeblocks(output, nblocks, s);
 }
@@ -51,7 +51,7 @@ void PQCLEAN_NAMESPACE_kyber_shake128_squeezeblocks(uint8_t *output, size_t nblo
 *              - const uint8_t * key:  pointer to the key (of length KYBER_SYMBYTES)
 *              - const uint8_t nonce:  single-byte nonce (public PRF input)
 **************************************************/
-void PQCLEAN_NAMESPACE_shake256_prf(uint8_t *output, size_t outlen, const uint8_t *key, uint8_t nonce)
+void shake256_prf(uint8_t *output, size_t outlen, const uint8_t *key, uint8_t nonce)
 {
   uint8_t extkey[KYBER_SYMBYTES+1];
   size_t i;

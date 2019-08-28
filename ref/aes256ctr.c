@@ -585,7 +585,7 @@ static void br_aes_ct64_ctr_run(uint64_t sk_exp[120], const uint8_t *iv, uint32_
 *              - const uint8_t *key:   pointer to 32-byte key
 *              - uint8_t nonce:        1-byte nonce (will be zero-padded to 12 bytes)
 **************************************************/
-void PQCLEAN_NAMESPACE_aes256_prf(uint8_t *output, size_t outlen, const uint8_t *key, uint8_t nonce)
+void aes256_prf(uint8_t *output, size_t outlen, const uint8_t *key, uint8_t nonce)
 {
   uint64_t sk_exp[120];
   uint8_t iv[12];
@@ -610,7 +610,7 @@ void PQCLEAN_NAMESPACE_aes256_prf(uint8_t *output, size_t outlen, const uint8_t 
 *              - uint8_t x:           first additional byte to "absorb"
 *              - uint8_t y:           second additional byte to "absorb"
 **************************************************/
-void PQCLEAN_NAMESPACE_aes256xof_absorb(aes256xof_ctx *s, const uint8_t *key, uint8_t x, uint8_t y)
+void aes256xof_absorb(aes256xof_ctx *s, const uint8_t *key, uint8_t x, uint8_t y)
 {
 	uint64_t skey[30];
   uint8_t iv[12];
@@ -643,7 +643,7 @@ void PQCLEAN_NAMESPACE_aes256xof_absorb(aes256xof_ctx *s, const uint8_t *key, ui
 *              - size_t nblocks:        number of reqested 64-byte output blocks
 *              - aes256xof_ctx *s:      AES "state", i.e. expanded key and IV
 **************************************************/
-void PQCLEAN_NAMESPACE_aes256xof_squeezeblocks(uint8_t *out, size_t nblocks, aes256xof_ctx *s)
+void aes256xof_squeezeblocks(uint8_t *out, size_t nblocks, aes256xof_ctx *s)
 {
 	while (nblocks > 0) {
     aes_ctr4x(out, s->ivw, s->sk_exp);

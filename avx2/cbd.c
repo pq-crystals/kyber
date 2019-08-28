@@ -14,7 +14,7 @@
 * Arguments:   - poly *r:                  pointer to output polynomial
 *              - const uint8_t *buf: pointer to input byte array
 **************************************************/
-void PQCLEAN_NAMESPACE_cbd(poly *r, const uint8_t *buf)
+void cbd(poly *r, const uint8_t *buf)
 {
   int i;
   __m256i vec0, vec1, vec2, vec3, tmp;

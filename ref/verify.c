@@ -14,7 +14,7 @@
 *
 * Returns 0 if the byte arrays are equal, 1 otherwise
 **************************************************/
-uint8_t PQCLEAN_NAMESPACE_verify(const uint8_t *a, const unsigned char *b, size_t len)
+uint8_t verify(const uint8_t *a, const unsigned char *b, size_t len)
 {
   uint64_t r;
   size_t i;
@@ -40,7 +40,7 @@ uint8_t PQCLEAN_NAMESPACE_verify(const uint8_t *a, const unsigned char *b, size_
 *              size_t len:             Amount of bytes to be copied
 *              uint8_t b:        Condition bit; has to be in {0,1}
 **************************************************/
-void PQCLEAN_NAMESPACE_cmov(uint8_t *r, const unsigned char *x, size_t len, unsigned char b)
+void cmov(uint8_t *r, const unsigned char *x, size_t len, unsigned char b)
 {
   size_t i;
 
