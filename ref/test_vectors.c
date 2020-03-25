@@ -1,20 +1,19 @@
 /* Deterministic randombytes by Daniel J. Bernstein */
 /* taken from SUPERCOP (https://bench.cr.yp.to)     */
 
-#include "api.h"
-#include <math.h>
-#include <stdio.h>
+#include <stddef.h>
 #include <stdint.h>
-#include <string.h>
+#include <stdio.h>
+#include "api.h"
+#include "randombytes.h"
 
 #define NTESTS 10000
 
-
-typedef uint32_t uint32;
-
-static uint32 seed[32] = { 3,1,4,1,5,9,2,6,5,3,5,8,9,7,9,3,2,3,8,4,6,2,6,4,3,3,8,3,2,7,9,5 } ;
-static uint32 in[12];
-static uint32 out[8];
+static uint32_t seed[32] = {
+  3,1,4,1,5,9,2,6,5,3,5,8,9,7,9,3,2,3,8,4,6,2,6,4,3,3,8,3,2,7,9,5
+};
+static uint32_t in[12];
+static uint32_t out[8];
 static int outleft = 0;
 
 #define ROTATE(x,b) (((x) << (b)) | ((x) >> (32 - (b))))
@@ -22,7 +21,7 @@ static int outleft = 0;
 
 static void surf(void)
 {
-  uint32 t[12]; uint32 x; uint32 sum = 0;
+  uint32_t t[12]; uint32_t x; uint32_t sum = 0;
   int r; int i; int loop;
 
   for (i = 0;i < 12;++i) t[i] = in[i] ^ seed[12 + i];
@@ -39,7 +38,7 @@ static void surf(void)
   }
 }
 
-void randombytes(unsigned char *x,unsigned long long xlen)
+void randombytes(unsigned char *x,size_t xlen)
 {
   while (xlen > 0) {
     if (!outleft) {
@@ -55,36 +54,32 @@ void randombytes(unsigned char *x,unsigned long long xlen)
   printf("\n");
 }
 
-
-
 int main(void)
 {
-  unsigned char key_a[CRYPTO_BYTES], key_b[CRYPTO_BYTES];
+  unsigned int i,j;
   unsigned char pk[CRYPTO_PUBLICKEYBYTES];
-  unsigned char sendb[CRYPTO_CIPHERTEXTBYTES];
-  unsigned char sk_a[CRYPTO_SECRETKEYBYTES];
-  int i,j;
+  unsigned char sk[CRYPTO_SECRETKEYBYTES];
+  unsigned char ct[CRYPTO_CIPHERTEXTBYTES];
+  unsigned char key_a[CRYPTO_BYTES];
+  unsigned char key_b[CRYPTO_BYTES];
 
-  for(i=0;i<NTESTS;i++)
-  {
+  for(i=0;i<NTESTS;i++) {
     // Key-pair generation
-    crypto_kem_keypair(pk, sk_a);
-
+    crypto_kem_keypair(pk, sk);
     printf("Public Key: ");
     for(j=0;j<CRYPTO_PUBLICKEYBYTES;j++)
       printf("%02x",pk[j]);
     printf("\n");
     printf("Secret Key: ");
     for(j=0;j<CRYPTO_SECRETKEYBYTES;j++)
-      printf("%02x",sk_a[j]);
+      printf("%02x",sk[j]);
     printf("\n");
 
     // Encapsulation
-    crypto_kem_enc(sendb, key_b, pk);
-
+    crypto_kem_enc(ct, key_b, pk);
     printf("Ciphertext: ");
     for(j=0;j<CRYPTO_CIPHERTEXTBYTES;j++)
-      printf("%02x",sendb[j]);
+      printf("%02x",ct[j]);
     printf("\n");
     printf("Shared Secret B: ");
     for(j=0;j<CRYPTO_BYTES;j++)
@@ -92,16 +87,14 @@ int main(void)
     printf("\n");
 
     // Decapsulation
-    crypto_kem_dec(key_a, sendb, sk_a);
+    crypto_kem_dec(key_a, ct, sk);
     printf("Shared Secret A: ");
     for(j=0;j<CRYPTO_BYTES;j++)
       printf("%02x",key_a[j]);
     printf("\n");
 
-    for(j=0;j<CRYPTO_BYTES;j++)
-    {
-      if(key_a[j] != key_b[j])
-      {
+    for(j=0;j<CRYPTO_BYTES;j++) {
+      if(key_a[j] != key_b[j]) {
         fprintf(stderr, "ERROR\n");
         return -1;
       }

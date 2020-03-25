@@ -1,255 +1,240 @@
-#include <immintrin.h>
+#include <stddef.h>
 #include <stdint.h>
-#include "params.h"
+#include <immintrin.h>
+#include <string.h>
 #include "fips202.h"
 #include "fips202x4.h"
-
-#define NROUNDS 24
-#define ROL(a, offset) ((a << offset) ^ (a >> (64-offset)))
-
-static uint64_t load64(const unsigned char *x)
-{
-  unsigned long long r = 0, i;
-
-  for (i = 0; i < 8; ++i) {
-    r |= (unsigned long long)x[i] << 8 * i;
-  }
-  return r;
-}
-
-static void store64(uint8_t *x, uint64_t u)
-{
-  unsigned int i;
-
-  for(i=0; i<8; ++i) {
-    x[i] = u;
-    u >>= 8;
-  }
-}
 
 /* Use implementation from the Keccak Code Package */
 extern void KeccakP1600times4_PermuteAll_24rounds(__m256i *s);
 #define KeccakF1600_StatePermute4x KeccakP1600times4_PermuteAll_24rounds
 
-static void keccak_absorb4x(__m256i *s,
+static inline uint64_t load64(const uint8_t x[8]) {
+  unsigned int i;
+  uint64_t r = 0;
+
+  for(i=0;i<8;i++)
+    r |= (uint64_t)x[i] << 8*i;
+
+  return r;
+}
+
+static inline void store64(uint8_t x[8], uint64_t u) {
+  unsigned int i;
+
+  for(i=0;i<8;i++)
+    x[i] = u >> 8*i;
+}
+
+static void keccakx4_absorb(__m256i s[25],
                             unsigned int r,
-                            const unsigned char *m0,
-                            const unsigned char *m1,
-                            const unsigned char *m2,
-                            const unsigned char *m3,
-                            unsigned long long int mlen,
-                            unsigned char p)
+                            const uint8_t *in0,
+                            const uint8_t *in1,
+                            const uint8_t *in2,
+                            const uint8_t *in3,
+                            size_t inlen,
+                            uint8_t p)
 {
-  unsigned long long i;
-  unsigned char t0[200];
-  unsigned char t1[200];
-  unsigned char t2[200];
-  unsigned char t3[200];
+  size_t i;
+  uint64_t f0,f1,f2,f3;
+  uint8_t ss[32] __attribute__((aligned(32)));
+  __m256i t;
 
-  unsigned long long *ss = (unsigned long long *)s;
-
-  while (mlen >= r)
-  {
-    for (i = 0; i < r / 8; ++i)
-    {
-      ss[4*i+0] ^= load64(m0 + 8 * i);
-      ss[4*i+1] ^= load64(m1 + 8 * i);
-      ss[4*i+2] ^= load64(m2 + 8 * i);
-      ss[4*i+3] ^= load64(m3 + 8 * i);
-    }
-
-    KeccakF1600_StatePermute4x(s);
-    mlen -= r;
-    m0 += r;
-    m1 += r;
-    m2 += r;
-    m3 += r;
-  }
-
-  for (i = 0; i < r; ++i)
-  {
-    t0[i] = 0;
-    t1[i] = 0;
-    t2[i] = 0;
-    t3[i] = 0;
-  }
-  for (i = 0; i < mlen; ++i)
-  {
-    t0[i] = m0[i];
-    t1[i] = m1[i];
-    t2[i] = m2[i];
-    t3[i] = m3[i];
-  }
-
-  t0[i] = p;
-  t1[i] = p;
-  t2[i] = p;
-  t3[i] = p;
-
-  t0[r - 1] |= 128;
-  t1[r - 1] |= 128;
-  t2[r - 1] |= 128;
-  t3[r - 1] |= 128;
-
-  for (i = 0; i < r / 8; ++i)
-  {
-    ss[4*i+0] ^= load64(t0 + 8 * i);
-    ss[4*i+1] ^= load64(t1 + 8 * i);
-    ss[4*i+2] ^= load64(t2 + 8 * i);
-    ss[4*i+3] ^= load64(t3 + 8 * i);
-  }
-}
-
-static void keccak_squeezeblocks4x(unsigned char *h0,
-                                   unsigned char *h1,
-                                   unsigned char *h2,
-                                   unsigned char *h3,
-                                   unsigned long long int nblocks,
-                                   __m256i *s,
-                                   unsigned int r)
-{
-  unsigned int i;
-
-  unsigned long long *ss = (unsigned long long *)s;
-
-  while(nblocks > 0)
-  {
-    KeccakF1600_StatePermute4x(s);
-    for(i=0;i<(r>>3);i++)
-    {
-      store64(h0+8*i, ss[4*i+0]);
-      store64(h1+8*i, ss[4*i+1]);
-      store64(h2+8*i, ss[4*i+2]);
-      store64(h3+8*i, ss[4*i+3]);
-    }
-    h0 += r;
-    h1 += r;
-    h2 += r;
-    h3 += r;
-    nblocks--;
-  }
-}
-
-void kyber_shake128x4_absorb(keccak4x_state *state,
-                             const unsigned char *seed,
-                             uint16_t nonce0,
-                             uint16_t nonce1,
-                             uint16_t nonce2,
-                             uint16_t nonce3)
-{
-  unsigned int i;
-  unsigned char extseed[4][KYBER_SYMBYTES+2];
-
-  for(i = 0; i < KYBER_SYMBYTES; ++i) {
-    extseed[0][i] = seed[i];
-    extseed[1][i] = seed[i];
-    extseed[2][i] = seed[i];
-    extseed[3][i] = seed[i];
-  }
-  extseed[0][KYBER_SYMBYTES+0] = nonce0;
-  extseed[0][KYBER_SYMBYTES+1] = nonce0 >> 8;
-  extseed[1][KYBER_SYMBYTES+0] = nonce1;
-  extseed[1][KYBER_SYMBYTES+1] = nonce1 >> 8;
-  extseed[2][KYBER_SYMBYTES+0] = nonce2;
-  extseed[2][KYBER_SYMBYTES+1] = nonce2 >> 8;
-  extseed[3][KYBER_SYMBYTES+0] = nonce3;
-  extseed[3][KYBER_SYMBYTES+1] = nonce3 >> 8;
-
-  /* zero state */
-  for(i=0;i<25;i++)
-    state->s[i] = _mm256_xor_si256(state->s[i], state->s[i]);
-
-  /* absorb 4 message of identical length in parallel */
-  keccak_absorb4x(state->s, SHAKE128_RATE, extseed[0], extseed[1], extseed[2], extseed[3], KYBER_SYMBYTES+2, 0x1F);
-}
-
-void shake128x4_squeezeblocks(unsigned char *out0,
-                              unsigned char *out1,
-                              unsigned char *out2,
-                              unsigned char *out3,
-                              unsigned long long nblocks,
-                              keccak4x_state *state)
-{
-  keccak_squeezeblocks4x(out0, out1, out2, out3, nblocks, state->s, SHAKE128_RATE);
-}
-
-static void shake256x4(unsigned char *out0,
-                       unsigned char *out1,
-                       unsigned char *out2,
-                       unsigned char *out3, unsigned long long outlen,
-                       const unsigned char *in0,
-                       const unsigned char *in1,
-                       const unsigned char *in2,
-                       const unsigned char *in3, unsigned long long inlen)
-{
-  __m256i s[25];
-  unsigned char t0[SHAKE256_RATE];
-  unsigned char t1[SHAKE256_RATE];
-  unsigned char t2[SHAKE256_RATE];
-  unsigned char t3[SHAKE256_RATE];
-  unsigned int i;
-
-  /* zero state */
-  for(i=0;i<25;i++)
+  for(i = 0; i < 25; ++i)
     s[i] = _mm256_xor_si256(s[i], s[i]);
 
-  /* absorb 4 message of identical length in parallel */
-  keccak_absorb4x(s, SHAKE256_RATE, in0, in1, in2, in3, inlen, 0x1F);
+  while(inlen >= r) {
+    for(i = 0; i < r/8; ++i) {
+      f0 = load64(in0);
+      f1 = load64(in1);
+      f2 = load64(in2);
+      f3 = load64(in3);
+      t = _mm256_set_epi64x(f3, f2, f1, f0);
+      s[i] = _mm256_xor_si256(s[i], t);
 
-  /* Squeeze output */
-  keccak_squeezeblocks4x(out0, out1, out2, out3, outlen/SHAKE256_RATE, s, SHAKE256_RATE);
+      in0 += 8;
+      in1 += 8;
+      in2 += 8;
+      in3 += 8;
+    }
 
-  out0 += (outlen/SHAKE256_RATE)*SHAKE256_RATE;
-  out1 += (outlen/SHAKE256_RATE)*SHAKE256_RATE;
-  out2 += (outlen/SHAKE256_RATE)*SHAKE256_RATE;
-  out3 += (outlen/SHAKE256_RATE)*SHAKE256_RATE;
+    KeccakF1600_StatePermute4x(s);
+    inlen -= r;
+  }
 
-  if(outlen%SHAKE256_RATE)
-  {
-    keccak_squeezeblocks4x(t0, t1, t2, t3, 1, s, SHAKE256_RATE);
-    for(i=0;i<outlen%SHAKE256_RATE;i++)
-    {
-      out0[i] = t0[i];
-      out1[i] = t1[i];
-      out2[i] = t2[i];
-      out3[i] = t3[i];
+  i = 0;
+  while(inlen >= 8) {
+    f0 = load64(in0);
+    f1 = load64(in1);
+    f2 = load64(in2);
+    f3 = load64(in3);
+    t = _mm256_set_epi64x(f3, f2, f1, f0);
+    s[i] = _mm256_xor_si256(s[i], t);
+
+    i++;
+    in0 += 8;
+    in1 += 8;
+    in2 += 8;
+    in3 += 8;
+    inlen -= 8;
+  }
+
+  bzero(ss, sizeof(ss));
+  memcpy(ss +  0, in0, inlen);
+  memcpy(ss +  8, in1, inlen);
+  memcpy(ss + 16, in2, inlen);
+  memcpy(ss + 24, in3, inlen);
+  t = _mm256_load_si256((__m256i *)ss);
+  s[i] = _mm256_xor_si256(s[i], t);
+  t = _mm256_set1_epi64x((uint64_t)p << 8*inlen);
+  s[i] = _mm256_xor_si256(s[i], t);
+  t = _mm256_set1_epi64x(1ULL << 63);
+  s[r/8 - 1] = _mm256_xor_si256(s[r/8 - 1], t);
+}
+
+static void keccakx4_squeezeblocks(uint8_t *out0,
+                                   uint8_t *out1,
+                                   uint8_t *out2,
+                                   uint8_t *out3,
+                                   size_t nblocks,
+                                   unsigned int r,
+                                   __m256i s[25])
+{
+  unsigned int i;
+  uint64_t f0,f1,f2,f3;
+
+  while(nblocks > 0) {
+    KeccakF1600_StatePermute4x(s);
+    for(i=0; i < r/8; ++i) {
+      f0 = _mm256_extract_epi64(s[i], 0);
+      f1 = _mm256_extract_epi64(s[i], 1);
+      f2 = _mm256_extract_epi64(s[i], 2);
+      f3 = _mm256_extract_epi64(s[i], 3);
+      store64(out0, f0);
+      store64(out1, f1);
+      store64(out2, f2);
+      store64(out3, f3);
+
+      out0 += 8;
+      out1 += 8;
+      out2 += 8;
+      out3 += 8;
+    }
+
+    --nblocks;
+  }
+}
+
+void shake128x4_absorb(keccakx4_state *state,
+                       const uint8_t *in0,
+                       const uint8_t *in1,
+                       const uint8_t *in2,
+                       const uint8_t *in3,
+                       size_t inlen)
+{
+  keccakx4_absorb(state->s, SHAKE128_RATE, in0, in1, in2, in3, inlen, 0x1F);
+}
+
+void shake128x4_squeezeblocks(uint8_t *out0,
+                              uint8_t *out1,
+                              uint8_t *out2,
+                              uint8_t *out3,
+                              size_t nblocks,
+                              keccakx4_state *state)
+{
+  keccakx4_squeezeblocks(out0, out1, out2, out3, nblocks, SHAKE128_RATE,
+                         state->s);
+}
+
+void shake256x4_absorb(keccakx4_state *state,
+                       const uint8_t *in0,
+                       const uint8_t *in1,
+                       const uint8_t *in2,
+                       const uint8_t *in3,
+                       size_t inlen)
+{
+  keccakx4_absorb(state->s, SHAKE256_RATE, in0, in1, in2, in3, inlen, 0x1F);
+}
+
+void shake256x4_squeezeblocks(uint8_t *out0,
+                              uint8_t *out1,
+                              uint8_t *out2,
+                              uint8_t *out3,
+                              size_t nblocks,
+                              keccakx4_state *state)
+{
+  keccakx4_squeezeblocks(out0, out1, out2, out3, nblocks, SHAKE256_RATE,
+                         state->s);
+}
+
+void shake128x4(uint8_t *out0,
+                uint8_t *out1,
+                uint8_t *out2,
+                uint8_t *out3,
+                size_t outlen,
+                const uint8_t *in0,
+                const uint8_t *in1,
+                const uint8_t *in2,
+                const uint8_t *in3,
+                size_t inlen)
+{
+  unsigned int i;
+  size_t nblocks = outlen/SHAKE128_RATE;
+  uint8_t t[4][SHAKE128_RATE];
+  keccakx4_state state;
+
+  shake128x4_absorb(&state, in0, in1, in2, in3, inlen);
+  shake128x4_squeezeblocks(out0, out1, out2, out3, nblocks, &state);
+
+  out0 += nblocks*SHAKE128_RATE;
+  out1 += nblocks*SHAKE128_RATE;
+  out2 += nblocks*SHAKE128_RATE;
+  out3 += nblocks*SHAKE128_RATE;
+  outlen -= nblocks*SHAKE128_RATE;
+
+  if(outlen) {
+    shake128x4_squeezeblocks(t[0], t[1], t[2], t[3], 1, &state);
+    for(i = 0; i < outlen; ++i) {
+      out0[i] = t[0][i];
+      out1[i] = t[1][i];
+      out2[i] = t[2][i];
+      out3[i] = t[3][i];
     }
   }
 }
 
-void shake256x4_prf(unsigned char *out0,
-                    unsigned char *out1,
-                    unsigned char *out2,
-                    unsigned char *out3,
-                    unsigned long long outlen,
-                    const unsigned char *key,
-                    unsigned char nonce0,
-                    unsigned char nonce1,
-                    unsigned char nonce2,
-                    unsigned char nonce3)
+void shake256x4(uint8_t *out0,
+                uint8_t *out1,
+                uint8_t *out2,
+                uint8_t *out3,
+                size_t outlen,
+                const uint8_t *in0,
+                const uint8_t *in1,
+                const uint8_t *in2,
+                const uint8_t *in3,
+                size_t inlen)
 {
   unsigned int i;
-  unsigned char extseed[4][KYBER_SYMBYTES+1];
+  size_t nblocks = outlen/SHAKE256_RATE;
+  uint8_t t[4][SHAKE256_RATE];
+  keccakx4_state state;
 
-  for(i = 0; i < KYBER_SYMBYTES; i++) {
-    extseed[0][i] = key[i];
-    extseed[1][i] = key[i];
-    extseed[2][i] = key[i];
-    extseed[3][i] = key[i];
+  shake256x4_absorb(&state, in0, in1, in2, in3, inlen);
+  shake256x4_squeezeblocks(out0, out1, out2, out3, nblocks, &state);
+
+  out0 += nblocks*SHAKE256_RATE;
+  out1 += nblocks*SHAKE256_RATE;
+  out2 += nblocks*SHAKE256_RATE;
+  out3 += nblocks*SHAKE256_RATE;
+  outlen -= nblocks*SHAKE256_RATE;
+
+  if(outlen) {
+    shake256x4_squeezeblocks(t[0], t[1], t[2], t[3], 1, &state);
+    for(i = 0; i < outlen; ++i) {
+      out0[i] = t[0][i];
+      out1[i] = t[1][i];
+      out2[i] = t[2][i];
+      out3[i] = t[3][i];
+    }
   }
-  extseed[0][KYBER_SYMBYTES] = nonce0;
-  extseed[1][KYBER_SYMBYTES] = nonce1;
-  extseed[2][KYBER_SYMBYTES] = nonce2;
-  extseed[3][KYBER_SYMBYTES] = nonce3;
-
-  shake256x4(out0,
-             out1,
-             out2,
-             out3,
-             outlen,
-             extseed[0],
-             extseed[1],
-             extseed[2],
-             extseed[3],
-             KYBER_SYMBYTES+1);
 }

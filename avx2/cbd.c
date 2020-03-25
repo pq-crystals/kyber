@@ -13,16 +13,15 @@
 * Arguments:   - poly *r:                  pointer to output polynomial
 *              - const unsigned char *buf: pointer to input byte array
 **************************************************/
-void cbd(poly * restrict r, const unsigned char * restrict buf)
+void cbd(poly * restrict r, const uint8_t * restrict buf)
 {
-  int i;
+  unsigned int i;
   __m256i vec0, vec1, vec2, vec3, tmp;
   const __m256i mask55 = _mm256_set1_epi32(0x55555555);
   const __m256i mask33 = _mm256_set1_epi32(0x33333333);
   const __m256i mask03 = _mm256_set1_epi32(0x03030303);
 
-  for(i = 0; i < KYBER_N/64; i++)
-  {
+  for(i = 0; i < KYBER_N/64; i++) {
     vec0 = _mm256_loadu_si256((__m256i *)&buf[32*i]);
 
     vec1 = _mm256_srli_epi32(vec0, 1);

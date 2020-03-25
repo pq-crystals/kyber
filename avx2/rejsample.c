@@ -1,6 +1,7 @@
 #include <stdint.h>
 #include <immintrin.h>
 #include "params.h"
+#include "consts.h"
 #include "rejsample.h"
 
 static const unsigned char idx[256][8] = {
@@ -264,9 +265,6 @@ static const unsigned char idx[256][8] = {
 
 #define _mm256_cmpge_epu16(a, b)  _mm256_cmpeq_epi16(_mm256_max_epu16(a, b), a)
 #define _mm_cmpge_epu16(a, b)  _mm_cmpeq_epi16(_mm_max_epu16(a, b), a)
-
-extern const uint16_t _16xq[16];
-extern const uint16_t _16xv[16];
 
 unsigned int rej_uniform(int16_t * restrict r,
                          unsigned int len,

@@ -1,7 +1,8 @@
-.include "shuffle.h"
-.include "fq.h"
+#include "ntt.h"
+.include "shuffle.inc"
+.include "fq.inc"
 
-.macro butterfly rl0,rl1,rl2,rl3,rh0,rh1,rh2,rh3 zl0=1,zl1=1,zh0=2,zh1=2
+.macro butterfly rl0,rl1,rl2,rl3,rh0,rh1,rh2,rh3,zl0=1,zl1=1,zh0=2,zh1=2
 #update & mul
 vpsubw		%ymm\rh0,%ymm\rl0,%ymm12
 vpsubw		%ymm\rh1,%ymm\rl1,%ymm13
@@ -59,14 +60,14 @@ vmovdqa         160(%rdi),%ymm9
 vmovdqa         192(%rdi),%ymm10
 vmovdqa         224(%rdi),%ymm11
 
-butterfly	4,5,8,9,6,7,10,11 15,3,1,2
+butterfly	4,5,8,9,6,7,10,11,15,3,1,2
 
 level1:
 #zetas
 vmovdqu		128(%rsi),%ymm3
 vmovdqu		160(%rsi),%ymm2
 
-butterfly	4,5,6,7,8,9,10,11 3,3,2,2
+butterfly	4,5,6,7,8,9,10,11,3,3,2,2
 
 shuffle1	4,5,3,5
 shuffle1	6,7,4,7
@@ -81,7 +82,7 @@ vmovdqu		224(%rsi),%ymm2
 #consts
 vmovdqa		_16xv(%rip),%ymm1
 
-butterfly	3,4,6,8,5,7,9,11 10,10,2,2
+butterfly	3,4,6,8,5,7,9,11,10,10,2,2
 
 red16		3
 
@@ -95,7 +96,7 @@ level3:
 vmovdqu		256(%rsi),%ymm9
 vmovdqu		288(%rsi),%ymm2
 
-butterfly	10,3,6,5,4,8,7,11 9,9,2,2
+butterfly	10,3,6,5,4,8,7,11,9,9,2,2
 
 red16		10
 
@@ -109,7 +110,7 @@ level4:
 vmovdqu		320(%rsi),%ymm7
 vmovdqu		352(%rsi),%ymm2
 
-butterfly	9,10,6,4,3,5,8,11 7,7,2,2
+butterfly	9,10,6,4,3,5,8,11,7,7,2,2
 
 red16		9
 
@@ -123,7 +124,7 @@ level5:
 vpbroadcastd	384(%rsi),%ymm8
 vpbroadcastd	388(%rsi),%ymm2
 
-butterfly	7,9,6,3,10,4,5,11 8,8,2,2
+butterfly	7,9,6,3,10,4,5,11,8,8,2,2
 
 red16		7
 
@@ -170,10 +171,10 @@ vmovdqa		%ymm9,288(%rdi)
 vmovdqa		%ymm10,320(%rdi)
 vmovdqa		%ymm11,352(%rdi)
 
-fqmulprecomp	12,13,4 8
-fqmulprecomp	12,13,5 9
-fqmulprecomp	12,13,6 10
-fqmulprecomp	12,13,7 11
+fqmulprecomp	12,13,4,8
+fqmulprecomp	12,13,5,9
+fqmulprecomp	12,13,6,10
+fqmulprecomp	12,13,7,11
 
 #store
 vmovdqa		%ymm4,(%rdi)
@@ -203,10 +204,10 @@ vmovdqa		%ymm9,416(%rdi)
 vmovdqa		%ymm10,448(%rdi)
 vmovdqa		%ymm11,480(%rdi)
 
-fqmulprecomp	12,13,4 8
-fqmulprecomp	12,13,5 9
-fqmulprecomp	12,13,6 10
-fqmulprecomp	12,13,7 11
+fqmulprecomp	12,13,4,8
+fqmulprecomp	12,13,5,9
+fqmulprecomp	12,13,6,10
+fqmulprecomp	12,13,7,11
 
 #store
 vmovdqa		%ymm4,128(%rdi)

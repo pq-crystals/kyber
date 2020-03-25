@@ -9,20 +9,36 @@
 #define CRYPTO_BYTES           KYBER_SSBYTES
 
 #if   (KYBER_K == 2)
-#define CRYPTO_ALGNAME "Kyber512"
-#elif (KYBER_K == 3)
-#define CRYPTO_ALGNAME "Kyber768"
-#elif (KYBER_K == 4)
-#define CRYPTO_ALGNAME "Kyber1024"
+#ifdef KYBER_90S
+#define CRYPTO_ALGNAME "Kyber512-90s"
 #else
-#error "KYBER_K must be in {2,3,4}"
+#define CRYPTO_ALGNAME "Kyber512"
+#endif
+#elif (KYBER_K == 3)
+#ifdef KYBER_90S
+#define CRYPTO_ALGNAME "Kyber768-90s"
+#else
+#define CRYPTO_ALGNAME "Kyber768"
+#endif
+#elif (KYBER_K == 4)
+#ifdef KYBER_90S
+#define CRYPTO_ALGNAME "Kyber1024-90s"
+#else
+#define CRYPTO_ALGNAME "Kyber1024"
+#endif
 #endif
 
+#define crypto_kem_keypair KYBER_NAMESPACE(crypto_kem_keypair)
 int crypto_kem_keypair(unsigned char *pk, unsigned char *sk);
 
-int crypto_kem_enc(unsigned char *ct, unsigned char *ss, const unsigned char *pk);
+#define crypto_kem_enc KYBER_NAMESPACE(crypto_kem_enc)
+int crypto_kem_enc(unsigned char *ct,
+                   unsigned char *ss,
+                   const unsigned char *pk);
 
-int crypto_kem_dec(unsigned char *ss, const unsigned char *ct, const unsigned char *sk);
-
+#define crypto_kem_dec KYBER_NAMESPACE(crypto_kem_dec)
+int crypto_kem_dec(unsigned char *ss,
+                   const unsigned char *ct,
+                   const unsigned char *sk);
 
 #endif

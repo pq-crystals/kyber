@@ -1,5 +1,6 @@
-.include "fq.h"
-.include "shuffle.h"
+#include "ntt.h"
+.include "fq.inc"
+.include "shuffle.inc"
 
 /*
 .global nttpack_avx
@@ -65,14 +66,14 @@ vmovdqa		224(%rdi),%ymm11
 
 /*
 #reduce
-red16		4 12
-red16		5 13
-red16		6 14
-red16		7 15
-red16		8 12
-red16		9 13
-red16		10 14
-red16		11 15
+red16		4,12
+red16		5,13
+red16		6,14
+red16		7,15
+red16		8,12
+red16		9,13
+red16		10,14
+red16		11,15
 */
 
 shuffle8	4,8,3,8
@@ -123,14 +124,14 @@ vmovdqa		192(%rsi),%ymm11
 vmovdqa		224(%rsi),%ymm12
 
 #csubq
-csubq		5 13
-csubq		6 14
-csubq		7 15
-csubq		8 1
-csubq		9 13
-csubq		10 14
-csubq		11 15
-csubq		12 1
+csubq		5,13
+csubq		6,14
+csubq		7,15
+csubq		8,1
+csubq		9,13
+csubq		10,14
+csubq		11,15
+csubq		12,1
 
 #bitpack
 vpsllw		$12,%ymm6,%ymm4

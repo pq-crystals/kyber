@@ -3,7 +3,7 @@
 
 #define _GNU_SOURCE
 
-#include <unistd.h>
+#include <stddef.h>
 
 void randombytes(unsigned char *x, size_t xlen);
 

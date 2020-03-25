@@ -1,36 +1,62 @@
 #ifndef FIPS202X4_H
 #define FIPS202X4_H
 
+#include <stddef.h>
 #include <stdint.h>
 #include <immintrin.h>
 
 typedef struct {
   __m256i s[25];
-} keccak4x_state;
+} keccakx4_state;
 
-void kyber_shake128x4_absorb(keccak4x_state *state,
-                             const unsigned char *seed,
-                             uint16_t nonce0,
-                             uint16_t nonce1,
-                             uint16_t nonce2,
-                             uint16_t nonce3);
+void shake128x4_absorb(keccakx4_state *state,
+                       const uint8_t *in0,
+                       const uint8_t *in1,
+                       const uint8_t *in2,
+                       const uint8_t *in3,
+                       size_t inlen);
 
-void shake128x4_squeezeblocks(unsigned char *out0,
-                              unsigned char *out1,
-                              unsigned char *out2,
-                              unsigned char *out3,
-                              unsigned long long nblocks,
-                              keccak4x_state *state);
+void shake128x4_squeezeblocks(uint8_t *out0,
+                              uint8_t *out1,
+                              uint8_t *out2,
+                              uint8_t *out3,
+                              size_t nblocks,
+                              keccakx4_state *state);
 
-void shake256x4_prf(unsigned char *out0,
-                    unsigned char *out1,
-                    unsigned char *out2,
-                    unsigned char *out3,
-                    unsigned long long outlen,
-                    const unsigned char *key,
-                    unsigned char nonce0,
-                    unsigned char nonce1,
-                    unsigned char nonce2,
-                    unsigned char nonce3);
+void shake256x4_absorb(keccakx4_state *state,
+                       const uint8_t *in0,
+                       const uint8_t *in1,
+                       const uint8_t *in2,
+                       const uint8_t *in3,
+                       size_t inlen);
+
+void shake256x4_squeezeblocks(uint8_t *out0,
+                              uint8_t *out1,
+                              uint8_t *out2,
+                              uint8_t *out3,
+                              size_t nblocks,
+                              keccakx4_state *state);
+
+void shake128x4(uint8_t *out0,
+                uint8_t *out1,
+                uint8_t *out2,
+                uint8_t *out3,
+                size_t outlen,
+                const uint8_t *in0,
+                const uint8_t *in1,
+                const uint8_t *in2,
+                const uint8_t *in3,
+                size_t inlen);
+
+void shake256x4(uint8_t *out0,
+                uint8_t *out1,
+                uint8_t *out2,
+                uint8_t *out3,
+                size_t outlen,
+                const uint8_t *in0,
+                const uint8_t *in1,
+                const uint8_t *in2,
+                const uint8_t *in3,
+                size_t inlen);
 
 #endif

@@ -1,25 +1,20 @@
-/*
-20080913
-D. J. Bernstein
-Public domain.
-*/
+/* Adapted from Public Domain code by D. J. Bernstein. */
 
+#include <stddef.h>
+#include <stdint.h>
 #include "sha2.h"
 
-
-typedef unsigned int uint32;
-
-static uint32 load_bigendian(const unsigned char *x)
+static uint32_t load_bigendian(const uint8_t *x)
 {
   return
-      (uint32) (x[3]) \
-  | (((uint32) (x[2])) << 8) \
-  | (((uint32) (x[1])) << 16) \
-  | (((uint32) (x[0])) << 24)
+      (uint32_t) (x[3]) \
+  | (((uint32_t) (x[2])) << 8) \
+  | (((uint32_t) (x[1])) << 16) \
+  | (((uint32_t) (x[0])) << 24)
   ;
 }
 
-static void store_bigendian(unsigned char *x,uint32 u)
+static void store_bigendian(uint8_t *x,uint32_t u)
 {
   x[3] = u; u >>= 8;
   x[2] = u; u >>= 8;
@@ -69,19 +64,19 @@ static void store_bigendian(unsigned char *x,uint32 u)
   b = a; \
   a = T1 + T2;
 
-static int crypto_hashblocks_sha256(unsigned char *statebytes,const unsigned char *in,unsigned long long inlen)
+static int crypto_hashblocks_sha256(uint8_t *statebytes,const uint8_t *in,size_t inlen)
 {
-  uint32 state[8];
-  uint32 a;
-  uint32 b;
-  uint32 c;
-  uint32 d;
-  uint32 e;
-  uint32 f;
-  uint32 g;
-  uint32 h;
-  uint32 T1;
-  uint32 T2;
+  uint32_t state[8];
+  uint32_t a;
+  uint32_t b;
+  uint32_t c;
+  uint32_t d;
+  uint32_t e;
+  uint32_t f;
+  uint32_t g;
+  uint32_t h;
+  uint32_t T1;
+  uint32_t T2;
 
   a = load_bigendian(statebytes +  0); state[0] = a;
   b = load_bigendian(statebytes +  4); state[1] = b;
@@ -93,22 +88,22 @@ static int crypto_hashblocks_sha256(unsigned char *statebytes,const unsigned cha
   h = load_bigendian(statebytes + 28); state[7] = h;
 
   while (inlen >= 64) {
-    uint32 w0  = load_bigendian(in +  0);
-    uint32 w1  = load_bigendian(in +  4);
-    uint32 w2  = load_bigendian(in +  8);
-    uint32 w3  = load_bigendian(in + 12);
-    uint32 w4  = load_bigendian(in + 16);
-    uint32 w5  = load_bigendian(in + 20);
-    uint32 w6  = load_bigendian(in + 24);
-    uint32 w7  = load_bigendian(in + 28);
-    uint32 w8  = load_bigendian(in + 32);
-    uint32 w9  = load_bigendian(in + 36);
-    uint32 w10 = load_bigendian(in + 40);
-    uint32 w11 = load_bigendian(in + 44);
-    uint32 w12 = load_bigendian(in + 48);
-    uint32 w13 = load_bigendian(in + 52);
-    uint32 w14 = load_bigendian(in + 56);
-    uint32 w15 = load_bigendian(in + 60);
+    uint32_t w0  = load_bigendian(in +  0);
+    uint32_t w1  = load_bigendian(in +  4);
+    uint32_t w2  = load_bigendian(in +  8);
+    uint32_t w3  = load_bigendian(in + 12);
+    uint32_t w4  = load_bigendian(in + 16);
+    uint32_t w5  = load_bigendian(in + 20);
+    uint32_t w6  = load_bigendian(in + 24);
+    uint32_t w7  = load_bigendian(in + 28);
+    uint32_t w8  = load_bigendian(in + 32);
+    uint32_t w9  = load_bigendian(in + 36);
+    uint32_t w10 = load_bigendian(in + 40);
+    uint32_t w11 = load_bigendian(in + 44);
+    uint32_t w12 = load_bigendian(in + 48);
+    uint32_t w13 = load_bigendian(in + 52);
+    uint32_t w14 = load_bigendian(in + 56);
+    uint32_t w15 = load_bigendian(in + 60);
 
     F(w0 ,0x428a2f98)
     F(w1 ,0x71374491)
@@ -192,7 +187,7 @@ static int crypto_hashblocks_sha256(unsigned char *statebytes,const unsigned cha
     f += state[5];
     g += state[6];
     h += state[7];
-  
+
     state[0] = a;
     state[1] = b;
     state[2] = c;
@@ -220,7 +215,7 @@ static int crypto_hashblocks_sha256(unsigned char *statebytes,const unsigned cha
 
 #define blocks crypto_hashblocks_sha256
 
-static const char iv[32] = {
+static const uint8_t iv[32] = {
   0x6a,0x09,0xe6,0x67,
   0xbb,0x67,0xae,0x85,
   0x3c,0x6e,0xf3,0x72,
@@ -231,22 +226,12 @@ static const char iv[32] = {
   0x5b,0xe0,0xcd,0x19,
 } ;
 
-
-/*************************************************
-* Name:        sha256
-*
-* Description: SHA256 with non-incremental API
-*
-* Arguments:   - unsigned char *out:       pointer to output (32 bytes)
-*              - const unsigned char *in:  pointer to input
-*              - unsigned long long inlen: length of input in bytes
-**************************************************/
-void sha256(unsigned char *out,const unsigned char *in,unsigned long long inlen)
+void sha256(uint8_t *out,const uint8_t *in,size_t inlen)
 {
-  unsigned char h[32];
-  unsigned char padded[128];
-  unsigned long long i;
-  unsigned long long bits = inlen << 3;
+  uint8_t h[32];
+  uint8_t padded[128];
+  unsigned int i;
+  size_t bits = inlen << 3;
 
   for (i = 0;i < 32;++i) h[i] = iv[i];
 

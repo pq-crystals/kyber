@@ -1,4 +1,5 @@
 #include "params.h"
+#include "ntt.h"
 
 .macro schoolbook off,sign
 #load
@@ -48,7 +49,7 @@ vpaddd		%ymm12,%ymm13,%ymm12	# y0
 vpaddd		%ymm7,%ymm8,%ymm7	# y1
 .endm
 
-.macro red a0,a1,b0,b1 x,y,z
+.macro red a0,a1,b0,b1,x,y,z
 #pack
 vpxor		%ymm\x,%ymm\x,%ymm\x
 vpblendw	$0xAA,%ymm\x,%ymm\a0,%ymm\y
@@ -121,7 +122,7 @@ vpaddd		%ymm7,%ymm6,%ymm6
 #endif
 
 #reduce
-red		3,4,5,6 7,8,9
+red		3,4,5,6,7,8,9
 
 #store
 vmovdqa		%ymm3,(%rdi)
@@ -168,7 +169,7 @@ vpaddd		%ymm7,%ymm6,%ymm6
 #endif
 
 #reduce
-red		3,4,5,6 7,8,9
+red		3,4,5,6,7,8,9
 
 #store
 vmovdqa		%ymm3,64(%rdi)
@@ -186,7 +187,7 @@ vmovdqu		(%rcx),%ymm2
 schoolbook	0,0
 
 #reduce
-red		14,9,12,7 8,10,11
+red		14,9,12,7,8,10,11
 
 #store
 vmovdqa		%ymm14,(%rdi)
@@ -195,7 +196,7 @@ vmovdqa		%ymm12,32(%rdi)
 schoolbook	64,1
 
 #reduce
-red		14,9,12,7 8,10,11
+red		14,9,12,7,8,10,11
 
 #store
 vmovdqa		%ymm14,64(%rdi)

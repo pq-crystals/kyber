@@ -12,26 +12,41 @@ typedef struct{
   int16_t coeffs[KYBER_N];
 } poly;
 
-void poly_compress(unsigned char *r, poly *a);
-void poly_decompress(poly *r, const unsigned char *a);
+#define poly_compress KYBER_NAMESPACE(poly_compress)
+void poly_compress(uint8_t r[KYBER_POLYCOMPRESSEDBYTES], poly *a);
+#define poly_decompress KYBER_NAMESPACE(poly_decompress)
+void poly_decompress(poly *r, const uint8_t a[KYBER_POLYCOMPRESSEDBYTES]);
 
-void poly_tobytes(unsigned char *r, poly *a);
-void poly_frombytes(poly *r, const unsigned char *a);
+#define poly_tobytes KYBER_NAMESPACE(poly_tobytes)
+void poly_tobytes(uint8_t r[KYBER_POLYBYTES], poly *a);
+#define poly_frombytes KYBER_NAMESPACE(poly_frombytes)
+void poly_frombytes(poly *r, const uint8_t a[KYBER_POLYBYTES]);
 
-void poly_frommsg(poly *r, const unsigned char msg[KYBER_SYMBYTES]);
-void poly_tomsg(unsigned char msg[KYBER_SYMBYTES], poly *r);
+#define poly_frommsg KYBER_NAMESPACE(poly_frommsg)
+void poly_frommsg(poly *r, const uint8_t msg[KYBER_INDCPA_MSGBYTES]);
+#define poly_tomsg KYBER_NAMESPACE(poly_tomsg)
+void poly_tomsg(uint8_t msg[KYBER_INDCPA_MSGBYTES], poly *r);
 
-void poly_getnoise(poly *r,const unsigned char *seed, unsigned char nonce);
+#define poly_getnoise KYBER_NAMESPACE(poly_getnoise)
+void poly_getnoise(poly *r, const uint8_t seed[KYBER_SYMBYTES], uint8_t nonce);
 
+#define poly_ntt KYBER_NAMESPACE(poly_ntt)
 void poly_ntt(poly *r);
-void poly_invntt(poly *r);
-void poly_basemul(poly *r, const poly *a, const poly *b);
-void poly_frommont(poly *r);
+#define poly_invntt_tomont KYBER_NAMESPACE(poly_invntt_tomont)
+void poly_invntt_tomont(poly *r);
+#define poly_basemul_montgomery KYBER_NAMESPACE(poly_basemul_montgomery)
+void poly_basemul_montgomery(poly *r, const poly *a, const poly *b);
+#define poly_tomont KYBER_NAMESPACE(poly_tomont)
+void poly_tomont(poly *r);
 
+#define poly_reduce KYBER_NAMESPACE(poly_reduce)
 void poly_reduce(poly *r);
+#define poly_csubq KYBER_NAMESPACE(poly_csubq)
 void poly_csubq(poly *r);
 
+#define poly_add KYBER_NAMESPACE(poly_add)
 void poly_add(poly *r, const poly *a, const poly *b);
+#define poly_sub KYBER_NAMESPACE(poly_sub)
 void poly_sub(poly *r, const poly *a, const poly *b);
 
 #endif

@@ -1,6 +1,7 @@
 #ifndef KEX_H
 #define KEX_H
 
+#include <stdint.h>
 #include "api.h"
 
 #define KEX_UAKE_SENDABYTES (CRYPTO_PUBLICKEYBYTES + CRYPTO_CIPHERTEXTBYTES)
@@ -9,23 +10,17 @@
 #define KEX_AKE_SENDABYTES (CRYPTO_PUBLICKEYBYTES + CRYPTO_CIPHERTEXTBYTES)
 #define KEX_AKE_SENDBBYTES (2*CRYPTO_CIPHERTEXTBYTES)
 
-#define KEX_SSBYTES 32
+#define KEX_SSBYTES CRYPTO_BYTES
 
+void kex_uake_initA(uint8_t *send, uint8_t *tk, uint8_t *sk, const uint8_t *pkb);
 
-typedef unsigned char u8;
+void kex_uake_sharedB(uint8_t *send, uint8_t *k, const uint8_t *recv, const uint8_t *skb);
 
-void kex_uake_initA(u8 *send, u8* tk, u8 *sk, const u8 *pkb);
+void kex_uake_sharedA(uint8_t *k, const uint8_t *recv, const uint8_t *tk, const uint8_t *sk);
 
-void kex_uake_sharedB(u8 *send, u8 *k, const u8* recv, const u8 *skb);
+void kex_ake_initA(uint8_t *send, uint8_t *tk, uint8_t *sk, const uint8_t *pkb);
+void kex_ake_sharedB(uint8_t *send, uint8_t *k, const uint8_t *recv, const uint8_t *skb, const uint8_t *pka);
 
-void kex_uake_sharedA(u8 *k, const u8 *recv, const u8 *tk, const u8 *sk);
-
-
-void kex_ake_initA(u8 *send, u8* tk, u8 *sk, const u8 *pkb);
-
-void kex_ake_sharedB(u8 *send, u8 *k, const u8* recv, const u8 *skb, const u8 *pka);
-
-void kex_ake_sharedA(u8 *k, const u8 *recv, const u8 *tk, const u8 *sk, const u8 *ska);
-
+void kex_ake_sharedA(uint8_t *k, const uint8_t *recv, const uint8_t *tk, const uint8_t *sk, const uint8_t *ska);
 
 #endif

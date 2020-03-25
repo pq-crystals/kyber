@@ -1,7 +1,8 @@
-.include "shuffle.h"
-.include "fq.h"
+#include "ntt.h"
+.include "shuffle.inc"
+.include "fq.inc"
 
-.macro butterfly rl0,rl1,rl2,rl3,rh0,rh1,rh2,rh3 zl0=15,zl1=15,zh0=1,zh1=1
+.macro butterfly rl0,rl1,rl2,rl3,rh0,rh1,rh2,rh3,zl0=15,zl1=15,zh0=1,zh1=1
 #mul
 vpmullw		%ymm\zl0,%ymm\rh0,%ymm12
 vpmullw		%ymm\zl0,%ymm\rh1,%ymm13
@@ -36,7 +37,7 @@ vpaddw		%ymm15,%ymm\rl3,%ymm\rl3
 # We break the dependency chains with the cost of slightly more additions.
 # But they can be run in parallel to the multiplications on execution port 5
 # (multiplications only go to ports 0 and 1)
-.macro butterfly2 rl0,rl1,rl2,rl3,rh0,rh1,rh2,rh3 x=3,y=2,zl0=15,zl1=15,zh0=1,zh1=1
+.macro butterfly2 rl0,rl1,rl2,rl3,rh0,rh1,rh2,rh3,x=3,y=2,zl0=15,zl1=15,zh0=1,zh1=1
 #mul
 vpmullw		%ymm\zl0,%ymm\rh0,%ymm12
 vpmulhw		%ymm\zh0,%ymm\rh0,%ymm\x
@@ -127,7 +128,7 @@ vmovdqa		160(%rdi),%ymm9
 vmovdqa		192(%rdi),%ymm10
 vmovdqa		224(%rdi),%ymm11
 
-butterfly2	4,5,6,7,8,9,10,11 3
+butterfly2	4,5,6,7,8,9,10,11,3
 
 level2:
 #zetas
@@ -139,7 +140,7 @@ shuffle8	5,9,4,9
 shuffle8	6,10,5,10
 shuffle8	7,11,6,11
 
-butterfly2	3,8,4,9,5,10,6,11 7
+butterfly2	3,8,4,9,5,10,6,11,7
 
 level3:
 #zetas
@@ -151,7 +152,7 @@ shuffle4	8,10,3,10
 shuffle4	4,6,8,6
 shuffle4	9,11,4,11
 
-butterfly2	7,5,3,10,8,6,4,11 9
+butterfly2	7,5,3,10,8,6,4,11,9
 
 level4:
 #zetas
@@ -163,7 +164,7 @@ shuffle2	5,6,7,6
 shuffle2	3,4,5,4
 shuffle2	10,11,3,11
 
-butterfly2	9,8,7,6,5,4,3,11 10
+butterfly2	9,8,7,6,5,4,3,11,10
 
 level5:
 #zetas
@@ -175,7 +176,7 @@ shuffle1	8,4,9,4
 shuffle1	7,3,8,3
 shuffle1	6,11,7,11
 
-butterfly2	10,5,9,4,8,3,7,11 6
+butterfly2	10,5,9,4,8,3,7,11,6
 
 level6:
 #zetas
@@ -184,17 +185,17 @@ vmovdqu		328(%rsi),%ymm15
 vmovdqu		296(%rsi),%ymm1
 vmovdqu		360(%rsi),%ymm2
 
-butterfly2	10,5,8,3,9,4,7,11 6,1,14,15,1,2
+butterfly2	10,5,8,3,9,4,7,11,6,1,14,15,1,2
 
 vmovdqa		_16xv(%rip),%ymm1
-red16		10 12
-red16		5 13
-red16		9 14
-red16		4 15
-red16		8 2
-red16		3 6
-red16		7 12
-red16		11 13
+red16		10,12
+red16		5,13
+red16		9,14
+red16		4,15
+red16		8,2
+red16		3,6
+red16		7,12
+red16		11,13
 
 #store
 vmovdqa		%ymm10,(%rdi)

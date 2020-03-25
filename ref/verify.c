@@ -1,28 +1,27 @@
-#include <string.h>
+#include <stddef.h>
 #include <stdint.h>
+#include "verify.h"
 
 /*************************************************
 * Name:        verify
 *
 * Description: Compare two arrays for equality in constant time.
 *
-* Arguments:   const unsigned char *a: pointer to first byte array
-*              const unsigned char *b: pointer to second byte array
-*              size_t len:             length of the byte arrays
+* Arguments:   const uint8_t *a: pointer to first byte array
+*              const uint8_t *b: pointer to second byte array
+*              size_t len:       length of the byte arrays
 *
 * Returns 0 if the byte arrays are equal, 1 otherwise
 **************************************************/
-int verify(const unsigned char *a, const unsigned char *b, size_t len)
+int verify(const uint8_t *a, const uint8_t *b, size_t len)
 {
-  uint64_t r;
   size_t i;
-  r = 0;
+  uint8_t r = 0;
 
   for(i=0;i<len;i++)
     r |= a[i] ^ b[i];
 
-  r = (-r) >> 63;
-  return r;
+  return (-(uint64_t)r) >> 63;
 }
 
 /*************************************************
@@ -33,16 +32,16 @@ int verify(const unsigned char *a, const unsigned char *b, size_t len)
 *              assumes two's complement representation of negative integers.
 *              Runs in constant time.
 *
-* Arguments:   unsigned char *r:       pointer to output byte array
-*              const unsigned char *x: pointer to input byte array
-*              size_t len:             Amount of bytes to be copied
-*              unsigned char b:        Condition bit; has to be in {0,1}
+* Arguments:   uint8_t *r:       pointer to output byte array
+*              const uint8_t *x: pointer to input byte array
+*              size_t len:       Amount of bytes to be copied
+*              uint8_t b:        Condition bit; has to be in {0,1}
 **************************************************/
-void cmov(unsigned char *r, const unsigned char *x, size_t len, unsigned char b)
+void cmov(uint8_t *r, const uint8_t *x, size_t len, uint8_t b)
 {
   size_t i;
 
   b = -b;
   for(i=0;i<len;i++)
-    r[i] ^= b & (x[i] ^ r[i]);
+    r[i] ^= b & (r[i] ^ x[i]);
 }

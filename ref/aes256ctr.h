@@ -1,15 +1,27 @@
 #ifndef AES256CTR_H
 #define AES256CTR_H
 
+#include <stddef.h>
 #include <stdint.h>
+
+#define AES256CTR_BLOCKBYTES 64
 
 typedef struct {
   uint64_t sk_exp[120];
-	uint32_t ivw[16];
-} aes256xof_ctx;
+  uint32_t ivw[16];
+} aes256ctr_ctx;
 
-void aes256_prf(unsigned char *output, unsigned long long outlen, const unsigned char *key, const unsigned char nonce);
-void aes256xof_absorb(aes256xof_ctx *s, const unsigned char *key, unsigned char x, unsigned char y);
-void aes256xof_squeezeblocks(unsigned char *out, unsigned long long nblocks, aes256xof_ctx *s);
+void aes256ctr_prf(uint8_t *out,
+                   size_t outlen,
+                   const uint8_t key[32],
+                   const uint8_t nonce[12]);
+
+void aes256ctr_init(aes256ctr_ctx *state,
+                    const uint8_t key[32],
+                    const uint8_t nonce[12]);
+
+void aes256ctr_squeezeblocks(uint8_t *out,
+                             size_t nblocks,
+                             aes256ctr_ctx *state);
 
 #endif

@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <immintrin.h>
+#include "verify.h"
 
 /*************************************************
 * Name:        verify

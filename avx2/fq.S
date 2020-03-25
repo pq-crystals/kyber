@@ -1,4 +1,6 @@
-.include "fq.h"
+#include "reduce.h"
+#include "consts.h"
+.include "fq.inc"
 
 .global reduce_avx
 reduce_avx:
@@ -16,14 +18,14 @@ vmovdqa		160(%rdi),%ymm7
 vmovdqa		192(%rdi),%ymm8
 vmovdqa		224(%rdi),%ymm9
 
-red16		2 10
-red16		3 11
-red16		4 12
-red16		5 13
-red16		6 14
-red16		7 15
-red16		8 10
-red16		9 11
+red16		2,10
+red16		3,11
+red16		4,12
+red16		5,13
+red16		6,14
+red16		7,15
+red16		8,10
+red16		9,11
 
 #store
 vmovdqa		%ymm2,(%rdi)
@@ -52,14 +54,14 @@ vmovdqa		160(%rdi),%ymm6
 vmovdqa		192(%rdi),%ymm7
 vmovdqa		224(%rdi),%ymm8
 
-csubq		1 9
-csubq		2 10
-csubq		3 11
-csubq		4 12
-csubq		5 13
-csubq		6 14
-csubq		7 15
-csubq		8 9
+csubq		1,9
+csubq		2,10
+csubq		3,11
+csubq		4,12
+csubq		5,13
+csubq		6,14
+csubq		7,15
+csubq		8,9
 
 #store
 vmovdqa		%ymm1,(%rdi)
@@ -73,8 +75,8 @@ vmovdqa		%ymm8,224(%rdi)
 
 ret
 
-.global frommont_avx
-frommont_avx:
+.global tomont_avx
+tomont_avx:
 #consts
 vmovdqa		_16xq(%rip),%ymm0
 vmovdqa		_16xmontsqlo(%rip),%ymm1
@@ -90,14 +92,14 @@ vmovdqa		160(%rdi),%ymm8
 vmovdqa		192(%rdi),%ymm9
 vmovdqa		224(%rdi),%ymm10
 
-fqmulprecomp	1,2,3 11
-fqmulprecomp	1,2,4 12
-fqmulprecomp	1,2,5 13
-fqmulprecomp	1,2,6 14
-fqmulprecomp	1,2,7 15
-fqmulprecomp	1,2,8 11
-fqmulprecomp	1,2,9 12
-fqmulprecomp	1,2,10 13
+fqmulprecomp	1,2,3,11
+fqmulprecomp	1,2,4,12
+fqmulprecomp	1,2,5,13
+fqmulprecomp	1,2,6,14
+fqmulprecomp	1,2,7,15
+fqmulprecomp	1,2,8,11
+fqmulprecomp	1,2,9,12
+fqmulprecomp	1,2,10,13
 
 #store
 vmovdqa		%ymm3,(%rdi)
