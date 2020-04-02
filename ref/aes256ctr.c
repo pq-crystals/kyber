@@ -25,7 +25,6 @@
 #include <stdint.h>
 #include <string.h>
 #include "aes256ctr.h"
-#include "params.h"
 
 static inline uint32_t br_dec32le(const uint8_t *src)
 {

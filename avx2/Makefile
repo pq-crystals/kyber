@@ -1,9 +1,9 @@
-CC = /usr/bin/clang
+CC = /usr/bin/cc
 CFLAGS += -Wall -Wextra -Wpedantic -Wmissing-prototypes -Wredundant-decls \
   -Wshadow -Wpointer-arith -march=native -mtune=native -O3 \
   -fomit-frame-pointer -fstrict-aliasing -flto
 #CFLAGS += -DUSE_RDPMC
-NISTFLAGS = -O3 -fomit-frame-pointer -march=native -mtune=native
+NISTFLAGS = -Wno-unused-result -O3 -fomit-frame-pointer -march=native -mtune=native
 RM = /bin/rm
 
 SOURCES = kem.c indcpa.c polyvec.c poly.c fq.S shuffle.S ntt.S invntt.S \
@@ -91,6 +91,18 @@ test_speed768: $(SOURCESKECCAK) $(HEADERSKECCAK) cpucycles.h cpucycles.c speed_p
 test_speed1024: $(SOURCESKECCAK) $(HEADERSKECCAK) cpucycles.h cpucycles.c speed_print.h speed_print.c test_speed.c randombytes.c kex.c kex.h
 	$(CC) $(CFLAGS) -DKYBER_K=4 $(SOURCESKECCAK) randombytes.c cpucycles.c speed_print.c kex.c test_speed.c -o test_speed1024
 
+kyber512-90s.so: $(SOURCES) $(HEADERS)
+	$(CC) -shared -fpic $(CFLAGS) -DKYBER_K=2 -DKYBER_90S $(SOURCES) \
+	  -o kyber512-90s.so
+
+kyber768-90s.so: $(SOURCES) $(HEADERS)
+	$(CC) -shared -fpic $(CFLAGS) -DKYBER_K=3 -DKYBER_90S $(SOURCES) \
+	  -o kyber768-90s.so
+
+kyber1024-90s.so: $(SOURCES) $(HEADERS)
+	$(CC) -shared -fpic $(CFLAGS) -DKYBER_K=4 -DKYBER_90S $(SOURCES) \
+	  -o kyber1024-90s.so
+
 test_kyber512-90s: $(SOURCESNINETIES) $(HEADERSNINETIES) test_kyber.c randombytes.c
 	$(CC) $(CFLAGS) -D KYBER_90S -DKYBER_K=2 $(SOURCESNINETIES) randombytes.c test_kyber.c -o test_kyber512-90s -lcrypto
 
@@ -143,8 +155,6 @@ clean:
 	-$(RM) -rf test_kyber512
 	-$(RM) -rf test_kyber768
 	-$(RM) -rf test_kyber1024
-	-$(RM) -rf test_kyber768
-	-$(RM) -rf test_kyber1024
 	-$(RM) -rf test_kex512
 	-$(RM) -rf test_kex768
 	-$(RM) -rf test_kex1024
@@ -154,6 +164,9 @@ clean:
 	-$(RM) -rf test_speed512
 	-$(RM) -rf test_speed768
 	-$(RM) -rf test_speed1024
+	-$(RM) -rf kyber512-90s.so
+	-$(RM) -rf kyber768-90s.so
+	-$(RM) -rf kyber1024-90s.so
 	-$(RM) -rf test_kyber512-90s
 	-$(RM) -rf test_kyber768-90s
 	-$(RM) -rf test_kyber1024-90s
