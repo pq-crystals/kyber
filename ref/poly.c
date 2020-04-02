@@ -273,8 +273,9 @@ void poly_basemul_montgomery(poly *r, const poly *a, const poly *b)
 {
   unsigned int i;
   for(i=0;i<KYBER_N/4;i++) {
-    basemul(&r->coeffs[4*i],&a->coeffs[4*i],&b->coeffs[4*i],zetas[64+i]);
-    basemul(&r->coeffs[4*i+2],&a->coeffs[4*i+2],&b->coeffs[4*i+2],-zetas[64+i]);
+    basemul(&r->coeffs[4*i], &a->coeffs[4*i], &b->coeffs[4*i], zetas[64+i]);
+    basemul(&r->coeffs[4*i+2], &a->coeffs[4*i+2], &b->coeffs[4*i+2],
+            -zetas[64+i]);
   }
 }
 

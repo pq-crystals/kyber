@@ -4,7 +4,7 @@
 #include "consts.h"
 #include "rejsample.h"
 
-static const unsigned char idx[256][8] = {
+static const uint8_t idx[256][8] = {
   { 0,  0,  0,  0,  0,  0,  0,  0},
   { 0,  0,  0,  0,  0,  0,  0,  0},
   { 2,  0,  0,  0,  0,  0,  0,  0},
@@ -263,21 +263,21 @@ static const unsigned char idx[256][8] = {
   { 0,  2,  4,  6,  8, 10, 12, 14}
 };
 
-#define _mm256_cmpge_epu16(a, b)  _mm256_cmpeq_epi16(_mm256_max_epu16(a, b), a)
-#define _mm_cmpge_epu16(a, b)  _mm_cmpeq_epi16(_mm_max_epu16(a, b), a)
+#define _mm256_cmpge_epu16(a, b) _mm256_cmpeq_epi16(_mm256_max_epu16(a, b), a)
+#define _mm_cmpge_epu16(a, b) _mm_cmpeq_epi16(_mm_max_epu16(a, b), a)
 
-unsigned int rej_uniform(int16_t * restrict r,
-                         unsigned int len,
-                         const unsigned char * restrict buf,
-                         unsigned int buflen)
+unsigned int rej_uniform_avx(int16_t * restrict r,
+                             unsigned int len,
+                             const uint8_t * restrict buf,
+                             unsigned int buflen)
 {
   unsigned int ctr, pos;
   uint16_t val;
   uint32_t good0, good1, good2;
   const __m256i bound  = _mm256_set1_epi16((int16_t)(19*KYBER_Q-1)); // -1 to use cheaper >= instead of > comparison
   const __m256i ones   = _mm256_set1_epi8(1);
-  const __m256i kyberq = _mm256_load_si256((__m256i *)_16xq);
-  const __m256i v = _mm256_load_si256((__m256i *)_16xv);
+  const __m256i kyberq = _mm256_load_si256((__m256i *)&qdata[_16XQ]);
+  const __m256i v = _mm256_load_si256((__m256i *)&qdata[_16XV]);
   __m256i d0, d1, d2, tmp0, tmp1, tmp2, pi0, pi1, pi2;
   __m128i d, tmp, pilo, pihi;
 
@@ -377,8 +377,7 @@ unsigned int rej_uniform(int16_t * restrict r,
     val = buf[pos] | ((uint16_t)buf[pos+1] << 8);
     pos += 2;
 
-    if(val < 19*KYBER_Q)
-    {
+    if(val < 19*KYBER_Q) {
       val -= ((int32_t)val*20159 >> 26) * KYBER_Q;
       r[ctr++] = val;
     }

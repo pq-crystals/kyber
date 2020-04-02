@@ -28,6 +28,7 @@ void kyber_shake128_absorb(keccak_state *state,
     extseed[i] = seed[i];
   extseed[i++] = x;
   extseed[i]   = y;
+
   shake128_absorb(state, extseed, sizeof(extseed));
 }
 

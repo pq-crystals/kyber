@@ -1,9 +1,9 @@
-#include "ntt.h"
+#include "params.h"
+#include "consts.h"
 .include "fq.inc"
 .include "shuffle.inc"
 
 /*
-.global nttpack_avx
 nttpack_avx:
 #load
 vmovdqa		(%rdi),%ymm4
@@ -48,12 +48,8 @@ vmovdqa		%ymm11,224(%rdi)
 ret
 */
 
-.global nttunpack_avx
-nttunpack_avx:
-#consts
-vmovdqa		_16xq(%rip),%ymm0
-vmovdqa		_16xv(%rip),%ymm1
-
+.text
+nttunpack128_avx:
 #load
 vmovdqa		(%rdi),%ymm4
 vmovdqa		32(%rdi),%ymm5
@@ -63,18 +59,6 @@ vmovdqa		128(%rdi),%ymm8
 vmovdqa		160(%rdi),%ymm9
 vmovdqa		192(%rdi),%ymm10
 vmovdqa		224(%rdi),%ymm11
-
-/*
-#reduce
-red16		4,12
-red16		5,13
-red16		6,14
-red16		7,15
-red16		8,12
-red16		9,13
-red16		10,14
-red16		11,15
-*/
 
 shuffle8	4,8,3,8
 shuffle8	5,9,4,9
@@ -108,11 +92,14 @@ vmovdqa		%ymm11,224(%rdi)
 
 ret
 
-.global ntttobytes_avx
-ntttobytes_avx:
-#consts
-vmovdqa		_16xq(%rip),%ymm0
+.global cdecl(nttunpack_avx)
+cdecl(nttunpack_avx):
+call		nttunpack128_avx
+add		$256,%rdi
+call		nttunpack128_avx
+ret
 
+ntttobytes128_avx:
 #load
 vmovdqa		(%rsi),%ymm5
 vmovdqa		32(%rsi),%ymm6
@@ -182,11 +169,17 @@ vmovdqu		%ymm9,160(%rdi)
 
 ret
 
-.global nttfrombytes_avx
-nttfrombytes_avx:
+.global cdecl(ntttobytes_avx)
+cdecl(ntttobytes_avx):
 #consts
-vmovdqa		_16xmask(%rip),%ymm0
+vmovdqa		_16XQ*2(%rdx),%ymm0
+call		ntttobytes128_avx
+add		$256,%rsi
+add		$192,%rdi
+call		ntttobytes128_avx
+ret
 
+nttfrombytes128_avx:
 #load
 vmovdqu		(%rsi),%ymm4
 vmovdqu		32(%rsi),%ymm5
@@ -250,4 +243,14 @@ vmovdqa		%ymm14,160(%rdi)
 vmovdqa		%ymm15,192(%rdi)
 vmovdqa		%ymm1,224(%rdi)
 
+ret
+
+.global cdecl(nttfrombytes_avx)
+cdecl(nttfrombytes_avx):
+#consts
+vmovdqa		_16XMASK*2(%rdx),%ymm0
+call		nttfrombytes128_avx
+add		$256,%rdi
+add		$192,%rsi
+call		nttfrombytes128_avx
 ret

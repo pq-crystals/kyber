@@ -1,4 +1,5 @@
-#include "ntt.h"
+#include "params.h"
+#include "consts.h"
 .include "shuffle.inc"
 .include "fq.inc"
 
@@ -37,12 +38,8 @@ vpsubw		%ymm\rh2,%ymm14,%ymm\rh2
 vpsubw		%ymm\rh3,%ymm15,%ymm\rh3
 .endm
 
-.global invntt_levels0t5_avx
-.p2align 5
+.text
 invntt_levels0t5_avx:
-#consts
-vmovdqa         _16xq(%rip),%ymm0
-
 level0:
 #zetas
 vmovdqu		(%rsi),%ymm15
@@ -80,7 +77,7 @@ vmovdqu		192(%rsi),%ymm10
 vmovdqu		224(%rsi),%ymm2
 
 #consts
-vmovdqa		_16xv(%rip),%ymm1
+vmovdqa		_16XV*2(%rdx),%ymm1
 
 butterfly	3,4,6,8,5,7,9,11,10,10,2,2
 
@@ -140,11 +137,7 @@ vmovdqa         %ymm11,224(%rdi)
 
 ret
 
-.global invntt_level6_avx
 invntt_level6_avx:
-#consts
-vmovdqa		_16xq(%rip),%ymm0
-
 #zetas
 vpbroadcastd	(%rsi),%ymm1
 vpbroadcastd	4(%rsi),%ymm2
@@ -162,8 +155,8 @@ vmovdqa         352(%rdi),%ymm11
 butterfly	4,5,6,7,8,9,10,11
 
 #consts
-vmovdqa		_16xflo(%rip),%ymm12
-vmovdqa		_16xfhi(%rip),%ymm13
+vmovdqa		_16XFLO*2(%rdx),%ymm12
+vmovdqa		_16XFHI*2(%rdx),%ymm13
 
 #store
 vmovdqa		%ymm8,256(%rdi)
@@ -195,8 +188,8 @@ vmovdqa         480(%rdi),%ymm11
 butterfly	4,5,6,7,8,9,10,11
 
 #consts
-vmovdqa		_16xflo(%rip),%ymm12
-vmovdqa		_16xfhi(%rip),%ymm13
+vmovdqa		_16XFLO*2(%rdx),%ymm12
+vmovdqa		_16XFHI*2(%rdx),%ymm13
 
 #store
 vmovdqa		%ymm8,384(%rdi)
@@ -215,4 +208,19 @@ vmovdqa		%ymm5,160(%rdi)
 vmovdqa		%ymm6,192(%rdi)
 vmovdqa		%ymm7,224(%rdi)
 
+ret
+
+.global cdecl(invntt_avx)
+cdecl(invntt_avx):
+#consts
+vmovdqa         _16XQ*2(%rsi),%ymm0
+mov		%rsi,%rdx
+add		$_ZETAS_INV_EXP*2,%rsi
+call		invntt_levels0t5_avx
+add		$256,%rdi
+add		$392,%rsi
+call		invntt_levels0t5_avx
+sub		$256,%rdi
+add		$392,%rsi
+call		invntt_level6_avx
 ret

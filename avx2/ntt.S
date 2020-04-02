@@ -1,4 +1,5 @@
-#include "ntt.h"
+#include "params.h"
+#include "consts.h"
 .include "shuffle.inc"
 .include "fq.inc"
 
@@ -74,11 +75,8 @@ vpaddw		%ymm15,%ymm\rh3,%ymm\rh3
 vpsubw		%ymm15,%ymm\rl3,%ymm\rl3
 .endm
 
-.global ntt_level0_avx
+.text
 ntt_level0_avx:
-#consts
-vmovdqa		_16xq(%rip),%ymm0
-
 level0:
 #zetas
 vpbroadcastd	(%rsi),%ymm15
@@ -108,11 +106,7 @@ vmovdqa		%ymm11,352(%rdi)
 
 ret
 
-.global ntt_levels1t6_avx
 ntt_levels1t6_avx:
-#consts
-vmovdqa		_16xq(%rip),%ymm0
-
 level1:
 #zetas
 vpbroadcastd	(%rsi),%ymm15
@@ -187,7 +181,7 @@ vmovdqu		360(%rsi),%ymm2
 
 butterfly2	10,5,8,3,9,4,7,11,6,1,14,15,1,2
 
-vmovdqa		_16xv(%rip),%ymm1
+vmovdqa		_16XV*2(%rdx),%ymm1
 red16		10,12
 red16		5,13
 red16		9,14
@@ -207,4 +201,21 @@ vmovdqa		%ymm3,160(%rdi)
 vmovdqa		%ymm7,192(%rdi)
 vmovdqa		%ymm11,224(%rdi)
 
+ret
+
+.global cdecl(ntt_avx)
+cdecl(ntt_avx):
+#consts
+vmovdqa		_16XQ*2(%rsi),%ymm0
+mov		%rsi,%rdx
+add		$_ZETAS_EXP*2,%rsi
+call		ntt_level0_avx
+add		$128,%rdi
+call		ntt_level0_avx
+sub		$128,%rdi
+add		$8,%rsi
+call		ntt_levels1t6_avx
+add		$256,%rdi
+add		$392,%rsi
+call		ntt_levels1t6_avx
 ret

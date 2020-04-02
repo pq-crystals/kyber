@@ -34,8 +34,10 @@ static void pack_pk(uint8_t r[KYBER_INDCPA_PUBLICKEYBYTES],
 * Description: De-serialize public key from a byte array;
 *              approximate inverse of pack_pk
 *
-* Arguments:   - polyvec *pk: pointer to output public-key polynomial vector
-*              - uint8_t *seed: pointer to output seed to generate matrix A
+* Arguments:   - polyvec *pk:             pointer to output public-key
+*                                         polynomial vector
+*              - uint8_t *seed:           pointer to output seed to generate
+*                                         matrix A
 *              - const uint8_t *packedpk: pointer to input serialized public key
 **************************************************/
 static void unpack_pk(polyvec *pk,
@@ -67,8 +69,8 @@ static void pack_sk(uint8_t r[KYBER_INDCPA_SECRETKEYBYTES], polyvec *sk)
 * Description: De-serialize the secret key;
 *              inverse of pack_sk
 *
-* Arguments:   - polyvec *sk: pointer to output vector of polynomials
-*                (secret key)
+* Arguments:   - polyvec *sk:             pointer to output vector of
+*                                         polynomials (secret key)
 *              - const uint8_t *packedsk: pointer to input serialized secret key
 **************************************************/
 static void unpack_sk(polyvec *sk,
@@ -120,11 +122,11 @@ static void unpack_ciphertext(polyvec *b,
 * Description: Run rejection sampling on uniform random bytes to generate
 *              uniform random integers mod q
 *
-* Arguments:   - int16_t *r: pointer to output buffer
-*              - unsigned int len: requested number of 16-bit integers
-*                (uniform mod q)
-*              - const uint8_t *buf: pointer to input buffer
-*                (assumed to be uniform random bytes)
+* Arguments:   - int16_t *r:          pointer to output buffer
+*              - unsigned int len:    requested number of 16-bit integers
+*                                     (uniform mod q)
+*              - const uint8_t *buf:  pointer to input buffer
+*                                     (assumed to be uniform random bytes)
 *              - unsigned int buflen: length of input buffer in bytes
 *
 * Returns number of sampled 16-bit integers (at most len)
@@ -162,9 +164,10 @@ static unsigned int rej_uniform(int16_t *r,
 *              uniformly random. Performs rejection sampling on output of
 *              a XOF
 *
-* Arguments:   - polyvec *a: pointer to ouptput matrix A
+* Arguments:   - polyvec *a:          pointer to ouptput matrix A
 *              - const uint8_t *seed: pointer to input seed
-*              - int transposed: boolean deciding whether A or A^T is generated
+*              - int transposed:      boolean deciding whether A or A^T
+*                                     is generated
 **************************************************/
 #define GEN_MATRIX_NBLOCKS ((2*KYBER_N*(1U << 16)/(19*KYBER_Q) \
                              + XOF_BLOCKBYTES)/XOF_BLOCKBYTES)
@@ -253,7 +256,7 @@ void indcpa_keypair(uint8_t pk[KYBER_INDCPA_PUBLICKEYBYTES],
 *                                      (of length KYBER_INDCPA_MSGBYTES bytes)
 *              - const uint8_t *pk:    pointer to input public key
 *                                      (of length KYBER_INDCPA_PUBLICKEYBYTES)
-*              - const uint8_t *coind: pointer to input random coins
+*              - const uint8_t *coins: pointer to input random coins
 *                                      used as seed (of length KYBER_SYMBYTES)
 *                                      to deterministically generate all
 *                                      randomness

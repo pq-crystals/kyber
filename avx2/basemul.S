@@ -1,5 +1,5 @@
 #include "params.h"
-#include "ntt.h"
+#include "consts.h"
 
 .macro schoolbook off,sign
 #load
@@ -74,13 +74,8 @@ vpsubw		%ymm\z,%ymm\a0,%ymm\a0
 vpsubw		%ymm\y,%ymm\b0,%ymm\b0
 .endm
 
-.global basemul_acc_avx
-basemul_acc_avx:
-#consts
-vmovdqa		_16xq(%rip),%ymm0
-vmovdqa		_16xqinv(%rip),%ymm1
-vmovdqu		(%rcx),%ymm2
-
+.text
+basemul64_acc_avx:
 poly0.0:
 schoolbook	0,0
 
@@ -177,13 +172,36 @@ vmovdqa		%ymm5,96(%rdi)
 
 ret
 
-.global basemul_avx
-basemul_avx:
+.global cdecl(basemul_acc_avx)
+cdecl(basemul_acc_avx):
 #consts
-vmovdqa		_16xq(%rip),%ymm0
-vmovdqa		_16xqinv(%rip),%ymm1
-vmovdqu		(%rcx),%ymm2
+vmovdqa		_16XQ*2(%rcx),%ymm0
+vmovdqa		_16XQINV*2(%rcx),%ymm1
 
+vmovdqu		(_ZETAS_EXP+152)*2(%rcx),%ymm2
+call		basemul64_acc_avx
+
+vmovdqu		(_ZETAS_EXP+184)*2(%rcx),%ymm2
+add		$128,%rdi
+add		$128,%rsi
+add		$128,%rdx
+call		basemul64_acc_avx
+
+vmovdqu		(_ZETAS_EXP+348)*2(%rcx),%ymm2
+add		$128,%rdi
+add		$128,%rsi
+add		$128,%rdx
+call		basemul64_acc_avx
+
+vmovdqu		(_ZETAS_EXP+380)*2(%rcx),%ymm2
+add		$128,%rdi
+add		$128,%rsi
+add		$128,%rdx
+call		basemul64_acc_avx
+
+ret
+
+basemul64_avx:
 schoolbook	0,0
 
 #reduce
@@ -201,5 +219,34 @@ red		14,9,12,7,8,10,11
 #store
 vmovdqa		%ymm14,64(%rdi)
 vmovdqa		%ymm12,96(%rdi)
+
+ret
+
+.global cdecl(basemul_avx)
+cdecl(basemul_avx):
+#consts
+vmovdqa		_16XQ*2(%rcx),%ymm0
+vmovdqa		_16XQINV*2(%rcx),%ymm1
+
+vmovdqu		(_ZETAS_EXP+152)*2(%rcx),%ymm2
+call		basemul64_avx
+
+vmovdqu		(_ZETAS_EXP+184)*2(%rcx),%ymm2
+add		$128,%rdi
+add		$128,%rsi
+add		$128,%rdx
+call		basemul64_avx
+
+vmovdqu		(_ZETAS_EXP+348)*2(%rcx),%ymm2
+add		$128,%rdi
+add		$128,%rsi
+add		$128,%rdx
+call		basemul64_avx
+
+vmovdqu		(_ZETAS_EXP+380)*2(%rcx),%ymm2
+add		$128,%rdi
+add		$128,%rsi
+add		$128,%rdx
+call		basemul64_avx
 
 ret

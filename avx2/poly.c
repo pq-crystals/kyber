@@ -1,9 +1,9 @@
 #include <stdint.h>
 #include <immintrin.h>
 #include "params.h"
-#include "params.h"
 #include "poly.h"
 #include "ntt.h"
+#include "consts.h"
 #include "reduce.h"
 #include "cbd.h"
 #include "symmetric.h"
@@ -133,8 +133,7 @@ void poly_decompress(poly * restrict r,
 **************************************************/
 void poly_tobytes(uint8_t r[KYBER_POLYBYTES], poly *a)
 {
-  ntttobytes_avx(r, a->coeffs);
-  ntttobytes_avx(r + 192, a->coeffs + 128);
+  ntttobytes_avx(r, a->coeffs, qdata);
 }
 
 /*************************************************
@@ -149,8 +148,7 @@ void poly_tobytes(uint8_t r[KYBER_POLYBYTES], poly *a)
 **************************************************/
 void poly_frombytes(poly *r, const uint8_t a[KYBER_POLYBYTES])
 {
-  nttfrombytes_avx(r->coeffs, a);
-  nttfrombytes_avx(r->coeffs + 128, a + 192);
+  nttfrombytes_avx(r->coeffs, a, qdata);
 }
 
 /*************************************************
@@ -339,10 +337,7 @@ void poly_getnoise4x(poly *r0,
 **************************************************/
 void poly_ntt(poly *r)
 {
-  ntt_level0_avx(r->coeffs, zetas_exp);
-  ntt_level0_avx(r->coeffs + 64, zetas_exp);
-  ntt_levels1t6_avx(r->coeffs, zetas_exp + 4);
-  ntt_levels1t6_avx(r->coeffs + 128, zetas_exp + 200);
+  ntt_avx(r->coeffs, qdata);
 }
 
 /*************************************************
@@ -356,15 +351,12 @@ void poly_ntt(poly *r)
 **************************************************/
 void poly_invntt_tomont(poly *r)
 {
-  invntt_levels0t5_avx(r->coeffs, zetas_inv_exp);
-  invntt_levels0t5_avx(r->coeffs + 128, zetas_inv_exp + 196);
-  invntt_level6_avx(r->coeffs, zetas_inv_exp + 392);
+  invntt_avx(r->coeffs, qdata);
 }
 
 void poly_nttunpack(poly *r)
 {
-  nttunpack_avx(r->coeffs);
-  nttunpack_avx(r->coeffs + 128);
+  nttunpack_avx(r->coeffs, qdata);
 }
 
 /*************************************************
@@ -378,22 +370,7 @@ void poly_nttunpack(poly *r)
 **************************************************/
 void poly_basemul_montgomery(poly *r, const poly *a, const poly *b)
 {
-  basemul_avx(r->coeffs,
-              a->coeffs,
-              b->coeffs,
-              zetas_exp + 152);
-  basemul_avx(r->coeffs + 64,
-              a->coeffs + 64,
-              b->coeffs + 64,
-              zetas_exp + 184);
-  basemul_avx(r->coeffs + 128,
-              a->coeffs + 128,
-              b->coeffs + 128,
-              zetas_exp + 348);
-  basemul_avx(r->coeffs + 192,
-              a->coeffs + 192,
-              b->coeffs + 192,
-              zetas_exp + 380);
+  basemul_avx(r->coeffs, a->coeffs, b->coeffs, qdata);
 }
 
 /*************************************************
@@ -406,8 +383,7 @@ void poly_basemul_montgomery(poly *r, const poly *a, const poly *b)
 **************************************************/
 void poly_tomont(poly *r)
 {
-  tomont_avx(r->coeffs);
-  tomont_avx(r->coeffs + 128);
+  tomont_avx(r->coeffs, qdata);
 }
 
 /*************************************************
@@ -420,8 +396,7 @@ void poly_tomont(poly *r)
 **************************************************/
 void poly_reduce(poly *r)
 {
-  reduce_avx(r->coeffs);
-  reduce_avx(r->coeffs + 128);
+  reduce_avx(r->coeffs, qdata);
 }
 
 /*************************************************
@@ -435,8 +410,7 @@ void poly_reduce(poly *r)
 **************************************************/
 void poly_csubq(poly *r)
 {
-  csubq_avx(r->coeffs);
-  csubq_avx(r->coeffs + 128);
+  csubq_avx(r->coeffs, qdata);
 }
 
 /*************************************************

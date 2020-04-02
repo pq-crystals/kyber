@@ -3,6 +3,7 @@
 #include "poly.h"
 #include "polyvec.h"
 #include "ntt.h"
+#include "consts.h"
 
 /*************************************************
 * Name:        polyvec_compress
@@ -191,22 +192,7 @@ void polyvec_pointwise_acc_montgomery(poly *r,
                                       const polyvec *a,
                                       const polyvec *b)
 {
-  basemul_acc_avx(r->coeffs,
-                  a->vec->coeffs,
-                  b->vec->coeffs,
-                  zetas_exp + 152);
-  basemul_acc_avx(r->coeffs + 64,
-                  a->vec->coeffs + 64,
-                  b->vec->coeffs + 64,
-                  zetas_exp + 184);
-  basemul_acc_avx(r->coeffs + 128,
-                  a->vec->coeffs + 128,
-                  b->vec->coeffs + 128,
-                  zetas_exp + 348);
-  basemul_acc_avx(r->coeffs + 192,
-                  a->vec->coeffs + 192,
-                  b->vec->coeffs + 192,
-                  zetas_exp + 380);
+  basemul_acc_avx(r->coeffs, a->vec->coeffs, b->vec->coeffs, qdata);
 }
 
 /*************************************************

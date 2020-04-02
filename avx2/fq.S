@@ -1,13 +1,9 @@
-#include "reduce.h"
+#include "params.h"
 #include "consts.h"
 .include "fq.inc"
 
-.global reduce_avx
-reduce_avx:
-#consts
-vmovdqa		_16xq(%rip),%ymm0
-vmovdqa		_16xv(%rip),%ymm1
-
+.text
+reduce128_avx:
 #load
 vmovdqa		(%rdi),%ymm2
 vmovdqa		32(%rdi),%ymm3
@@ -39,11 +35,17 @@ vmovdqa		%ymm9,224(%rdi)
 
 ret
 
-.global csubq_avx
-csubq_avx:
+.global cdecl(reduce_avx)
+cdecl(reduce_avx):
 #consts
-vmovdqa		_16xq(%rip),%ymm0
+vmovdqa		_16XQ*2(%rsi),%ymm0
+vmovdqa		_16XV*2(%rsi),%ymm1
+call		reduce128_avx
+add		$256,%rdi
+call		reduce128_avx
+ret
 
+csubq128_avx:
 #load
 vmovdqa		(%rdi),%ymm1
 vmovdqa		32(%rdi),%ymm2
@@ -75,13 +77,16 @@ vmovdqa		%ymm8,224(%rdi)
 
 ret
 
-.global tomont_avx
-tomont_avx:
+.global cdecl(csubq_avx)
+cdecl(csubq_avx):
 #consts
-vmovdqa		_16xq(%rip),%ymm0
-vmovdqa		_16xmontsqlo(%rip),%ymm1
-vmovdqa		_16xmontsqhi(%rip),%ymm2
+vmovdqa		_16XQ*2(%rsi),%ymm0
+call		csubq128_avx
+add		$256,%rdi
+call		csubq128_avx
+ret
 
+tomont128_avx:
 #load
 vmovdqa		(%rdi),%ymm3
 vmovdqa		32(%rdi),%ymm4
@@ -111,4 +116,15 @@ vmovdqa		%ymm8,160(%rdi)
 vmovdqa		%ymm9,192(%rdi)
 vmovdqa		%ymm10,224(%rdi)
 
+ret
+
+.global cdecl(tomont_avx)
+cdecl(tomont_avx):
+#consts
+vmovdqa		_16XQ*2(%rsi),%ymm0
+vmovdqa		_16XMONTSQLO*2(%rsi),%ymm1
+vmovdqa		_16XMONTSQHI*2(%rsi),%ymm2
+call		tomont128_avx
+add		$256,%rdi
+call		tomont128_avx
 ret

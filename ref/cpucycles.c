@@ -7,7 +7,7 @@ uint64_t cpucycles_overhead(void) {
 
   for(i=0;i<100000;i++) {
     t0 = cpucycles();
-    asm volatile("");
+    __asm__ volatile ("");
     t1 = cpucycles();
     if(t1 - t0 < overhead)
       overhead = t1 - t0;

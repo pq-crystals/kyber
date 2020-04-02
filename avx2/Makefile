@@ -1,6 +1,7 @@
-CC = /usr/bin/cc
+CC = /usr/bin/clang
 CFLAGS += -Wall -Wextra -Wpedantic -Wmissing-prototypes -Wredundant-decls \
-  -O3 -fomit-frame-pointer -march=native -mtune=native
+  -Wshadow -Wpointer-arith -march=native -mtune=native -O3 \
+  -fomit-frame-pointer -fstrict-aliasing -flto
 #CFLAGS += -DUSE_RDPMC
 NISTFLAGS = -O3 -fomit-frame-pointer -march=native -mtune=native
 RM = /bin/rm
@@ -128,6 +129,9 @@ test_speed1024-90s: $(SOURCESNINETIES) $(HEADERSNINETIES) cpucycles.h cpucycles.
 
 PQCgenKAT_kem: $(SOURCESKECCAK) $(HEADERSKECCAK) PQCgenKAT_kem.c rng.c rng.h
 	$(CC) $(NISTFLAGS) -o $@ $(SOURCESKECCAK) -I. rng.c PQCgenKAT_kem.c -lcrypto
+
+test_ntt: $(SOURCESKECCAK) $(HEADERSKECCAK) test_ntt.c randombytes.c
+	$(CC) $(CFLAGS) -DKYBER_K=2 $(SOURCESKECCAK) randombytes.c test_ntt.c -o test_ntt
 
 .PHONY: clean test
 

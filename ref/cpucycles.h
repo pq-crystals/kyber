@@ -9,7 +9,7 @@ static inline uint64_t cpucycles(void) {
   const uint32_t ecx = (1U << 30) + 1;
   uint64_t result;
 
-  asm volatile("rdpmc; shlq $32,%%rdx; orq %%rdx,%%rax"
+  __asm__ volatile ("rdpmc; shlq $32,%%rdx; orq %%rdx,%%rax"
     : "=a" (result) : "c" (ecx) : "rdx");
 
   return result;
@@ -20,7 +20,7 @@ static inline uint64_t cpucycles(void) {
 static inline uint64_t cpucycles(void) {
   uint64_t result;
 
-  asm volatile("rdtsc; shlq $32,%%rdx; orq %%rdx,%%rax"
+  __asm__ volatile ("rdtsc; shlq $32,%%rdx; orq %%rdx,%%rax"
     : "=a" (result) : : "%rdx");
 
   return result;
