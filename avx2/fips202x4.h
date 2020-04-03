@@ -41,6 +41,7 @@ void shake256x4_squeezeblocks(uint8_t *out0,
                               size_t nblocks,
                               keccakx4_state *state);
 
+#define shake128x4 pqcrystals_avx2_shake128x4
 void shake128x4(uint8_t *out0,
                 uint8_t *out1,
                 uint8_t *out2,
@@ -52,6 +53,7 @@ void shake128x4(uint8_t *out0,
                 const uint8_t *in3,
                 size_t inlen);
 
+#define shake256x4 pqcrystals_avx2_shake256x4
 void shake256x4(uint8_t *out0,
                 uint8_t *out1,
                 uint8_t *out2,
