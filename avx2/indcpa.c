@@ -1,5 +1,6 @@
 #include <stddef.h>
 #include <stdint.h>
+#include "params.h"
 #include "indcpa.h"
 #include "poly.h"
 #include "polyvec.h"
