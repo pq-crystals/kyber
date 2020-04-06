@@ -12,17 +12,17 @@ typedef struct {
   __m128i n;
 } aes256ctr_ctx;
 
-#define aes256ctr_init pqcrystals_avx2_aes256ctr_init
+#define aes256ctr_init pqcrystals_aes256ctr_avx2_init
 void aes256ctr_init(aes256ctr_ctx *state,
                     const uint8_t key[32],
                     uint64_t nonce);
 
-#define aes256ctr_squeezeblocks pqcrystals_avx2_aes256ctr_squeezeblocks
+#define aes256ctr_squeezeblocks pqcrystals_aes256ctr_avx2_squeezeblocks
 void aes256ctr_squeezeblocks(uint8_t *out,
                              size_t nblocks,
                              aes256ctr_ctx *state);
 
-#define aes256ctr_prf pqcrystals_avx2_aes256ctr_prf
+#define aes256ctr_prf pqcrystals_aes256ctr_avx2_prf
 void aes256ctr_prf(uint8_t *out,
                    size_t outlen,
                    const uint8_t key[32],

@@ -1,10 +1,5 @@
-kyber1024-90s_ref.so
-kyber1024_ref.so
-kyber512-90s_ref.so
-kyber512_ref.so
-kyber768-90s_ref.so
-kyber768_ref.so
-pqcrystals_ref.so
+*.so
+*.o
 test_kex1024
 test_kex1024-90s
 test_kex512
@@ -30,11 +25,3 @@ test_vectors512-90s
 test_vectors768
 test_vectors768-90s
 PQCgenKAT_kem
-kyber1024-90s_avx2.so
-kyber1024_avx2.so
-kyber512-90s_avx2.so
-kyber512_avx2.so
-kyber768-90s_avx2.so
-kyber768_avx2.so
-pqcrystals_avx2.so
-pqcrystals_avx2_aes256ctr.so

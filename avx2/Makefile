@@ -46,15 +46,15 @@ all: \
   PQCgenKAT_kem
 
 shared: \
-  kyber512_avx2.so \
-  kyber768_avx2.so \
-  kyber1024_avx2.so \
-  kyber512-90s_avx2.so \
-  kyber768-90s_avx2.so \
-  kyber1024-90s_avx2.so \
-  pqcrystals_ref.so \
-  pqcrystals_avx2.so \
-  pqcrystals_avx2_aes256ctr.so
+  pqcrystals_kyber512_avx2.so \
+  pqcrystals_kyber768_avx2.so \
+  pqcrystals_kyber1024_avx2.so \
+  pqcrystals_kyber512-90s_avx2.so \
+  pqcrystals_kyber768-90s_avx2.so \
+  pqcrystals_kyber1024-90s_avx2.so \
+  pqcrystals_fips202_ref.so \
+  pqcrystals_fips202x4_avx2.so \
+  pqcrystals_aes256ctr_avx2.so
 
 keccak4x/KeccakP-1600-times4-SIMD256.o: \
   keccak4x/KeccakP-1600-times4-SIMD256.c \
@@ -65,28 +65,28 @@ keccak4x/KeccakP-1600-times4-SIMD256.o: \
   keccak4x/brg_endian.h
 	$(CC) $(CFLAGS) -c $< -o $@
 
-pqcrystals_ref.so: fips202.c fips202.h
+pqcrystals_fips202_ref.so: fips202.c fips202.h
 	$(CC) -shared -fPIC $(CFLAGS) -o $@ $<
 
-pqcrystals_avx2.so: fips202x4.c fips202x4.h \
+pqcrystals_fips202x4_avx2.so: fips202x4.c fips202x4.h \
   keccak4x/KeccakP-1600-times4-SIMD256.o
 	$(CC) -shared -fPIC $(CFLAGS) -o $@ $< \
 	  keccak4x/KeccakP-1600-times4-SIMD256.o
 
-pqcrystals_avx2_aes256ctr.so: aes256ctr.c aes256ctr.h
+pqcrystals_aes256ctr_avx2.so: aes256ctr.c aes256ctr.h
 	$(CC) -shared -fPIC $(CFLAGS) -o $@ $<
 
-kyber512_avx2.so: $(SOURCES) $(HEADERS) symmetric-shake.c
+pqcrystals_kyber512_avx2.so: $(SOURCES) $(HEADERS) symmetric-shake.c
 	$(CC) -shared -fpic $(CFLAGS) -DKYBER_K=2 $(SOURCES) \
-	  symmetric-shake.c -o kyber512_avx2.so
+	  symmetric-shake.c -o pqcrystals_kyber512_avx2.so
 
-kyber768_avx2.so: $(SOURCES) $(HEADERS) symmetric-shake.c
+pqcrystals_kyber768_avx2.so: $(SOURCES) $(HEADERS) symmetric-shake.c
 	$(CC) -shared -fpic $(CFLAGS) -DKYBER_K=3 $(SOURCES) \
-	  symmetric-shake.c -o kyber768_avx2.so
+	  symmetric-shake.c -o pqcrystals_kyber768_avx2.so
 
-kyber1024_avx2.so: $(SOURCES) $(HEADERS) symmetric-shake.c
+pqcrystals_kyber1024_avx2.so: $(SOURCES) $(HEADERS) symmetric-shake.c
 	$(CC) -shared -fpic $(CFLAGS) -DKYBER_K=4 $(SOURCES) \
-	  symmetric-shake.c -o kyber1024_avx2.so
+	  symmetric-shake.c -o pqcrystals_kyber1024_avx2.so
 
 test_kyber512: $(SOURCESKECCAK) $(HEADERSKECCAK) test_kyber.c randombytes.c
 	$(CC) $(CFLAGS) -DKYBER_K=2 $(SOURCESKECCAK) randombytes.c test_kyber.c -o test_kyber512
@@ -124,14 +124,14 @@ test_speed768: $(SOURCESKECCAK) $(HEADERSKECCAK) cpucycles.h cpucycles.c speed_p
 test_speed1024: $(SOURCESKECCAK) $(HEADERSKECCAK) cpucycles.h cpucycles.c speed_print.h speed_print.c test_speed.c randombytes.c kex.c kex.h
 	$(CC) $(CFLAGS) -DKYBER_K=4 $(SOURCESKECCAK) randombytes.c cpucycles.c speed_print.c kex.c test_speed.c -o test_speed1024
 
-kyber512-90s_avx2.so: $(SOURCES) $(HEADERS)
-	$(CC) -shared -fpic $(CFLAGS) -DKYBER_K=2 -DKYBER_90S $(SOURCES) -o kyber512-90s_avx2.so
+pqcrystals_kyber512-90s_avx2.so: $(SOURCES) $(HEADERS)
+	$(CC) -shared -fpic $(CFLAGS) -DKYBER_K=2 -DKYBER_90S $(SOURCES) -o pqcrystals_kyber512-90s_avx2.so
 
-kyber768-90s_avx2.so: $(SOURCES) $(HEADERS)
-	$(CC) -shared -fpic $(CFLAGS) -DKYBER_K=3 -DKYBER_90S $(SOURCES) -o kyber768-90s_avx2.so
+pqcrystals_kyber768-90s_avx2.so: $(SOURCES) $(HEADERS)
+	$(CC) -shared -fpic $(CFLAGS) -DKYBER_K=3 -DKYBER_90S $(SOURCES) -o pqcrystals_kyber768-90s_avx2.so
 
-kyber1024-90s_avx2.so: $(SOURCES) $(HEADERS)
-	$(CC) -shared -fpic $(CFLAGS) -DKYBER_K=4 -DKYBER_90S $(SOURCES) -o kyber1024-90s_avx2.so
+pqcrystals_kyber1024-90s_avx2.so: $(SOURCES) $(HEADERS)
+	$(CC) -shared -fpic $(CFLAGS) -DKYBER_K=4 -DKYBER_90S $(SOURCES) -o pqcrystals_kyber1024-90s_avx2.so
 
 test_kyber512-90s: $(SOURCESNINETIES) $(HEADERSNINETIES) test_kyber.c randombytes.c
 	$(CC) $(CFLAGS) -D KYBER_90S -DKYBER_K=2 $(SOURCESNINETIES) randombytes.c test_kyber.c -o test_kyber512-90s -lcrypto
@@ -173,10 +173,7 @@ PQCgenKAT_kem: $(SOURCESKECCAK) $(HEADERSKECCAK) PQCgenKAT_kem.c rng.c rng.h
 	$(CC) $(NISTFLAGS) -o $@ $(SOURCESKECCAK) -I. rng.c PQCgenKAT_kem.c -lcrypto
 
 clean:
-	-$(RM) -rf *.o
-	-$(RM) -rf kyber512_avx2.so
-	-$(RM) -rf kyber768_avx2.so
-	-$(RM) -rf kyber1024_avx2.so
+	-$(RM) -rf *.o *.a *.so
 	-$(RM) -rf test_kyber512
 	-$(RM) -rf test_kyber768
 	-$(RM) -rf test_kyber1024
@@ -189,9 +186,6 @@ clean:
 	-$(RM) -rf test_speed512
 	-$(RM) -rf test_speed768
 	-$(RM) -rf test_speed1024
-	-$(RM) -rf kyber512-90s_avx2.so
-	-$(RM) -rf kyber768-90s_avx2.so
-	-$(RM) -rf kyber1024-90s_avx2.so
 	-$(RM) -rf test_kyber512-90s
 	-$(RM) -rf test_kyber768-90s
 	-$(RM) -rf test_kyber1024-90s
@@ -205,7 +199,4 @@ clean:
 	-$(RM) -rf test_speed768-90s
 	-$(RM) -rf test_speed1024-90s
 	-$(RM) -rf PQCgenKAT_kem
-	-$(RM) -rf pqcrystals_ref.so
-	-$(RM) -rf pqcrystals_avx2.so
-	-$(RM) -rf pqcrystals_avx2_aes256ctr.so
 	-$(RM) -rf keccak4x/KeccakP-1600-times4-SIMD256.o

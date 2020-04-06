@@ -43,25 +43,25 @@ all: \
   PQCgenKAT_kem
 
 shared: \
-  kyber512_ref.so \
-  kyber768_ref.so \
-  kyber1024_ref.so \
-  kyber512-90s_ref.so \
-  kyber768-90s_ref.so \
-  kyber1024-90s_ref.so \
-  pqcrystals_ref.so
+  pqcrystals_kyber512_ref.so \
+  pqcrystals_kyber768_ref.so \
+  pqcrystals_kyber1024_ref.so \
+  pqcrystals_kyber512-90s_ref.so \
+  pqcrystals_kyber768-90s_ref.so \
+  pqcrystals_kyber1024-90s_ref.so \
+  pqcrystals_fips202_ref.so
 
-pqcrystals_ref.so: fips202.c fips202.h
-	$(CC) -shared -fPIC $(CFLAGS) fips202.c -o pqcrystals_ref.so
+pqcrystals_fips202_ref.so: fips202.c fips202.h
+	$(CC) -shared -fPIC $(CFLAGS) fips202.c -o pqcrystals_fips202_ref.so
 
-kyber512_ref.so: $(SOURCES) $(HEADERS) symmetric-shake.c
-	$(CC) -shared -fPIC $(CFLAGS) -DKYBER_K=2 $(SOURCES) symmetric-shake.c -o kyber512_ref.so
+pqcrystals_kyber512_ref.so: $(SOURCES) $(HEADERS) symmetric-shake.c
+	$(CC) -shared -fPIC $(CFLAGS) -DKYBER_K=2 $(SOURCES) symmetric-shake.c -o pqcrystals_kyber512_ref.so
 
-kyber768_ref.so: $(SOURCES) $(HEADERS) symmetric-shake.c
-	$(CC) -shared -fPIC $(CFLAGS) -DKYBER_K=3 $(SOURCES) symmetric-shake.c -o kyber768_ref.so
+pqcrystals_kyber768_ref.so: $(SOURCES) $(HEADERS) symmetric-shake.c
+	$(CC) -shared -fPIC $(CFLAGS) -DKYBER_K=3 $(SOURCES) symmetric-shake.c -o pqcrystals_kyber768_ref.so
 
-kyber1024_ref.so: $(SOURCES) $(HEADERS) symmetric-shake.c
-	$(CC) -shared -fPIC $(CFLAGS) -DKYBER_K=4 $(SOURCES) symmetric-shake.c -o kyber1024_ref.so
+pqcrystals_kyber1024_ref.so: $(SOURCES) $(HEADERS) symmetric-shake.c
+	$(CC) -shared -fPIC $(CFLAGS) -DKYBER_K=4 $(SOURCES) symmetric-shake.c -o pqcrystals_kyber1024_ref.so
 
 test_kyber512: $(SOURCESKECCAK) $(HEADERSKECCAK) test_kyber.c randombytes.c
 	$(CC) $(CFLAGS) -DKYBER_K=2 $(SOURCESKECCAK) randombytes.c test_kyber.c -o test_kyber512
@@ -99,14 +99,14 @@ test_speed768: $(SOURCESKECCAK) $(HEADERSKECCAK) cpucycles.h cpucycles.c speed_p
 test_speed1024: $(SOURCESKECCAK) $(HEADERSKECCAK) cpucycles.h cpucycles.c speed_print.h speed_print.c test_speed.c randombytes.c kex.c kex.h
 	$(CC) $(CFLAGS) -DKYBER_K=4 $(SOURCESKECCAK) randombytes.c cpucycles.c speed_print.c kex.c test_speed.c -o test_speed1024
 
-kyber512-90s_ref.so: $(SOURCES) $(HEADERS) symmetric-aes.c
-	$(CC) -shared -fPIC $(CFLAGS) -DKYBER_K=2 -DKYBER_90S $(SOURCES) symmetric-aes.c -o kyber512-90s_ref.so
+pqcrystals_kyber512-90s_ref.so: $(SOURCES) $(HEADERS) symmetric-aes.c
+	$(CC) -shared -fPIC $(CFLAGS) -DKYBER_K=2 -DKYBER_90S $(SOURCES) symmetric-aes.c -o pqcrystals_kyber512-90s_ref.so
 
-kyber768-90s_ref.so: $(SOURCES) $(HEADERS) symmetric-aes.c
-	$(CC) -shared -fPIC $(CFLAGS) -DKYBER_K=3 -DKYBER_90S $(SOURCES) symmetric-aes.c -o kyber768-90s_ref.so
+pqcrystals_kyber768-90s_ref.so: $(SOURCES) $(HEADERS) symmetric-aes.c
+	$(CC) -shared -fPIC $(CFLAGS) -DKYBER_K=3 -DKYBER_90S $(SOURCES) symmetric-aes.c -o pqcrystals_kyber768-90s_ref.so
 
-kyber1024-90s_ref.so: $(SOURCES) $(HEADERS) symmetric-aes.c
-	$(CC) -shared -fPIC $(CFLAGS) -DKYBER_K=4 -DKYBER_90S $(SOURCES) symmetric-aes.c -o kyber1024-90s_ref.so
+pqcrystals_kyber1024-90s_ref.so: $(SOURCES) $(HEADERS) symmetric-aes.c
+	$(CC) -shared -fPIC $(CFLAGS) -DKYBER_K=4 -DKYBER_90S $(SOURCES) symmetric-aes.c -o pqcrystals_kyber1024-90s_ref.so
 
 test_kyber512-90s: $(SOURCESNINETIES) $(HEADERSNINETIES) test_kyber.c randombytes.c
 	$(CC) $(CFLAGS) -D KYBER_90S -DKYBER_K=2 $(SOURCESNINETIES) randombytes.c test_kyber.c -o test_kyber512-90s
@@ -148,10 +148,7 @@ PQCgenKAT_kem: $(SOURCESKECCAK) $(HEADERSKECCAK) PQCgenKAT_kem.c rng.c rng.h
 	$(CC) $(NISTFLAGS) -o $@ $(SOURCESKECCAK) -I. rng.c PQCgenKAT_kem.c -lcrypto
 
 clean:
-	-$(RM) -rf *.o
-	-$(RM) -rf kyber512_ref.so
-	-$(RM) -rf kyber768_ref.so
-	-$(RM) -rf kyber1024_ref.so
+	-$(RM) -rf *.o *.a *.so
 	-$(RM) -rf test_kyber512
 	-$(RM) -rf test_kyber768
 	-$(RM) -rf test_kyber1024
@@ -164,9 +161,6 @@ clean:
 	-$(RM) -rf test_speed512
 	-$(RM) -rf test_speed768
 	-$(RM) -rf test_speed1024
-	-$(RM) -rf kyber512-90s_ref.so
-	-$(RM) -rf kyber768-90s_ref.so
-	-$(RM) -rf kyber1024-90s_ref.so
 	-$(RM) -rf test_kyber512-90s
 	-$(RM) -rf test_kyber768-90s
 	-$(RM) -rf test_kyber1024-90s
@@ -180,4 +174,3 @@ clean:
 	-$(RM) -rf test_speed768-90s
 	-$(RM) -rf test_speed1024-90s
 	-$(RM) -rf PQCgenKAT_kem
-	-$(RM) -rf pqcrystals_ref.so

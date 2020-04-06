@@ -1,4 +1,3 @@
-#include "params.h"
 #include "consts.h"
 .include "fq.inc"
 
