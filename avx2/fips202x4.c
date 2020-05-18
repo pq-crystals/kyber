@@ -10,16 +10,6 @@ extern void pqcrystals_fips202x4_avx2_KeccakP1600times4_PermuteAll_24rounds(__m2
 #define KeccakF1600_StatePermute4x \
   pqcrystals_fips202x4_avx2_KeccakP1600times4_PermuteAll_24rounds
 
-static inline uint64_t load64(const uint8_t x[8]) {
-  unsigned int i;
-  uint64_t r = 0;
-
-  for(i=0;i<8;i++)
-    r |= (uint64_t)x[i] << 8*i;
-
-  return r;
-}
-
 static inline void store64(uint8_t x[8], uint64_t u) {
   unsigned int i;
 
@@ -36,27 +26,18 @@ static void keccakx4_absorb(__m256i s[25],
                             size_t inlen,
                             uint8_t p)
 {
-  size_t i;
-  uint64_t f0,f1,f2,f3;
-  uint8_t ss[32] __attribute__((aligned(32)));
-  __m256i t;
+  size_t i, pos = 0;
+  __m256i t, idx;
 
   for(i = 0; i < 25; ++i)
     s[i] = _mm256_xor_si256(s[i], s[i]);
 
+  idx = _mm256_set_epi64x((long long)in3, (long long)in2, (long long)in1, (long long)in0);
   while(inlen >= r) {
     for(i = 0; i < r/8; ++i) {
-      f0 = load64(in0);
-      f1 = load64(in1);
-      f2 = load64(in2);
-      f3 = load64(in3);
-      t = _mm256_set_epi64x(f3, f2, f1, f0);
+      t = _mm256_i64gather_epi64((long long *)pos, idx, 1);
       s[i] = _mm256_xor_si256(s[i], t);
-
-      in0 += 8;
-      in1 += 8;
-      in2 += 8;
-      in3 += 8;
+      pos += 8;
     }
 
     KeccakF1600_StatePermute4x(s);
@@ -65,28 +46,21 @@ static void keccakx4_absorb(__m256i s[25],
 
   i = 0;
   while(inlen >= 8) {
-    f0 = load64(in0);
-    f1 = load64(in1);
-    f2 = load64(in2);
-    f3 = load64(in3);
-    t = _mm256_set_epi64x(f3, f2, f1, f0);
+    t = _mm256_i64gather_epi64((long long *)pos, idx, 1);
     s[i] = _mm256_xor_si256(s[i], t);
 
     i++;
-    in0 += 8;
-    in1 += 8;
-    in2 += 8;
-    in3 += 8;
+    pos += 8;
     inlen -= 8;
   }
 
-  bzero(ss, sizeof(ss));
-  memcpy(ss +  0, in0, inlen);
-  memcpy(ss +  8, in1, inlen);
-  memcpy(ss + 16, in2, inlen);
-  memcpy(ss + 24, in3, inlen);
-  t = _mm256_load_si256((__m256i *)ss);
-  s[i] = _mm256_xor_si256(s[i], t);
+  if(inlen) {
+    t = _mm256_i64gather_epi64((long long *)pos, idx, 1);
+    idx = _mm256_set1_epi64x((1ULL << (8*inlen)) - 1);
+    t = _mm256_and_si256(t, idx);
+    s[i] = _mm256_xor_si256(s[i], t);
+  }
+
   t = _mm256_set1_epi64x((uint64_t)p << 8*inlen);
   s[i] = _mm256_xor_si256(s[i], t);
   t = _mm256_set1_epi64x(1ULL << 63);

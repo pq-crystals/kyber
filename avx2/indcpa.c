@@ -175,8 +175,10 @@ static unsigned int rej_uniform(int16_t *r,
 void gen_matrix(polyvec *a, const uint8_t seed[KYBER_SYMBYTES], int transposed)
 {
   unsigned int ctr, i, j;
-  uint64_t nonce __attribute__((aligned(16)));
-  uint8_t buf[GEN_MATRIX_NBLOCKS*XOF_BLOCKBYTES] __attribute__((aligned(32)));
+  __attribute__((aligned(16)))
+  uint64_t nonce;
+  __attribute__((aligned(32)))
+  uint8_t buf[GEN_MATRIX_NBLOCKS*XOF_BLOCKBYTES];
   aes256ctr_ctx state;
 
   aes256ctr_init(&state, seed, 0);
@@ -190,7 +192,7 @@ void gen_matrix(polyvec *a, const uint8_t seed[KYBER_SYMBYTES], int transposed)
 
       state.n = _mm_loadl_epi64((__m128i *)&nonce);
       aes256ctr_squeezeblocks(buf, GEN_MATRIX_NBLOCKS, &state);
-      ctr = rej_uniform_avx(a[i].vec[j].coeffs, KYBER_N, buf, sizeof(buf));
+      ctr = rej_uniform_avx(a[i].vec[j].coeffs, buf);
 
       while(ctr < KYBER_N) {
         aes256ctr_squeezeblocks(buf, 1, &state);
@@ -204,15 +206,20 @@ void gen_matrix(polyvec *a, const uint8_t seed[KYBER_SYMBYTES], int transposed)
 }
 #else
 #if KYBER_K == 2
-void gen_matrix(polyvec *a, const uint8_t seed[KYBER_SYMBYTES], int transposed)
+void gen_matrix(polyvec *a, const uint8_t seed[32], int transposed)
 {
-  unsigned int i, ctr0, ctr1, ctr2, ctr3;
-  uint8_t buf[4][GEN_MATRIX_NBLOCKS*XOF_BLOCKBYTES]
-    __attribute__((aligned(32)));
+  unsigned int ctr0, ctr1, ctr2, ctr3;
+  __attribute__((aligned(32)))
+  uint8_t buf[4][(GEN_MATRIX_NBLOCKS*XOF_BLOCKBYTES+31)/32*32];
+  __m256i f;
   keccakx4_state state;
 
-  for(i=0;i<KYBER_SYMBYTES;i++)
-    buf[0][i] = buf[1][i] = buf[2][i] = buf[3][i] = seed[i];
+  f = _mm256_load_si256((__m256i *)seed);
+  _mm256_store_si256((__m256i *)buf[0], f);
+  _mm256_store_si256((__m256i *)buf[1], f);
+  _mm256_store_si256((__m256i *)buf[2], f);
+  _mm256_store_si256((__m256i *)buf[3], f);
+
   if(transposed) {
     buf[0][KYBER_SYMBYTES+0] = 0;
     buf[0][KYBER_SYMBYTES+1] = 0;
@@ -238,10 +245,10 @@ void gen_matrix(polyvec *a, const uint8_t seed[KYBER_SYMBYTES], int transposed)
   shake128x4_squeezeblocks(buf[0], buf[1], buf[2], buf[3], GEN_MATRIX_NBLOCKS,
                            &state);
 
-  ctr0 = rej_uniform_avx(a[0].vec[0].coeffs, KYBER_N, buf[0], sizeof(buf[0]));
-  ctr1 = rej_uniform_avx(a[0].vec[1].coeffs, KYBER_N, buf[1], sizeof(buf[1]));
-  ctr2 = rej_uniform_avx(a[1].vec[0].coeffs, KYBER_N, buf[2], sizeof(buf[2]));
-  ctr3 = rej_uniform_avx(a[1].vec[1].coeffs, KYBER_N, buf[3], sizeof(buf[3]));
+  ctr0 = rej_uniform_avx(a[0].vec[0].coeffs, buf[0]);
+  ctr1 = rej_uniform_avx(a[0].vec[1].coeffs, buf[1]);
+  ctr2 = rej_uniform_avx(a[1].vec[0].coeffs, buf[2]);
+  ctr3 = rej_uniform_avx(a[1].vec[1].coeffs, buf[3]);
 
   while(ctr0 < KYBER_N || ctr1 < KYBER_N || ctr2 < KYBER_N || ctr3 < KYBER_N) {
     shake128x4_squeezeblocks(buf[0], buf[1], buf[2], buf[3], 1, &state);
@@ -262,16 +269,21 @@ void gen_matrix(polyvec *a, const uint8_t seed[KYBER_SYMBYTES], int transposed)
   poly_nttunpack(&a[1].vec[1]);
 }
 #elif KYBER_K == 3
-void gen_matrix(polyvec *a, const uint8_t seed[KYBER_SYMBYTES], int transposed)
+void gen_matrix(polyvec *a, const uint8_t seed[32], int transposed)
 {
-  unsigned int i, ctr0, ctr1, ctr2, ctr3;
-  uint8_t buf[4][GEN_MATRIX_NBLOCKS*XOF_BLOCKBYTES]
-    __attribute__((aligned(32)));
+  unsigned int ctr0, ctr1, ctr2, ctr3;
+  __attribute__((aligned(32)))
+  uint8_t buf[4][(GEN_MATRIX_NBLOCKS*XOF_BLOCKBYTES+31)/32*32];
+  __m256i f;
   keccakx4_state state;
   keccak_state state1x;
 
-  for(i=0;i<KYBER_SYMBYTES;i++)
-    buf[0][i] = buf[1][i] = buf[2][i] = buf[3][i] = seed[i];
+  f = _mm256_load_si256((__m256i *)seed);
+  _mm256_store_si256((__m256i *)buf[0], f);
+  _mm256_store_si256((__m256i *)buf[1], f);
+  _mm256_store_si256((__m256i *)buf[2], f);
+  _mm256_store_si256((__m256i *)buf[3], f);
+
   if(transposed) {
     buf[0][KYBER_SYMBYTES+0] = 0;
     buf[0][KYBER_SYMBYTES+1] = 0;
@@ -297,10 +309,10 @@ void gen_matrix(polyvec *a, const uint8_t seed[KYBER_SYMBYTES], int transposed)
   shake128x4_squeezeblocks(buf[0], buf[1], buf[2], buf[3], GEN_MATRIX_NBLOCKS,
                            &state);
 
-  ctr0 = rej_uniform_avx(a[0].vec[0].coeffs, KYBER_N, buf[0], sizeof(buf[0]));
-  ctr1 = rej_uniform_avx(a[0].vec[1].coeffs, KYBER_N, buf[1], sizeof(buf[1]));
-  ctr2 = rej_uniform_avx(a[0].vec[2].coeffs, KYBER_N, buf[2], sizeof(buf[2]));
-  ctr3 = rej_uniform_avx(a[1].vec[0].coeffs, KYBER_N, buf[3], sizeof(buf[3]));
+  ctr0 = rej_uniform_avx(a[0].vec[0].coeffs, buf[0]);
+  ctr1 = rej_uniform_avx(a[0].vec[1].coeffs, buf[1]);
+  ctr2 = rej_uniform_avx(a[0].vec[2].coeffs, buf[2]);
+  ctr3 = rej_uniform_avx(a[1].vec[0].coeffs, buf[3]);
 
   while(ctr0 < KYBER_N || ctr1 < KYBER_N || ctr2 < KYBER_N || ctr3 < KYBER_N) {
     shake128x4_squeezeblocks(buf[0], buf[1], buf[2], buf[3], 1, &state);
@@ -320,8 +332,12 @@ void gen_matrix(polyvec *a, const uint8_t seed[KYBER_SYMBYTES], int transposed)
   poly_nttunpack(&a[0].vec[2]);
   poly_nttunpack(&a[1].vec[0]);
 
-  for(i=0;i<KYBER_SYMBYTES;i++)
-    buf[0][i] = buf[1][i] = buf[2][i] = buf[3][i] = seed[i];
+  f = _mm256_load_si256((__m256i *)seed);
+  _mm256_store_si256((__m256i *)buf[0], f);
+  _mm256_store_si256((__m256i *)buf[1], f);
+  _mm256_store_si256((__m256i *)buf[2], f);
+  _mm256_store_si256((__m256i *)buf[3], f);
+
   if(transposed) {
     buf[0][KYBER_SYMBYTES+0] = 1;
     buf[0][KYBER_SYMBYTES+1] = 1;
@@ -347,10 +363,10 @@ void gen_matrix(polyvec *a, const uint8_t seed[KYBER_SYMBYTES], int transposed)
   shake128x4_squeezeblocks(buf[0], buf[1], buf[2], buf[3], GEN_MATRIX_NBLOCKS,
                            &state);
 
-  ctr0 = rej_uniform_avx(a[1].vec[1].coeffs, KYBER_N, buf[0], sizeof(buf[0]));
-  ctr1 = rej_uniform_avx(a[1].vec[2].coeffs, KYBER_N, buf[1], sizeof(buf[1]));
-  ctr2 = rej_uniform_avx(a[2].vec[0].coeffs, KYBER_N, buf[2], sizeof(buf[2]));
-  ctr3 = rej_uniform_avx(a[2].vec[1].coeffs, KYBER_N, buf[3], sizeof(buf[3]));
+  ctr0 = rej_uniform_avx(a[1].vec[1].coeffs, buf[0]);
+  ctr1 = rej_uniform_avx(a[1].vec[2].coeffs, buf[1]);
+  ctr2 = rej_uniform_avx(a[2].vec[0].coeffs, buf[2]);
+  ctr3 = rej_uniform_avx(a[2].vec[1].coeffs, buf[3]);
 
   while(ctr0 < KYBER_N || ctr1 < KYBER_N || ctr2 < KYBER_N || ctr3 < KYBER_N) {
     shake128x4_squeezeblocks(buf[0], buf[1], buf[2], buf[3], 1, &state);
@@ -370,13 +386,13 @@ void gen_matrix(polyvec *a, const uint8_t seed[KYBER_SYMBYTES], int transposed)
   poly_nttunpack(&a[2].vec[0]);
   poly_nttunpack(&a[2].vec[1]);
 
-  for(i=0;i<KYBER_SYMBYTES;i++)
-    buf[0][i] = seed[i];
+  f = _mm256_load_si256((__m256i *)seed);
+  _mm256_store_si256((__m256i *)buf[0], f);
   buf[0][KYBER_SYMBYTES+0] = 2;
   buf[0][KYBER_SYMBYTES+1] = 2;
   shake128_absorb(&state1x, buf[0], KYBER_SYMBYTES+2);
   shake128_squeezeblocks(buf[0], GEN_MATRIX_NBLOCKS, &state1x);
-  ctr0 = rej_uniform_avx(a[2].vec[2].coeffs, KYBER_N, buf[0], sizeof(buf[0]));
+  ctr0 = rej_uniform_avx(a[2].vec[2].coeffs, buf[0]);
   while(ctr0 < KYBER_N)
   {
     shake128_squeezeblocks(buf[0], 1, &state1x);
@@ -387,16 +403,21 @@ void gen_matrix(polyvec *a, const uint8_t seed[KYBER_SYMBYTES], int transposed)
   poly_nttunpack(&a[2].vec[2]);
 }
 #elif KYBER_K == 4
-void gen_matrix(polyvec *a, const uint8_t seed[KYBER_SYMBYTES], int transposed)
+void gen_matrix(polyvec *a, const uint8_t seed[32], int transposed)
 {
-  unsigned int i, j, ctr0, ctr1, ctr2, ctr3;
-  uint8_t buf[4][GEN_MATRIX_NBLOCKS*XOF_BLOCKBYTES]
-    __attribute__((aligned(32)));
+  unsigned int i, ctr0, ctr1, ctr2, ctr3;
+  __attribute__((aligned(32)))
+  uint8_t buf[4][(GEN_MATRIX_NBLOCKS*XOF_BLOCKBYTES+31)/32*32];
+  __m256i f;
   keccakx4_state state;
 
   for(i=0;i<4;i++) {
-    for(j=0;j<KYBER_SYMBYTES;j++)
-      buf[0][j] = buf[1][j] = buf[2][j] = buf[3][j] = seed[j];
+    f = _mm256_load_si256((__m256i *)seed);
+    _mm256_store_si256((__m256i *)buf[0], f);
+    _mm256_store_si256((__m256i *)buf[1], f);
+    _mm256_store_si256((__m256i *)buf[2], f);
+    _mm256_store_si256((__m256i *)buf[3], f);
+
     if(transposed) {
       buf[0][KYBER_SYMBYTES+0] = i;
       buf[0][KYBER_SYMBYTES+1] = 0;
@@ -422,10 +443,10 @@ void gen_matrix(polyvec *a, const uint8_t seed[KYBER_SYMBYTES], int transposed)
     shake128x4_squeezeblocks(buf[0], buf[1], buf[2], buf[3],
                              GEN_MATRIX_NBLOCKS, &state);
 
-    ctr0 = rej_uniform_avx(a[i].vec[0].coeffs, KYBER_N, buf[0], sizeof(buf[0]));
-    ctr1 = rej_uniform_avx(a[i].vec[1].coeffs, KYBER_N, buf[1], sizeof(buf[1]));
-    ctr2 = rej_uniform_avx(a[i].vec[2].coeffs, KYBER_N, buf[2], sizeof(buf[2]));
-    ctr3 = rej_uniform_avx(a[i].vec[3].coeffs, KYBER_N, buf[3], sizeof(buf[3]));
+    ctr0 = rej_uniform_avx(a[i].vec[0].coeffs, buf[0]);
+    ctr1 = rej_uniform_avx(a[i].vec[1].coeffs, buf[1]);
+    ctr2 = rej_uniform_avx(a[i].vec[2].coeffs, buf[2]);
+    ctr3 = rej_uniform_avx(a[i].vec[3].coeffs, buf[3]);
 
     while(ctr0 < KYBER_N || ctr1 < KYBER_N || ctr2 < KYBER_N || ctr3 < KYBER_N) {
       shake128x4_squeezeblocks(buf[0], buf[1], buf[2], buf[3], 1, &state);
@@ -464,6 +485,7 @@ void indcpa_keypair(uint8_t pk[KYBER_INDCPA_PUBLICKEYBYTES],
                     uint8_t sk[KYBER_INDCPA_SECRETKEYBYTES])
 {
   unsigned int i;
+  __attribute__((aligned(32)))
   uint8_t buf[2*KYBER_SYMBYTES];
   const uint8_t *publicseed = buf;
   const uint8_t *noiseseed = buf+KYBER_SYMBYTES;
@@ -475,9 +497,11 @@ void indcpa_keypair(uint8_t pk[KYBER_INDCPA_PUBLICKEYBYTES],
   gen_a(a, publicseed);
 
 #ifdef KYBER_90S
-  uint64_t __attribute__((aligned(16))) nonce = 0;
+  __attribute__((aligned(16)))
+  uint64_t nonce = 0;
   aes256ctr_ctx state;
-  uint8_t coins[128] __attribute__((aligned(32)));
+  __attribute__((aligned(32)))
+  uint8_t coins[128];
   aes256ctr_init(&state, noiseseed, nonce++);
   for(i=0;i<KYBER_K;i++) {
     aes256ctr_squeezeblocks(coins, 2, &state);
@@ -547,6 +571,7 @@ void indcpa_enc(uint8_t c[KYBER_INDCPA_BYTES],
                 const uint8_t coins[KYBER_SYMBYTES])
 {
   unsigned int i;
+  __attribute__((aligned(32)))
   uint8_t seed[KYBER_SYMBYTES];
   polyvec sp, pkpv, ep, at[KYBER_K], bp;
   poly v, k, epp;
@@ -556,9 +581,11 @@ void indcpa_enc(uint8_t c[KYBER_INDCPA_BYTES],
   gen_at(at, seed);
 
 #ifdef KYBER_90S
-  uint64_t __attribute__((aligned(32))) nonce = 0;
+  __attribute__((aligned(16)))
+  uint64_t nonce = 0;
   aes256ctr_ctx state;
-  uint8_t buf[128] __attribute__((aligned(32)));
+  __attribute__((aligned(32)))
+  uint8_t buf[128];
   aes256ctr_init(&state, coins, nonce++);
   for(i=0;i<KYBER_K;i++) {
     aes256ctr_squeezeblocks(buf, 2, &state);

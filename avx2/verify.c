@@ -14,26 +14,22 @@
 *
 * Returns 0 if the byte arrays are equal, 1 otherwise
 **************************************************/
-int verify(const unsigned char * restrict a, const unsigned char * restrict b, size_t len)
+int verify(const uint8_t *a, const uint8_t *b, size_t len)
 {
   size_t pos;
   uint64_t r;
   __m256i avec, bvec, cvec;
 
   cvec = _mm256_setzero_si256();
-  for(pos = 0; pos + 32 <= len; pos += 32)
-  {
+  for(pos = 0; pos + 32 <= len; pos += 32) {
     avec = _mm256_loadu_si256((__m256i *)&a[pos]);
     bvec = _mm256_loadu_si256((__m256i *)&b[pos]);
     avec = _mm256_xor_si256(avec, bvec);
     cvec = _mm256_or_si256(cvec, avec);
   }
+  r = !_mm256_testz_si256(cvec,cvec);
 
-  cvec = _mm256_cmpeq_epi8(cvec, _mm256_setzero_si256());
-  r = (uint32_t)(_mm256_movemask_epi8(cvec) ^ -1);
-
-  while(pos < len)
-  {
+  while(pos < len) {
     r |= a[pos] ^ b[pos];
     pos += 1;
   }
@@ -55,7 +51,7 @@ int verify(const unsigned char * restrict a, const unsigned char * restrict b, s
 *              size_t len:             Amount of bytes to be copied
 *              unsigned char b:        Condition bit; has to be in {0,1}
 **************************************************/
-void cmov(unsigned char * restrict r, const unsigned char * restrict x, size_t len, unsigned char b)
+void cmov(uint8_t * restrict r, const uint8_t * restrict x, size_t len, uint8_t b)
 {
   size_t pos;
   __m256i xvec, rvec, bvec;
@@ -63,8 +59,7 @@ void cmov(unsigned char * restrict r, const unsigned char * restrict x, size_t l
   b = -b;
   bvec = _mm256_set1_epi8(b);
 
-  for(pos = 0; pos + 32 <= len; pos += 32)
-  {
+  for(pos = 0; pos + 32 <= len; pos += 32) {
     rvec = _mm256_loadu_si256((__m256i *)&r[pos]);
     xvec = _mm256_loadu_si256((__m256i *)&x[pos]);
     xvec = _mm256_xor_si256(xvec, rvec);
@@ -73,8 +68,7 @@ void cmov(unsigned char * restrict r, const unsigned char * restrict x, size_t l
     _mm256_storeu_si256((__m256i *)&r[pos], rvec);
   }
 
-  while(pos < len)
-  {
+  while(pos < len) {
     r[pos] ^= b & (x[pos] ^ r[pos]);
     pos += 1;
   }

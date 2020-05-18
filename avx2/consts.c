@@ -12,7 +12,8 @@
 #define MONTSQLO (MONTSQHI*QINV % 65536)
 #define MASK 4095
 
-const uint16_t qdata[928] __attribute__((aligned(32))) = {
+__attribute__((aligned(32)))
+const uint16_t qdata[928] = {
 #define _16XQ 0
   Q, Q, Q, Q, Q, Q, Q, Q, Q, Q, Q, Q, Q, Q, Q, Q,
 
