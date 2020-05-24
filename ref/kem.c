@@ -1,6 +1,6 @@
 #include <stddef.h>
 #include <stdint.h>
-#include "api.h"
+#include "kem.h"
 #include "params.h"
 #include "randombytes.h"
 #include "symmetric.h"

@@ -6,9 +6,8 @@
 #include "fips202x4.h"
 
 /* Use implementation from the Keccak Code Package */
-extern void pqcrystals_fips202x4_avx2_KeccakP1600times4_PermuteAll_24rounds(__m256i *s);
-#define KeccakF1600_StatePermute4x \
-  pqcrystals_fips202x4_avx2_KeccakP1600times4_PermuteAll_24rounds
+#define KeccakF1600_StatePermute4x FIPS202X4_NAMESPACE(_KeccakP1600times4_PermuteAll_24rounds)
+extern void KeccakF1600_StatePermute4x(__m256i *s);
 
 static inline void store64(uint8_t x[8], uint64_t u) {
   unsigned int i;

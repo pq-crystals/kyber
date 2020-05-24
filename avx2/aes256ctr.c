@@ -1,5 +1,5 @@
 /*
-  based heavily on public-domain code by Romain Dolbeau
+  Based heavily on public-domain code by Romain Dolbeau
   Different handling of nonce+counter than original version
   using separated 64-bit nonce and internal 64-bit counter, starting from zero
   Public Domain
