@@ -22,7 +22,7 @@ void cbd(poly * restrict r, const uint8_t * restrict buf)
   const __m256i mask03 = _mm256_set1_epi32(0x03030303);
 
   for(i = 0; i < KYBER_N/64; i++) {
-    vec0 = _mm256_loadu_si256((__m256i *)&buf[32*i]);
+    vec0 = _mm256_load_si256((__m256i *)&buf[32*i]);
 
     vec1 = _mm256_srli_epi32(vec0, 1);
     vec0 = _mm256_and_si256(mask55, vec0);

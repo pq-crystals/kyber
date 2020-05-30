@@ -560,7 +560,7 @@ void indcpa_keypair(uint8_t pk[KYBER_INDCPA_PUBLICKEYBYTES],
 *                                      (of length KYBER_INDCPA_MSGBYTES bytes)
 *              - const uint8_t *pk:    pointer to input public key
 *                                      (of length KYBER_INDCPA_PUBLICKEYBYTES)
-*              - const uint8_t *coind: pointer to input random coins
+*              - const uint8_t *coins: pointer to input random coins
 *                                      used as seed (of length KYBER_SYMBYTES)
 *                                      to deterministically generate all
 *                                      randomness

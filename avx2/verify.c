@@ -29,9 +29,11 @@ int verify(const uint8_t *a, const uint8_t *b, size_t len)
   }
   r = !_mm256_testz_si256(cvec,cvec);
 
-  while(pos < len) {
-    r |= a[pos] ^ b[pos];
-    pos += 1;
+  if(pos < len) {
+    avec = _mm256_loadu_si256((__m256i *)&a[pos]);
+    bvec = _mm256_loadu_si256((__m256i *)&b[pos]);
+    cvec = _mm256_cmpeq_epi8(avec, bvec);
+    r |= _mm256_movemask_epi8(cvec) & (-(uint32_t)1 >> (32 + pos - len));
   }
 
   r = (-r) >> 63;

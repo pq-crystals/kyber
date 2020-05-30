@@ -19,12 +19,8 @@ before_script:
 
 script:
   - cd ref
-  - make test_kex512 CC=$CC CFLAGS="-fprofile-arcs -ftest-coverage -g -Wall -Wextra -O0 -fomit-frame-pointer -march=native -fPIC"
-  - make test_kex768 CC=$CC CFLAGS="-fprofile-arcs -ftest-coverage -g -Wall -Wextra -O0 -fomit-frame-pointer -march=native -fPIC"
-  - make test_kex1024 CC=$CC CFLAGS="-fprofile-arcs -ftest-coverage -g -Wall -Wextra -O0 -fomit-frame-pointer -march=native -fPIC"
-  - ./test_kex512
-  - ./test_kex768
-  - ./test_kex1024
+  - make test_kyber768 CC=$CC CFLAGS="-fPIC -fprofile-arcs -ftest-coverage -march=native -O0 -g"
+  - ./test_kyber768
 
 after_success:
   - lcov -d . --capture --output-file coverage.info
