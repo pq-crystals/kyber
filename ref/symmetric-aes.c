@@ -1,6 +1,5 @@
 #include <stddef.h>
 #include <stdint.h>
-#include <immintrin.h>
 #include "params.h"
 #include "aes256ctr.h"
 #include "symmetric.h"
