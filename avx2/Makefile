@@ -1,9 +1,9 @@
-CC = /usr/bin/cc
+CC ?= /usr/bin/cc
 CFLAGS += -Wall -Wextra -Wpedantic -Wmissing-prototypes -Wredundant-decls \
-  -Wshadow -Wpointer-arith -march=native -mtune=native -O3 \
-  -fomit-frame-pointer -flto
-#CFLAGS += -DUSE_RDPMC
-NISTFLAGS = -Wno-unused-result -O3 -march=native -mtune=native
+  -Wshadow -Wpointer-arith -mavx2 -mbmi -mpopcnt -maes \
+  -march=native -mtune=native -O3 -fomit-frame-pointer -flto
+NISTFLAGS += -Wno-unused-result -mavx2 -mbmi -mpopcnt -maes \
+  -march=native -mtune=native -O3
 RM = /bin/rm
 
 SOURCES = kem.c indcpa.c polyvec.c poly.c fq.S shuffle.S ntt.S invntt.S \

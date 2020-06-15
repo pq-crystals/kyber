@@ -1,27 +1,31 @@
-sudo: required
-
 language: c
-
-os:
-  - linux
-
+os: linux
+dist: bionic
 compiler:
   - gcc
   - clang
+arch:
+  - amd64
+  - arm64
+  - ppc64le
+  - s390x
+script: ./runtests.sh
 
-install:
-  - sudo apt-get update
-  - sudo apt-get install -y lcov
-  - gem install coveralls-lcov
+jobs:
+  include:
+    - os: osx
+      compiler: clang
+      env:
+        - NISTFLAGS="-I/usr/local/Cellar/openssl@1.1/1.1.1d/include/"
+        - LDFLAGS="-L/usr/local/Cellar/openssl@1.1/1.1.1d/lib/"
 
-before_script:
-  - $CC -v
-
-script:
-  - cd ref
-  - make test_kyber768 CC=$CC CFLAGS="-fPIC -fprofile-arcs -ftest-coverage -march=native -O0 -g"
-  - ./test_kyber768
-
-after_success:
-  - lcov -d . --capture --output-file coverage.info
-  - coveralls-lcov coverage.info
+    - stage: coverage
+      os: linux
+      compiler: gcc
+      before_install:
+        - sudo apt-get update
+        - sudo apt-get install -y lcov
+        - gem install coveralls-lcov
+      script: ./runlcov.sh
+      after_success:
+        - coveralls-lcov ref/kyber.lcov
