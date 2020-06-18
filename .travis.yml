@@ -16,8 +16,9 @@ jobs:
     - os: osx
       compiler: clang
       env:
-        - NISTFLAGS="-I/usr/local/Cellar/openssl@1.1/1.1.1d/include/"
-        - LDFLAGS="-L/usr/local/Cellar/openssl@1.1/1.1.1d/lib/"
+        - CFLAGS="-I/usr/local/opt/openssl@1.1/include/"
+        - NISTFLAGS="-I/usr/local/opt/openssl@1.1/include/"
+        - LDFLAGS="-L/usr/local/opt/openssl@1.1/lib/"
 
     - stage: coverage
       os: linux
