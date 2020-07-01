@@ -25,3 +25,4 @@ For example, by running `./avx2/./avx2/test_speed512-90s_avx2` in the newly crea
 
 The resultant library might also be installed using the `install` target.
 
+Note: Testing on Windows has only been done using MSVS 2015 (cl version 19) and `msbuild`.

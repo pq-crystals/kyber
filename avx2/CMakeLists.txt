@@ -53,9 +53,9 @@ endif()
 add_library(kyber_fips_avx2 OBJECT ${KECCAK_FILES} ${AES_FILES})
 set(_AVX2_OBJS $<TARGET_OBJECTS:kyber_fips_avx2>)
 
-# Plain tests
+# Iterate over parameter sets:
 foreach(X RANGE 2 4)
-   # Plain
+   # Plain Kyber
    add_library(kyber${X}lib_avx2 OBJECT ${SRCS} symmetric-shake.c)
    target_compile_options(kyber${X}lib_avx2 PUBLIC -DKYBER_K=${X})
    target_include_directories(kyber${X}lib_avx2 PRIVATE ${PROJECT_SOURCE_DIR}/avx2)
@@ -90,7 +90,7 @@ foreach(X RANGE 2 4)
       add_test(NAME test_vectors${K${X}}_avx2 COMMAND sh -c "$<TARGET_FILE:test_vectors${K${X}}_avx2> > tvecs${K${X}}")
    endif()
 
-   # AES
+   # AES Kyber ('90s')
    add_library(kyber${X}aeslib_avx2 OBJECT ${SRCS})
    target_include_directories(kyber${X}aeslib_avx2 PRIVATE ${PROJECT_SOURCE_DIR}/avx2)
    target_compile_options(kyber${X}aeslib_avx2 PUBLIC -DKYBER_K=${X} -DKYBER_90S)

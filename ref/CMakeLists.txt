@@ -44,9 +44,9 @@ endif()
 add_library(kyber_fips_ref OBJECT ${KECCAK_FILES} ${AES_FILES})
 set(_REF_OBJS $<TARGET_OBJECTS:kyber_fips_ref>)
 
-# Plain tests
+# Iterate over parameter sets:
 foreach(X RANGE 2 4)
-   # Plain
+   # Plain Kyber
    add_library(kyber${X}lib_ref OBJECT ${SRCS} symmetric-shake.c)
    target_compile_options(kyber${X}lib_ref PUBLIC -DKYBER_K=${X})
    set(_REF_OBJS ${_REF_OBJS} $<TARGET_OBJECTS:kyber${X}lib_ref>)
@@ -80,7 +80,7 @@ foreach(X RANGE 2 4)
       add_test(NAME test_vectors${K${X}}_ref COMMAND sh -c "$<TARGET_FILE:test_vectors${K${X}}_ref> > tvecs${K${X}}")
    endif()
 
-   # AES
+   # AES Kyber ('90s')
    add_library(kyber${X}aeslib_ref OBJECT ${SRCS} symmetric-aes.c)
    target_compile_options(kyber${X}aeslib_ref PUBLIC -DKYBER_K=${X} -DKYBER_90S)
    set(_REF_OBJS ${_REF_OBJS} $<TARGET_OBJECTS:kyber${X}aeslib_ref>)
@@ -130,4 +130,3 @@ endif()
 add_test(Hashes_test_ref sha256sum -c ../../SHA256SUMS)
 
 set(REF_OBJS ${_REF_OBJS} PARENT_SCOPE)
-message("Ref objects: ${REF_OBJS}")

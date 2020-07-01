@@ -46,7 +46,7 @@ set (K3 768)
 set (K4 1024)
 
 add_subdirectory(ref)
-# For the time being, don't build AVX2 on Win:
+# For the time being, don't build AVX2 on Win (ToDo!):
 if(NOT WIN32)
 add_subdirectory(avx2)
 endif()
