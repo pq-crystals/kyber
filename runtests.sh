@@ -9,12 +9,22 @@ else
   DIRS="ref"
 fi
 
+if [ "$ARCH" = "amd64" -o "$ARCH" = "arm64" ]; then
+    export CFLAGS="-fsanitize=address,undefined"
+    export NISTFLAGS="-fsanitize=address,undefined"
+fi
+
+
 for dir in $DIRS; do
-  make -C $dir
+  make -j$(nproc) -C $dir
   for alg in 512 768 1024 512-90s 768-90s 1024-90s; do
-    ./$dir/test_kyber$alg
-    ./$dir/test_kex$alg
-    ./$dir/test_vectors$alg > tvecs$alg
+    ./$dir/test_kyber$alg &
+    PID1=$!
+    ./$dir/test_kex$alg &
+    PID2=$!
+    ./$dir/test_vectors$alg > tvecs$alg &
+    PID3=$!
+    wait $PID1 $PID2 $PID3
   done
   shasum -a256 -c SHA256SUMS
 done
