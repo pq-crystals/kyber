@@ -10,8 +10,8 @@ else
 fi
 
 if [ "$ARCH" = "amd64" -o "$ARCH" = "arm64" ]; then
-    export CFLAGS="-fsanitize=address,undefined"
-    export NISTFLAGS="-fsanitize=address,undefined"
+    export CFLAGS="-fsanitize=address,undefined ${CFLAGS}"
+    export NISTFLAGS="-fsanitize=address,undefined ${CFLAGS}"
 fi
 
 
