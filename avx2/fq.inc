@@ -10,6 +10,9 @@ vpsubw		%ymm0,%ymm\r,%ymm\r
 vpsraw		$15,%ymm\r,%ymm\x
 vpand		%ymm0,%ymm\x,%ymm\x
 vpaddw		%ymm\x,%ymm\r,%ymm\r
+#vpcmpgtw	%ymm0,%ymm\r,%ymm\x
+#vpand		%ymm0,%ymm\x,%ymm\x
+#vpsubw		%ymm\x,%ymm\r,%ymm\r
 .endm
 
 .macro caddq r,x=12
