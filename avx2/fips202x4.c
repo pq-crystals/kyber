@@ -29,7 +29,7 @@ static void keccakx4_absorb(__m256i s[25],
   __m256i t, idx;
 
   for(i = 0; i < 25; ++i)
-    s[i] = _mm256_xor_si256(s[i], s[i]);
+    s[i] = _mm256_setzero_si256();
 
   idx = _mm256_set_epi64x((long long)in3, (long long)in2, (long long)in1, (long long)in0);
   while(inlen >= r) {
