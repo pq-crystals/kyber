@@ -298,8 +298,8 @@ unsigned int rej_uniform_avx(int16_t * restrict r,
 
     g0 = _mm256_castsi128_si256(_mm_loadl_epi64((__m128i *)&idx[(good >>  0) & 0xFF]));
     g1 = _mm256_castsi128_si256(_mm_loadl_epi64((__m128i *)&idx[(good >>  8) & 0xFF]));
-    g0 = _mm256_inserti128_si256(g0, _mm_loadu_si128((__m128i *)&idx[(good >> 16) & 0xFF]), 1);
-    g1 = _mm256_inserti128_si256(g1, _mm_loadu_si128((__m128i *)&idx[(good >> 24) & 0xFF]), 1);
+    g0 = _mm256_inserti128_si256(g0, _mm_loadl_epi64((__m128i *)&idx[(good >> 16) & 0xFF]), 1);
+    g1 = _mm256_inserti128_si256(g1, _mm_loadl_epi64((__m128i *)&idx[(good >> 24) & 0xFF]), 1);
 
     //g0 = _mm256_cvtepu8_epi64(_mm_loadl_epi64((__m128i *)&good));
     //g1 = _mm256_i64gather_epi64((long long *)idx, g0, 8);

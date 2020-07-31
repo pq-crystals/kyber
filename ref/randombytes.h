@@ -1,10 +1,9 @@
 #ifndef RANDOMBYTES_H
 #define RANDOMBYTES_H
 
-#define _GNU_SOURCE
-
 #include <stddef.h>
+#include <stdint.h>
 
-void randombytes(unsigned char *x, size_t xlen);
+void randombytes(uint8_t *out, size_t outlen);
 
 #endif

@@ -1,65 +1,80 @@
 #include <stddef.h>
-#include <sys/types.h>
-#include <errno.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <unistd.h>
-#include <sys/syscall.h>
+#include <stdint.h>
+#include <stdlib.h>
 #include "randombytes.h"
 
+#ifdef _WIN32
+#include <windows.h>
+#include <wincrypt.h>
+#else
+#include <fcntl.h>
+#include <errno.h>
+#ifdef __linux__
 #define _GNU_SOURCE
+#include <unistd.h>
+#include <sys/syscall.h>
+#else
+#include <unistd.h>
+#endif
+#endif
 
-static int fd = -1;
-static void randombytes_fallback(unsigned char *x, size_t xlen)
-{
-  int i;
+#ifdef _WIN32
+void randombytes(uint8_t *out, size_t outlen) {
+  HCRYPTPROV ctx;
+  DWORD len;
 
-  if (fd == -1) {
-    for (;;) {
-      fd = open("/dev/urandom", O_RDONLY);
-      if (fd != -1) break;
-      sleep(1);
-    }
+  if(!CryptAcquireContext(&ctx, NULL, NULL, PROV_RSA_FULL, CRYPT_VERIFYCONTEXT))
+    abort();
+
+  while(outlen > 0) {
+    len = (outlen > 1048576) ? 1048576 : outlen;
+    if(!CryptGenRandom(ctx, len, (BYTE *)out))
+      abort();
+
+    out += len;
+    outlen -= len;
   }
 
-  while (xlen > 0) {
-    if (xlen < 1048576) i = xlen; else i = 1048576;
-
-    i = read(fd, x, i);
-    if (i < 1) {
-      sleep(1);
-      continue;
-    }
-
-    x += i;
-    xlen -= i;
-  }
+  if(!CryptReleaseContext(ctx, 0))
+    abort();
 }
+#elif defined(__linux__) && defined(SYS_getrandom)
+void randombytes(uint8_t *out, size_t outlen) {
+  ssize_t ret;
 
-#ifdef SYS_getrandom
-void randombytes(unsigned char *buf, size_t buflen)
-{
-  size_t d = 0;
-  int r;
+  while(outlen > 0) {
+    ret = syscall(SYS_getrandom, out, outlen, 0);
+    if(ret == -1 && errno == EINTR)
+      continue;
+    else if(ret == -1)
+      abort();
 
-  while(d < buflen)
-  {
-    errno = 0;
-    r = syscall(SYS_getrandom, buf, buflen - d, 0);
-    if(r < 0)
-    {
-      if (errno == EINTR) continue;
-      randombytes_fallback(buf, buflen);
-      return;
-    }
-    buf += r;
-    d += r;
+    out += ret;
+    outlen -= ret;
   }
 }
 #else
-void randombytes(unsigned char *buf, size_t buflen)
-{
-  randombytes_fallback(buf, buflen);
+void randombytes(uint8_t *out, size_t outlen) {
+  static int fd = -1;
+  ssize_t ret;
+
+  while(fd == -1) {
+    fd = open("/dev/urandom", O_RDONLY);
+    if(fd == -1 && errno == EINTR)
+      continue;
+    else if(fd == -1)
+      abort();
+  }
+
+  while(outlen > 0) {
+    ret = read(fd, out, outlen);
+    if(ret == -1 && errno == EINTR)
+      continue;
+    else if(ret == -1)
+      abort();
+
+    out += ret;
+    outlen -= ret;
+  }
 }
 #endif
-
