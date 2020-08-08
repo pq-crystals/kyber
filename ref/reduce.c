@@ -51,6 +51,7 @@ int16_t barrett_reduce(int16_t a) {
 * Description: Conditionallly subtract q
 *
 * Arguments:   - int16_t x: input integer
+*.                          has to be >= -29439
 *
 * Returns:     a - q if a >= q, else a
 **************************************************/
