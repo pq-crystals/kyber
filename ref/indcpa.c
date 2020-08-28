@@ -329,7 +329,10 @@ void indcpa_dec(uint8_t m[KYBER_INDCPA_MSGBYTES],
   unpack_sk(&skpv, sk);
 
   polyvec_ntt(&bp);
-  polyvec_reduce(&bp);
+
+  // skpv is bounded in absolute value by 2^12.  bp is bounded in absolute
+  // value by 7q.  Multiplied the coefficients are bounded by 2^14.9q,
+  // which is below the 2^15q required for the Montgomery reduction.
   polyvec_pointwise_acc_montgomery(&mp, &skpv, &bp);
   poly_invntt_tomont(&mp);
 
