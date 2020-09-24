@@ -138,17 +138,18 @@ static unsigned int rej_uniform(int16_t *r,
                                 unsigned int buflen)
 {
   unsigned int ctr, pos;
-  uint16_t val;
+  uint16_t val0, val1;
 
   ctr = pos = 0;
-  while(ctr < len && pos + 2 <= buflen) {
-    val = buf[pos] | ((uint16_t)buf[pos+1] << 8);
-    pos += 2;
+  while(ctr < len && pos + 3 <= buflen) {
+    val0 = ((buf[pos+0] >> 0) | ((uint16_t)buf[pos+1] << 8)) & 0xFFF;
+    val1 = ((buf[pos+1] >> 4) | ((uint16_t)buf[pos+2] << 4));
+    pos += 3;
 
-    if(val < 19*KYBER_Q) {
-      val -= ((uint32_t)val*20159 >> 26)*KYBER_Q; // Barrett reduction
-      r[ctr++] = (int16_t)val;
-    }
+    if(val0 < KYBER_Q)
+      r[ctr++] = val0;
+    if(ctr < len && val1 < KYBER_Q)
+      r[ctr++] = val1;
   }
 
   return ctr;
@@ -169,16 +170,17 @@ static unsigned int rej_uniform(int16_t *r,
 *              - const uint8_t *seed: pointer to input seed
 *              - int transposed: boolean deciding whether A or A^T is generated
 **************************************************/
-#define GEN_MATRIX_NBLOCKS ((2*KYBER_N*(1U << 16)/(19*KYBER_Q) \
-                             + XOF_BLOCKBYTES)/XOF_BLOCKBYTES)
+#define GEN_MATRIX_NBLOCKS ((12*KYBER_N/8*(1 << 12)/KYBER_Q \
+                             + XOF_BLOCKBYTES - 1)/XOF_BLOCKBYTES)
 #ifdef KYBER_90S
 void gen_matrix(polyvec *a, const uint8_t seed[KYBER_SYMBYTES], int transposed)
 {
-  unsigned int ctr, i, j;
+  unsigned int ctr, i, j, k;
+  unsigned buflen, off;
   __attribute__((aligned(16)))
   uint64_t nonce;
   __attribute__((aligned(32)))
-  uint8_t buf[GEN_MATRIX_NBLOCKS*XOF_BLOCKBYTES];
+  uint8_t buf[GEN_MATRIX_NBLOCKS*XOF_BLOCKBYTES+2];
   aes256ctr_ctx state;
 
   aes256ctr_init(&state, seed, 0);
@@ -192,12 +194,16 @@ void gen_matrix(polyvec *a, const uint8_t seed[KYBER_SYMBYTES], int transposed)
 
       state.n = _mm_loadl_epi64((__m128i *)&nonce);
       aes256ctr_squeezeblocks(buf, GEN_MATRIX_NBLOCKS, &state);
+      buflen = GEN_MATRIX_NBLOCKS*XOF_BLOCKBYTES;
       ctr = rej_uniform_avx(a[i].vec[j].coeffs, buf);
 
       while(ctr < KYBER_N) {
-        aes256ctr_squeezeblocks(buf, 1, &state);
-        ctr += rej_uniform(a[i].vec[j].coeffs + ctr, KYBER_N - ctr, buf,
-                           XOF_BLOCKBYTES);
+        off = buflen % 3;
+        for(k = 0; k < off; k++)
+          buf[k] = buf[buflen - off + k];
+        aes256ctr_squeezeblocks(buf + off, 1, &state);
+        buflen = off + XOF_BLOCKBYTES;
+        ctr += rej_uniform(a[i].vec[j].coeffs + ctr, KYBER_N - ctr, buf, buflen);
       }
 
       poly_nttunpack(&a[i].vec[j]);
@@ -627,7 +633,6 @@ void indcpa_enc(uint8_t c[KYBER_INDCPA_BYTES],
   // matrix-vector multiplication
   for(i=0;i<KYBER_K;i++)
     polyvec_pointwise_acc_montgomery(&bp.vec[i], &at[i], &sp);
-
   polyvec_pointwise_acc_montgomery(&v, &pkpv, &sp);
 
   polyvec_invntt_tomont(&bp);

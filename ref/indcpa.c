@@ -138,17 +138,18 @@ static unsigned int rej_uniform(int16_t *r,
                                 unsigned int buflen)
 {
   unsigned int ctr, pos;
-  uint16_t val;
+  uint16_t val0, val1;
 
   ctr = pos = 0;
-  while(ctr < len && pos + 2 <= buflen) {
-    val = buf[pos] | ((uint16_t)buf[pos+1] << 8);
-    pos += 2;
+  while(ctr < len && pos + 3 <= buflen) {
+    val0 = ((buf[pos+0] >> 0) | ((uint16_t)buf[pos+1] << 8)) & 0xFFF;
+    val1 = ((buf[pos+1] >> 4) | ((uint16_t)buf[pos+2] << 4)) & 0xFFF;
+    pos += 3;
 
-    if(val < 19*KYBER_Q) {
-      val -= (val >> 12)*KYBER_Q; // Barrett reduction
-      r[ctr++] = (int16_t)val;
-    }
+    if(val0 < KYBER_Q)
+      r[ctr++] = val0;
+    if(ctr < len && val1 < KYBER_Q)
+      r[ctr++] = val1;
   }
 
   return ctr;
@@ -170,13 +171,14 @@ static unsigned int rej_uniform(int16_t *r,
 *              - int transposed:      boolean deciding whether A or A^T
 *                                     is generated
 **************************************************/
-#define GEN_MATRIX_NBLOCKS ((2*KYBER_N*(1U << 16)/(19*KYBER_Q) \
+#define GEN_MATRIX_NBLOCKS ((12*KYBER_N/8*(1 << 12)/KYBER_Q \
                              + XOF_BLOCKBYTES)/XOF_BLOCKBYTES)
 // Not static for benchmarking
 void gen_matrix(polyvec *a, const uint8_t seed[KYBER_SYMBYTES], int transposed)
 {
-  unsigned int ctr, i, j;
-  uint8_t buf[GEN_MATRIX_NBLOCKS*XOF_BLOCKBYTES];
+  unsigned int ctr, i, j, k;
+  unsigned int buflen, off;
+  uint8_t buf[GEN_MATRIX_NBLOCKS*XOF_BLOCKBYTES+2];
   xof_state state;
 
   for(i=0;i<KYBER_K;i++) {
@@ -187,12 +189,16 @@ void gen_matrix(polyvec *a, const uint8_t seed[KYBER_SYMBYTES], int transposed)
         xof_absorb(&state, seed, j, i);
 
       xof_squeezeblocks(buf, GEN_MATRIX_NBLOCKS, &state);
-      ctr = rej_uniform(a[i].vec[j].coeffs, KYBER_N, buf, sizeof(buf));
+      buflen = GEN_MATRIX_NBLOCKS*XOF_BLOCKBYTES;
+      ctr = rej_uniform(a[i].vec[j].coeffs, KYBER_N, buf, buflen);
 
       while(ctr < KYBER_N) {
-        xof_squeezeblocks(buf, 1, &state);
-        ctr += rej_uniform(a[i].vec[j].coeffs + ctr, KYBER_N - ctr, buf,
-                           XOF_BLOCKBYTES);
+        off = buflen % 3;
+        for(k = 0; k < off; k++)
+          buf[k] = buf[buflen - off + k];
+        xof_squeezeblocks(buf + off, 1, &state);
+        buflen = off + XOF_BLOCKBYTES;
+        ctr += rej_uniform(a[i].vec[j].coeffs + ctr, KYBER_N - ctr, buf, buflen);
       }
     }
   }

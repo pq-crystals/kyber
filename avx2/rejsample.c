@@ -1,10 +1,13 @@
 #include <stdint.h>
 #include <immintrin.h>
+#include <string.h>
 #include "params.h"
 #include "consts.h"
 #include "rejsample.h"
 
-__attribute__((aligned(64)))
+#define BMI
+
+#ifndef BMI
 static const uint8_t idx[256][8] = {
   {-1, -1, -1, -1, -1, -1, -1, -1},
   { 0, -1, -1, -1, -1, -1, -1, -1},
@@ -263,56 +266,79 @@ static const uint8_t idx[256][8] = {
   { 2,  4,  6,  8, 10, 12, 14, -1},
   { 0,  2,  4,  6,  8, 10, 12, 14}
 };
+#endif
 
 #define _mm256_cmpge_epu16(a, b) _mm256_cmpeq_epi16(_mm256_max_epu16(a, b), a)
 #define _mm_cmpge_epu16(a, b) _mm_cmpeq_epi16(_mm_max_epu16(a, b), a)
 
 #ifdef KYBER_90S
-#define REJ_UNIFORM_BUFLEN 576
+#define REJ_UNIFORM_BUFLEN 512
 #else
-#define REJ_UNIFORM_BUFLEN 672
+#define REJ_UNIFORM_BUFLEN 504
 #endif
 unsigned int rej_uniform_avx(int16_t * restrict r,
                              const uint8_t * restrict buf)
 {
   unsigned int ctr, pos;
-  uint16_t val;
+  uint16_t val0, val1;
   uint32_t good;
-  const __m256i bound  = _mm256_set1_epi16((int16_t)(19*KYBER_Q-1));
+  uint64_t idx0, idx1, idx2, idx3;
+  const __m256i bound  = _mm256_set1_epi16(KYBER_Q);
   const __m256i ones   = _mm256_set1_epi8(1);
-  const __m256i kyberq = _mm256_load_si256((__m256i *)&qdata[_16XQ]);
-  const __m256i v = _mm256_load_si256((__m256i *)&qdata[_16XV]);
+  const __m256i mask  = _mm256_set1_epi16(0xFFF);
+  const __m256i idx8  = _mm256_set_epi8(15,14,14,13,12,11,11,10,
+                                         9, 8, 8, 7, 6, 5, 5, 4,
+                                        11,10,10, 9, 8, 7, 7, 6,
+                                         5, 4, 4, 3, 2, 1, 1, 0);
   __m256i f0, f1, g0, g1, g2, g3;
   __m128i f, t, pilo, pihi;
 
-  ctr = 0;
-  for(pos = 0; pos < 2*KYBER_N; pos += 64) {
-    f0 = _mm256_load_si256((__m256i *)&buf[pos+ 0]);
-    f1 = _mm256_load_si256((__m256i *)&buf[pos+32]);
+  ctr = pos = 0;
+  while(ctr <= KYBER_N - 32 && pos <= REJ_UNIFORM_BUFLEN - 48) {
+    f0 = _mm256_loadu_si256((__m256i *)&buf[pos]);
+    f1 = _mm256_loadu_si256((__m256i *)&buf[pos+24]);
+    f0 = _mm256_permute4x64_epi64(f0, 0x94);
+    f1 = _mm256_permute4x64_epi64(f1, 0x94);
+    f0 = _mm256_shuffle_epi8(f0, idx8);
+    f1 = _mm256_shuffle_epi8(f1, idx8);
+    g0 = _mm256_srli_epi16(f0, 4);
+    g1 = _mm256_srli_epi16(f1, 4);
+    f0 = _mm256_blend_epi16(f0, g0, 0xAA);
+    f1 = _mm256_blend_epi16(f1, g1, 0xAA);
+    f0 = _mm256_and_si256(f0, mask);
+    f1 = _mm256_and_si256(f1, mask);
+    pos += 48;
 
-    g0 = _mm256_cmpge_epu16(bound, f0);
-    g1 = _mm256_cmpge_epu16(bound, f1);
+    g0 = _mm256_cmpgt_epi16(bound, f0);
+    g1 = _mm256_cmpgt_epi16(bound, f1);
 
     g0 = _mm256_packs_epi16(g0, g1);
     good = _mm256_movemask_epi8(g0);
 
+#ifdef BMI
+    idx0 = _pdep_u64(good >>  0, 0x0101010101010101);
+    idx1 = _pdep_u64(good >>  8, 0x0101010101010101);
+    idx2 = _pdep_u64(good >> 16, 0x0101010101010101);
+    idx3 = _pdep_u64(good >> 24, 0x0101010101010101);
+    idx0 = (idx0 << 8) - idx0;
+    idx0  = _pext_u64(0x0E0C0A0806040200, idx0);
+    idx1 = (idx1 << 8) - idx1;
+    idx1  = _pext_u64(0x0E0C0A0806040200, idx1);
+    idx2 = (idx2 << 8) - idx2;
+    idx2  = _pext_u64(0x0E0C0A0806040200, idx2);
+    idx3 = (idx3 << 8) - idx3;
+    idx3  = _pext_u64(0x0E0C0A0806040200, idx3);
+
+    g0 = _mm256_castsi128_si256(_mm_cvtsi64_si128(idx0));
+    g1 = _mm256_castsi128_si256(_mm_cvtsi64_si128(idx1));
+    g0 = _mm256_inserti128_si256(g0, _mm_cvtsi64_si128(idx2), 1);
+    g1 = _mm256_inserti128_si256(g1, _mm_cvtsi64_si128(idx3), 1);
+#else
     g0 = _mm256_castsi128_si256(_mm_loadl_epi64((__m128i *)&idx[(good >>  0) & 0xFF]));
     g1 = _mm256_castsi128_si256(_mm_loadl_epi64((__m128i *)&idx[(good >>  8) & 0xFF]));
     g0 = _mm256_inserti128_si256(g0, _mm_loadl_epi64((__m128i *)&idx[(good >> 16) & 0xFF]), 1);
     g1 = _mm256_inserti128_si256(g1, _mm_loadl_epi64((__m128i *)&idx[(good >> 24) & 0xFF]), 1);
-
-    //g0 = _mm256_cvtepu8_epi64(_mm_loadl_epi64((__m128i *)&good));
-    //g1 = _mm256_i64gather_epi64((long long *)idx, g0, 8);
-
-    /* Barrett reduction of (still unsigned) values */
-    g2 = _mm256_mulhi_epu16(f0, v);
-    g3 = _mm256_mulhi_epu16(f1, v);
-    g2 = _mm256_srli_epi16(g2, 10);
-    g3 = _mm256_srli_epi16(g3, 10);
-    g2 = _mm256_mullo_epi16(g2, kyberq);
-    g3 = _mm256_mullo_epi16(g3, kyberq);
-    f0 = _mm256_sub_epi16(f0, g2);
-    f1 = _mm256_sub_epi16(f1, g3);
+#endif
 
     g2 = _mm256_add_epi8(g0, ones);
     g3 = _mm256_add_epi8(g1, ones);
@@ -332,35 +358,44 @@ unsigned int rej_uniform_avx(int16_t * restrict r,
     ctr += _mm_popcnt_u32((good >> 24) & 0xFF);
   }
 
-  while(ctr <= KYBER_N - 8 && pos <= REJ_UNIFORM_BUFLEN - 16) {
-    f = _mm_load_si128((__m128i *)&buf[pos]);
-    t = _mm_cmpge_epu16(_mm256_castsi256_si128(bound), f);
+  while(ctr <= KYBER_N - 8 && pos <= REJ_UNIFORM_BUFLEN - 12) {
+    f = _mm_loadu_si128((__m128i *)&buf[pos]);
+    f = _mm_shuffle_epi8(f, _mm256_castsi256_si128(idx8));
+    t = _mm_srli_epi16(f, 4);
+    f = _mm_blend_epi16(f, t, 0xAA);
+    f = _mm_and_si128(f, _mm256_castsi256_si128(mask));
+    pos += 12;
+
+    t = _mm_cmpgt_epi16(_mm256_castsi256_si128(bound), f);
     good = _mm_movemask_epi8(t);
+
+#ifdef BMI
+    good &= 0x5555;
+    idx0 = _pdep_u64(good, 0x1111111111111111);
+    idx0 = (idx0 << 8) - idx0;
+    idx0 = _pext_u64(0x0E0C0A0806040200, idx0);
+    pilo = _mm_cvtsi64_si128(idx0);
+#else
     good = _pext_u32(good, 0x5555);
     pilo = _mm_loadl_epi64((__m128i *)&idx[good]);
+#endif
+
     pihi = _mm_add_epi8(pilo, _mm256_castsi256_si128(ones));
     pilo = _mm_unpacklo_epi8(pilo, pihi);
-
-    /* Barrett reduction */
-    t = _mm_mulhi_epu16(f, _mm256_castsi256_si128(v));
-    t = _mm_srli_epi16(t, 10);
-    t = _mm_mullo_epi16(t, _mm256_castsi256_si128(kyberq));
-    f = _mm_sub_epi16(f, t);
-
     f = _mm_shuffle_epi8(f, pilo);
     _mm_storeu_si128((__m128i *)&r[ctr], f);
     ctr += _mm_popcnt_u32(good);
-    pos += 16;
   }
 
-  while(ctr < KYBER_N && pos <= REJ_UNIFORM_BUFLEN - 2) {
-    val = buf[pos] | ((uint16_t)buf[pos+1] << 8);
-    pos += 2;
+  while(ctr < KYBER_N && pos <= REJ_UNIFORM_BUFLEN - 3) {
+    val0 = ((buf[pos+0] >> 0) | ((uint16_t)buf[pos+1] << 8)) & 0xFFF;
+    val1 = ((buf[pos+1] >> 4) | ((uint16_t)buf[pos+2] << 4));
+    pos += 3;
 
-    if(val < 19*KYBER_Q) {
-      val -= ((int32_t)val*20159 >> 26) * KYBER_Q;
-      r[ctr++] = val;
-    }
+    if(val0 < KYBER_Q)
+      r[ctr++] = val0;
+    if(val1 < KYBER_Q && ctr < KYBER_N)
+      r[ctr++] = val1;
   }
 
   return ctr;
