@@ -280,6 +280,7 @@ unsigned int rej_uniform_avx(int16_t * restrict r,
                              const uint8_t * restrict buf)
 {
   unsigned int ctr, pos;
+  uint16_t dst[320];
   uint16_t val0, val1;
   uint32_t good;
   uint64_t idx0, idx1, idx2, idx3;
@@ -293,8 +294,8 @@ unsigned int rej_uniform_avx(int16_t * restrict r,
   __m256i f0, f1, g0, g1, g2, g3;
   __m128i f, t, pilo, pihi;
 
-  ctr = pos = 0;
-  while(ctr <= KYBER_N - 32 && pos <= REJ_UNIFORM_BUFLEN - 48) {
+  ctr = 0;
+  for(pos=0; pos <= REJ_UNIFORM_BUFLEN - 48; pos += 48) {
     f0 = _mm256_loadu_si256((__m256i *)&buf[pos]);
     f1 = _mm256_loadu_si256((__m256i *)&buf[pos+24]);
     f0 = _mm256_permute4x64_epi64(f0, 0x94);
@@ -307,7 +308,6 @@ unsigned int rej_uniform_avx(int16_t * restrict r,
     f1 = _mm256_blend_epi16(f1, g1, 0xAA);
     f0 = _mm256_and_si256(f0, mask);
     f1 = _mm256_and_si256(f1, mask);
-    pos += 48;
 
     g0 = _mm256_cmpgt_epi16(bound, f0);
     g1 = _mm256_cmpgt_epi16(bound, f1);
@@ -348,15 +348,18 @@ unsigned int rej_uniform_avx(int16_t * restrict r,
     f0 = _mm256_shuffle_epi8(f0, g0);
     f1 = _mm256_shuffle_epi8(f1, g1);
 
-    _mm_storeu_si128((__m128i *)&r[ctr], _mm256_castsi256_si128(f0));
+    _mm_storeu_si128((__m128i *)&dst[ctr], _mm256_castsi256_si128(f0));
     ctr += _mm_popcnt_u32((good >>  0) & 0xFF);
-    _mm_storeu_si128((__m128i *)&r[ctr], _mm256_extracti128_si256(f0, 1));
+    _mm_storeu_si128((__m128i *)&dst[ctr], _mm256_extracti128_si256(f0, 1));
     ctr += _mm_popcnt_u32((good >> 16) & 0xFF);
-    _mm_storeu_si128((__m128i *)&r[ctr], _mm256_castsi256_si128(f1));
+    _mm_storeu_si128((__m128i *)&dst[ctr], _mm256_castsi256_si128(f1));
     ctr += _mm_popcnt_u32((good >>  8) & 0xFF);
-    _mm_storeu_si128((__m128i *)&r[ctr], _mm256_extracti128_si256(f1, 1));
+    _mm_storeu_si128((__m128i *)&dst[ctr], _mm256_extracti128_si256(f1, 1));
     ctr += _mm_popcnt_u32((good >> 24) & 0xFF);
   }
+
+  if(ctr > KYBER_N) ctr = KYBER_N;
+  memcpy(r,dst,ctr*2);
 
   while(ctr <= KYBER_N - 8 && pos <= REJ_UNIFORM_BUFLEN - 12) {
     f = _mm_loadu_si128((__m128i *)&buf[pos]);
