@@ -62,6 +62,36 @@ int main()
 
   for(i=0;i<NTESTS;i++) {
     t[i] = cpucycles();
+    polyvec_pointwise_acc_montgomery(&ap, &matrix[0], &matrix[1]);
+  }
+  print_results("polyvec_basemul_acc_montgomery: ", t, NTESTS);
+
+  for(i=0;i<NTESTS;i++) {
+    t[i] = cpucycles();
+    poly_compress(ct,&ap);
+  }
+  print_results("poly_compress: ", t, NTESTS);
+
+  for(i=0;i<NTESTS;i++) {
+    t[i] = cpucycles();
+    poly_decompress(&ap,ct);
+  }
+  print_results("poly_decompress: ", t, NTESTS);
+
+  for(i=0;i<NTESTS;i++) {
+    t[i] = cpucycles();
+    polyvec_compress(ct,&matrix[0]);
+  }
+  print_results("polyvec_compress: ", t, NTESTS);
+
+  for(i=0;i<NTESTS;i++) {
+    t[i] = cpucycles();
+    polyvec_decompress(&matrix[0],ct);
+  }
+  print_results("polyvec_decompress: ", t, NTESTS);
+
+  for(i=0;i<NTESTS;i++) {
+    t[i] = cpucycles();
     crypto_kem_keypair(pk, sk);
   }
   print_results("kyber_keypair: ", t, NTESTS);

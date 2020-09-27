@@ -1,9 +1,95 @@
 #include <stdint.h>
+#include <immintrin.h>
 #include "params.h"
 #include "poly.h"
 #include "polyvec.h"
 #include "ntt.h"
 #include "consts.h"
+
+#if (KYBER_POLYVECCOMPRESSEDBYTES == (KYBER_K * 320))
+static void poly_compress10(uint8_t r[320], const poly * restrict a)
+{
+  unsigned int i;
+  __m256i f0, f1, f2;
+  __m128i t0, t1;
+  const __m256i v = _mm256_load_si256((__m256i *)&qdata[_16XV]);
+  const __m256i v8 = _mm256_slli_epi16(v,3);
+  const __m256i off = _mm256_set1_epi16(15);
+  const __m256i shift1 = _mm256_set1_epi16(1 << 12);
+  const __m256i mask = _mm256_set1_epi16(1023);
+  const __m256i shift2 = _mm256_set1_epi64x((1024LL << 48) + (1LL << 32) + (1024 << 16) + 1);
+  const __m256i sllvdidx = _mm256_set1_epi64x(12);
+  const __m256i shufbidx = _mm256_set_epi8( 8, 4, 3, 2, 1, 0,-1,-1,-1,-1,-1,-1,12,11,10, 9,
+                                           -1,-1,-1,-1,-1,-1,12,11,10, 9, 8, 4, 3, 2, 1, 0);
+
+  for(i=0;i<KYBER_N/16;i++) {
+    f0 = _mm256_load_si256((__m256i *)&a->coeffs[16*i]);
+    f1 = _mm256_mullo_epi16(f0,v8);
+    f2 = _mm256_add_epi16(f0,off);
+    f0 = _mm256_slli_epi16(f0,3);
+    f0 = _mm256_mulhi_epi16(f0,v);
+    f2 = _mm256_sub_epi16(f1,f2);
+    f1 = _mm256_andnot_si256(f1,f2);
+    f1 = _mm256_srli_epi16(f1,15);
+    f0 = _mm256_sub_epi16(f0,f1);
+    f0 = _mm256_mulhrs_epi16(f0,shift1);
+    f0 = _mm256_and_si256(f0,mask);
+    f0 = _mm256_madd_epi16(f0,shift2);
+    f0 = _mm256_sllv_epi32(f0,sllvdidx);
+    f0 = _mm256_srli_epi64(f0,12);
+    f0 = _mm256_shuffle_epi8(f0,shufbidx);
+    t0 = _mm256_castsi256_si128(f0);
+    t1 = _mm256_extracti128_si256(f0,1);
+    t0 = _mm_blend_epi16(t0,t1,0xE0);
+    _mm_storeu_si128((__m128i *)&r[20*i+ 0],t0);
+    _mm_store_ss((float *)&r[20*i+16],_mm_castsi128_ps(t1));
+  }
+}
+
+#elif (KYBER_POLYVECCOMPRESSEDBYTES == (KYBER_K * 352))
+static void poly_compress11(uint8_t r[352+2], const poly * restrict a)
+{
+  unsigned int i;
+  __m256i f0, f1, f2;
+  __m128i t0, t1;
+  const __m256i v = _mm256_load_si256((__m256i *)&qdata[_16XV]);
+  const __m256i v8 = _mm256_slli_epi16(v,3);
+  const __m256i off = _mm256_set1_epi16(36);
+  const __m256i shift1 = _mm256_set1_epi16(1 << 13);
+  const __m256i mask = _mm256_set1_epi16(2047);
+  const __m256i shift2 = _mm256_set1_epi64x((2048LL << 48) + (1LL << 32) + (2048 << 16) + 1);
+  const __m256i sllvdidx = _mm256_set1_epi64x(10);
+  const __m256i srlvqidx = _mm256_set_epi64x(30,10,30,10);
+  const __m256i shufbidx = _mm256_set_epi8( 4, 3, 2, 1, 0, 0,-1,-1,-1,-1,10, 9, 8, 7, 6, 5,
+                                           -1,-1,-1,-1,-1,10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0);
+
+  for(i=0;i<KYBER_N/16;i++) {
+    f0 = _mm256_load_si256((__m256i *)&a->coeffs[16*i]);
+    f1 = _mm256_mullo_epi16(f0,v8);
+    f2 = _mm256_add_epi16(f0,off);
+    f0 = _mm256_slli_epi16(f0,3);
+    f0 = _mm256_mulhi_epi16(f0,v);
+    f2 = _mm256_sub_epi16(f1,f2);
+    f1 = _mm256_andnot_si256(f1,f2);
+    f1 = _mm256_srli_epi16(f1,15);
+    f0 = _mm256_sub_epi16(f0,f1);
+    f0 = _mm256_mulhrs_epi16(f0,shift1);
+    f0 = _mm256_and_si256(f0,mask);
+    f0 = _mm256_madd_epi16(f0,shift2);
+    f0 = _mm256_sllv_epi32(f0,sllvdidx);
+    f1 = _mm256_bsrli_epi128(f0,8);
+    f0 = _mm256_srlv_epi64(f0,srlvqidx);
+    f1 = _mm256_slli_epi64(f1,34);
+    f0 = _mm256_add_epi64(f0,f1);
+    f0 = _mm256_shuffle_epi8(f0,shufbidx);
+    t0 = _mm256_castsi256_si128(f0);
+    t1 = _mm256_extracti128_si256(f0,1);
+    t0 = _mm_blendv_epi8(t0,t1,_mm256_castsi256_si128(shufbidx));
+    _mm_storeu_si128((__m128i *)&r[22*i+ 0],t0);
+    _mm_storel_epi64((__m128i *)&r[22*i+16],t1);
+  }
+}
+#endif
 
 /*************************************************
 * Name:        polyvec_compress
@@ -14,53 +100,17 @@
 *                            (needs space for KYBER_POLYVECCOMPRESSEDBYTES)
 *              - polyvec *a: pointer to input vector of polynomials
 **************************************************/
-void polyvec_compress(uint8_t r[KYBER_POLYVECCOMPRESSEDBYTES],
+void polyvec_compress(uint8_t r[KYBER_POLYVECCOMPRESSEDBYTES+2],
                       polyvec * restrict a)
 {
-  unsigned int i,j,k;
+  unsigned int i;
 
-  //polyvec_csubq(a);
-
-#if (KYBER_POLYVECCOMPRESSEDBYTES == (KYBER_K * 352))
-  uint16_t t[8];
-  for(i=0;i<KYBER_K;i++) {
-    for(j=0;j<KYBER_N/8;j++) {
-      for(k=0;k<8;k++)
-        t[k] = ((((uint32_t)a->vec[i].coeffs[8*j+k] << 11) + KYBER_Q/2)
-                /KYBER_Q) & 0x7ff;
-
-      r[ 0] = (t[0] >>  0);
-      r[ 1] = (t[0] >>  8) | (t[1] << 3);
-      r[ 2] = (t[1] >>  5) | (t[2] << 6);
-      r[ 3] = (t[2] >>  2);
-      r[ 4] = (t[2] >> 10) | (t[3] << 1);
-      r[ 5] = (t[3] >>  7) | (t[4] << 4);
-      r[ 6] = (t[4] >>  4) | (t[5] << 7);
-      r[ 7] = (t[5] >>  1);
-      r[ 8] = (t[5] >>  9) | (t[6] << 2);
-      r[ 9] = (t[6] >>  6) | (t[7] << 5);
-      r[10] = (t[7] >>  3);
-      r += 11;
-    }
-  }
-#elif (KYBER_POLYVECCOMPRESSEDBYTES == (KYBER_K * 320))
-  uint16_t t[4];
-  for(i=0;i<KYBER_K;i++) {
-    for(j=0;j<KYBER_N/4;j++) {
-      for(k=0;k<4;k++)
-        t[k] = ((((uint32_t)a->vec[i].coeffs[4*j+k] << 10) + KYBER_Q/2)
-                / KYBER_Q) & 0x3ff;
-
-      r[0] = (t[0] >> 0);
-      r[1] = (t[0] >> 8) | (t[1] << 2);
-      r[2] = (t[1] >> 6) | (t[2] << 4);
-      r[3] = (t[2] >> 4) | (t[3] << 6);
-      r[4] = (t[3] >> 2);
-      r += 5;
-    }
-  }
-#else
-#error "KYBER_POLYVECCOMPRESSEDBYTES needs to be in {320*KYBER_K, 352*KYBER_K}"
+#if (KYBER_POLYVECCOMPRESSEDBYTES == (KYBER_K * 320))
+  for(i=0;i<KYBER_K;i++)
+    poly_compress10(&r[320*i],&a->vec[i]);
+#elif (KYBER_POLYVECCOMPRESSEDBYTES == (KYBER_K * 352))
+  for(i=0;i<KYBER_K;i++)
+    poly_compress11(&r[352*i],&a->vec[i]);
 #endif
 }
 
