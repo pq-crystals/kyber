@@ -54,6 +54,15 @@ void poly_getnoise_eta1_4x(poly *r0,
                      uint8_t nonce1,
                      uint8_t nonce2,
                      uint8_t nonce3);
+void poly_getnoise_eta1122_4x(poly *r0,
+                     poly *r1,
+                     poly *r2,
+                     poly *r3,
+                     const uint8_t *seed,
+                     uint8_t nonce0,
+                     uint8_t nonce1,
+                     uint8_t nonce2,
+                     uint8_t nonce3);
 #endif
 #endif
 

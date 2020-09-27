@@ -24,17 +24,7 @@ void poly_compress(uint8_t r[KYBER_POLYCOMPRESSEDBYTES], poly * restrict a)
 
   poly_csubq(a);
 
-#if (KYBER_POLYCOMPRESSEDBYTES == 96)
-  for(i=0;i<KYBER_N/8;i++) {
-    for(j=0;j<8;j++)
-      t[j] = ((((uint16_t)a->coeffs[8*i+j] << 3) + KYBER_Q/2)/KYBER_Q) & 7;
-
-    r[0] = (t[0] >> 0) | (t[1] << 3) | (t[2] << 6);
-    r[1] = (t[2] >> 2) | (t[3] << 1) | (t[4] << 4) | (t[5] << 7);
-    r[2] = (t[5] >> 1) | (t[6] << 2) | (t[7] << 5);
-    r += 3;
-  }
-#elif (KYBER_POLYCOMPRESSEDBYTES == 128)
+#if (KYBER_POLYCOMPRESSEDBYTES == 128)
   for(i=0;i<KYBER_N/8;i++) {
     for(j=0;j<8;j++)
       t[j] = ((((uint16_t)a->coeffs[8*i+j] << 4) + KYBER_Q/2)/KYBER_Q) & 15;
@@ -58,7 +48,7 @@ void poly_compress(uint8_t r[KYBER_POLYCOMPRESSEDBYTES], poly * restrict a)
     r += 5;
   }
 #else
-#error "KYBER_POLYCOMPRESSEDBYTES needs to be in {96, 128, 160}"
+#error "KYBER_POLYCOMPRESSEDBYTES needs to be in {128, 160}"
 #endif
 }
 
@@ -77,24 +67,7 @@ void poly_decompress(poly * restrict r,
 {
   unsigned int i;
 
-#if (KYBER_POLYCOMPRESSEDBYTES == 96)
-  unsigned int j;
-  uint8_t t[8];
-  for(i=0;i<KYBER_N/8;i++) {
-    t[0] = (a[0] >> 0);
-    t[1] = (a[0] >> 3);
-    t[2] = (a[0] >> 6) | (a[1] << 2);
-    t[3] = (a[1] >> 1);
-    t[4] = (a[1] >> 4);
-    t[5] = (a[1] >> 7) | (a[2] << 1);
-    t[6] = (a[2] >> 2);
-    t[7] = (a[2] >> 5);
-    a += 3;
-
-    for(j=0;j<8;j++)
-      r->coeffs[8*i+j] = ((uint16_t)(t[j] & 7)*KYBER_Q + 4) >> 3;
-  }
-#elif (KYBER_POLYCOMPRESSEDBYTES == 128)
+#if (KYBER_POLYCOMPRESSEDBYTES == 128)
   for(i=0;i<KYBER_N/2;i++) {
     r->coeffs[2*i+0] = (((uint16_t)(a[0] & 15)*KYBER_Q) + 8) >> 4;
     r->coeffs[2*i+1] = (((uint16_t)(a[0] >> 4)*KYBER_Q) + 8) >> 4;
@@ -118,7 +91,7 @@ void poly_decompress(poly * restrict r,
       r->coeffs[8*i+j] = ((uint32_t)(t[j] & 31)*KYBER_Q + 16) >> 5;
   }
 #else
-#error "KYBER_POLYCOMPRESSEDBYTES needs to be in {96, 128, 160}"
+#error "KYBER_POLYCOMPRESSEDBYTES needs to be in {128, 160}"
 #endif
 }
 
@@ -353,6 +326,41 @@ void poly_getnoise_eta1_4x(poly *r0,
   cbd_eta1(r1, buf[1]);
   cbd_eta1(r2, buf[2]);
   cbd_eta1(r3, buf[3]);
+}
+
+void poly_getnoise_eta1122_4x(poly *r0,
+                     poly *r1,
+                     poly *r2,
+                     poly *r3,
+                     const uint8_t seed[32],
+                     uint8_t nonce0,
+                     uint8_t nonce1,
+                     uint8_t nonce2,
+                     uint8_t nonce3)
+{
+  __attribute__((aligned(32)))
+  uint8_t buf[4][288]; /* 288 instead of 2*SHAKE256_RATE for better alignment */
+  __m256i f;
+  keccakx4_state state;
+
+  f = _mm256_load_si256((__m256i *)seed);
+  _mm256_store_si256((__m256i *)buf[0], f);
+  _mm256_store_si256((__m256i *)buf[1], f);
+  _mm256_store_si256((__m256i *)buf[2], f);
+  _mm256_store_si256((__m256i *)buf[3], f);
+
+  buf[0][32] = nonce0;
+  buf[1][32] = nonce1;
+  buf[2][32] = nonce2;
+  buf[3][32] = nonce3;
+
+  shake256x4_absorb(&state, buf[0], buf[1], buf[2], buf[3], 33);
+  shake256x4_squeezeblocks(buf[0], buf[1], buf[2], buf[3], 2, &state);
+
+  cbd_eta1(r0, buf[0]);
+  cbd_eta1(r1, buf[1]);
+  cbd_eta2(r2, buf[2]);
+  cbd_eta2(r3, buf[3]);
 }
 #endif
 #endif

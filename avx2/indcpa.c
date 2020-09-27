@@ -622,12 +622,7 @@ void indcpa_enc(uint8_t c[KYBER_INDCPA_BYTES],
   cbd_eta2(&epp, buf);
 #else
 #if KYBER_K == 2
-  //TODO vectorize?
-  poly_getnoise_eta1(sp.vec+0, coins, 0);
-  poly_getnoise_eta1(sp.vec+1, coins, 1);
-  //TODO vectorize
-  poly_getnoise_eta2(ep.vec+0, coins, 2);
-  poly_getnoise_eta2(ep.vec+1, coins, 3);
+  poly_getnoise_eta1122_4x(sp.vec+0, sp.vec+1, ep.vec+0, ep.vec+1, coins, 0, 1, 2, 3);
   poly_getnoise_eta2(&epp, coins, 4);
 #elif KYBER_K == 3
 #if KYBER_ETA1 == KYBER_ETA2
