@@ -38,9 +38,15 @@ int main()
 
   for(i=0;i<NTESTS;i++) {
     t[i] = cpucycles();
-    poly_getnoise(&ap, seed, 0);
+    poly_getnoise_eta2(&ap, seed, 0);
   }
-  print_results("poly_getnoise: ", t, NTESTS);
+  print_results("poly_getnoise_eta2: ", t, NTESTS);
+
+  for(i=0;i<NTESTS;i++) {
+    t[i] = cpucycles();
+    poly_getnoise_eta1(&ap, seed, 0);
+  }
+  print_results("poly_getnoise_eta1: ", t, NTESTS);
 
   for(i=0;i<NTESTS;i++) {
     t[i] = cpucycles();

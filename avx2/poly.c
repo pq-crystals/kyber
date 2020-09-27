@@ -243,27 +243,48 @@ void poly_tomsg(uint8_t msg[KYBER_INDCPA_MSGBYTES], poly * restrict a)
 }
 
 /*************************************************
-* Name:        poly_getnoise
+* Name:        poly_getnoise_eta1
 *
 * Description: Sample a polynomial deterministically from a seed and a nonce,
 *              with output polynomial close to centered binomial distribution
-*              with parameter KYBER_ETA
+*              with parameter KYBER_ETA1
 *
 * Arguments:   - poly *r:             pointer to output polynomial
 *              - const uint8_t *seed: pointer to input seed
 *                                     (of length KYBER_SYMBYTES bytes)
 *              - uint8_t nonce:       one-byte input nonce
 **************************************************/
-void poly_getnoise(poly *r, const uint8_t seed[KYBER_SYMBYTES], uint8_t nonce)
+void poly_getnoise_eta1(poly *r, const uint8_t seed[KYBER_SYMBYTES], uint8_t nonce)
 {
   __attribute__((aligned(32)))
-  uint8_t buf[KYBER_ETA*KYBER_N/4];
+  uint8_t buf[KYBER_ETA1*KYBER_N/4];
   prf(buf, sizeof(buf), seed, nonce);
-  cbd(r, buf);
+  cbd_eta1(r, buf);
 }
 
+/*************************************************
+* Name:        poly_getnoise_eta2
+*
+* Description: Sample a polynomial deterministically from a seed and a nonce,
+*              with output polynomial close to centered binomial distribution
+*              with parameter KYBER_ETA2
+*
+* Arguments:   - poly *r:             pointer to output polynomial
+*              - const uint8_t *seed: pointer to input seed
+*                                     (of length KYBER_SYMBYTES bytes)
+*              - uint8_t nonce:       one-byte input nonce
+**************************************************/
+void poly_getnoise_eta2(poly *r, const uint8_t seed[KYBER_SYMBYTES], uint8_t nonce)
+{
+  __attribute__((aligned(32)))
+  uint8_t buf[KYBER_ETA2*KYBER_N/4];
+  prf(buf, sizeof(buf), seed, nonce);
+  cbd_eta2(r, buf);
+}
+
+
 #ifndef KYBER_90S
-void poly_getnoise4x(poly *r0,
+void poly_getnoise_eta2_4x(poly *r0,
                      poly *r1,
                      poly *r2,
                      poly *r3,
@@ -274,7 +295,7 @@ void poly_getnoise4x(poly *r0,
                      uint8_t nonce3)
 {
   __attribute__((aligned(32)))
-  uint8_t buf[4][160];
+  uint8_t buf[4][160]; /* 160 instead of SHAKE256_RATE for better alignment */
   __m256i f;
   keccakx4_state state;
 
@@ -292,11 +313,48 @@ void poly_getnoise4x(poly *r0,
   shake256x4_absorb(&state, buf[0], buf[1], buf[2], buf[3], 33);
   shake256x4_squeezeblocks(buf[0], buf[1], buf[2], buf[3], 1, &state);
 
-  cbd(r0, buf[0]);
-  cbd(r1, buf[1]);
-  cbd(r2, buf[2]);
-  cbd(r3, buf[3]);
+  cbd_eta2(r0, buf[0]);
+  cbd_eta2(r1, buf[1]);
+  cbd_eta2(r2, buf[2]);
+  cbd_eta2(r3, buf[3]);
 }
+
+#if KYBER_ETA1 == 3
+void poly_getnoise_eta1_4x(poly *r0,
+                     poly *r1,
+                     poly *r2,
+                     poly *r3,
+                     const uint8_t seed[32],
+                     uint8_t nonce0,
+                     uint8_t nonce1,
+                     uint8_t nonce2,
+                     uint8_t nonce3)
+{
+  __attribute__((aligned(32)))
+  uint8_t buf[4][288]; /* 288 instead of 2*SHAKE256_RATE for better alignment */
+  __m256i f;
+  keccakx4_state state;
+
+  f = _mm256_load_si256((__m256i *)seed);
+  _mm256_store_si256((__m256i *)buf[0], f);
+  _mm256_store_si256((__m256i *)buf[1], f);
+  _mm256_store_si256((__m256i *)buf[2], f);
+  _mm256_store_si256((__m256i *)buf[3], f);
+
+  buf[0][32] = nonce0;
+  buf[1][32] = nonce1;
+  buf[2][32] = nonce2;
+  buf[3][32] = nonce3;
+
+  shake256x4_absorb(&state, buf[0], buf[1], buf[2], buf[3], 33);
+  shake256x4_squeezeblocks(buf[0], buf[1], buf[2], buf[3], 2, &state);
+
+  cbd_eta1(r0, buf[0]);
+  cbd_eta1(r1, buf[1]);
+  cbd_eta1(r2, buf[2]);
+  cbd_eta1(r3, buf[3]);
+}
+#endif
 #endif
 
 /*************************************************
