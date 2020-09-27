@@ -13,14 +13,14 @@ vmovdqa		160(%rdi),%ymm7
 vmovdqa		192(%rdi),%ymm8
 vmovdqa		224(%rdi),%ymm9
 
-red16		2,10
-red16		3,11
-red16		4,12
-red16		5,13
-red16		6,14
-red16		7,15
-red16		8,10
-red16		9,11
+red16		2,x=10
+red16		3,x=11
+red16		4,x=12
+red16		5,x=13
+red16		6,x=14
+red16		7,x=15
+red16		8,x=10
+red16		9,x=11
 
 #store
 vmovdqa		%ymm2,(%rdi)

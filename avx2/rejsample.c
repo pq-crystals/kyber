@@ -5,7 +5,7 @@
 #include "consts.h"
 #include "rejsample.h"
 
-#define BMI
+//#define BMI
 
 #ifndef BMI
 static const uint8_t idx[256][8] = {
@@ -275,10 +275,11 @@ unsigned int rej_uniform_avx(int16_t * restrict r,
                              const uint8_t * restrict buf)
 {
   unsigned int ctr, pos;
-  uint16_t dst[320];
   uint16_t val0, val1;
   uint32_t good;
+#ifdef BMI
   uint64_t idx0, idx1, idx2, idx3;
+#endif
   const __m256i bound  = _mm256_set1_epi16(KYBER_Q);
   const __m256i ones   = _mm256_set1_epi8(1);
   const __m256i mask  = _mm256_set1_epi16(0xFFF);
@@ -343,13 +344,13 @@ unsigned int rej_uniform_avx(int16_t * restrict r,
     f0 = _mm256_shuffle_epi8(f0, g0);
     f1 = _mm256_shuffle_epi8(f1, g1);
 
-    _mm_storeu_si128((__m128i *)&dst[ctr], _mm256_castsi256_si128(f0));
+    _mm_storeu_si128((__m128i *)&r[ctr], _mm256_castsi256_si128(f0));
     ctr += _mm_popcnt_u32((good >>  0) & 0xFF);
-    _mm_storeu_si128((__m128i *)&dst[ctr], _mm256_extracti128_si256(f0, 1));
+    _mm_storeu_si128((__m128i *)&r[ctr], _mm256_extracti128_si256(f0, 1));
     ctr += _mm_popcnt_u32((good >> 16) & 0xFF);
-    _mm_storeu_si128((__m128i *)&dst[ctr], _mm256_castsi256_si128(f1));
+    _mm_storeu_si128((__m128i *)&r[ctr], _mm256_castsi256_si128(f1));
     ctr += _mm_popcnt_u32((good >>  8) & 0xFF);
-    _mm_storeu_si128((__m128i *)&dst[ctr], _mm256_extracti128_si256(f1, 1));
+    _mm_storeu_si128((__m128i *)&r[ctr], _mm256_extracti128_si256(f1, 1));
     ctr += _mm_popcnt_u32((good >> 24) & 0xFF);
   }
 

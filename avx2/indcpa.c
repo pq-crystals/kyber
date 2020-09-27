@@ -549,6 +549,7 @@ void indcpa_keypair(uint8_t pk[KYBER_INDCPA_PUBLICKEYBYTES],
 #endif
 
   polyvec_ntt(&skpv);
+  polyvec_reduce(&skpv);
   polyvec_ntt(&e);
 
   // matrix-vector multiplication

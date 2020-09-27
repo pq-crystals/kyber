@@ -19,7 +19,7 @@ void polyvec_compress(uint8_t r[KYBER_POLYVECCOMPRESSEDBYTES],
 {
   unsigned int i,j,k;
 
-  polyvec_csubq(a);
+  //polyvec_csubq(a);
 
 #if (KYBER_POLYVECCOMPRESSEDBYTES == (KYBER_K * 352))
   uint16_t t[8];
@@ -192,7 +192,14 @@ void polyvec_pointwise_acc_montgomery(poly *r,
                                       const polyvec *a,
                                       const polyvec *b)
 {
-  basemul_acc_avx(r->coeffs, a->vec->coeffs, b->vec->coeffs, qdata);
+  unsigned int i;
+  poly tmp;
+
+  poly_basemul_montgomery(r,&a->vec[0],&b->vec[0]);
+  for(i=1;i<KYBER_K;i++) {
+    poly_basemul_montgomery(&tmp,&a->vec[i],&b->vec[i]);
+    poly_add(r,r,&tmp);
+  }
 }
 
 /*************************************************
@@ -209,23 +216,6 @@ void polyvec_reduce(polyvec *r)
   unsigned int i;
   for(i=0;i<KYBER_K;i++)
     poly_reduce(&r->vec[i]);
-}
-
-/*************************************************
-* Name:        polyvec_csubq
-*
-* Description: Applies conditional subtraction of q to each coefficient
-*              of each element of a vector of polynomials
-*              for details of conditional subtraction of q see comments in
-*              reduce.c
-*
-* Arguments:   - poly *r: pointer to input/output polynomial
-**************************************************/
-void polyvec_csubq(polyvec *r)
-{
-  unsigned int i;
-  for(i=0;i<KYBER_K;i++)
-    poly_csubq(&r->vec[i]);
 }
 
 /*************************************************

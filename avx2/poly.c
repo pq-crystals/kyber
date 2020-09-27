@@ -22,7 +22,7 @@ void poly_compress(uint8_t r[KYBER_POLYCOMPRESSEDBYTES], poly * restrict a)
   unsigned int i,j;
   uint8_t t[8];
 
-  poly_csubq(a);
+  //poly_csubq(a);
 
 #if (KYBER_POLYCOMPRESSEDBYTES == 128)
   for(i=0;i<KYBER_N/8;i++) {
@@ -436,20 +436,6 @@ void poly_tomont(poly *r)
 void poly_reduce(poly *r)
 {
   reduce_avx(r->coeffs, qdata);
-}
-
-/*************************************************
-* Name:        poly_csubq
-*
-* Description: Applies conditional subtraction of q to each coefficient
-*              of a polynomial. For details of conditional subtraction
-*              of q see comments in reduce.c
-*
-* Arguments:   - poly *r: pointer to input/output polynomial
-**************************************************/
-void poly_csubq(poly *r)
-{
-  csubq_avx(r->coeffs, qdata);
 }
 
 /*************************************************

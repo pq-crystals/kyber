@@ -1,6 +1,10 @@
-.macro red16 r,x=12
+.macro red16 r,rs=0,x=12
 vpmulhw         %ymm1,%ymm\r,%ymm\x
+.if \rs
+vpmulhrsw	%ymm\rs,%ymm\x,%ymm\x
+.else
 vpsraw          $10,%ymm\x,%ymm\x
+.endif
 vpmullw         %ymm0,%ymm\x,%ymm\x
 vpsubw          %ymm\x,%ymm\r,%ymm\r
 .endm
