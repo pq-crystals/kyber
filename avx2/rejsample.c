@@ -304,6 +304,7 @@ unsigned int rej_uniform_avx(int16_t * restrict r,
     f1 = _mm256_blend_epi16(f1, g1, 0xAA);
     f0 = _mm256_and_si256(f0, mask);
     f1 = _mm256_and_si256(f1, mask);
+    pos += 48;
 
     g0 = _mm256_cmpgt_epi16(bound, f0);
     g1 = _mm256_cmpgt_epi16(bound, f1);
