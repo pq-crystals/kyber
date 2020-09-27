@@ -170,8 +170,9 @@ static unsigned int rej_uniform(int16_t *r,
 *              - const uint8_t *seed: pointer to input seed
 *              - int transposed: boolean deciding whether A or A^T is generated
 **************************************************/
-#define GEN_MATRIX_NBLOCKS ((12*KYBER_N/8*(1 << 12)/KYBER_Q \
-                             + XOF_BLOCKBYTES - 1)/XOF_BLOCKBYTES)
+#define GEN_MATRIX_NBLOCKS (AVX_REJ_UNIFORM_BUFLEN/XOF_BLOCKBYTES)
+                          
+
 #ifdef KYBER_90S
 void gen_matrix(polyvec *a, const uint8_t seed[KYBER_SYMBYTES], int transposed)
 {
@@ -180,7 +181,7 @@ void gen_matrix(polyvec *a, const uint8_t seed[KYBER_SYMBYTES], int transposed)
   __attribute__((aligned(16)))
   uint64_t nonce;
   __attribute__((aligned(32)))
-  uint8_t buf[GEN_MATRIX_NBLOCKS*XOF_BLOCKBYTES+2];
+  uint8_t buf[AVX_REJ_UNIFORM_BUFLEN+2];
   aes256ctr_ctx state;
 
   aes256ctr_init(&state, seed, 0);
@@ -216,7 +217,7 @@ void gen_matrix(polyvec *a, const uint8_t seed[32], int transposed)
 {
   unsigned int ctr0, ctr1, ctr2, ctr3;
   __attribute__((aligned(32)))
-  uint8_t buf[4][(GEN_MATRIX_NBLOCKS*XOF_BLOCKBYTES+31)/32*32];
+  uint8_t buf[4][AVX_REJ_UNIFORM_BUFLEN];
   __m256i f;
   keccakx4_state state;
 

@@ -8,7 +8,7 @@
 *
 * Description: Given an array of uniformly random bytes, compute
 *              polynomial with coefficients distributed according to
-*              a centered binomial distribution with parameter KYBER_ETA
+*              a centered binomial distribution with parameter 2
 *
 * Arguments:   - poly *r:                  pointer to output polynomial
 *              - const unsigned char *buf: pointer to input byte array
