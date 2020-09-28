@@ -29,6 +29,9 @@ int main()
   unsigned char kexkey[KEX_SSBYTES] = {0};
   polyvec matrix[KYBER_K];
   poly ap;
+#ifndef KYBER_90S
+  poly bp, cp, dp;
+#endif
 
   for(i=0;i<NTESTS;i++) {
     t[i] = cpucycles();
@@ -42,11 +45,23 @@ int main()
   }
   print_results("poly_getnoise_eta2: ", t, NTESTS);
 
+#ifndef KYBER_90S
+#if KYBER_ETA1 == 3
   for(i=0;i<NTESTS;i++) {
     t[i] = cpucycles();
-    poly_getnoise_eta1(&ap, seed, 0);
+    poly_getnoise_eta2(&ap, seed, 0);
+    poly_getnoise_eta1_4x(&ap, &bp, &cp, &dp, seed, 0, 1, 2, 3);
   }
-  print_results("poly_getnoise_eta1: ", t, NTESTS);
+  print_results("poly_getnoise_eta1_4x: ", t, NTESTS);
+#else
+  for(i=0;i<NTESTS;i++) {
+    t[i] = cpucycles();
+    poly_getnoise_eta2(&ap, seed, 0);
+    poly_getnoise_eta2_4x(&ap, &bp, &cp, &dp, seed, 0, 1, 2, 3);
+  }
+  print_results("poly_getnoise_eta2_4x: ", t, NTESTS);
+#endif 
+#endif 
 
   for(i=0;i<NTESTS;i++) {
     t[i] = cpucycles();

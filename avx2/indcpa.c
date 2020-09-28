@@ -508,7 +508,7 @@ void indcpa_keypair(uint8_t pk[KYBER_INDCPA_PUBLICKEYBYTES],
   uint64_t nonce = 0;
   aes256ctr_ctx state;
   __attribute__((aligned(32)))
-  uint8_t coins[AES256CTR_BLOCKBYTES*NBLOCKS];
+  uint8_t coins[AES256CTR_BLOCKBYTES*NBLOCKS+2]; /* +2 as required by cbd3 */
   aes256ctr_init(&state, noiseseed, nonce++);
   for(i=0;i<KYBER_K;i++) {
     aes256ctr_squeezeblocks(coins, NBLOCKS, &state);
@@ -602,7 +602,7 @@ void indcpa_enc(uint8_t c[KYBER_INDCPA_BYTES],
   uint64_t nonce = 0;
   aes256ctr_ctx state;
   __attribute__((aligned(32)))
-  uint8_t buf[AES256CTR_BLOCKBYTES*NBLOCKS];
+  uint8_t buf[AES256CTR_BLOCKBYTES*NBLOCKS+2]; /* +2 as required by cbd3 */
   aes256ctr_init(&state, coins, nonce++);
   for(i=0;i<KYBER_K;i++) {
     aes256ctr_squeezeblocks(buf, NBLOCKS, &state);

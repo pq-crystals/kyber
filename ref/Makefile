@@ -1,6 +1,6 @@
 CC ?= /usr/bin/cc
 CFLAGS += -Wall -Wextra -Wpedantic -Wmissing-prototypes -Wredundant-decls \
-  -Wshadow -Wpointer-arith -O3
+  -Wshadow -Wpointer-arith -O3 -march=native -fomit-frame-pointer
 NISTFLAGS += -Wno-unused-result -O3
 RM = /bin/rm
 
@@ -12,7 +12,7 @@ HEADERS = params.h api.h indcpa.h polyvec.h poly.h reduce.h ntt.h cbd.h \
 HEADERSKECCAK = $(HEADERS) fips202.h
 HEADERSNINETIES = $(HEADERS) aes256ctr.h sha2.h
 
-.PHONY: all speed shared clean
+.PHONY: all shared clean
 
 all: \
   test_kyber512 \
@@ -24,6 +24,9 @@ all: \
   test_vectors512 \
   test_vectors768 \
   test_vectors1024 \
+  test_speed512 \
+  test_speed768 \
+  test_speed1024 \
   test_kyber512-90s \
   test_kyber768-90s \
   test_kyber1024-90s \
@@ -33,15 +36,10 @@ all: \
   test_vectors512-90s \
   test_vectors768-90s \
   test_vectors1024-90s \
-  PQCgenKAT_kem
-
-speed: \
-  test_speed512 \
-  test_speed768 \
-  test_speed1024 \
   test_speed512-90s \
   test_speed768-90s \
-  test_speed1024-90s
+  test_speed1024-90s \
+  PQCgenKAT_kem
 
 shared: \
   libpqcrystals_kyber512_ref.so \
