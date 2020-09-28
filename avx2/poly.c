@@ -195,7 +195,6 @@ void poly_decompress(poly * restrict r, const uint8_t a[160+6])
   const __m256i q = _mm256_load_si256((__m256i *)&qdata[_16XQ]);
   const __m256i shufbidx = _mm256_set_epi8(9,9,9,8,8,8,8,7,7,6,6,6,6,5,5,5,
                                            4,4,4,3,3,3,3,2,2,1,1,1,1,0,0,0);
-
   const __m256i mask = _mm256_set_epi16(248,1984,62,496,3968,124,992,31,
                                         248,1984,62,496,3968,124,992,31);
   const __m256i shift = _mm256_set_epi16(128,16,512,64,8,256,32,1024,

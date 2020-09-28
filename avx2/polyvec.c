@@ -55,17 +55,16 @@ static void poly_decompress10(poly * restrict r, const uint8_t a[320+12])
                                             6, 5, 5, 4, 4, 3, 3, 2,
                                             9, 8, 8, 7, 7, 6, 6, 5,
                                             4, 3, 3, 2, 2, 1, 1, 0);
-  const __m256i mask = _mm256_set_epi16(-64,16368,4092,1023,-64,16368,4092,1023,
-                                        -64,16368,4092,1023,-64,16368,4092,1023);
   const __m256i sllvdidx = _mm256_set1_epi64x(4);
+  const __m256i mask = _mm256_set1_epi32((32736 << 16) + 8184);
 
   for(i=0;i<KYBER_N/16;i++) {
     f = _mm256_loadu_si256((__m256i *)&a[20*i]);
     f = _mm256_permute4x64_epi64(f,0x94);
     f = _mm256_shuffle_epi8(f,shufbidx);
-    f = _mm256_and_si256(f,mask);
     f = _mm256_sllv_epi32(f,sllvdidx);
     f = _mm256_srli_epi16(f,1);
+    f = _mm256_and_si256(f,mask);
     f = _mm256_mulhrs_epi16(f,q);
     _mm256_store_si256((__m256i *)&r->coeffs[16*i],f);
   }
@@ -114,6 +113,35 @@ static void poly_compress11(uint8_t r[352+2], const poly * restrict a)
     _mm_storel_epi64((__m128i *)&r[22*i+16],t1);
   }
 }
+
+static void poly_decompress11(poly * restrict r, const uint8_t a[352+10])
+{
+  unsigned int i;
+  __m256i f;
+  const __m256i q = _mm256_load_si256((__m256i *)&qdata[_16XQ]);
+  const __m256i shufbidx = _mm256_set_epi8(13,12,12,11,10, 9, 9, 8,
+                                            8, 7, 6, 5, 5, 4, 4, 3,
+                                           10, 9, 9, 8, 7, 6, 6, 5,
+                                            5, 4, 3, 2, 2, 1, 1, 0);
+  const __m256i srlvdidx = _mm256_set_epi32(0,0,1,0,0,0,1,0);
+  const __m256i srlvqidx = _mm256_set_epi64x(2,0,2,0);
+  const __m256i shift = _mm256_set_epi16(4,32,1,8,32,1,4,32,4,32,1,8,32,1,4,32);
+  const __m256i mask = _mm256_set1_epi16(32752);
+
+  for(i=0;i<KYBER_N/16;i++) {
+    f = _mm256_loadu_si256((__m256i *)&a[22*i]);
+    f = _mm256_permute4x64_epi64(f,0x94);
+    f = _mm256_shuffle_epi8(f,shufbidx);
+    f = _mm256_srlv_epi32(f,srlvdidx);
+    f = _mm256_srlv_epi64(f,srlvqidx);
+    f = _mm256_mullo_epi16(f,shift);
+    f = _mm256_srli_epi16(f,1);
+    f = _mm256_and_si256(f,mask);
+    f = _mm256_mulhrs_epi16(f,q);
+    _mm256_store_si256((__m256i *)&r->coeffs[16*i],f);
+  }
+}
+
 #endif
 
 /*************************************************
@@ -154,28 +182,12 @@ void polyvec_decompress(polyvec * restrict r,
 {
   unsigned int i;
 
-#if (KYBER_POLYVECCOMPRESSEDBYTES == (KYBER_K * 352))
-  unsigned int j,k;
-  uint16_t t[8];
-  for(i=0;i<KYBER_K;i++) {
-    for(j=0;j<KYBER_N/8;j++) {
-      t[0] = (a[0] >> 0) | ((uint16_t)a[ 1] << 8);
-      t[1] = (a[1] >> 3) | ((uint16_t)a[ 2] << 5);
-      t[2] = (a[2] >> 6) | ((uint16_t)a[ 3] << 2) | ((uint16_t)a[4] << 10);
-      t[3] = (a[4] >> 1) | ((uint16_t)a[ 5] << 7);
-      t[4] = (a[5] >> 4) | ((uint16_t)a[ 6] << 4);
-      t[5] = (a[6] >> 7) | ((uint16_t)a[ 7] << 1) | ((uint16_t)a[8] << 9);
-      t[6] = (a[8] >> 2) | ((uint16_t)a[ 9] << 6);
-      t[7] = (a[9] >> 5) | ((uint16_t)a[10] << 3);
-      a += 11;
-
-      for(k=0;k<8;k++)
-        r->vec[i].coeffs[8*j+k] = ((uint32_t)(t[k] & 0x7FF)*KYBER_Q + 1024) >> 11;
-    }
-  }
-#elif (KYBER_POLYVECCOMPRESSEDBYTES == (KYBER_K * 320))
+#if (KYBER_POLYVECCOMPRESSEDBYTES == (KYBER_K * 320))
   for(i=0;i<KYBER_K;i++)
     poly_decompress10(&r->vec[i],&a[320*i]);
+#elif (KYBER_POLYVECCOMPRESSEDBYTES == (KYBER_K * 352))
+  for(i=0;i<KYBER_K;i++)
+    poly_decompress11(&r->vec[i],&a[352*i]);
 #endif
 }
 
