@@ -15,7 +15,7 @@ typedef struct{
 #define poly_compress KYBER_NAMESPACE(_poly_compress)
 void poly_compress(uint8_t r[KYBER_POLYCOMPRESSEDBYTES], const poly *a);
 #define poly_decompress KYBER_NAMESPACE(_poly_decompress)
-void poly_decompress(poly *r, const uint8_t a[KYBER_POLYCOMPRESSEDBYTES]);
+void poly_decompress(poly *r, const uint8_t a[KYBER_POLYCOMPRESSEDBYTES+6]);
 
 #define poly_tobytes KYBER_NAMESPACE(_poly_tobytes)
 void poly_tobytes(uint8_t r[KYBER_POLYBYTES], poly *a);

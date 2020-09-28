@@ -111,7 +111,7 @@ static void pack_ciphertext(uint8_t r[KYBER_INDCPA_BYTES],
 **************************************************/
 static void unpack_ciphertext(polyvec *b,
                               poly *v,
-                              const uint8_t c[KYBER_INDCPA_BYTES])
+                              const uint8_t c[KYBER_INDCPA_BYTES+6])
 {
   polyvec_decompress(b, c);
   poly_decompress(v, c+KYBER_POLYVECCOMPRESSEDBYTES);
@@ -171,7 +171,6 @@ static unsigned int rej_uniform(int16_t *r,
 *              - int transposed: boolean deciding whether A or A^T is generated
 **************************************************/
 #define GEN_MATRIX_NBLOCKS (AVX_REJ_UNIFORM_BUFLEN/XOF_BLOCKBYTES)
-                          
 
 #ifdef KYBER_90S
 void gen_matrix(polyvec *a, const uint8_t seed[KYBER_SYMBYTES], int transposed)

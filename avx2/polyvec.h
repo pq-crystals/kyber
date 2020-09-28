@@ -12,8 +12,7 @@ typedef struct{
 #define polyvec_compress KYBER_NAMESPACE(_polyvec_compress)
 void polyvec_compress(uint8_t r[KYBER_POLYVECCOMPRESSEDBYTES+2], polyvec *a);
 #define polyvec_decompress KYBER_NAMESPACE(_polyvec_decompress)
-void polyvec_decompress(polyvec *r,
-                        const uint8_t a[KYBER_POLYVECCOMPRESSEDBYTES]);
+void polyvec_decompress(polyvec *r, const uint8_t a[KYBER_POLYVECCOMPRESSEDBYTES+12]);
 
 #define polyvec_tobytes KYBER_NAMESPACE(_polyvec_tobytes)
 void polyvec_tobytes(uint8_t r[KYBER_POLYVECBYTES], polyvec *a);

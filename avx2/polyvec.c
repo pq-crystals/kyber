@@ -46,6 +46,31 @@ static void poly_compress10(uint8_t r[320], const poly * restrict a)
   }
 }
 
+static void poly_decompress10(poly * restrict r, const uint8_t a[320+12])
+{
+  unsigned int i;
+  __m256i f;
+  const __m256i q = _mm256_set1_epi32((KYBER_Q << 16) + 4*KYBER_Q);
+  const __m256i shufbidx = _mm256_set_epi8(11,10,10, 9, 9, 8, 8, 7,
+                                            6, 5, 5, 4, 4, 3, 3, 2,
+                                            9, 8, 8, 7, 7, 6, 6, 5,
+                                            4, 3, 3, 2, 2, 1, 1, 0);
+  const __m256i mask = _mm256_set_epi16(-64,16368,4092,1023,-64,16368,4092,1023,
+                                        -64,16368,4092,1023,-64,16368,4092,1023);
+  const __m256i sllvdidx = _mm256_set1_epi64x(4);
+
+  for(i=0;i<KYBER_N/16;i++) {
+    f = _mm256_loadu_si256((__m256i *)&a[20*i]);
+    f = _mm256_permute4x64_epi64(f,0x94);
+    f = _mm256_shuffle_epi8(f,shufbidx);
+    f = _mm256_and_si256(f,mask);
+    f = _mm256_sllv_epi32(f,sllvdidx);
+    f = _mm256_srli_epi16(f,1);
+    f = _mm256_mulhrs_epi16(f,q);
+    _mm256_store_si256((__m256i *)&r->coeffs[16*i],f);
+  }
+}
+
 #elif (KYBER_POLYVECCOMPRESSEDBYTES == (KYBER_K * 352))
 static void poly_compress11(uint8_t r[352+2], const poly * restrict a)
 {
@@ -125,11 +150,12 @@ void polyvec_compress(uint8_t r[KYBER_POLYVECCOMPRESSEDBYTES+2],
 *                                  (of length KYBER_POLYVECCOMPRESSEDBYTES)
 **************************************************/
 void polyvec_decompress(polyvec * restrict r,
-                        const uint8_t a[KYBER_POLYVECCOMPRESSEDBYTES])
+                        const uint8_t a[KYBER_POLYVECCOMPRESSEDBYTES+12])
 {
-  unsigned int i,j,k;
+  unsigned int i;
 
 #if (KYBER_POLYVECCOMPRESSEDBYTES == (KYBER_K * 352))
+  unsigned int j,k;
   uint16_t t[8];
   for(i=0;i<KYBER_K;i++) {
     for(j=0;j<KYBER_N/8;j++) {
@@ -148,21 +174,8 @@ void polyvec_decompress(polyvec * restrict r,
     }
   }
 #elif (KYBER_POLYVECCOMPRESSEDBYTES == (KYBER_K * 320))
-  uint16_t t[4];
-  for(i=0;i<KYBER_K;i++) {
-    for(j=0;j<KYBER_N/4;j++) {
-      t[0] = (a[0] >> 0) | ((uint16_t)a[1] << 8);
-      t[1] = (a[1] >> 2) | ((uint16_t)a[2] << 6);
-      t[2] = (a[2] >> 4) | ((uint16_t)a[3] << 4);
-      t[3] = (a[3] >> 6) | ((uint16_t)a[4] << 2);
-      a += 5;
-
-      for(k=0;k<4;k++)
-        r->vec[i].coeffs[4*j+k] = ((uint32_t)(t[k] & 0x3FF)*KYBER_Q + 512) >> 10;
-    }
-  }
-#else
-#error "KYBER_POLYVECCOMPRESSEDBYTES needs to be in {320*KYBER_K, 352*KYBER_K}"
+  for(i=0;i<KYBER_K;i++)
+    poly_decompress10(&r->vec[i],&a[320*i]);
 #endif
 }
 
