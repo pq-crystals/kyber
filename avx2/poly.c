@@ -334,26 +334,6 @@ void poly_tomsg(uint8_t msg[KYBER_INDCPA_MSGBYTES], poly * restrict a)
 }
 
 /*************************************************
-* Name:        poly_getnoise_eta1
-*
-* Description: Sample a polynomial deterministically from a seed and a nonce,
-*              with output polynomial close to centered binomial distribution
-*              with parameter KYBER_ETA1
-*
-* Arguments:   - poly *r:             pointer to output polynomial
-*              - const uint8_t *seed: pointer to input seed
-*                                     (of length KYBER_SYMBYTES bytes)
-*              - uint8_t nonce:       one-byte input nonce
-**************************************************/
-void poly_getnoise_eta1(poly *r, const uint8_t seed[KYBER_SYMBYTES], uint8_t nonce)
-{
-  __attribute__((aligned(32)))
-  uint8_t buf[KYBER_ETA1*KYBER_N/4];
-  prf(buf, sizeof(buf), seed, nonce);
-  cbd_eta1(r, buf);
-}
-
-/*************************************************
 * Name:        poly_getnoise_eta2
 *
 * Description: Sample a polynomial deterministically from a seed and a nonce,
@@ -422,7 +402,7 @@ void poly_getnoise_eta1_4x(poly *r0,
                      uint8_t nonce3)
 {
   __attribute__((aligned(32)))
-  uint8_t buf[4][288]; /* 288 instead of 2*SHAKE256_RATE for better alignment */
+  uint8_t buf[4][288]; /* 288 instead of 2*SHAKE256_RATE for better alignment, also 2 extra bytes needed in cbd3 */
   __m256i f;
   keccakx4_state state;
 
@@ -457,7 +437,7 @@ void poly_getnoise_eta1122_4x(poly *r0,
                      uint8_t nonce3)
 {
   __attribute__((aligned(32)))
-  uint8_t buf[4][288]; /* 288 instead of 2*SHAKE256_RATE for better alignment */
+  uint8_t buf[4][288]; /* 288 instead of 2*SHAKE256_RATE for better alignment, also 2 extra bytes needed in cbd3 */
   __m256i f;
   keccakx4_state state;
 
