@@ -46,7 +46,7 @@ int main()
   print_results("poly_getnoise_eta2: ", t, NTESTS);
 
 #ifndef KYBER_90S
-#if KYBER_ETA == 3
+#if KYBER_ETA1 == 3
   for(i=0;i<NTESTS;i++) {
     t[i] = cpucycles();
     poly_getnoise_eta2(&ap, seed, 0);
