@@ -1,6 +1,6 @@
 CC ?= /usr/bin/cc
 CFLAGS += -Wall -Wextra -Wpedantic -Wmissing-prototypes -Wredundant-decls \
-  -Wshadow -Wpointer-arith -O3
+  -Wshadow -Wpointer-arith -O3 -march=native -fomit-frame-pointer
 NISTFLAGS += -Wno-unused-result -O3
 RM = /bin/rm
 
