@@ -23,6 +23,7 @@ int main()
   unsigned char pk[CRYPTO_PUBLICKEYBYTES] = {0};
   unsigned char sk[CRYPTO_SECRETKEYBYTES] = {0};
   unsigned char ct[CRYPTO_CIPHERTEXTBYTES] = {0};
+  __attribute__((aligned(32)))
   unsigned char key[CRYPTO_BYTES] = {0};
   unsigned char kexsenda[KEX_AKE_SENDABYTES] = {0};
   unsigned char kexsendb[KEX_AKE_SENDBBYTES] = {0};
@@ -104,6 +105,24 @@ int main()
     polyvec_decompress(&matrix[0],ct);
   }
   print_results("polyvec_decompress: ", t, NTESTS);
+
+  for(i=0;i<NTESTS;i++) {
+    t[i] = cpucycles();
+    indcpa_keypair(pk, sk);
+  }
+  print_results("indcpa_keypair: ", t, NTESTS);
+
+  for(i=0;i<NTESTS;i++) {
+    t[i] = cpucycles();
+    indcpa_enc(ct, key, pk, seed);
+  }
+  print_results("indcpa_enc: ", t, NTESTS);
+
+  for(i=0;i<NTESTS;i++) {
+    t[i] = cpucycles();
+    indcpa_dec(key, ct, sk);
+  }
+  print_results("indcpa_dec: ", t, NTESTS);
 
   for(i=0;i<NTESTS;i++) {
     t[i] = cpucycles();
