@@ -138,6 +138,7 @@ void aes256ctr_prf(uint8_t *out,
   while(outlen >= 64) {
     aesni_encrypt4(out, &state.n, state.rkeys);
     outlen -= 64;
+    out += 64;
   }
 
   if(outlen) {
