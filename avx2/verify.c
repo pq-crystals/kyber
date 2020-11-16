@@ -58,15 +58,12 @@ void cmov(uint8_t * restrict r, const uint8_t * restrict x, size_t len, uint8_t 
   size_t pos;
   __m256i xvec, rvec, bvec;
 
-  b = -b;
-  bvec = _mm256_set1_epi8(b);
+  bvec = _mm256_set1_epi64(-(uint64_t)b);
 
   for(pos = 0; pos + 32 <= len; pos += 32) {
     rvec = _mm256_loadu_si256((__m256i *)&r[pos]);
     xvec = _mm256_loadu_si256((__m256i *)&x[pos]);
-    xvec = _mm256_xor_si256(xvec, rvec);
-    xvec = _mm256_and_si256(xvec, bvec);
-    rvec = _mm256_xor_si256(rvec, xvec);
+    rvec = _mm256_blendv_epi8(rvec, xvec, bvec);
     _mm256_storeu_si256((__m256i *)&r[pos], rvec);
   }
 
