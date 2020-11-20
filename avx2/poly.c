@@ -380,7 +380,7 @@ void poly_getnoise_eta2_4x(poly *r0,
   buf[2][32] = nonce2;
   buf[3][32] = nonce3;
 
-  shake256x4_absorb(&state, buf[0], buf[1], buf[2], buf[3], 33);
+  shake256x4_absorb_once(&state, buf[0], buf[1], buf[2], buf[3], 33);
   shake256x4_squeezeblocks(buf[0], buf[1], buf[2], buf[3], 1, &state);
 
   cbd_eta2(r0, buf[0]);
@@ -416,7 +416,7 @@ void poly_getnoise_eta1_4x(poly *r0,
   buf[2][32] = nonce2;
   buf[3][32] = nonce3;
 
-  shake256x4_absorb(&state, buf[0], buf[1], buf[2], buf[3], 33);
+  shake256x4_absorb_once(&state, buf[0], buf[1], buf[2], buf[3], 33);
   shake256x4_squeezeblocks(buf[0], buf[1], buf[2], buf[3], 2, &state);
 
   cbd_eta1(r0, buf[0]);
@@ -451,7 +451,7 @@ void poly_getnoise_eta1122_4x(poly *r0,
   buf[2][32] = nonce2;
   buf[3][32] = nonce3;
 
-  shake256x4_absorb(&state, buf[0], buf[1], buf[2], buf[3], 33);
+  shake256x4_absorb_once(&state, buf[0], buf[1], buf[2], buf[3], 33);
   shake256x4_squeezeblocks(buf[0], buf[1], buf[2], buf[3], 2, &state);
 
   cbd_eta1(r0, buf[0]);

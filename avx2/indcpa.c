@@ -247,7 +247,7 @@ void gen_matrix(polyvec *a, const uint8_t seed[32], int transposed)
     buf[3][KYBER_SYMBYTES+1] = 1;
   }
 
-  shake128x4_absorb(&state, buf[0], buf[1], buf[2], buf[3], KYBER_SYMBYTES+2);
+  shake128x4_absorb_once(&state, buf[0], buf[1], buf[2], buf[3], KYBER_SYMBYTES+2);
   shake128x4_squeezeblocks(buf[0], buf[1], buf[2], buf[3], GEN_MATRIX_NBLOCKS,
                            &state);
 
@@ -311,7 +311,7 @@ void gen_matrix(polyvec *a, const uint8_t seed[32], int transposed)
     buf[3][KYBER_SYMBYTES+1] = 1;
   }
 
-  shake128x4_absorb(&state, buf[0], buf[1], buf[2], buf[3], KYBER_SYMBYTES+2);
+  shake128x4_absorb_once(&state, buf[0], buf[1], buf[2], buf[3], KYBER_SYMBYTES+2);
   shake128x4_squeezeblocks(buf[0], buf[1], buf[2], buf[3], GEN_MATRIX_NBLOCKS,
                            &state);
 
@@ -365,7 +365,7 @@ void gen_matrix(polyvec *a, const uint8_t seed[32], int transposed)
     buf[3][KYBER_SYMBYTES+1] = 2;
   }
 
-  shake128x4_absorb(&state, buf[0], buf[1], buf[2], buf[3], KYBER_SYMBYTES+2);
+  shake128x4_absorb_once(&state, buf[0], buf[1], buf[2], buf[3], KYBER_SYMBYTES+2);
   shake128x4_squeezeblocks(buf[0], buf[1], buf[2], buf[3], GEN_MATRIX_NBLOCKS,
                            &state);
 
@@ -445,7 +445,7 @@ void gen_matrix(polyvec *a, const uint8_t seed[32], int transposed)
       buf[3][KYBER_SYMBYTES+1] = i;
     }
 
-    shake128x4_absorb(&state, buf[0], buf[1], buf[2], buf[3], KYBER_SYMBYTES+2);
+    shake128x4_absorb_once(&state, buf[0], buf[1], buf[2], buf[3], KYBER_SYMBYTES+2);
     shake128x4_squeezeblocks(buf[0], buf[1], buf[2], buf[3],
                              GEN_MATRIX_NBLOCKS, &state);
 
