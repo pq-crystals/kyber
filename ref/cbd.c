@@ -26,7 +26,7 @@ static uint32_t load32_littleendian(const uint8_t x[4])
 * Name:        load24_littleendian
 *
 * Description: load 3 bytes into a 32-bit integer
-*              in little-endian order
+*              in little-endian order.
 *              This function is only needed for Kyber-512
 *
 * Arguments:   - const uint8_t *x: pointer to input byte array
@@ -52,7 +52,7 @@ static uint32_t load24_littleendian(const uint8_t x[3])
 *              polynomial with coefficients distributed according to
 *              a centered binomial distribution with parameter eta=2
 *
-* Arguments:   - poly *r:            pointer to output polynomial
+* Arguments:   - poly *r: pointer to output polynomial
 *              - const uint8_t *buf: pointer to input byte array
 **************************************************/
 static void cbd2(poly *r, const uint8_t buf[2*KYBER_N/4])
@@ -79,10 +79,10 @@ static void cbd2(poly *r, const uint8_t buf[2*KYBER_N/4])
 *
 * Description: Given an array of uniformly random bytes, compute
 *              polynomial with coefficients distributed according to
-*              a centered binomial distribution with parameter eta=3
+*              a centered binomial distribution with parameter eta=3.
 *              This function is only needed for Kyber-512
 *
-* Arguments:   - poly *r:            pointer to output polynomial
+* Arguments:   - poly *r: pointer to output polynomial
 *              - const uint8_t *buf: pointer to input byte array
 **************************************************/
 #if KYBER_ETA1 == 3
@@ -118,11 +118,11 @@ void cbd_eta1(poly *r, const uint8_t buf[KYBER_ETA1*KYBER_N/4])
 #endif
 }
 
-void cbd_eta2(poly *r, const uint8_t buf[KYBER_ETA1*KYBER_N/4])
+void cbd_eta2(poly *r, const uint8_t buf[KYBER_ETA2*KYBER_N/4])
 {
-#if KYBER_ETA2 != 2
-#error "This implementation requires eta2 = 2"
-#else
+#if KYBER_ETA2 == 2
   cbd2(r, buf);
+#else
+#error "This implementation requires eta2 = 2"
 #endif
 }

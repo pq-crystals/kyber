@@ -10,21 +10,21 @@
 *
 * Arguments:   - uint8_t *r: pointer to output byte array
 *                            (needs space for KYBER_POLYVECCOMPRESSEDBYTES)
-*              - polyvec *a: pointer to input vector of polynomials
+*              - const polyvec *a: pointer to input vector of polynomials
 **************************************************/
-void polyvec_compress(uint8_t r[KYBER_POLYVECCOMPRESSEDBYTES], polyvec *a)
+void polyvec_compress(uint8_t r[KYBER_POLYVECCOMPRESSEDBYTES], const polyvec *a)
 {
   unsigned int i,j,k;
-
-  polyvec_csubq(a);
 
 #if (KYBER_POLYVECCOMPRESSEDBYTES == (KYBER_K * 352))
   uint16_t t[8];
   for(i=0;i<KYBER_K;i++) {
     for(j=0;j<KYBER_N/8;j++) {
-      for(k=0;k<8;k++)
-        t[k] = ((((uint32_t)a->vec[i].coeffs[8*j+k] << 11) + KYBER_Q/2)
-                /KYBER_Q) & 0x7ff;
+      for(k=0;k<8;k++) {
+        t[k]  = a->vec[i].coeffs[8*j+k];
+        t[k] += ((int16_t)t[k] >> 15) & KYBER_Q;
+        t[k]  = ((((uint32_t)t[k] << 11) + KYBER_Q/2)/KYBER_Q) & 0x7ff;
+      }
 
       r[ 0] = (t[0] >>  0);
       r[ 1] = (t[0] >>  8) | (t[1] << 3);
@@ -44,9 +44,11 @@ void polyvec_compress(uint8_t r[KYBER_POLYVECCOMPRESSEDBYTES], polyvec *a)
   uint16_t t[4];
   for(i=0;i<KYBER_K;i++) {
     for(j=0;j<KYBER_N/4;j++) {
-      for(k=0;k<4;k++)
-        t[k] = ((((uint32_t)a->vec[i].coeffs[4*j+k] << 10) + KYBER_Q/2)
-                / KYBER_Q) & 0x3ff;
+      for(k=0;k<4;k++) {
+        t[k]  = a->vec[i].coeffs[4*j+k];
+        t[k] += ((int16_t)t[k] >> 15) & KYBER_Q;
+        t[k]  = ((((uint32_t)t[k] << 10) + KYBER_Q/2)/ KYBER_Q) & 0x3ff;
+      }
 
       r[0] = (t[0] >> 0);
       r[1] = (t[0] >> 8) | (t[1] << 2);
@@ -71,8 +73,7 @@ void polyvec_compress(uint8_t r[KYBER_POLYVECCOMPRESSEDBYTES], polyvec *a)
 *              - const uint8_t *a: pointer to input byte array
 *                                  (of length KYBER_POLYVECCOMPRESSEDBYTES)
 **************************************************/
-void polyvec_decompress(polyvec *r,
-                        const uint8_t a[KYBER_POLYVECCOMPRESSEDBYTES])
+void polyvec_decompress(polyvec *r, const uint8_t a[KYBER_POLYVECCOMPRESSEDBYTES])
 {
   unsigned int i,j,k;
 
@@ -120,9 +121,9 @@ void polyvec_decompress(polyvec *r,
 *
 * Arguments:   - uint8_t *r: pointer to output byte array
 *                            (needs space for KYBER_POLYVECBYTES)
-*              - polyvec *a: pointer to input vector of polynomials
+*              - const polyvec *a: pointer to input vector of polynomials
 **************************************************/
-void polyvec_tobytes(uint8_t r[KYBER_POLYVECBYTES], polyvec *a)
+void polyvec_tobytes(uint8_t r[KYBER_POLYVECBYTES], const polyvec *a)
 {
   unsigned int i;
   for(i=0;i<KYBER_K;i++)
@@ -176,18 +177,16 @@ void polyvec_invntt_tomont(polyvec *r)
 }
 
 /*************************************************
-* Name:        polyvec_pointwise_acc_montgomery
+* Name:        polyvec_basemul_acc_montgomery
 *
-* Description: Pointwise multiply elements of a and b, accumulate into r,
+* Description: Multiply elements of a and b in NTT domain, accumulate into r,
 *              and multiply by 2^-16.
 *
-* Arguments: - poly *r:          pointer to output polynomial
+* Arguments: - poly *r: pointer to output polynomial
 *            - const polyvec *a: pointer to first input vector of polynomials
 *            - const polyvec *b: pointer to second input vector of polynomials
 **************************************************/
-void polyvec_pointwise_acc_montgomery(poly *r,
-                                      const polyvec *a,
-                                      const polyvec *b)
+void polyvec_basemul_acc_montgomery(poly *r, const polyvec *a, const polyvec *b)
 {
   unsigned int i;
   poly t;
@@ -218,28 +217,11 @@ void polyvec_reduce(polyvec *r)
 }
 
 /*************************************************
-* Name:        polyvec_csubq
-*
-* Description: Applies conditional subtraction of q to each coefficient
-*              of each element of a vector of polynomials
-*              for details of conditional subtraction of q see comments in
-*              reduce.c
-*
-* Arguments:   - poly *r: pointer to input/output polynomial
-**************************************************/
-void polyvec_csubq(polyvec *r)
-{
-  unsigned int i;
-  for(i=0;i<KYBER_K;i++)
-    poly_csubq(&r->vec[i]);
-}
-
-/*************************************************
 * Name:        polyvec_add
 *
 * Description: Add vectors of polynomials
 *
-* Arguments: - polyvec *r:       pointer to output vector of polynomials
+* Arguments: - polyvec *r: pointer to output vector of polynomials
 *            - const polyvec *a: pointer to first input vector of polynomials
 *            - const polyvec *b: pointer to second input vector of polynomials
 **************************************************/
