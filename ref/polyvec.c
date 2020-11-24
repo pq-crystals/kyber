@@ -204,10 +204,10 @@ void polyvec_basemul_acc_montgomery(poly *r, const polyvec *a, const polyvec *b)
 * Name:        polyvec_reduce
 *
 * Description: Applies Barrett reduction to each coefficient
-*              of each element of a vector of polynomials
+*              of each element of a vector of polynomials;
 *              for details of the Barrett reduction see comments in reduce.c
 *
-* Arguments:   - poly *r: pointer to input/output polynomial
+* Arguments:   - polyvec *r: pointer to input/output polynomial
 **************************************************/
 void polyvec_reduce(polyvec *r)
 {

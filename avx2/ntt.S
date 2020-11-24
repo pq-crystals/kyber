@@ -76,7 +76,7 @@ vmovdqa		%ymm11,(64*\off+176)*2(%rdi)
 .endm
 
 .macro levels1t6 off
-/* level1 */
+/* level 1 */
 vmovdqa		(_ZETAS_EXP+224*\off+16)*2(%rsi),%ymm15
 vmovdqa		(128*\off+ 64)*2(%rdi),%ymm8
 vmovdqa		(128*\off+ 80)*2(%rdi),%ymm9
@@ -124,7 +124,7 @@ shuffle4	6,10,4,10
 reduce
 update		6,3,7,4,10,9,5,8,11
 
-/* level4 */
+/* level 4 */
 shuffle2	7,8,10,8
 shuffle2	4,11,7,11
 
@@ -139,7 +139,7 @@ shuffle2	3,5,6,5
 reduce
 update		3,4,9,6,5,10,8,7,11
 
-/* level5 */
+/* level 5 */
 shuffle1	9,7,5,7
 shuffle1	6,11,9,11
 
@@ -154,7 +154,7 @@ shuffle1	4,8,3,8
 reduce
 update		4,6,10,3,8,5,7,9,11
 
-/* level6 */
+/* level 6 */
 vmovdqa		(_ZETAS_EXP+224*\off+176)*2(%rsi),%ymm14
 vmovdqa		(_ZETAS_EXP+224*\off+208)*2(%rsi),%ymm15
 vmovdqa		(_ZETAS_EXP+224*\off+192)*2(%rsi),%ymm8

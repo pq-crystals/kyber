@@ -69,10 +69,14 @@ static int test_invalid_ciphertext()
   unsigned char ct[CRYPTO_CIPHERTEXTBYTES];
   unsigned char key_a[CRYPTO_BYTES];
   unsigned char key_b[CRYPTO_BYTES];
+  uint8_t b;
   size_t pos;
 
   for(i=0;i<NTESTS;i++) {
-    randombytes((unsigned char *)&pos, sizeof(size_t));
+    do {
+      randombytes(&b, sizeof(uint8_t));
+    } while(!b);
+    randombytes((uint8_t *)&pos, sizeof(size_t));
 
     //Alice generates a public key
     crypto_kem_keypair(pk, sk);
@@ -81,7 +85,7 @@ static int test_invalid_ciphertext()
     crypto_kem_enc(ct, key_b, pk);
 
     //Change some byte in the ciphertext (i.e., encapsulated key)
-    ct[pos % CRYPTO_CIPHERTEXTBYTES] ^= 23;
+    ct[pos % CRYPTO_CIPHERTEXTBYTES] ^= b;
 
     //Alice uses Bobs response to get her shared key
     crypto_kem_dec(key_a, ct, sk);

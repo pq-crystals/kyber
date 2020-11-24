@@ -45,7 +45,7 @@ vpsubw		%ymm\rh3,%ymm15,%ymm\rh3
 .endm
 
 .macro intt_levels0t5 off
-/* level0 */
+/* level 0 */
 vmovdqa		_16XFLO*2(%rsi),%ymm2
 vmovdqa		_16XFHI*2(%rsi),%ymm3
 
@@ -81,7 +81,7 @@ vpshufb		%ymm12,%ymm3,%ymm3
 
 butterfly	4,5,8,9,6,7,10,11,15,1,2,3
 
-/* level1 */
+/* level 1 */
 vpermq		$0x4E,(_ZETAS_EXP+(1-\off)*224+144)*2(%rsi),%ymm2
 vpermq		$0x4E,(_ZETAS_EXP+(1-\off)*224+160)*2(%rsi),%ymm3
 vmovdqa		_REVIDXB*2(%rsi),%ymm1
@@ -95,7 +95,7 @@ shuffle1	6,7,4,7
 shuffle1	8,9,6,9
 shuffle1	10,11,8,11
 
-/* level2 */
+/* level 2 */
 vmovdqa		_REVIDXD*2(%rsi),%ymm12
 vpermd		(_ZETAS_EXP+(1-\off)*224+112)*2(%rsi),%ymm12,%ymm2
 vpermd		(_ZETAS_EXP+(1-\off)*224+128)*2(%rsi),%ymm12,%ymm10
@@ -107,7 +107,7 @@ shuffle2	6,8,3,8
 shuffle2	5,7,6,7
 shuffle2	9,11,5,11
 
-/* level3 */
+/* level 3 */
 vpermq		$0x1B,(_ZETAS_EXP+(1-\off)*224+80)*2(%rsi),%ymm2
 vpermq		$0x1B,(_ZETAS_EXP+(1-\off)*224+96)*2(%rsi),%ymm9
 vmovdqa		_16XV*2(%rsi),%ymm1
@@ -121,7 +121,7 @@ shuffle4	6,5,10,5
 shuffle4	4,8,6,8
 shuffle4	7,11,4,11
 
-/* level4 */
+/* level 4 */
 vpermq		$0x4E,(_ZETAS_EXP+(1-\off)*224+48)*2(%rsi),%ymm2
 vpermq		$0x4E,(_ZETAS_EXP+(1-\off)*224+64)*2(%rsi),%ymm7
 

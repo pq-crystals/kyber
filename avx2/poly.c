@@ -1,5 +1,6 @@
 #include <stdint.h>
 #include <immintrin.h>
+#include "align.h"
 #include "params.h"
 #include "poly.h"
 #include "ntt.h"
@@ -15,7 +16,7 @@
 *
 * Arguments:   - uint8_t *r: pointer to output byte array
 *                            (of length KYBER_POLYCOMPRESSEDBYTES)
-*              - poly *a:    pointer to input polynomial
+*              - const poly *a: pointer to input polynomial
 **************************************************/
 #if (KYBER_POLYCOMPRESSEDBYTES == 96)
 void poly_compress(uint8_t r[96], const poly * restrict a)
@@ -23,7 +24,7 @@ void poly_compress(uint8_t r[96], const poly * restrict a)
   unsigned int i;
   __m256i f0, f1, f2, f3;
   __m128i t0, t1;
-  const __m256i v = _mm256_load_si256((__m256i *)&qdata[_16XV]);
+  const __m256i v = _mm256_load_si256(&qdata.vec[_16XV/16]);
   const __m256i shift1 = _mm256_set1_epi16(1 << 8);
   const __m256i mask = _mm256_set1_epi16(7);
   const __m256i shift2 = _mm256_set1_epi16((8 << 8) + 1);
@@ -33,10 +34,10 @@ void poly_compress(uint8_t r[96], const poly * restrict a)
                                            -1,-1,-1,-1,14,13,12, 6, 5, 4,10, 9, 8, 2, 1, 0);
 
   for(i=0;i<KYBER_N/64;i++) {
-    f0 = _mm256_load_si256((__m256i *)&a->coeffs[64*i+ 0]);
-    f1 = _mm256_load_si256((__m256i *)&a->coeffs[64*i+16]);
-    f2 = _mm256_load_si256((__m256i *)&a->coeffs[64*i+32]);
-    f3 = _mm256_load_si256((__m256i *)&a->coeffs[64*i+48]);
+    f0 = _mm256_load_si256(&a->vec[4*i+0]);
+    f1 = _mm256_load_si256(&a->vec[4*i+1]);
+    f2 = _mm256_load_si256(&a->vec[4*i+2]);
+    f3 = _mm256_load_si256(&a->vec[4*i+3]);
     f0 = _mm256_mulhi_epi16(f0,v);
     f1 = _mm256_mulhi_epi16(f1,v);
     f2 = _mm256_mulhi_epi16(f2,v);
@@ -68,11 +69,22 @@ void poly_compress(uint8_t r[96], const poly * restrict a)
   }
 }
 
-void poly_decompress(poly * restrict r, const uint8_t a[96+2])
+/*************************************************
+* Name:        poly_decompress
+*
+* Description: De-serialization and subsequent decompression of a polynomial;
+*              approximate inverse of poly_compress
+*
+* Arguments:   - poly *r: pointer to output polynomial
+*              - const uint8_t *a: pointer to input byte array
+*                                  (of length KYBER_POLYCOMPRESSEDBYTES bytes)
+**************************************************/
+void poly_decompress(poly * restrict r, const uint8_t a[96])
 {
   unsigned int i;
+  __m128i t;
   __m256i f;
-  const __m256i q = _mm256_load_si256((__m256i *)&qdata[_16XQ]);
+  const __m256i q = _mm256_load_si256(&qdata.vec[_16XQ/16]);
   const __m256i shufbidx = _mm256_set_epi8(5,5,5,5,5,4,4,4,4,4,4,3,3,3,3,3,
                                            2,2,2,2,2,1,1,1,1,1,1,0,0,0,0,0);
   const __m256i mask = _mm256_set_epi16(224,28,896,112,14,448,56,7,
@@ -81,32 +93,34 @@ void poly_decompress(poly * restrict r, const uint8_t a[96+2])
                                          128,1024,32,256,2048,64,512,4096);
 
   for(i=0;i<KYBER_N/16;i++) {
-    f = _mm256_castpd_si256(_mm256_broadcast_sd((double *)&a[6*i+ 0]));
+    t = _mm_castps_si128(_mm_load_ss((float *)&a[6*i+0])));
+    t = _mm_insert_epi16(t,*(int16_t *)&a[6*i+4],2);
+    f = _mm256_broadcastsi128_si256(t);
+    f = _mm256_blend_epi16(f,g,0x);
     f = _mm256_shuffle_epi8(f,shufbidx);
     f = _mm256_and_si256(f,mask);
     f = _mm256_mullo_epi16(f,shift);
     f = _mm256_mulhrs_epi16(f,q);
-    _mm256_store_si256((__m256i *)&r->coeffs[16*i],f);
+    _mm256_store_si256(&r->vec[i],f);
   }
 }
 
 #elif (KYBER_POLYCOMPRESSEDBYTES == 128)
-
 void poly_compress(uint8_t r[128], const poly * restrict a)
 {
   unsigned int i;
   __m256i f0, f1, f2, f3;
-  const __m256i v = _mm256_load_si256((__m256i *)&qdata[_16XV]);
+  const __m256i v = _mm256_load_si256(&qdata.vec[_16XV/16]);
   const __m256i shift1 = _mm256_set1_epi16(1 << 9);
   const __m256i mask = _mm256_set1_epi16(15);
   const __m256i shift2 = _mm256_set1_epi16((16 << 8) + 1);
   const __m256i permdidx = _mm256_set_epi32(7,3,6,2,5,1,4,0);
 
   for(i=0;i<KYBER_N/64;i++) {
-    f0 = _mm256_load_si256((__m256i *)&a->coeffs[64*i+ 0]);
-    f1 = _mm256_load_si256((__m256i *)&a->coeffs[64*i+16]);
-    f2 = _mm256_load_si256((__m256i *)&a->coeffs[64*i+32]);
-    f3 = _mm256_load_si256((__m256i *)&a->coeffs[64*i+48]);
+    f0 = _mm256_load_si256(&a->vec[4*i+0]);
+    f1 = _mm256_load_si256(&a->vec[4*i+1]);
+    f2 = _mm256_load_si256(&a->vec[4*i+2]);
+    f3 = _mm256_load_si256(&a->vec[4*i+3]);
     f0 = _mm256_mulhi_epi16(f0,v);
     f1 = _mm256_mulhi_epi16(f1,v);
     f2 = _mm256_mulhi_epi16(f2,v);
@@ -132,31 +146,32 @@ void poly_compress(uint8_t r[128], const poly * restrict a)
 void poly_decompress(poly * restrict r, const uint8_t a[128])
 {
   unsigned int i;
+  __m128i t;
   __m256i f;
-  const __m256i q = _mm256_load_si256((__m256i *)&qdata[_16XQ]);
+  const __m256i q = _mm256_load_si256(&qdata.vec[_16XQ/16]);
   const __m256i shufbidx = _mm256_set_epi8(7,7,7,7,6,6,6,6,5,5,5,5,4,4,4,4,
                                            3,3,3,3,2,2,2,2,1,1,1,1,0,0,0,0);
   const __m256i mask = _mm256_set1_epi32(0x00F0000F);
   const __m256i shift = _mm256_set1_epi32((128 << 16) + 2048);
 
   for(i=0;i<KYBER_N/16;i++) {
-    f = _mm256_broadcastq_epi64(_mm_loadl_epi64((__m128i *)&a[8*i]));
+    t = _mm_loadl_epi64((__m128i *)&a[8*i]);
+    f = _mm256_broadcastsi128_si256(t);
     f = _mm256_shuffle_epi8(f,shufbidx);
     f = _mm256_and_si256(f,mask);
     f = _mm256_mullo_epi16(f,shift);
     f = _mm256_mulhrs_epi16(f,q);
-    _mm256_store_si256((__m256i *)&r->coeffs[16*i],f);
+    _mm256_store_si256(&r->vec[i],f);
   }
 }
 
 #elif (KYBER_POLYCOMPRESSEDBYTES == 160)
-
 void poly_compress(uint8_t r[160], const poly * restrict a)
 {
   unsigned int i;
   __m256i f0, f1;
   __m128i t0, t1;
-  const __m256i v = _mm256_load_si256((__m256i *)&qdata[_16XV]);
+  const __m256i v = _mm256_load_si256(&qdata.vec[_16XV/16]);
   const __m256i shift1 = _mm256_set1_epi16(1 << 10);
   const __m256i mask = _mm256_set1_epi16(31);
   const __m256i shift2 = _mm256_set1_epi16((32 << 8) + 1);
@@ -166,8 +181,8 @@ void poly_compress(uint8_t r[160], const poly * restrict a)
                                            -1,12,11,10, 9, 8,-1,-1,-1,-1,-1 ,4, 3, 2, 1, 0);
 
   for(i=0;i<KYBER_N/32;i++) {
-    f0 = _mm256_load_si256((__m256i *)&a->coeffs[32*i+ 0]);
-    f1 = _mm256_load_si256((__m256i *)&a->coeffs[32*i+16]);
+    f0 = _mm256_load_si256(&a->vec[2*i+0]);
+    f1 = _mm256_load_si256(&a->vec[2*i+1]);
     f0 = _mm256_mulhi_epi16(f0,v);
     f1 = _mm256_mulhi_epi16(f1,v);
     f0 = _mm256_mulhrs_epi16(f0,shift1);
@@ -188,11 +203,12 @@ void poly_compress(uint8_t r[160], const poly * restrict a)
   }
 }
 
-void poly_decompress(poly * restrict r, const uint8_t a[160+6])
+void poly_decompress(poly * restrict r, const uint8_t a[160])
 {
   unsigned int i;
+  __m128i t;
   __m256i f;
-  const __m256i q = _mm256_load_si256((__m256i *)&qdata[_16XQ]);
+  const __m256i q = _mm256_load_si256(&qdata.vec[_16XQ/16]);
   const __m256i shufbidx = _mm256_set_epi8(9,9,9,8,8,8,8,7,7,6,6,6,6,5,5,5,
                                            4,4,4,3,3,3,3,2,2,1,1,1,1,0,0,0);
   const __m256i mask = _mm256_set_epi16(248,1984,62,496,3968,124,992,31,
@@ -201,12 +217,14 @@ void poly_decompress(poly * restrict r, const uint8_t a[160+6])
                                          128,16,512,64,8,256,32,1024);
 
   for(i=0;i<KYBER_N/16;i++) {
-    f = _mm256_broadcastsi128_si256(_mm_loadu_si128((__m128i *)&a[10*i]));
+    t = _mm_loadl_epi64((__m128i *)&a[10*i+0]);
+    t = _mm_insert_epi16(t,*(int16_t *)&a[10*i+8],4);
+    f = _mm256_broadcastsi128_si256(t);
     f = _mm256_shuffle_epi8(f,shufbidx);
     f = _mm256_and_si256(f,mask);
     f = _mm256_mullo_epi16(f,shift);
     f = _mm256_mulhrs_epi16(f,q);
-    _mm256_store_si256((__m256i *)&r->coeffs[16*i],f);
+    _mm256_store_si256(&r->vec[i],f);
   }
 }
 
@@ -219,11 +237,11 @@ void poly_decompress(poly * restrict r, const uint8_t a[160+6])
 *
 * Arguments:   - uint8_t *r: pointer to output byte array
 *                            (needs space for KYBER_POLYBYTES bytes)
-*              - poly *a:    pointer to input polynomial
+*              - poly *a: pointer to input polynomial
 **************************************************/
 void poly_tobytes(uint8_t r[KYBER_POLYBYTES], poly *a)
 {
-  ntttobytes_avx(r, a->coeffs, qdata);
+  ntttobytes_avx(r, a->vec, qdata.vec);
 }
 
 /*************************************************
@@ -232,13 +250,13 @@ void poly_tobytes(uint8_t r[KYBER_POLYBYTES], poly *a)
 * Description: De-serialization of a polynomial;
 *              inverse of poly_tobytes
 *
-* Arguments:   - poly *r:          pointer to output polynomial
+* Arguments:   - poly *r: pointer to output polynomial
 *              - const uint8_t *a: pointer to input byte array
 *                                  (of KYBER_POLYBYTES bytes)
 **************************************************/
 void poly_frombytes(poly *r, const uint8_t a[KYBER_POLYBYTES])
 {
-  nttfrombytes_avx(r->coeffs, a, qdata);
+  nttfrombytes_avx(r->vec, a, qdata.vec);
 }
 
 /*************************************************
@@ -246,11 +264,10 @@ void poly_frombytes(poly *r, const uint8_t a[KYBER_POLYBYTES])
 *
 * Description: Convert 32-byte message to polynomial
 *
-* Arguments:   - poly *r:            pointer to output polynomial
+* Arguments:   - poly *r: pointer to output polynomial
 *              - const uint8_t *msg: pointer to input message
 **************************************************/
-void poly_frommsg(poly * restrict r,
-                  const uint8_t msg[KYBER_INDCPA_MSGBYTES])
+void poly_frommsg(poly * restrict r, const uint8_t msg[KYBER_INDCPA_MSGBYTES])
 {
 #if (KYBER_INDCPA_MSGBYTES != 32)
 #error "KYBER_INDCPA_MSGBYTES must be equal to 32!"
@@ -283,12 +300,12 @@ void poly_frommsg(poly * restrict r,
   g2 = _mm256_permute2x128_si256(h0,h1,0x31);			\
   g1 = _mm256_permute2x128_si256(h2,h3,0x20);			\
   g3 = _mm256_permute2x128_si256(h2,h3,0x31);			\
-  _mm256_store_si256((__m256i *)&r->coeffs[  0+32*i+ 0],g0);	\
-  _mm256_store_si256((__m256i *)&r->coeffs[  0+32*i+16],g1);	\
-  _mm256_store_si256((__m256i *)&r->coeffs[128+32*i+ 0],g2);	\
-  _mm256_store_si256((__m256i *)&r->coeffs[128+32*i+16],g3)
+  _mm256_store_si256(&r->vec[0+2*i+0],g0);	\
+  _mm256_store_si256(&r->vec[0+2*i+1],g1);	\
+  _mm256_store_si256(&r->vec[8+2*i+0],g2);	\
+  _mm256_store_si256(&r->vec[8+2*i+1],g3)
 
-  f = _mm256_load_si256((__m256i *)msg);
+  f = _mm256_loadu_si256((__m256i *)msg);
   FROMMSG64(0);
   FROMMSG64(1);
   FROMMSG64(2);
@@ -301,7 +318,7 @@ void poly_frommsg(poly * restrict r,
 * Description: Convert polynomial to 32-byte message
 *
 * Arguments:   - uint8_t *msg: pointer to output message
-*              - poly *a:      pointer to input polynomial
+*              - poly *a: pointer to input polynomial
 **************************************************/
 void poly_tomsg(uint8_t msg[KYBER_INDCPA_MSGBYTES], poly * restrict a)
 {
@@ -312,8 +329,8 @@ void poly_tomsg(uint8_t msg[KYBER_INDCPA_MSGBYTES], poly * restrict a)
   const __m256i hhqs = _mm256_set1_epi16((KYBER_Q - 5)/4);
 
   for(i=0;i<KYBER_N/32;i++) {
-    f0 = _mm256_load_si256((__m256i *)&a->coeffs[32*i]);
-    f1 = _mm256_load_si256((__m256i *)&a->coeffs[32*i+16]);
+    f0 = _mm256_load_si256(&a->vec[2*i+0]);
+    f1 = _mm256_load_si256(&a->vec[2*i+1]);
     f0 = _mm256_sub_epi16(hqs, f0);
     f1 = _mm256_sub_epi16(hqs, f1);
     g0 = _mm256_srai_epi16(f0, 15);
@@ -333,131 +350,112 @@ void poly_tomsg(uint8_t msg[KYBER_INDCPA_MSGBYTES], poly * restrict a)
 }
 
 /*************************************************
+* Name:        poly_getnoise_eta1
+*
+* Description: Sample a polynomial deterministically from a seed and a nonce,
+*              with output polynomial close to centered binomial distribution
+*              with parameter KYBER_ETA1
+*
+* Arguments:   - poly *r: pointer to output polynomial
+*              - const uint8_t *seed: pointer to input seed
+*                                     (of length KYBER_SYMBYTES bytes)
+*              - uint8_t nonce: one-byte input nonce
+**************************************************/
+void poly_getnoise_eta1(poly *r, const uint8_t seed[KYBER_SYMBYTES], uint8_t nonce)
+{
+  ALIGNED_UINT8(KYBER_ETA1*KYBER_N/4) buf;
+  prf(buf.coeffs, sizeof(buf.coeffs), seed, nonce);
+  cbd_eta1(r, buf.vec);
+}
+
+/*************************************************
 * Name:        poly_getnoise_eta2
 *
 * Description: Sample a polynomial deterministically from a seed and a nonce,
 *              with output polynomial close to centered binomial distribution
 *              with parameter KYBER_ETA2
 *
-* Arguments:   - poly *r:             pointer to output polynomial
+* Arguments:   - poly *r: pointer to output polynomial
 *              - const uint8_t *seed: pointer to input seed
 *                                     (of length KYBER_SYMBYTES bytes)
-*              - uint8_t nonce:       one-byte input nonce
+*              - uint8_t nonce: one-byte input nonce
 **************************************************/
 void poly_getnoise_eta2(poly *r, const uint8_t seed[KYBER_SYMBYTES], uint8_t nonce)
 {
-  __attribute__((aligned(32)))
-  uint8_t buf[KYBER_ETA2*KYBER_N/4];
-  prf(buf, sizeof(buf), seed, nonce);
-  cbd_eta2(r, buf);
+  ALIGNED_UINT8(KYBER_ETA2*KYBER_N/4) buf;
+  prf(buf.coeffs, sizeof(buf.coeffs), seed, nonce);
+  cbd_eta2(r, buf.vec);
 }
-
 
 #ifndef KYBER_90S
-void poly_getnoise_eta2_4x(poly *r0,
-                     poly *r1,
-                     poly *r2,
-                     poly *r3,
-                     const uint8_t seed[32],
-                     uint8_t nonce0,
-                     uint8_t nonce1,
-                     uint8_t nonce2,
-                     uint8_t nonce3)
-{
-  __attribute__((aligned(32)))
-  uint8_t buf[4][160]; /* 160 instead of SHAKE256_RATE for better alignment */
-  __m256i f;
-  keccakx4_state state;
-
-  f = _mm256_load_si256((__m256i *)seed);
-  _mm256_store_si256((__m256i *)buf[0], f);
-  _mm256_store_si256((__m256i *)buf[1], f);
-  _mm256_store_si256((__m256i *)buf[2], f);
-  _mm256_store_si256((__m256i *)buf[3], f);
-
-  buf[0][32] = nonce0;
-  buf[1][32] = nonce1;
-  buf[2][32] = nonce2;
-  buf[3][32] = nonce3;
-
-  shake256x4_absorb_once(&state, buf[0], buf[1], buf[2], buf[3], 33);
-  shake256x4_squeezeblocks(buf[0], buf[1], buf[2], buf[3], 1, &state);
-
-  cbd_eta2(r0, buf[0]);
-  cbd_eta2(r1, buf[1]);
-  cbd_eta2(r2, buf[2]);
-  cbd_eta2(r3, buf[3]);
-}
-
-#if KYBER_ETA1 == 3
+#define NOISE_NBLOCKS ((KYBER_ETA1*KYBER_N/4+SHAKE256_RATE-1)/SHAKE256_RATE)
 void poly_getnoise_eta1_4x(poly *r0,
-                     poly *r1,
-                     poly *r2,
-                     poly *r3,
-                     const uint8_t seed[32],
-                     uint8_t nonce0,
-                     uint8_t nonce1,
-                     uint8_t nonce2,
-                     uint8_t nonce3)
+                           poly *r1,
+                           poly *r2,
+                           poly *r3,
+                           const uint8_t seed[32],
+                           uint8_t nonce0,
+                           uint8_t nonce1,
+                           uint8_t nonce2,
+                           uint8_t nonce3)
 {
-  __attribute__((aligned(32)))
-  uint8_t buf[4][288]; /* 288 instead of 2*SHAKE256_RATE for better alignment, also 2 extra bytes needed in cbd3 */
+  ALIGNED_UINT8(NOISE_NBLOCKS*SHAKE256_RATE) buf[4]; /* FIXME: 2 extra bytes needed in cbd3 */
   __m256i f;
   keccakx4_state state;
 
-  f = _mm256_load_si256((__m256i *)seed);
-  _mm256_store_si256((__m256i *)buf[0], f);
-  _mm256_store_si256((__m256i *)buf[1], f);
-  _mm256_store_si256((__m256i *)buf[2], f);
-  _mm256_store_si256((__m256i *)buf[3], f);
+  f = _mm256_loadu_si256((__m256i *)seed);
+  _mm256_store_si256(buf[0].vec, f);
+  _mm256_store_si256(buf[1].vec, f);
+  _mm256_store_si256(buf[2].vec, f);
+  _mm256_store_si256(buf[3].vec, f);
 
-  buf[0][32] = nonce0;
-  buf[1][32] = nonce1;
-  buf[2][32] = nonce2;
-  buf[3][32] = nonce3;
+  buf[0].coeffs[32] = nonce0;
+  buf[1].coeffs[32] = nonce1;
+  buf[2].coeffs[32] = nonce2;
+  buf[3].coeffs[32] = nonce3;
 
-  shake256x4_absorb_once(&state, buf[0], buf[1], buf[2], buf[3], 33);
-  shake256x4_squeezeblocks(buf[0], buf[1], buf[2], buf[3], 2, &state);
+  shake256x4_absorb_once(&state, buf[0].coeffs, buf[1].coeffs, buf[2].coeffs, buf[3].coeffs, 33);
+  shake256x4_squeezeblocks(buf[0].coeffs, buf[1].coeffs, buf[2].coeffs, buf[3].coeffs, NOISE_NBLOCKS, &state);
 
-  cbd_eta1(r0, buf[0]);
-  cbd_eta1(r1, buf[1]);
-  cbd_eta1(r2, buf[2]);
-  cbd_eta1(r3, buf[3]);
+  cbd_eta1(r0, buf[0].vec);
+  cbd_eta1(r1, buf[1].vec);
+  cbd_eta1(r2, buf[2].vec);
+  cbd_eta1(r3, buf[3].vec);
 }
 
+#if KYBER_K == 2
 void poly_getnoise_eta1122_4x(poly *r0,
-                     poly *r1,
-                     poly *r2,
-                     poly *r3,
-                     const uint8_t seed[32],
-                     uint8_t nonce0,
-                     uint8_t nonce1,
-                     uint8_t nonce2,
-                     uint8_t nonce3)
+                              poly *r1,
+                              poly *r2,
+                              poly *r3,
+                              const uint8_t seed[32],
+                              uint8_t nonce0,
+                              uint8_t nonce1,
+                              uint8_t nonce2,
+                              uint8_t nonce3)
 {
-  __attribute__((aligned(32)))
-  uint8_t buf[4][288]; /* 288 instead of 2*SHAKE256_RATE for better alignment, also 2 extra bytes needed in cbd3 */
+  ALIGNED_UINT8(NOISE_NBLOCKS*SHAKE256_RATE) buf[4]; /* FIXME: 2 extra bytes needed in cbd3 */
   __m256i f;
   keccakx4_state state;
 
-  f = _mm256_load_si256((__m256i *)seed);
-  _mm256_store_si256((__m256i *)buf[0], f);
-  _mm256_store_si256((__m256i *)buf[1], f);
-  _mm256_store_si256((__m256i *)buf[2], f);
-  _mm256_store_si256((__m256i *)buf[3], f);
+  f = _mm256_loadu_si256((__m256i *)seed);
+  _mm256_store_si256(buf[0].vec, f);
+  _mm256_store_si256(buf[1].vec, f);
+  _mm256_store_si256(buf[2].vec, f);
+  _mm256_store_si256(buf[3].vec, f);
 
-  buf[0][32] = nonce0;
-  buf[1][32] = nonce1;
-  buf[2][32] = nonce2;
-  buf[3][32] = nonce3;
+  buf[0].coeffs[32] = nonce0;
+  buf[1].coeffs[32] = nonce1;
+  buf[2].coeffs[32] = nonce2;
+  buf[3].coeffs[32] = nonce3;
 
-  shake256x4_absorb_once(&state, buf[0], buf[1], buf[2], buf[3], 33);
-  shake256x4_squeezeblocks(buf[0], buf[1], buf[2], buf[3], 2, &state);
+  shake256x4_absorb_once(&state, buf[0].coeffs, buf[1].coeffs, buf[2].coeffs, buf[3].coeffs, 33);
+  shake256x4_squeezeblocks(buf[0].coeffs, buf[1].coeffs, buf[2].coeffs, buf[3].coeffs, NOISE_NBLOCKS, &state);
 
-  cbd_eta1(r0, buf[0]);
-  cbd_eta1(r1, buf[1]);
-  cbd_eta2(r2, buf[2]);
-  cbd_eta2(r3, buf[3]);
+  cbd_eta1(r0, buf[0].vec);
+  cbd_eta1(r1, buf[1].vec);
+  cbd_eta2(r2, buf[2].vec);
+  cbd_eta2(r3, buf[3].vec);
 }
 #endif
 #endif
@@ -469,11 +467,11 @@ void poly_getnoise_eta1122_4x(poly *r0,
 *              a polynomial in place;
 *              inputs assumed to be in normal order, output in bitreversed order
 *
-* Arguments:   - uint16_t *r: pointer to in/output polynomial
+* Arguments:   - poly *r: pointer to in/output polynomial
 **************************************************/
 void poly_ntt(poly *r)
 {
-  ntt_avx(r->coeffs, qdata);
+  ntt_avx(r->vec, qdata.vec);
 }
 
 /*************************************************
@@ -483,16 +481,16 @@ void poly_ntt(poly *r)
 *              of a polynomial in place;
 *              inputs assumed to be in bitreversed order, output in normal order
 *
-* Arguments:   - uint16_t *a: pointer to in/output polynomial
+* Arguments:   - poly *a: pointer to in/output polynomial
 **************************************************/
 void poly_invntt_tomont(poly *r)
 {
-  invntt_avx(r->coeffs, qdata);
+  invntt_avx(r->vec, qdata.vec);
 }
 
 void poly_nttunpack(poly *r)
 {
-  nttunpack_avx(r->coeffs, qdata);
+  nttunpack_avx(r->vec, qdata.vec);
 }
 
 /*************************************************
@@ -500,13 +498,13 @@ void poly_nttunpack(poly *r)
 *
 * Description: Multiplication of two polynomials in NTT domain
 *
-* Arguments:   - poly *r:       pointer to output polynomial
+* Arguments:   - poly *r: pointer to output polynomial
 *              - const poly *a: pointer to first input polynomial
 *              - const poly *b: pointer to second input polynomial
 **************************************************/
 void poly_basemul_montgomery(poly *r, const poly *a, const poly *b)
 {
-  basemul_avx(r->coeffs, a->coeffs, b->coeffs, qdata);
+  basemul_avx(r->vec, a->vec, b->vec, qdata.vec);
 }
 
 /*************************************************
@@ -519,7 +517,7 @@ void poly_basemul_montgomery(poly *r, const poly *a, const poly *b)
 **************************************************/
 void poly_tomont(poly *r)
 {
-  tomont_avx(r->coeffs, qdata);
+  tomont_avx(r->vec, qdata.vec);
 }
 
 /*************************************************
@@ -532,7 +530,7 @@ void poly_tomont(poly *r)
 **************************************************/
 void poly_reduce(poly *r)
 {
-  reduce_avx(r->coeffs, qdata);
+  reduce_avx(r->vec, qdata.vec);
 }
 
 /*************************************************
@@ -540,7 +538,7 @@ void poly_reduce(poly *r)
 *
 * Description: Add two polynomials
 *
-* Arguments: - poly *r:       pointer to output polynomial
+* Arguments: - poly *r: pointer to output polynomial
 *            - const poly *a: pointer to first input polynomial
 *            - const poly *b: pointer to second input polynomial
 **************************************************/
@@ -549,11 +547,11 @@ void poly_add(poly *r, const poly *a, const poly *b)
   unsigned int i;
   __m256i f0, f1;
 
-  for(i=0;i<KYBER_N;i+=16) {
-    f0 = _mm256_load_si256((__m256i *)&a->coeffs[i]);
-    f1 = _mm256_load_si256((__m256i *)&b->coeffs[i]);
+  for(i=0;i<KYBER_N/16;i++) {
+    f0 = _mm256_load_si256(&a->vec[i]);
+    f1 = _mm256_load_si256(&b->vec[i]);
     f0 = _mm256_add_epi16(f0, f1);
-    _mm256_store_si256((__m256i *)&r->coeffs[i], f0);
+    _mm256_store_si256(&r->vec[i], f0);
   }
 }
 
@@ -562,7 +560,7 @@ void poly_add(poly *r, const poly *a, const poly *b)
 *
 * Description: Subtract two polynomials
 *
-* Arguments: - poly *r:       pointer to output polynomial
+* Arguments: - poly *r: pointer to output polynomial
 *            - const poly *a: pointer to first input polynomial
 *            - const poly *b: pointer to second input polynomial
 **************************************************/
@@ -571,10 +569,10 @@ void poly_sub(poly *r, const poly *a, const poly *b)
   unsigned int i;
   __m256i f0, f1;
 
-  for(i=0;i<KYBER_N;i+=16) {
-    f0 = _mm256_load_si256((__m256i *)&a->coeffs[i]);
-    f1 = _mm256_load_si256((__m256i *)&b->coeffs[i]);
+  for(i=0;i<KYBER_N/16;i++) {
+    f0 = _mm256_load_si256(&a->vec[i]);
+    f1 = _mm256_load_si256(&b->vec[i]);
     f0 = _mm256_sub_epi16(f0, f1);
-    _mm256_store_si256((__m256i *)&r->coeffs[i], f0);
+    _mm256_store_si256(&r->vec[i], f0);
   }
 }

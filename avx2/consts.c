@@ -1,4 +1,4 @@
-#include <stdint.h>
+#include "align.h"
 #include "params.h"
 #include "consts.h"
 
@@ -13,8 +13,7 @@
 #define MASK 4095
 #define SHIFT 32
 
-__attribute__((aligned(64)))
-const int16_t qdata[] = {
+const qdata_t qdata = {{
 #define _16XQ 0
   Q, Q, Q, Q, Q, Q, Q, Q, Q, Q, Q, Q, Q, Q, Q, Q,
 
@@ -119,4 +118,4 @@ const int16_t qdata[] = {
 #define _16XSHIFT 624
   SHIFT, SHIFT, SHIFT, SHIFT, SHIFT, SHIFT, SHIFT, SHIFT,
   SHIFT, SHIFT, SHIFT, SHIFT, SHIFT, SHIFT, SHIFT, SHIFT
-};
+}};

@@ -9,13 +9,6 @@
 #define KeccakF1600_StatePermute4x FIPS202X4_NAMESPACE(_KeccakP1600times4_PermuteAll_24rounds)
 extern void KeccakF1600_StatePermute4x(__m256i *s);
 
-static inline void store64(uint8_t x[8], uint64_t u) {
-  unsigned int i;
-
-  for(i=0;i<8;i++)
-    x[i] = u >> 8*i;
-}
-
 static void keccakx4_absorb_once(__m256i s[25],
                                  unsigned int r,
                                  const uint8_t *in0,
@@ -72,26 +65,23 @@ static void keccakx4_squeezeblocks(uint8_t *out0,
                                    __m256i s[25])
 {
   unsigned int i;
-  uint64_t f0,f1,f2,f3;
+  __m128d t;
 
   while(nblocks > 0) {
     KeccakF1600_StatePermute4x(s);
     for(i=0; i < r/8; ++i) {
-      f0 = _mm256_extract_epi64(s[i], 0);
-      f1 = _mm256_extract_epi64(s[i], 1);
-      f2 = _mm256_extract_epi64(s[i], 2);
-      f3 = _mm256_extract_epi64(s[i], 3);
-      store64(out0, f0);
-      store64(out1, f1);
-      store64(out2, f2);
-      store64(out3, f3);
-
-      out0 += 8;
-      out1 += 8;
-      out2 += 8;
-      out3 += 8;
+      t = _mm_castsi128_pd(_mm256_castsi256_si128(s[i]));
+      _mm_storel_pd((double *)&out0[8*i], t);
+      _mm_storeh_pd((double *)&out1[8*i], t);
+      t = _mm_castsi128_pd(_mm256_extracti128_si256(s[i],1));
+      _mm_storel_pd((double *)&out2[8*i], t);
+      _mm_storeh_pd((double *)&out3[8*i], t);
     }
 
+    out0 += r;
+    out1 += r;
+    out2 += r;
+    out3 += r;
     --nblocks;
   }
 }
