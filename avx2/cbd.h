@@ -7,7 +7,7 @@
 #include "poly.h"
 
 #define cbd_eta1 KYBER_NAMESPACE(_cbd_eta1)
-void cbd_eta1(poly *r, const __m256i buf[KYBER_ETA1*KYBER_N/128]);
+void cbd_eta1(poly *r, const __m256i buf[KYBER_ETA1*KYBER_N/128+1]);
 
 #define cbd_eta2 KYBER_NAMESPACE(_cbd_eta2)
 void cbd_eta2(poly *r, const __m256i buf[KYBER_ETA2*KYBER_N/128]);

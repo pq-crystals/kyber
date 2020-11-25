@@ -468,7 +468,7 @@ void indcpa_keypair(uint8_t pk[KYBER_INDCPA_PUBLICKEYBYTES],
 #ifdef KYBER_90S
 #define NOISE_NBLOCKS ((KYBER_ETA1*KYBER_N/4)/AES256CTR_BLOCKBYTES) /* Assumes divisibility */
   uint64_t nonce = 0;
-  ALIGNED_UINT8(NOISE_NBLOCKS*AES256CTR_BLOCKBYTES) coins; // FIXME +2 for cbd3?
+  ALIGNED_UINT8(NOISE_NBLOCKS*AES256CTR_BLOCKBYTES+32) coins; // +32 bytes as required by cbd_eta1
   aes256ctr_ctx state;
   aes256ctr_init(&state, noiseseed, nonce++);
   for(i=0;i<KYBER_K;i++) {
@@ -546,7 +546,7 @@ void indcpa_enc(uint8_t c[KYBER_INDCPA_BYTES],
 #define NOISE_NBLOCKS ((KYBER_ETA1*KYBER_N/4)/AES256CTR_BLOCKBYTES) /* Assumes divisibility */
 #define CIPHERTEXTNOISE_NBLOCKS ((KYBER_ETA2*KYBER_N/4)/AES256CTR_BLOCKBYTES) /* Assumes divisibility */
   uint64_t nonce = 0;
-  ALIGNED_UINT8(NOISE_NBLOCKS*AES256CTR_BLOCKBYTES) buf; /* FIXME: +2 as required by cbd3?*/
+  ALIGNED_UINT8(NOISE_NBLOCKS*AES256CTR_BLOCKBYTES+32) buf; /* +32 bytes as required by cbd_eta1 */
   aes256ctr_ctx state;
   aes256ctr_init(&state, coins, nonce++);
   for(i=0;i<KYBER_K;i++) {

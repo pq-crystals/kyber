@@ -363,8 +363,8 @@ void poly_tomsg(uint8_t msg[KYBER_INDCPA_MSGBYTES], poly * restrict a)
 **************************************************/
 void poly_getnoise_eta1(poly *r, const uint8_t seed[KYBER_SYMBYTES], uint8_t nonce)
 {
-  ALIGNED_UINT8(KYBER_ETA1*KYBER_N/4) buf;
-  prf(buf.coeffs, sizeof(buf.coeffs), seed, nonce);
+  ALIGNED_UINT8(KYBER_ETA1*KYBER_N/4+32) buf; // +32 bytes as required by cbd_eta1
+  prf(buf.coeffs, KYBER_ETA1*KYBER_N/4, seed, nonce);
   cbd_eta1(r, buf.vec);
 }
 
@@ -383,7 +383,7 @@ void poly_getnoise_eta1(poly *r, const uint8_t seed[KYBER_SYMBYTES], uint8_t non
 void poly_getnoise_eta2(poly *r, const uint8_t seed[KYBER_SYMBYTES], uint8_t nonce)
 {
   ALIGNED_UINT8(KYBER_ETA2*KYBER_N/4) buf;
-  prf(buf.coeffs, sizeof(buf.coeffs), seed, nonce);
+  prf(buf.coeffs, KYBER_ETA2*KYBER_N/4, seed, nonce);
   cbd_eta2(r, buf.vec);
 }
 
@@ -399,7 +399,7 @@ void poly_getnoise_eta1_4x(poly *r0,
                            uint8_t nonce2,
                            uint8_t nonce3)
 {
-  ALIGNED_UINT8(NOISE_NBLOCKS*SHAKE256_RATE) buf[4]; /* FIXME: 2 extra bytes needed in cbd3 */
+  ALIGNED_UINT8(NOISE_NBLOCKS*SHAKE256_RATE) buf[4];
   __m256i f;
   keccakx4_state state;
 
@@ -434,7 +434,7 @@ void poly_getnoise_eta1122_4x(poly *r0,
                               uint8_t nonce2,
                               uint8_t nonce3)
 {
-  ALIGNED_UINT8(NOISE_NBLOCKS*SHAKE256_RATE) buf[4]; /* FIXME: 2 extra bytes needed in cbd3 */
+  ALIGNED_UINT8(NOISE_NBLOCKS*SHAKE256_RATE) buf[4];
   __m256i f;
   keccakx4_state state;
 
