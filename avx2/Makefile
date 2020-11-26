@@ -1,7 +1,7 @@
 CC ?= /usr/bin/cc
 CFLAGS += -Wall -Wextra -Wpedantic -Wmissing-prototypes -Wredundant-decls \
   -Wshadow -Wpointer-arith -mavx2 -mbmi2 -mpopcnt -maes \
-  -march=native -mtune=native -O0 -g -fomit-frame-pointer
+  -march=native -mtune=native -O3 -fomit-frame-pointer
 NISTFLAGS += -Wno-unused-result -mavx2 -mbmi -mpopcnt -maes \
   -march=native -mtune=native -O3
 RM = /bin/rm
@@ -11,7 +11,7 @@ SOURCES = kem.c indcpa.c polyvec.c poly.c fq.S shuffle.S ntt.S invntt.S \
 SOURCESKECCAK   = $(SOURCES) fips202.c fips202x4.c symmetric-shake.c \
   keccak4x/KeccakP-1600-times4-SIMD256.o
 SOURCESNINETIES = $(SOURCES) aes256ctr.c
-HEADERS = params.h api.h indcpa.h polyvec.h poly.h reduce.h fq.inc shuffle.inc \
+HEADERS = params.h align.h api.h indcpa.h polyvec.h poly.h reduce.h fq.inc shuffle.inc \
   ntt.h consts.h rejsample.h cbd.h verify.h symmetric.h randombytes.h
 HEADERSKECCAK   = $(HEADERS) fips202.h fips202x4.h
 HEADERSNINETIES = $(HEADERS) aes256ctr.h

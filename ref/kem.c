@@ -1,11 +1,11 @@
 #include <stddef.h>
 #include <stdint.h>
-#include "kem.h"
 #include "params.h"
-#include "randombytes.h"
-#include "symmetric.h"
-#include "verify.h"
+#include "kem.h"
 #include "indcpa.h"
+#include "verify.h"
+#include "symmetric.h"
+#include "randombytes.h"
 
 /*************************************************
 * Name:        crypto_kem_keypair
@@ -14,13 +14,14 @@
 *              for CCA-secure Kyber key encapsulation mechanism
 *
 * Arguments:   - unsigned char *pk: pointer to output public key
-*                (an already allocated array of CRYPTO_PUBLICKEYBYTES bytes)
+*                (an already allocated array of KYBER_PUBLICKEYBYTES bytes)
 *              - unsigned char *sk: pointer to output private key
-*                (an already allocated array of CRYPTO_SECRETKEYBYTES bytes)
+*                (an already allocated array of KYBER_SECRETKEYBYTES bytes)
 *
 * Returns 0 (success)
 **************************************************/
-int crypto_kem_keypair(unsigned char *pk, unsigned char *sk)
+int crypto_kem_keypair(unsigned char pk[KYBER_PUBLICKEYBYTES],
+                       unsigned char sk[KYBER_SECRETKEYBYTES])
 {
   size_t i;
   indcpa_keypair(pk, sk);
@@ -39,17 +40,17 @@ int crypto_kem_keypair(unsigned char *pk, unsigned char *sk)
 *              secret for given public key
 *
 * Arguments:   - unsigned char *ct: pointer to output cipher text
-*                (an already allocated array of CRYPTO_CIPHERTEXTBYTES bytes)
+*                (an already allocated array of KYBER_CIPHERTEXTBYTES bytes)
 *              - unsigned char *ss: pointer to output shared secret
-*                (an already allocated array of CRYPTO_BYTES bytes)
+*                (an already allocated array of KYBER_SSBYTES bytes)
 *              - const unsigned char *pk: pointer to input public key
-*                (an already allocated array of CRYPTO_PUBLICKEYBYTES bytes)
+*                (an already allocated array of KYBER_PUBLICKEYBYTES bytes)
 *
 * Returns 0 (success)
 **************************************************/
-int crypto_kem_enc(unsigned char *ct,
-                   unsigned char *ss,
-                   const unsigned char *pk)
+int crypto_kem_enc(unsigned char ct[KYBER_CIPHERTEXTBYTES],
+                   unsigned char ss[KYBER_SSBYTES],
+                   const unsigned char pk[KYBER_PUBLICKEYBYTES])
 {
   uint8_t buf[2*KYBER_SYMBYTES];
   /* Will contain key, coins */
@@ -80,19 +81,19 @@ int crypto_kem_enc(unsigned char *ct,
 *              cipher text and private key
 *
 * Arguments:   - unsigned char *ss: pointer to output shared secret
-*                (an already allocated array of CRYPTO_BYTES bytes)
+*                (an already allocated array of KYBER_SSBYTES bytes)
 *              - const unsigned char *ct: pointer to input cipher text
-*                (an already allocated array of CRYPTO_CIPHERTEXTBYTES bytes)
+*                (an already allocated array of KYBER_CIPHERTEXTBYTES bytes)
 *              - const unsigned char *sk: pointer to input private key
-*                (an already allocated array of CRYPTO_SECRETKEYBYTES bytes)
+*                (an already allocated array of KYBER_SECRETKEYBYTES bytes)
 *
 * Returns 0.
 *
 * On failure, ss will contain a pseudo-random value.
 **************************************************/
-int crypto_kem_dec(unsigned char *ss,
-                   const unsigned char *ct,
-                   const unsigned char *sk)
+int crypto_kem_dec(unsigned char ss[KYBER_SSBYTES],
+                   const unsigned char ct[KYBER_CIPHERTEXTBYTES],
+                   const unsigned char sk[KYBER_SECRETKEYBYTES])
 {
   size_t i;
   int fail;

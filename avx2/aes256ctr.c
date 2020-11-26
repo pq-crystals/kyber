@@ -1,54 +1,50 @@
-/*
-  Based heavily on public-domain code by Romain Dolbeau
-  Different handling of nonce+counter than original version
-  using separated 64-bit nonce and internal 64-bit counter, starting from zero
-  Public Domain
-*/
+/* Based heavily on public-domain code by Romain Dolbeau
+ * Different handling of nonce+counter than original version using
+ * separated 64-bit nonce and internal 64-bit counter, starting from zero
+ * Public Domain */
 
 #include <stddef.h>
 #include <stdint.h>
 #include <immintrin.h>
 #include "aes256ctr.h"
 
-static inline void aesni_encrypt4(uint8_t out[64],
-                                  __m128i *n,
-                                  const __m128i rkeys[16])
+static inline void aesni_encrypt4(uint8_t out[64], __m128i *n, const __m128i rkeys[16])
 {
-  __m128i f,f0,f1,f2,f3,t;
+  __m128i f,f0,f1,f2,f3;
+  const __m128i idx = _mm_set_epi8(8,9,10,11,12,13,14,15,7,6,5,4,3,2,1,0);
 
   /* Load current counter value */
   f = _mm_load_si128(n);
 
   /* Increase counter in 4 consecutive blocks */
-  t  = _mm_set_epi8(8,9,10,11,12,13,14,15,7,6,5,4,3,2,1,0);
-  f0 = _mm_shuffle_epi8(_mm_add_epi64(f,_mm_set_epi64x(0,0)),t);
-  f1 = _mm_shuffle_epi8(_mm_add_epi64(f,_mm_set_epi64x(1,0)),t);
-  f2 = _mm_shuffle_epi8(_mm_add_epi64(f,_mm_set_epi64x(2,0)),t);
-  f3 = _mm_shuffle_epi8(_mm_add_epi64(f,_mm_set_epi64x(3,0)),t);
+  f0 = _mm_shuffle_epi8(_mm_add_epi64(f,_mm_set_epi64x(0,0)),idx);
+  f1 = _mm_shuffle_epi8(_mm_add_epi64(f,_mm_set_epi64x(1,0)),idx);
+  f2 = _mm_shuffle_epi8(_mm_add_epi64(f,_mm_set_epi64x(2,0)),idx);
+  f3 = _mm_shuffle_epi8(_mm_add_epi64(f,_mm_set_epi64x(3,0)),idx);
 
   /* Write counter for next iteration, increased by 4 */
   _mm_store_si128(n,_mm_add_epi64(f,_mm_set_epi64x(4,0)));
 
   /* Actual AES encryption, 4x interleaved */
-  t  = _mm_load_si128(&rkeys[0]);
-  f0 = _mm_xor_si128(f0,t);
-  f1 = _mm_xor_si128(f1,t);
-  f2 = _mm_xor_si128(f2,t);
-  f3 = _mm_xor_si128(f3,t);
+  f  = _mm_load_si128(&rkeys[0]);
+  f0 = _mm_xor_si128(f0,f);
+  f1 = _mm_xor_si128(f1,f);
+  f2 = _mm_xor_si128(f2,f);
+  f3 = _mm_xor_si128(f3,f);
 
   for (int i = 1; i < 14; i++) {
-    t  = _mm_load_si128(&rkeys[i]);
-    f0 = _mm_aesenc_si128(f0,t);
-    f1 = _mm_aesenc_si128(f1,t);
-    f2 = _mm_aesenc_si128(f2,t);
-    f3 = _mm_aesenc_si128(f3,t);
+    f  = _mm_load_si128(&rkeys[i]);
+    f0 = _mm_aesenc_si128(f0,f);
+    f1 = _mm_aesenc_si128(f1,f);
+    f2 = _mm_aesenc_si128(f2,f);
+    f3 = _mm_aesenc_si128(f3,f);
   }
 
-  t  = _mm_load_si128(&rkeys[14]);
-  f0 = _mm_aesenclast_si128(f0,t);
-  f1 = _mm_aesenclast_si128(f1,t);
-  f2 = _mm_aesenclast_si128(f2,t);
-  f3 = _mm_aesenclast_si128(f3,t);
+  f  = _mm_load_si128(&rkeys[14]);
+  f0 = _mm_aesenclast_si128(f0,f);
+  f1 = _mm_aesenclast_si128(f1,f);
+  f2 = _mm_aesenclast_si128(f2,f);
+  f3 = _mm_aesenclast_si128(f3,f);
 
   /* Write results */
   _mm_storeu_si128((__m128i*)(out+ 0),f0);
@@ -138,6 +134,7 @@ void aes256ctr_prf(uint8_t *out,
   while(outlen >= 64) {
     aesni_encrypt4(out, &state.n, state.rkeys);
     outlen -= 64;
+    out += 64;
   }
 
   if(outlen) {

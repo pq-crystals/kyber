@@ -111,13 +111,13 @@ vmovdqa		224(%rsi),%ymm12
 
 #csubq
 csubq		5,13
-csubq		6,14
-csubq		7,15
-csubq		8,1
+csubq		6,13
+csubq		7,13
+csubq		8,13
 csubq		9,13
-csubq		10,14
-csubq		11,15
-csubq		12,1
+csubq		10,13
+csubq		11,13
+csubq		12,13
 
 #bitpack
 vpsllw		$12,%ymm6,%ymm4

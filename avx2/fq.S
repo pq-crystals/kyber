@@ -13,14 +13,14 @@ vmovdqa		160(%rdi),%ymm7
 vmovdqa		192(%rdi),%ymm8
 vmovdqa		224(%rdi),%ymm9
 
-red16		2,10
-red16		3,11
-red16		4,12
-red16		5,13
-red16		6,14
-red16		7,15
-red16		8,10
-red16		9,11
+red16		2
+red16		3
+red16		4
+red16		5
+red16		6
+red16		7
+red16		8
+red16		9
 
 #store
 vmovdqa		%ymm2,(%rdi)
@@ -42,47 +42,6 @@ vmovdqa		_16XV*2(%rsi),%ymm1
 call		reduce128_avx
 add		$256,%rdi
 call		reduce128_avx
-ret
-
-csubq128_avx:
-#load
-vmovdqa		(%rdi),%ymm1
-vmovdqa		32(%rdi),%ymm2
-vmovdqa		64(%rdi),%ymm3
-vmovdqa		96(%rdi),%ymm4
-vmovdqa		128(%rdi),%ymm5
-vmovdqa		160(%rdi),%ymm6
-vmovdqa		192(%rdi),%ymm7
-vmovdqa		224(%rdi),%ymm8
-
-csubq		1,9
-csubq		2,10
-csubq		3,11
-csubq		4,12
-csubq		5,13
-csubq		6,14
-csubq		7,15
-csubq		8,9
-
-#store
-vmovdqa		%ymm1,(%rdi)
-vmovdqa		%ymm2,32(%rdi)
-vmovdqa		%ymm3,64(%rdi)
-vmovdqa		%ymm4,96(%rdi)
-vmovdqa		%ymm5,128(%rdi)
-vmovdqa		%ymm6,160(%rdi)
-vmovdqa		%ymm7,192(%rdi)
-vmovdqa		%ymm8,224(%rdi)
-
-ret
-
-.global cdecl(csubq_avx)
-cdecl(csubq_avx):
-#consts
-vmovdqa		_16XQ*2(%rsi),%ymm0
-call		csubq128_avx
-add		$256,%rdi
-call		csubq128_avx
 ret
 
 tomont128_avx:
