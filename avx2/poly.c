@@ -373,9 +373,9 @@ void poly_tomsg(uint8_t msg[KYBER_INDCPA_MSGBYTES], poly * restrict a)
 **************************************************/
 void poly_getnoise_eta1(poly *r, const uint8_t seed[KYBER_SYMBYTES], uint8_t nonce)
 {
-  ALIGNED_UINT8(KYBER_ETA1*KYBER_N/4+32) buf; // +32 bytes as required by cbd_eta1
+  ALIGNED_UINT8(KYBER_ETA1*KYBER_N/4+32) buf; // +32 bytes as required by poly_cbd_eta1
   prf(buf.coeffs, KYBER_ETA1*KYBER_N/4, seed, nonce);
-  cbd_eta1(r, buf.vec);
+  poly_cbd_eta1(r, buf.vec);
 }
 
 /*************************************************
@@ -394,7 +394,7 @@ void poly_getnoise_eta2(poly *r, const uint8_t seed[KYBER_SYMBYTES], uint8_t non
 {
   ALIGNED_UINT8(KYBER_ETA2*KYBER_N/4) buf;
   prf(buf.coeffs, KYBER_ETA2*KYBER_N/4, seed, nonce);
-  cbd_eta2(r, buf.vec);
+  poly_cbd_eta2(r, buf.vec);
 }
 
 #ifndef KYBER_90S
@@ -427,10 +427,10 @@ void poly_getnoise_eta1_4x(poly *r0,
   shake256x4_absorb_once(&state, buf[0].coeffs, buf[1].coeffs, buf[2].coeffs, buf[3].coeffs, 33);
   shake256x4_squeezeblocks(buf[0].coeffs, buf[1].coeffs, buf[2].coeffs, buf[3].coeffs, NOISE_NBLOCKS, &state);
 
-  cbd_eta1(r0, buf[0].vec);
-  cbd_eta1(r1, buf[1].vec);
-  cbd_eta1(r2, buf[2].vec);
-  cbd_eta1(r3, buf[3].vec);
+  poly_cbd_eta1(r0, buf[0].vec);
+  poly_cbd_eta1(r1, buf[1].vec);
+  poly_cbd_eta1(r2, buf[2].vec);
+  poly_cbd_eta1(r3, buf[3].vec);
 }
 
 #if KYBER_K == 2
@@ -462,10 +462,10 @@ void poly_getnoise_eta1122_4x(poly *r0,
   shake256x4_absorb_once(&state, buf[0].coeffs, buf[1].coeffs, buf[2].coeffs, buf[3].coeffs, 33);
   shake256x4_squeezeblocks(buf[0].coeffs, buf[1].coeffs, buf[2].coeffs, buf[3].coeffs, NOISE_NBLOCKS, &state);
 
-  cbd_eta1(r0, buf[0].vec);
-  cbd_eta1(r1, buf[1].vec);
-  cbd_eta2(r2, buf[2].vec);
-  cbd_eta2(r3, buf[3].vec);
+  poly_cbd_eta1(r0, buf[0].vec);
+  poly_cbd_eta1(r1, buf[1].vec);
+  poly_cbd_eta2(r2, buf[2].vec);
+  poly_cbd_eta2(r3, buf[3].vec);
 }
 #endif
 #endif
