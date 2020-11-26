@@ -107,7 +107,7 @@ static void cbd3(poly *r, const uint8_t buf[3*KYBER_N/4])
 }
 #endif
 
-void cbd_eta1(poly *r, const uint8_t buf[KYBER_ETA1*KYBER_N/4])
+void poly_cbd_eta1(poly *r, const uint8_t buf[KYBER_ETA1*KYBER_N/4])
 {
 #if KYBER_ETA1 == 2
   cbd2(r, buf);
@@ -118,7 +118,7 @@ void cbd_eta1(poly *r, const uint8_t buf[KYBER_ETA1*KYBER_N/4])
 #endif
 }
 
-void cbd_eta2(poly *r, const uint8_t buf[KYBER_ETA2*KYBER_N/4])
+void poly_cbd_eta2(poly *r, const uint8_t buf[KYBER_ETA2*KYBER_N/4])
 {
 #if KYBER_ETA2 == 2
   cbd2(r, buf);
