@@ -12,7 +12,7 @@ fi
 for dir in $DIRS; do
   make -C $dir
   for alg in 512 768 1024 512-90s 768-90s 1024-90s; do
-    valgrind --vex-guest-max-insns=25 ./$dir/test_kyber$alg 2>&1 | grep ERROR
+    #valgrind --vex-guest-max-insns=25 ./$dir/test_kyber$alg 2>&1 | grep ERROR
     ./$dir/test_kyber$alg
     ./$dir/test_vectors$alg > tvecs$alg
   done
