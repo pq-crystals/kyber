@@ -516,7 +516,7 @@ void poly_nttunpack(poly *r)
 * Description: Multiplication of two polynomials in NTT domain.
 *              One of the input polynomials needs to have coefficients
 *              bounded by q, the other polynomial can have arbitrary
-*              coefficients. Output coefficients are bounded by 26627.
+*              coefficients. Output coefficients are bounded by 6656.
 *
 * Arguments:   - poly *r: pointer to output polynomial
 *              - const poly *a: pointer to first input polynomial
