@@ -12,7 +12,10 @@
 /*************************************************
 * Name:        poly_compress
 *
-* Description: Compression and subsequent serialization of a polynomial
+* Description: Compression and subsequent serialization of a polynomial.
+*              The coefficients of the input polynomial are assumed to
+*              lie in the invertal [0,q], i.e. the polynomial must be reduced
+*              by poly_reduce().
 *
 * Arguments:   - uint8_t *r: pointer to output byte array
 *                            (of length KYBER_POLYCOMPRESSEDBYTES)
@@ -233,7 +236,12 @@ void poly_decompress(poly * restrict r, const uint8_t a[160])
 /*************************************************
 * Name:        poly_tobytes
 *
-* Description: Serialization of a polynomial
+* Description: Serialization of a polynomial in NTT representation.
+*              The coefficients of the input polynomial are assumed to
+*              lie in the invertal [0,q], i.e. the polynomial must be reduced
+*              by poly_reduce(). The coefficients are orderd as output by
+*              poly_ntt(); the serialized output coefficients are in bitreversed
+*              order.
 *
 * Arguments:   - uint8_t *r: pointer to output byte array
 *                            (needs space for KYBER_POLYBYTES bytes)
@@ -315,7 +323,10 @@ void poly_frommsg(poly * restrict r, const uint8_t msg[KYBER_INDCPA_MSGBYTES])
 /*************************************************
 * Name:        poly_tomsg
 *
-* Description: Convert polynomial to 32-byte message
+* Description: Convert polynomial to 32-byte message.
+*              The coefficients of the input polynomial are assumed to
+*              lie in the invertal [0,q], i.e. the polynomial must be reduced
+*              by poly_reduce().
 *
 * Arguments:   - uint8_t *msg: pointer to output message
 *              - poly *a: pointer to input polynomial
@@ -325,23 +336,22 @@ void poly_tomsg(uint8_t msg[KYBER_INDCPA_MSGBYTES], poly * restrict a)
   unsigned int i;
   uint32_t small;
   __m256i f0, f1, g0, g1;
-  const __m256i hqs = _mm256_set1_epi16((KYBER_Q - 1)/2);
-  const __m256i hhqs = _mm256_set1_epi16((KYBER_Q - 5)/4);
+  const __m256i hq = _mm256_set1_epi16((KYBER_Q - 1)/2);
+  const __m256i hhq = _mm256_set1_epi16((KYBER_Q - 1)/4);
 
   for(i=0;i<KYBER_N/32;i++) {
     f0 = _mm256_load_si256(&a->vec[2*i+0]);
     f1 = _mm256_load_si256(&a->vec[2*i+1]);
-    f0 = _mm256_sub_epi16(hqs, f0);
-    f1 = _mm256_sub_epi16(hqs, f1);
+    f0 = _mm256_sub_epi16(hq, f0);
+    f1 = _mm256_sub_epi16(hq, f1);
     g0 = _mm256_srai_epi16(f0, 15);
     g1 = _mm256_srai_epi16(f1, 15);
     f0 = _mm256_xor_si256(f0, g0);
     f1 = _mm256_xor_si256(f1, g1);
-    f0 = _mm256_sub_epi16(hhqs, f0);
-    f1 = _mm256_sub_epi16(hhqs, f1);
+    f0 = _mm256_sub_epi16(f0, hhq);
+    f1 = _mm256_sub_epi16(f1, hhq);
     f0 = _mm256_packs_epi16(f0, f1);
     small = _mm256_movemask_epi8(f0);
-    small = ~small;
     msg[4*i+0] = small;
     msg[4*i+1] = small >> 16;
     msg[4*i+2] = small >>  8;
@@ -464,8 +474,12 @@ void poly_getnoise_eta1122_4x(poly *r0,
 * Name:        poly_ntt
 *
 * Description: Computes negacyclic number-theoretic transform (NTT) of
-*              a polynomial in place;
-*              inputs assumed to be in normal order, output in bitreversed order
+*              a polynomial in place.
+*              Input coefficients assumed to be in normal order,
+*              output coefficients are in special order that is natural
+*              for the vectorization. Input coefficients are assumed to be
+*              bounded by q in absolute value, output coefficients are bounded
+*              by 16118 in absolute value.
 *
 * Arguments:   - poly *r: pointer to in/output polynomial
 **************************************************/
@@ -479,7 +493,10 @@ void poly_ntt(poly *r)
 *
 * Description: Computes inverse of negacyclic number-theoretic transform (NTT)
 *              of a polynomial in place;
-*              inputs assumed to be in bitreversed order, output in normal order
+*              Input coefficients assumed to be in special order from vectorized
+*              forward ntt, output in normal order. Input coefficients can be
+*              arbitrary 16-bit integers, output coefficients are bounded by 14870
+*              in absolute value.
 *
 * Arguments:   - poly *a: pointer to in/output polynomial
 **************************************************/
@@ -496,7 +513,10 @@ void poly_nttunpack(poly *r)
 /*************************************************
 * Name:        poly_basemul_montgomery
 *
-* Description: Multiplication of two polynomials in NTT domain
+* Description: Multiplication of two polynomials in NTT domain.
+*              One of the input polynomials needs to have coefficients
+*              bounded by q, the other polynomial can have arbitrary
+*              coefficients. Output coefficients are bounded by 26627.
 *
 * Arguments:   - poly *r: pointer to output polynomial
 *              - const poly *a: pointer to first input polynomial
@@ -536,7 +556,8 @@ void poly_reduce(poly *r)
 /*************************************************
 * Name:        poly_add
 *
-* Description: Add two polynomials
+* Description: Add two polynomials. No modular reduction
+*              is performed.
 *
 * Arguments: - poly *r: pointer to output polynomial
 *            - const poly *a: pointer to first input polynomial
@@ -558,7 +579,8 @@ void poly_add(poly *r, const poly *a, const poly *b)
 /*************************************************
 * Name:        poly_sub
 *
-* Description: Subtract two polynomials
+* Description: Subtract two polynomials. No modular reduction
+*              is performed.
 *
 * Arguments: - poly *r: pointer to output polynomial
 *            - const poly *a: pointer to first input polynomial

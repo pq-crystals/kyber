@@ -102,6 +102,9 @@ vpermd		(_ZETAS_EXP+(1-\off)*224+128)*2(%rsi),%ymm12,%ymm10
 
 butterfly	3,4,6,8,5,7,9,11,2,2,10,10
 
+vmovdqa		_16XV*2(%rsi),%ymm1
+red16		3
+
 shuffle2	3,4,10,4
 shuffle2	6,8,3,8
 shuffle2	5,7,6,7
@@ -110,11 +113,8 @@ shuffle2	9,11,5,11
 /* level 3 */
 vpermq		$0x1B,(_ZETAS_EXP+(1-\off)*224+80)*2(%rsi),%ymm2
 vpermq		$0x1B,(_ZETAS_EXP+(1-\off)*224+96)*2(%rsi),%ymm9
-vmovdqa		_16XV*2(%rsi),%ymm1
 
 butterfly	10,3,6,5,4,8,7,11,2,2,9,9
-
-red16		10
 
 shuffle4	10,3,9,3
 shuffle4	6,5,10,5
@@ -127,6 +127,8 @@ vpermq		$0x4E,(_ZETAS_EXP+(1-\off)*224+64)*2(%rsi),%ymm7
 
 butterfly	9,10,6,4,3,5,8,11,2,2,7,7
 
+red16		9
+
 shuffle8	9,10,7,10
 shuffle8	6,4,9,4
 shuffle8	3,5,6,5
@@ -137,8 +139,6 @@ vmovdqa		(_ZETAS_EXP+(1-\off)*224+16)*2(%rsi),%ymm2
 vmovdqa		(_ZETAS_EXP+(1-\off)*224+32)*2(%rsi),%ymm8
 
 butterfly	7,9,6,3,10,4,5,11,2,2,8,8
-
-red16		7
 
 vmovdqa         %ymm7,(128*\off+  0)*2(%rdi)
 vmovdqa         %ymm9,(128*\off+ 16)*2(%rdi)
@@ -165,6 +165,10 @@ vmovdqa         (64*\off+176)*2(%rdi),%ymm11
 vpbroadcastq	(_ZETAS_EXP+4)*2(%rsi),%ymm3
 
 butterfly	4,5,6,7,8,9,10,11
+
+.if \off == 0
+red16		4
+.endif
 
 vmovdqa		%ymm4,(64*\off+  0)*2(%rdi)
 vmovdqa		%ymm5,(64*\off+ 16)*2(%rdi)

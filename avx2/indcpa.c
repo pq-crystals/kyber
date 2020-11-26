@@ -16,8 +16,11 @@
 * Name:        pack_pk
 *
 * Description: Serialize the public key as concatenation of the
-*              serialized vector of polynomials pk
-*              and the public seed used to generate the matrix A.
+*              serialized vector of polynomials pk and the
+*              public seed used to generate the matrix A.
+*              The polynomial coefficients in pk are assumed to
+*              lie in the invertal [0,q], i.e. pk must be reduced
+*              by polyvec_reduce().
 *
 * Arguments:   uint8_t *r: pointer to the output serialized public key
 *              polyvec *pk: pointer to the input public-key polyvec
@@ -56,7 +59,10 @@ static void unpack_pk(polyvec *pk,
 /*************************************************
 * Name:        pack_sk
 *
-* Description: Serialize the secret key
+* Description: Serialize the secret key.
+*              The polynomial coefficients in sk are assumed to
+*              lie in the invertal [0,q], i.e. sk must be reduced
+*              by polyvec_reduce().
 *
 * Arguments:   - uint8_t *r: pointer to output serialized secret key
 *              - polyvec *sk: pointer to input vector of polynomials (secret key)
@@ -84,7 +90,10 @@ static void unpack_sk(polyvec *sk, const uint8_t packedsk[KYBER_INDCPA_SECRETKEY
 *
 * Description: Serialize the ciphertext as concatenation of the
 *              compressed and serialized vector of polynomials b
-*              and the compressed and serialized polynomial v
+*              and the compressed and serialized polynomial v.
+*              The polynomial coefficients in b and v are assumed to
+*              lie in the invertal [0,q], i.e. b and v must be reduced
+*              by polyvec_reduce() and poly_reduce(), respectively.
 *
 * Arguments:   uint8_t *r: pointer to the output serialized ciphertext
 *              poly *pk: pointer to the input vector of polynomials b
@@ -118,7 +127,7 @@ static void unpack_ciphertext(polyvec *b, poly *v, const uint8_t c[KYBER_INDCPA_
 * Description: Run rejection sampling on uniform random bytes to generate
 *              uniform random integers mod q
 *
-* Arguments:   - int16_t *r: pointer to output buffer
+* Arguments:   - int16_t *r: pointer to output array
 *              - unsigned int len: requested number of 16-bit integers (uniform mod q)
 *              - const uint8_t *buf: pointer to input buffer (assumed to be uniformly random bytes)
 *              - unsigned int buflen: length of input buffer in bytes
