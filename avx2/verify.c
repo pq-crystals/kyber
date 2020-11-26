@@ -57,7 +57,7 @@ void cmov(uint8_t * restrict r, const uint8_t *x, size_t len, uint8_t b)
   size_t i;
   __m256i xvec, rvec, bvec;
 
-  bvec = _mm256_set1_epi64(-(uint64_t)b);
+  bvec = _mm256_set1_epi64x(-(uint64_t)b);
   for(i=0;i<len/32;i++) {
     rvec = _mm256_loadu_si256((__m256i *)&r[32*i]);
     xvec = _mm256_loadu_si256((__m256i *)&x[32*i]);
