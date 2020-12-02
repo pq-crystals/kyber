@@ -72,11 +72,11 @@ static void keccakx4_squeezeblocks(uint8_t *out0,
     KeccakF1600_StatePermute4x(s);
     for(i=0; i < r/8; ++i) {
       t = _mm_castsi128_pd(_mm256_castsi256_si128(s[i]));
-      _mm_storel_pd((double *)&out0[8*i], t);
-      _mm_storeh_pd((double *)&out1[8*i], t);
+      _mm_storel_pd((__attribute__((__may_alias__)) double *)&out0[8*i], t);
+      _mm_storeh_pd((__attribute__((__may_alias__)) double *)&out1[8*i], t);
       t = _mm_castsi128_pd(_mm256_extracti128_si256(s[i],1));
-      _mm_storel_pd((double *)&out2[8*i], t);
-      _mm_storeh_pd((double *)&out3[8*i], t);
+      _mm_storel_pd((__attribute__((__may_alias__)) double *)&out2[8*i], t);
+      _mm_storeh_pd((__attribute__((__may_alias__)) double *)&out3[8*i], t);
     }
 
     out0 += r;
