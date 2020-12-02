@@ -1,5 +1,6 @@
 #include <stdint.h>
 #include <immintrin.h>
+#include <string.h>
 #include "params.h"
 #include "polyvec.h"
 #include "poly.h"
@@ -42,7 +43,7 @@ static void poly_compress10(uint8_t r[320], const poly * restrict a)
     t1 = _mm256_extracti128_si256(f0,1);
     t0 = _mm_blend_epi16(t0,t1,0xE0);
     _mm_storeu_si128((__m128i *)&r[20*i+ 0],t0);
-    _mm_store_ss((float *)&r[20*i+16],_mm_castsi128_ps(t1));
+    memcpy(&r[20*i+16],&t1,4);
   }
 }
 

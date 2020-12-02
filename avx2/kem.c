@@ -1,5 +1,6 @@
 #include <stddef.h>
 #include <stdint.h>
+#include <string.h>
 #include "params.h"
 #include "kem.h"
 #include "indcpa.h"
@@ -23,10 +24,8 @@
 int crypto_kem_keypair(unsigned char pk[KYBER_PUBLICKEYBYTES],
                        unsigned char sk[KYBER_SECRETKEYBYTES])
 {
-  size_t i;
   indcpa_keypair(pk, sk);
-  for(i=0;i<KYBER_INDCPA_PUBLICKEYBYTES;i++)
-    sk[i+KYBER_INDCPA_SECRETKEYBYTES] = pk[i];
+  memcpy(sk+KYBER_INDCPA_SECRETKEYBYTES, pk, KYBER_INDCPA_PUBLICKEYBYTES);
   hash_h(sk+KYBER_SECRETKEYBYTES-2*KYBER_SYMBYTES, pk, KYBER_PUBLICKEYBYTES);
   /* Value z for pseudo-random output on reject */
   randombytes(sk+KYBER_SECRETKEYBYTES-KYBER_SYMBYTES, KYBER_SYMBYTES);
@@ -95,7 +94,6 @@ int crypto_kem_dec(unsigned char ss[KYBER_SSBYTES],
                    const unsigned char ct[KYBER_CIPHERTEXTBYTES],
                    const unsigned char sk[KYBER_SECRETKEYBYTES])
 {
-  size_t i;
   int fail;
   uint8_t buf[2*KYBER_SYMBYTES];
   /* Will contain key, coins */
@@ -106,8 +104,7 @@ int crypto_kem_dec(unsigned char ss[KYBER_SSBYTES],
   indcpa_dec(buf, ct, sk);
 
   /* Multitarget countermeasure for coins + contributory KEM */
-  for(i=0;i<KYBER_SYMBYTES;i++)
-    buf[KYBER_SYMBYTES+i] = sk[KYBER_SECRETKEYBYTES-2*KYBER_SYMBYTES+i];
+  memcpy(buf+KYBER_SYMBYTES, sk+KYBER_SECRETKEYBYTES-2*KYBER_SYMBYTES, KYBER_SYMBYTES);
   hash_g(kr, buf, 2*KYBER_SYMBYTES);
 
   /* coins are in kr+KYBER_SYMBYTES */

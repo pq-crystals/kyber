@@ -18,7 +18,8 @@ static void keccakx4_absorb_once(__m256i s[25],
                                  size_t inlen,
                                  uint8_t p)
 {
-  size_t i, pos = 0;
+  size_t i;
+  uint64_t pos = 0;
   __m256i t, idx;
 
   for(i = 0; i < 25; ++i)
