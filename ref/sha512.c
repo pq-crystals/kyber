@@ -260,7 +260,7 @@ void sha512(uint8_t *out,const uint8_t *in,size_t inlen)
   uint8_t h[64];
   uint8_t padded[256];
   unsigned int i;
-  size_t bytes = inlen;
+  uint64_t bytes = inlen;
 
   for (i = 0;i < 64;++i) h[i] = iv[i];
 
