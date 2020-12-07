@@ -28,9 +28,6 @@ all: \
   test_vectors512 \
   test_vectors768 \
   test_vectors1024 \
-  test_speed512 \
-  test_speed768 \
-  test_speed1024 \
   test_kyber512-90s \
   test_kyber768-90s \
   test_kyber1024-90s \
@@ -40,6 +37,12 @@ all: \
   test_vectors512-90s \
   test_vectors768-90s \
   test_vectors1024-90s \
+  speed
+
+speed: \
+  test_speed512 \
+  test_speed768 \
+  test_speed1024 \
   test_speed512-90s \
   test_speed768-90s \
   test_speed1024-90s
