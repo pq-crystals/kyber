@@ -17,8 +17,8 @@
 uint64_t t[NTESTS];
 uint8_t seed[KYBER_SYMBYTES] = {0};
 
-/* Dummy randombytes for speed tests that simulates a fast randombytes implementations
- * as in SUPERCOP for comparable cycle counts */
+/* Dummy randombytes for speed tests that simulates a fast randombytes implementation
+ * as in SUPERCOP so that we get comparable cycle counts */
 void randombytes(__attribute__((unused)) uint8_t *r, __attribute__((unused)) size_t len) {
   return;
 }
@@ -82,6 +82,18 @@ int main()
     polyvec_basemul_acc_montgomery(&ap, &matrix[0], &matrix[1]);
   }
   print_results("polyvec_basemul_acc_montgomery: ", t, NTESTS);
+
+  for(i=0;i<NTESTS;i++) {
+    t[i] = cpucycles();
+    poly_tomsg(ct,&ap);
+  }
+  print_results("poly_tomsg: ", t, NTESTS);
+
+  for(i=0;i<NTESTS;i++) {
+    t[i] = cpucycles();
+    poly_frommsg(&ap,ct);
+  }
+  print_results("poly_frommsg: ", t, NTESTS);
 
   for(i=0;i<NTESTS;i++) {
     t[i] = cpucycles();

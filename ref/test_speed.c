@@ -67,6 +67,18 @@ int main()
 
   for(i=0;i<NTESTS;i++) {
     t[i] = cpucycles();
+    poly_tomsg(ct,&ap);
+  }
+  print_results("poly_tomsg: ", t, NTESTS);
+
+  for(i=0;i<NTESTS;i++) {
+    t[i] = cpucycles();
+    poly_frommsg(&ap,ct);
+  }
+  print_results("poly_frommsg: ", t, NTESTS);
+
+  for(i=0;i<NTESTS;i++) {
+    t[i] = cpucycles();
     poly_compress(ct,&ap);
   }
   print_results("poly_compress: ", t, NTESTS);
