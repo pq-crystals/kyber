@@ -8,6 +8,7 @@
 #include "indcpa.h"
 #include "polyvec.h"
 #include "poly.h"
+#include "randombytes.h"
 #include "cpucycles.h"
 #include "speed_print.h"
 
@@ -15,6 +16,12 @@
 
 uint64_t t[NTESTS];
 uint8_t seed[KYBER_SYMBYTES] = {0};
+
+/* Dummy randombytes for speed tests that simulates a fast randombytes implementations
+ * as in SUPERCOP for comparable cycle counts */
+void randombytes(__attribute__((unused)) uint8_t *r, __attribute__((unused)) size_t len) {
+  return;
+}
 
 int main()
 {
