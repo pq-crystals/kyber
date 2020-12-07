@@ -24,7 +24,7 @@ void polyvec_ntt(polyvec *r);
 #define polyvec_invntt_tomont KYBER_NAMESPACE(_polyvec_invntt_tomont)
 void polyvec_invntt_tomont(polyvec *r);
 
-#define polyvec_basemul_acc_montgomery KYBER_NAMESPACE(_polyvec_pointwise_acc_montgomery)
+#define polyvec_basemul_acc_montgomery KYBER_NAMESPACE(_polyvec_basemul_acc_montgomery)
 void polyvec_basemul_acc_montgomery(poly *r, const polyvec *a, const polyvec *b);
 
 #define polyvec_reduce KYBER_NAMESPACE(_polyvec_reduce)
