@@ -1,7 +1,7 @@
 CC ?= /usr/bin/cc
 CFLAGS += -Wall -Wextra -Wpedantic -Wmissing-prototypes -Wredundant-decls \
-  -Wshadow -Wpointer-arith -O3 -fomit-frame-pointer
-NISTFLAGS += -Wno-unused-result -O3
+  -Wshadow -Wpointer-arith -O3 -fomit-frame-pointer -fwrapv
+NISTFLAGS += -Wno-unused-result -O3 -fwrapv
 RM = /bin/rm
 
 SOURCES = kem.c indcpa.c polyvec.c poly.c reduce.c ntt.c cbd.c verify.c
@@ -32,8 +32,7 @@ all: \
   test_kex1024-90s \
   test_vectors512-90s \
   test_vectors768-90s \
-  test_vectors1024-90s \
-  PQCgenKAT_kem
+  test_vectors1024-90s
 
 speed: \
   test_speed512 \

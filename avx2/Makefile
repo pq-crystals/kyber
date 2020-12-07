@@ -1,9 +1,9 @@
 CC ?= /usr/bin/cc
 CFLAGS += -Wall -Wextra -Wpedantic -Wmissing-prototypes -Wredundant-decls \
   -Wshadow -Wpointer-arith -mavx2 -mbmi2 -mpopcnt -maes \
-  -march=native -mtune=native -O3 -fomit-frame-pointer
+  -march=native -mtune=native -O3 -fomit-frame-pointer -fwrapv
 NISTFLAGS += -Wno-unused-result -mavx2 -mbmi2 -mpopcnt -maes \
-  -march=native -mtune=native -O3
+  -march=native -mtune=native -O3 -fwrapv
 RM = /bin/rm
 
 SOURCES = kem.c indcpa.c polyvec.c poly.c fq.S shuffle.S ntt.S invntt.S \
@@ -42,8 +42,7 @@ all: \
   test_vectors1024-90s \
   test_speed512-90s \
   test_speed768-90s \
-  test_speed1024-90s \
-  PQCgenKAT_kem
+  test_speed1024-90s
 
 shared: \
   libpqcrystals_kyber512_avx2.so \
