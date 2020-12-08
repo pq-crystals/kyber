@@ -38,9 +38,9 @@ test/test_vectors$ALG
 ```
 where `$ALG` ranges over the parameter sets 512, 768, 1024, 512-90s, 768-90s, 1024-90s.
 
-* `test_kyber$ALG` tests 1000 times to generate keys, encapsulate a random key and correctly decpasulate it again. Also, the program tests that the keys cannot correctly be decapsulated using a random secret key or a ciphertext where a single random byte was randomly distorted in order to test for trivial failures of the CCA security. The program will abort with an error message and return 1 if there was an error. Otherwise it will output the key and ciphertext sizes and return 0.
+* `test_kyber$ALG` tests 1000 times to generate keys, encapsulate a random key and correctly decapsulate it again. Also, the program tests that the keys cannot correctly be decapsulated using a random secret key or a ciphertext where a single random byte was randomly distorted in order to test for trivial failures of the CCA security. The program will abort with an error message and return 1 if there was an error. Otherwise it will output the key and ciphertext sizes and return 0.
 * `test_kex$ALG` tests the authenticated key exchange schemes derived from the Kyber KEM
-* `test_vectors$ALG` generates 10000 sets of test vectors containing keys, ciphertexts and shared secrets whose byte-string are output in hexadecimal. The required random bytes come from a simple expansion of a fixed seed defined in `test_vectors.c`.
+* `test_vectors$ALG` generates 10000 sets of test vectors containing keys, ciphertexts and shared secrets whose byte-strings are output in hexadecimal. The required random bytes come from a simple deterministic expansion of a fixed seed defined in `test_vectors.c`.
 
 ### Benchmarking programs
 
@@ -54,7 +54,7 @@ test/test_speed$ALG
 ```
 for all parameter sets `$ALG` as above. The programs report the median and average cycle counts of 1000 executions of various internal functions and the API functions for key generation, encapsulation and decapsulation. By default the Time Step Counter is used. If instead you want to obtain the actual cycle counts from the Performance Measurement Counters, export `CFLAGS="-DUSE_RDPMC"` before compilation.
 
-Please note that the reference implementation in `ref/` is not optimized for any platform, and, since it prioritises clean code, is significantly slower than a trivially optimized but still platform-independent implementation. Hence benchmarking the reference code does not provide meaningfull results.
+Please note that the reference implementation in `ref/` is not optimized for any platform, and, since it prioritises clean code, is significantly slower than a trivially optimized but still platform-independent implementation. Hence benchmarking the reference code does not provide meaningful results.
 
 Our Kyber implementations are contained in the [SUPERCOP](https://bench.cr.yp.to) benchmarking framework. See [here](http://bench.cr.yp.to/results-kem.html#amd64-kizomba) for cycle counts on an Intel KabyLake CPU.
 
