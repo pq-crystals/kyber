@@ -4,7 +4,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
-#include "api.h"
+#include "kem.h"
 #include "randombytes.h"
 
 #define NTESTS 10000
@@ -38,7 +38,7 @@ static void surf(void)
   }
 }
 
-void randombytes(unsigned char *x,size_t xlen)
+void randombytes(uint8_t *x,size_t xlen)
 {
   while (xlen > 0) {
     if (!outleft) {
@@ -57,11 +57,11 @@ void randombytes(unsigned char *x,size_t xlen)
 int main(void)
 {
   unsigned int i,j;
-  unsigned char pk[CRYPTO_PUBLICKEYBYTES];
-  unsigned char sk[CRYPTO_SECRETKEYBYTES];
-  unsigned char ct[CRYPTO_CIPHERTEXTBYTES];
-  unsigned char key_a[CRYPTO_BYTES];
-  unsigned char key_b[CRYPTO_BYTES];
+  uint8_t pk[CRYPTO_PUBLICKEYBYTES];
+  uint8_t sk[CRYPTO_SECRETKEYBYTES];
+  uint8_t ct[CRYPTO_CIPHERTEXTBYTES];
+  uint8_t key_a[CRYPTO_BYTES];
+  uint8_t key_b[CRYPTO_BYTES];
 
   for(i=0;i<NTESTS;i++) {
     // Key-pair generation

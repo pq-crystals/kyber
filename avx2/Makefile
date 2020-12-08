@@ -11,7 +11,7 @@ SOURCES = kem.c indcpa.c polyvec.c poly.c fq.S shuffle.S ntt.S invntt.S \
 SOURCESKECCAK   = $(SOURCES) fips202.c fips202x4.c symmetric-shake.c \
   keccak4x/KeccakP-1600-times4-SIMD256.o
 SOURCESNINETIES = $(SOURCES) aes256ctr.c
-HEADERS = params.h align.h api.h indcpa.h polyvec.h poly.h reduce.h fq.inc shuffle.inc \
+HEADERS = params.h align.h kem.h indcpa.h polyvec.h poly.h reduce.h fq.inc shuffle.inc \
   ntt.h consts.h rejsample.h cbd.h verify.h symmetric.h randombytes.h
 HEADERSKECCAK   = $(HEADERS) fips202.h fips202x4.h
 HEADERSNINETIES = $(HEADERS) aes256ctr.h
@@ -71,9 +71,13 @@ libpqcrystals_fips202_ref.so: fips202.c fips202.h
 	$(CC) -shared -fPIC $(CFLAGS) -o $@ $<
 
 libpqcrystals_fips202x4_avx2.so: fips202x4.c fips202x4.h \
-  keccak4x/KeccakP-1600-times4-SIMD256.o
-	$(CC) -shared -fPIC $(CFLAGS) -o $@ $< \
-	  keccak4x/KeccakP-1600-times4-SIMD256.o
+  keccak4x/KeccakP-1600-times4-SIMD256.c \
+  keccak4x/KeccakP-1600-times4-SnP.h \
+  keccak4x/KeccakP-1600-unrolling.macros \
+  keccak4x/SIMD256-config.h \
+  keccak4x/align.h \
+  keccak4x/brg_endian.h
+	$(CC) -shared -fPIC $(CFLAGS) -o $@ $< keccak4x/KeccakP-1600-times4-SIMD256.c
 
 libpqcrystals_aes256ctr_avx2.so: aes256ctr.c aes256ctr.h
 	$(CC) -shared -fPIC $(CFLAGS) -o $@ $<

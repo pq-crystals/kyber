@@ -2,7 +2,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include "api.h"
+#include "kem.h"
 #include "kex.h"
 #include "params.h"
 #include "indcpa.h"
@@ -19,13 +19,13 @@ uint8_t seed[KYBER_SYMBYTES] = {0};
 int main()
 {
   unsigned int i;
-  unsigned char pk[CRYPTO_PUBLICKEYBYTES];
-  unsigned char sk[CRYPTO_SECRETKEYBYTES];
-  unsigned char ct[CRYPTO_CIPHERTEXTBYTES];
-  unsigned char key[CRYPTO_BYTES];
-  unsigned char kexsenda[KEX_AKE_SENDABYTES];
-  unsigned char kexsendb[KEX_AKE_SENDBBYTES];
-  unsigned char kexkey[KEX_SSBYTES];
+  uint8_t pk[CRYPTO_PUBLICKEYBYTES];
+  uint8_t sk[CRYPTO_SECRETKEYBYTES];
+  uint8_t ct[CRYPTO_CIPHERTEXTBYTES];
+  uint8_t key[CRYPTO_BYTES];
+  uint8_t kexsenda[KEX_AKE_SENDABYTES];
+  uint8_t kexsendb[KEX_AKE_SENDBBYTES];
+  uint8_t kexkey[KEX_SSBYTES];
   polyvec matrix[KYBER_K];
   poly ap;
 
