@@ -133,7 +133,7 @@ target_compile_options(PQCgenKAT_kem_avx2 PUBLIC)
 target_link_libraries(PQCgenKAT_kem_avx2 PRIVATE kyber ${OPENSSL_CRYPTO_LIBRARY})
 if (WIN32) 
       # Necessary cludge to make hashes be ignorant of Windows CRLF file formatting:
-      add_test(NAME PQCgenKAT_kem_avx2 COMMAND ${CMAKE_COMMAND} -E chdir $<TARGET_FILE_DIR:PQCgenKAT_kem_avx2> $ENV{ComSpec} /c "$<TARGET_FILE_NAME:PQCgenKAT_kem_avx2> && dos2unix -n PQCsignKAT_KEM.rsp ../PQCsignKAT_KEM.rsp && dos2unix -n PQCsignKAT_KEM.req ../PQCsignKAT_KEM.req")
+      add_test(NAME PQCgenKAT_kem_avx2 COMMAND ${CMAKE_COMMAND} -E chdir $<TARGET_FILE_DIR:PQCgenKAT_kem_avx2> $ENV{ComSpec} /c "$<TARGET_FILE_NAME:PQCgenKAT_kem_avx2> && dos2unix -n PQCkemKAT_2400.rsp ../PQCkemKAT_2400.rsp && dos2unix -n PQCkemKAT_2400.req ../PQCkemKAT_2400.req")
 else()
       add_test(PQCgenKAT_kem_avx2 PQCgenKAT_kem_avx2)
 endif()
