@@ -1,132 +1,116 @@
-set(SRCS kem.c indcpa.c polyvec.c poly.c reduce.c ntt.c cbd.c verify.c)
-set(TEST_SRCS test_kyber.c randombytes.c)
-set(TESTKEX_SRCS test_kex.c randombytes.c kex.c)
-set(SPEED_SRCS test_speed.c speed_print.c cpucycles.c randombytes.c kex.c)
-set(VECTOR_SRCS test_vectors.c)
-set(PQCKAT_SRCS PQCgenKAT_kem.c rng.c)
-set(AES_FILES aes256ctr.c)
-set(KECCAK_FILES fips202.c sha256.c sha512.c)
-set(AES_SRCS ${SRCS} symmetric-aes.c)
+set(KYBER_SRCS kex.c kem.c indcpa.c polyvec.c poly.c ntt.c cbd.c reduce.c verify.c)
+set(KYBER_FIPS202_SRCS ${KYBER_SRCS} symmetric-shake.c)
+set(KYBER_NINETIES_SRCS ${KYBER_SRCS} symmetric-aes.c)
+set(FIPS202_SRCS fips202.c)
+set(AES256CTR_SRCS aes256ctr.c)
+set(SHA2_SRCS sha256.c sha512.c)
+set(TEST_KYBER_SRCS test_kyber.c randombytes.c)
+set(TEST_KEX_SRCS test_kex.c randombytes.c)
+set(TEST_VECTORS_SRCS test_vectors.c)
+set(TEST_SPEED_SRCS test_speed.c speed_print.c cpucycles.c randombytes.c)
 
-if(CMAKE_C_COMPILER_ID MATCHES "Clang")
-	add_compile_options(-g)
-	add_compile_options(-Wall)
-	add_compile_options(-Wno-unused-result)
-	add_compile_options(-Wextra)
-	add_compile_options(-Wpedantic)
-	add_compile_options(-Wmissing-prototypes)
-	add_compile_options(-Wredundant-decls)
-	add_compile_options(-Wshadow)
-	add_compile_options(-Wpointer-arith)
-
-elseif(CMAKE_C_COMPILER_ID STREQUAL "GNU")
-	#add_compile_options(-Werror)
-	add_compile_options(-Wall)
-	add_compile_options(-Wextra)
-	add_compile_options(-Wno-unused-result)
-	add_compile_options(-Wpedantic)
-	add_compile_options(-Wmissing-prototypes)
-	add_compile_options(-Wredundant-decls)
-	add_compile_options(-Wshadow)
-	add_compile_options(-Wpointer-arith)
-	add_compile_options(-O3)
-
-elseif(CMAKE_C_COMPILER_ID STREQUAL "MSVC")
-	# Warning C4146 is raised when a unary minus operator is applied to an
-	# unsigned type; this has nonetheless been standard and portable for as
-	# long as there has been a C standard, and we need it for constant-time
-	# computations. Thus, we disable that spurious warning.
-	add_compile_options(/wd4146)
-endif()
-
-
-# First, do libraries:
-add_library(kyber_fips_ref OBJECT ${KECCAK_FILES} ${AES_FILES})
-set(_REF_OBJS $<TARGET_OBJECTS:kyber_fips_ref>)
-
-# Iterate over parameter sets:
-foreach(X RANGE 2 4)
-   # Plain Kyber
-   add_library(kyber${X}lib_ref OBJECT ${SRCS} symmetric-shake.c)
-   target_compile_options(kyber${X}lib_ref PUBLIC -DKYBER_K=${X})
-   set(_REF_OBJS ${_REF_OBJS} $<TARGET_OBJECTS:kyber${X}lib_ref>)
-
-   # Plain test
-   add_executable(test_kyber${K${X}}_ref ${TEST_SRCS})
-   target_link_libraries(test_kyber${K${X}}_ref PUBLIC kyber ${OPENSSL_CRYPTO_LIBRARY})
-   #add_test(test_kyber${K${X}}_ref test_kyber${K${X}}_ref)
-
-   # Plain KEX
-   add_executable(test_kex${K${X}}_ref ${TESTKEX_SRCS})
-   target_link_libraries(test_kex${K${X}}_ref PUBLIC kyber ${OPENSSL_CRYPTO_LIBRARY})
-   #add_test(test_kex${K${{X}}_ref test_kex${K${X}}_ref)
-
-   # Plain speed
-   if(NOT WIN32)
-   # Plain speed - not yet supported in Windows: TBD
-   add_executable(test_speed${K${X}}_ref ${SPEED_SRCS})
-   target_compile_options(test_speed${K${X}}_ref PUBLIC -DKYBER_K=${X})
-   target_link_libraries(test_speed${K${X}}_ref kyber ${OPENSSL_CRYPTO_LIBRARY})
-   #add_test(test_speed${K${X}}_ref test_speed${K${X}}_ref)
-   endif()
-
-   # Plain test vectors
-   add_executable(test_vectors${K${X}}_ref ${VECTOR_SRCS})
-   target_compile_options(test_vectors${K${X}}_ref PUBLIC -DKYBER_K=${X})
-   target_link_libraries(test_vectors${K${X}}_ref PRIVATE kyber ${OPENSSL_CRYPTO_LIBRARY})
-   if (WIN32) 
-      add_test(NAME test_vectors${X}_ref COMMAND ${CMAKE_COMMAND} -E chdir $<TARGET_FILE_DIR:test_vectors${K${X}}_ref> $ENV{ComSpec} /c "$<TARGET_FILE_NAME:test_vectors${K${X}}_ref> | dos2unix > ../tvecs${K${X}}")
-   else()
-      add_test(NAME test_vectors${K${X}}_ref COMMAND sh -c "$<TARGET_FILE:test_vectors${K${X}}_ref> > tvecs${K${X}}")
-   endif()
-
-   # AES Kyber ('90s')
-   add_library(kyber${X}aeslib_ref OBJECT ${SRCS} symmetric-aes.c)
-   target_compile_options(kyber${X}aeslib_ref PUBLIC -DKYBER_K=${X} -DKYBER_90S)
-   set(_REF_OBJS ${_REF_OBJS} $<TARGET_OBJECTS:kyber${X}aeslib_ref>)
-
-   # AES test
-   add_executable(test_kyber${K${X}}-90s_ref ${TEST_SRCS})
-   target_link_libraries(test_kyber${K${X}}-90s_ref PUBLIC kyber ${OPENSSL_CRYPTO_LIBRARY})
-   #add_test(test_kyber${K${X}}-90s_ref test_kyber${K${X}}-90s_ref)
-
-   # AES KEX
-   add_executable(test_kex${K${X}}-90s_ref ${TESTKEX_SRCS})
-   target_link_libraries(test_kex${K${X}}-90s_ref PUBLIC kyber ${OPENSSL_CRYPTO_LIBRARY})
-   #add_test(test_kex${K${{X}}-90s_ref test_kex${K${X}}-90s_ref)
-
-   # AES speed
-   if(NOT WIN32)
-   # AES speed - not yet supported in Windows: TBD
-   add_executable(test_speed${K${X}}-90s_ref ${SPEED_SRCS})
-   target_compile_options(test_speed${K${X}}-90s_ref PUBLIC -DKYBER_K=${X} -DKYBER_90S)
-   target_link_libraries(test_speed${K${X}}-90s_ref kyber ${OPENSSL_CRYPTO_LIBRARY})
-   #add_test(test_speed${K${X}}-90s_ref test_speed${K${X}}-90s_ref)
-   endif()
-
-   # AES test vectors
-   add_executable(test_vectors${K${X}}-90s_ref ${VECTOR_SRCS})
-   target_compile_options(test_vectors${K${X}}-90s_ref PUBLIC -DKYBER_K=${X} -DKYBER_90S)
-   target_link_libraries(test_vectors${K${X}}-90s_ref PRIVATE kyber ${OPENSSL_CRYPTO_LIBRARY})
-   if (WIN32) 
-      add_test(NAME test_vectors${X}-90s_ref COMMAND ${CMAKE_COMMAND} -E chdir $<TARGET_FILE_DIR:test_vectors${K${X}}-90s_ref> $ENV{ComSpec} /c "$<TARGET_FILE_NAME:test_vectors${K${X}}-90s_ref> | dos2unix > ../tvecs${K${X}}-90s")
-   else()
-      add_test(NAME test_vectors${K${X}}-90s_ref COMMAND sh -c "$<TARGET_FILE:test_vectors${K${X}}-90s_ref> > tvecs${K${X}}-90s")
-   endif()
-
-endforeach()
-
-# PQCKATs
-add_executable(PQCgenKAT_kem_ref ${PQCKAT_SRCS})
-target_compile_options(PQCgenKAT_kem_ref PUBLIC)
-target_link_libraries(PQCgenKAT_kem_ref PRIVATE kyber ${OPENSSL_CRYPTO_LIBRARY})
-if (WIN32) 
-      # Necessary cludge to make hashes be ignorant of Windows CRLF file formatting:
-      add_test(NAME PQCgenKAT_kem_ref COMMAND ${CMAKE_COMMAND} -E chdir $<TARGET_FILE_DIR:PQCgenKAT_kem_ref> $ENV{ComSpec} /c "$<TARGET_FILE_NAME:PQCgenKAT_kem_ref> && dos2unix -n PQCsignKAT_KEM.rsp ../PQCsignKAT_KEM.rsp && dos2unix -n PQCsignKAT_KEM.req ../PQCsignKAT_KEM.req")
+if(MSVC)
+  add_compile_options(/nologo /O2 /W4 /WX /wd4146)
 else()
-      add_test(PQCgenKAT_kem_ref PQCgenKAT_kem_ref)
+  add_compile_options(-Wall -Wextra -Wpedantic -Werror)
+  add_compile_options(-Wmissing-prototypes -Wredundant-decls -Wshadow -Wpointer-arith)
+  add_compile_options(-O2 -fwrapv)
 endif()
 
-add_test(Hashes_test_ref sha256sum -c ../../SHA256SUMS)
+add_library(fips202_ref ${FIPS202_SRCS})
+add_library(aes256ctr_ref ${AES256CTR_SRCS})
+add_library(sha2_ref ${SHA2_SRCS})
 
-set(REF_OBJS ${_REF_OBJS} PARENT_SCOPE)
+# Kyber 512
+add_library(kyber512_ref ${KYBER_FIPS202_SRCS})
+add_library(kyber512_90s_ref ${KYBER_NINETIES_SRCS})
+target_compile_definitions(kyber512_ref PUBLIC KYBER_K=2)
+target_compile_definitions(kyber512_90s_ref PUBLIC KYBER_K=2 KYBER_90S)
+target_link_libraries(kyber512_ref INTERFACE fips202_ref)
+target_link_libraries(kyber512_90s_ref INTERFACE aes256ctr_ref sha2_ref)
+
+add_executable(test_kyber512_ref ${TEST_KYBER_SRCS})
+add_executable(test_kex512_ref ${TEST_KEX_SRCS})
+add_executable(test_vectors512_ref ${TEST_VECTORS_SRCS})
+add_executable(test_kyber512-90s_ref ${TEST_KYBER_SRCS})
+add_executable(test_kex512-90s_ref ${TEST_KEX_SRCS})
+add_executable(test_vectors512-90s_ref ${TEST_VECTORS_SRCS})
+target_link_libraries(test_kyber512_ref kyber512_ref)
+target_link_libraries(test_kex512_ref kyber512_ref)
+target_link_libraries(test_vectors512_ref kyber512_ref)
+target_link_libraries(test_kyber512-90s_ref kyber512_90s_ref)
+target_link_libraries(test_kex512-90s_ref kyber512_90s_ref)
+target_link_libraries(test_vectors512-90s_ref kyber512_90s_ref)
+
+# Kyber 768
+add_library(kyber768_ref ${KYBER_FIPS202_SRCS})
+add_library(kyber768_90s_ref ${KYBER_NINETIES_SRCS})
+target_compile_definitions(kyber768_ref PUBLIC KYBER_K=3)
+target_compile_definitions(kyber768_90s_ref PUBLIC KYBER_K=3 KYBER_90S)
+target_link_libraries(kyber768_ref INTERFACE fips202_ref)
+target_link_libraries(kyber768_90s_ref INTERFACE aes256ctr_ref sha2_ref)
+
+add_executable(test_kyber768_ref ${TEST_KYBER_SRCS})
+add_executable(test_kex768_ref ${TEST_KEX_SRCS})
+add_executable(test_vectors768_ref ${TEST_VECTORS_SRCS})
+add_executable(test_kyber768-90s_ref ${TEST_KYBER_SRCS})
+add_executable(test_kex768-90s_ref ${TEST_KEX_SRCS})
+add_executable(test_vectors768-90s_ref ${TEST_VECTORS_SRCS})
+target_link_libraries(test_kyber768_ref kyber768_ref)
+target_link_libraries(test_kex768_ref kyber768_ref)
+target_link_libraries(test_vectors768_ref kyber768_ref)
+target_link_libraries(test_kyber768-90s_ref kyber768_90s_ref)
+target_link_libraries(test_kex768-90s_ref kyber768_90s_ref)
+target_link_libraries(test_vectors768-90s_ref kyber768_90s_ref)
+
+# Kyber 1024
+add_library(kyber1024_ref ${KYBER_FIPS202_SRCS})
+add_library(kyber1024_90s_ref ${KYBER_NINETIES_SRCS})
+target_compile_definitions(kyber1024_ref PUBLIC KYBER_K=4)
+target_compile_definitions(kyber1024_90s_ref PUBLIC KYBER_K=4 KYBER_90S)
+target_link_libraries(kyber1024_ref INTERFACE fips202_ref)
+target_link_libraries(kyber1024_90s_ref INTERFACE aes256ctr_ref sha2_ref)
+
+add_executable(test_kyber1024_ref ${TEST_KYBER_SRCS})
+add_executable(test_kex1024_ref ${TEST_KEX_SRCS})
+add_executable(test_vectors1024_ref ${TEST_VECTORS_SRCS})
+add_executable(test_kyber1024-90s_ref ${TEST_KYBER_SRCS})
+add_executable(test_kex1024-90s_ref ${TEST_KEX_SRCS})
+add_executable(test_vectors1024-90s_ref ${TEST_VECTORS_SRCS})
+target_link_libraries(test_kyber1024_ref kyber1024_ref)
+target_link_libraries(test_kex1024_ref kyber1024_ref)
+target_link_libraries(test_vectors1024_ref kyber1024_ref)
+target_link_libraries(test_kyber1024-90s_ref kyber1024_90s_ref)
+target_link_libraries(test_kex1024-90s_ref kyber1024_90s_ref)
+target_link_libraries(test_vectors1024-90s_ref kyber1024_90s_ref)
+
+add_test(NAME kyber512_ref COMMAND test_kyber512_ref)
+add_test(NAME kex512_ref COMMAND test_kex512_ref)
+add_test(NAME kyber512-90s_ref COMMAND test_kyber512-90s_ref)
+add_test(NAME kex512-90_ref COMMAND test_kex512-90s_ref)
+add_test(NAME kyber768_ref COMMAND test_kyber768_ref)
+add_test(NAME kex768_ref COMMAND test_kex768_ref)
+add_test(NAME kyber768-90s_ref COMMAND test_kyber768-90s_ref)
+add_test(NAME kex768-90_ref COMMAND test_kex768-90s_ref)
+add_test(NAME kyber1024_ref COMMAND test_kyber1024_ref)
+add_test(NAME kex1024_ref COMMAND test_kex1024_ref)
+add_test(NAME kyber1024-90s_ref COMMAND test_kyber1024-90s_ref)
+add_test(NAME kex1024-90_ref COMMAND test_kex1024-90s_ref)
+
+if(WIN32)
+  add_test(NAME vectors512_ref COMMAND $ENV{ComSpec} /c "$<TARGET_FILE:test_vectors512_ref> | dos2unix > tvecs512")
+  add_test(NAME vectors512-90s_ref COMMAND $ENV{ComSpec} /c "$<TARGET_FILE:test_vectors512-90s_ref> | dos2unix > tvecs512-90s")
+  add_test(NAME vectors768_ref COMMAND $ENV{ComSpec} /c "$<TARGET_FILE:test_vectors768_ref> | dos2unix > tvecs768")
+  add_test(NAME vectors768-90s_ref COMMAND $ENV{ComSpec} /c "$<TARGET_FILE:test_vectors768-90s_ref> | dos2unix > tvecs768-90s")
+  add_test(NAME vectors1024_ref COMMAND $ENV{ComSpec} /c "$<TARGET_FILE:test_vectors1024_ref> | dos2unix > tvecs1024")
+  add_test(NAME vectors1024-90s_ref COMMAND $ENV{ComSpec} /c "$<TARGET_FILE:test_vectors1024-90s_ref> | dos2unix > tvecs1024-90s")
+else()
+  add_test(NAME vectors512_ref COMMAND sh -c "$<TARGET_FILE:test_vectors512_ref> > tvecs512")
+  add_test(NAME vectors512-90s_ref COMMAND sh -c "$<TARGET_FILE:test_vectors512-90s_ref> > tvecs512-90s")
+  add_test(NAME vectors768_ref COMMAND sh -c "$<TARGET_FILE:test_vectors768_ref> > tvecs768")
+  add_test(NAME vectors768-90s_ref COMMAND sh -c "$<TARGET_FILE:test_vectors768-90s_ref> > tvecs768-90s")
+  add_test(NAME vectors1024_ref COMMAND sh -c "$<TARGET_FILE:test_vectors1024_ref> > tvecs1024")
+  add_test(NAME vectors1024-90s_ref COMMAND sh -c "$<TARGET_FILE:test_vectors1024-90s_ref> > tvecs1024-90s")
+endif()
+
+add_test(NAME hashes COMMAND sha256sum -c ../../SHA256SUMS)
