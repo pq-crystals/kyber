@@ -10,7 +10,7 @@ set(TEST_VECTORS_SRCS test_vectors.c)
 set(TEST_SPEED_SRCS test_speed.c speed_print.c cpucycles.c randombytes.c)
 
 if(MSVC)
-  add_compile_options(/nologo /O2 /W4 /WX /wd4146)
+  add_compile_options(/nologo /O2 /W4 /wd4146)
 else()
   add_compile_options(-Wall -Wextra -Wpedantic -Werror)
   add_compile_options(-Wmissing-prototypes -Wredundant-decls -Wshadow -Wpointer-arith)
