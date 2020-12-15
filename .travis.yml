@@ -20,17 +20,6 @@ jobs:
         - NISTFLAGS="-I/usr/local/opt/openssl@1.1/include/"
         - LDFLAGS="-L/usr/local/opt/openssl@1.1/lib/"
 
-    - os: windows
-      compiler: msvc19
-      before_install:
-        - choco install openssl
-      script:
-        - mkdir build
-        - cd build
-        - cmake -A x64 -DCMAKE_BUILD_TYPE=Release ..
-        - cmake --build . -- /property:Configuration=Release
-        - ctest --output-on-failure -C Release
-
     - stage: coverage
       os: linux
       compiler: gcc
@@ -41,3 +30,16 @@ jobs:
       script: ./runlcov.sh
       after_success:
         - coveralls-lcov ref/kyber.lcov
+
+  allow_failures:
+    - os: windows
+      compiler: msvc19
+      before_install:
+        - choco install openssl
+      script:
+        - mkdir build
+        - cd build
+        - cmake -A x64 ..
+        - cmake --build .
+        - ctest --output-on-failure
+
