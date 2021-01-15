@@ -134,7 +134,7 @@ shuffle8	6,4,9,4
 shuffle8	3,5,6,5
 shuffle8	8,11,3,11
 
-/* level5 */
+/* level 5 */
 vmovdqa		(_ZETAS_EXP+(1-\off)*224+16)*2(%rsi),%ymm2
 vmovdqa		(_ZETAS_EXP+(1-\off)*224+32)*2(%rsi),%ymm8
 
