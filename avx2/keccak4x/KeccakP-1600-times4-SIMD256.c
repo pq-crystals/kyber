@@ -20,11 +20,11 @@ http://creativecommons.org/publicdomain/zero/1.0/
 #include <wmmintrin.h>
 #include <immintrin.h>
 #include <emmintrin.h>
-#include "align.h"
+#include "KeccakP-align.h"
 #include "KeccakP-1600-times4-SnP.h"
-#include "SIMD256-config.h"
+#include "KeccakP-SIMD256-config.h"
 
-#include "brg_endian.h"
+#include "KeccakP-brg_endian.h"
 #if (PLATFORM_BYTE_ORDER != IS_LITTLE_ENDIAN)
 #error Expecting a little-endian platform
 #endif

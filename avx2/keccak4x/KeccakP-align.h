@@ -13,8 +13,8 @@ and related or neighboring rights to the source code in this file.
 http://creativecommons.org/publicdomain/zero/1.0/
 */
 
-#ifndef _align_h_
-#define _align_h_
+#ifndef _keccakp_align_h_
+#define _keccakp_align_h_
 
 /* on Mac OS-X and possibly others, ALIGN(x) is defined in param.h, and -Werror chokes on the redef. */
 #ifdef ALIGN

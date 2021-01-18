@@ -19,7 +19,7 @@ http://creativecommons.org/publicdomain/zero/1.0/
 /** For the documentation, see PlSnP-documentation.h.
  */
 
-#include "SIMD256-config.h"
+#include "KeccakP-SIMD256-config.h"
 #include "../fips202x4.h"
 
 #define KeccakP1600times4_implementation        "256-bit SIMD implementation (" KeccakP1600times4_implementation_config ")"
