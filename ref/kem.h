@@ -29,13 +29,13 @@
 #endif
 #endif
 
-#define crypto_kem_keypair KYBER_NAMESPACE(_keypair)
+#define crypto_kem_keypair KYBER_NAMESPACE(keypair)
 int crypto_kem_keypair(uint8_t *pk, uint8_t *sk);
 
-#define crypto_kem_enc KYBER_NAMESPACE(_enc)
+#define crypto_kem_enc KYBER_NAMESPACE(enc)
 int crypto_kem_enc(uint8_t *ct, uint8_t *ss, const uint8_t *pk);
 
-#define crypto_kem_dec KYBER_NAMESPACE(_dec)
+#define crypto_kem_dec KYBER_NAMESPACE(dec)
 int crypto_kem_dec(uint8_t *ss, const uint8_t *ct, const uint8_t *sk);
 
 #endif

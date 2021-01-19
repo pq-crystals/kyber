@@ -6,7 +6,7 @@
 #include "fips202x4.h"
 
 /* Use implementation from the Keccak Code Package */
-#define KeccakF1600_StatePermute4x FIPS202X4_NAMESPACE(_KeccakP1600times4_PermuteAll_24rounds)
+#define KeccakF1600_StatePermute4x FIPS202X4_NAMESPACE(KeccakP1600times4_PermuteAll_24rounds)
 extern void KeccakF1600_StatePermute4x(__m256i *s);
 
 static void keccakx4_absorb_once(__m256i s[25],

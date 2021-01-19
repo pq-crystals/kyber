@@ -27,16 +27,16 @@
 #if defined(__WIN32__) || defined(__APPLE__)
 #define decorate(s) _##s
 #define cdecl2(s) decorate(s)
-#define cdecl(s) cdecl2(KYBER_NAMESPACE(_##s))
+#define cdecl(s) cdecl2(KYBER_NAMESPACE(##s))
 #else
-#define cdecl(s) KYBER_NAMESPACE(_##s)
+#define cdecl(s) KYBER_NAMESPACE(##s)
 #endif
 #endif
 
 #ifndef __ASSEMBLER__
 #include "align.h"
 typedef ALIGNED_INT16(640) qdata_t;
-#define qdata KYBER_NAMESPACE(_qdata)
+#define qdata KYBER_NAMESPACE(qdata)
 extern const qdata_t qdata;
 #endif
 

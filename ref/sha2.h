@@ -4,11 +4,11 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#define SHA2_NAMESPACE(s) pqcrystals_sha2_ref##s
+#define SHA2_NAMESPACE(s) pqcrystals_sha2_ref_##s
 
-#define sha256 SHA2_NAMESPACE(_sha256)
+#define sha256 SHA2_NAMESPACE(sha256)
 void sha256(uint8_t out[32], const uint8_t *in, size_t inlen);
-#define sha512 SHA2_NAMESPACE(_sha512)
+#define sha512 SHA2_NAMESPACE(sha512)
 void sha512(uint8_t out[64], const uint8_t *in, size_t inlen);
 
 #endif

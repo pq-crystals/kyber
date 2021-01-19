@@ -250,7 +250,7 @@ void poly_decompress(poly * restrict r, const uint8_t a[160])
 *                            (needs space for KYBER_POLYBYTES bytes)
 *              - poly *a: pointer to input polynomial
 **************************************************/
-void poly_tobytes(uint8_t r[KYBER_POLYBYTES], poly *a)
+void poly_tobytes(uint8_t r[KYBER_POLYBYTES], const poly *a)
 {
   ntttobytes_avx(r, a->vec, qdata.vec);
 }
@@ -334,7 +334,7 @@ void poly_frommsg(poly * restrict r, const uint8_t msg[KYBER_INDCPA_MSGBYTES])
 * Arguments:   - uint8_t *msg: pointer to output message
 *              - poly *a: pointer to input polynomial
 **************************************************/
-void poly_tomsg(uint8_t msg[KYBER_INDCPA_MSGBYTES], poly * restrict a)
+void poly_tomsg(uint8_t msg[KYBER_INDCPA_MSGBYTES], const poly * restrict a)
 {
   unsigned int i;
   uint32_t small;
