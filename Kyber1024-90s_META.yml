@@ -1,0 +1,46 @@
+name: Kyber1024-90s
+type: kem
+claimed-nist-level: 5
+claimed-security: IND-CCA2
+length-public-key: 1568
+length-ciphertext: 1568
+length-secret-key: 3168
+length-shared-secret: 32
+nistkat-sha256: d3064040a33c15b65eb55dfd1bb116d092dab2cf5d693f8ab02b91ed105d66e3
+principal-submitters:
+  - Peter Schwabe
+auxiliary-submitters:
+  - Roberto Avanzi
+  - Joppe Bos
+  - Léo Ducas
+  - Eike Kiltz
+  - Tancrède Lepoint
+  - Vadim Lyubashevsky
+  - John M. Schanck
+  - Gregor Seiler
+  - Damien Stehlé
+implementations:
+    - name: clean
+      version: https://github.com/pq-crystals/kyber/commit/36414d64fc1890ed58d1ca8b1e0cab23635d1ac2
+      folder_name: ref
+      compile_opts: -DKYBER_K=4 -DKYBER_90S
+      signature_keypair: pqcrystals_kyber1024_90s_ref_keypair
+      signature_enc: pqcrystals_kyber1024_90s_ref_enc
+      signature_dec: pqcrystals_kyber1024_90s_ref_dec
+      sources: LICENSE kem.c indcpa.c polyvec.c poly.c reduce.c ntt.c cbd.c verify.c kem.h params.h api.h indcpa.h polyvec.h poly.h reduce.h ntt.h cbd.h verify.h symmetric.h fips202.h aes256ctr.h symmetric-aes.c
+    - name: avx2
+      version: https://github.com/pq-crystals/kyber/commit/36414d64fc1890ed58d1ca8b1e0cab23635d1ac2
+      compile_opts: -DKYBER_K=4 -DKYBER_90S
+      signature_keypair: pqcrystals_kyber1024_90s_avx2_keypair
+      signature_enc: pqcrystals_kyber1024_90s_avx2_enc
+      signature_dec: pqcrystals_kyber1024_90s_avx2_dec
+      sources: LICENSE kem.c indcpa.c polyvec.c poly.c fq.S shuffle.S ntt.S invntt.S basemul.S consts.c rejsample.c cbd.c verify.c kem.h params.h api.h indcpa.h polyvec.h poly.h reduce.h fq.inc shuffle.inc ntt.h consts.h rejsample.h cbd.h verify.h symmetric.h fips202.h fips202x4.h aes256ctr.h
+      supported_platforms:
+        - architecture: x86_64
+          operating_systems:
+            - Linux
+          required_flags:
+              - aes
+              - avx2
+              - bmi2
+              - popcnt
