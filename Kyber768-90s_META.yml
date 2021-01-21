@@ -1,12 +1,13 @@
-name: Kyber768
+name: Kyber768-90s
 type: kem
-claimed-nist-level: 3
+claimed-nist-level: 1
 claimed-security: IND-CCA2
 length-public-key: 1184
 length-ciphertext: 1088
 length-secret-key: 2400
 length-shared-secret: 32
-nistkat-sha256: 57fa080a0b2295044b128f1e4f7d978a7863ec6c99ebd6239fba747525a3d451
+nistkat-sha256: 890176520882068007cdcc009d7651cd11c4e54b443df131ad12340e61ddd8e6
+testvectors-sha256: a1b8fe37e3fc58a8511c63a7187d3626a1a98c5d3bb67000fe9a02be7199d952
 principal-submitters:
   - Peter Schwabe
 auxiliary-submitters:
@@ -20,26 +21,29 @@ auxiliary-submitters:
   - Gregor Seiler
   - Damien Stehlé
 implementations:
-    - name: clean
-      version: https://github.com/pq-crystals/kyber/commit/36414d64fc1890ed58d1ca8b1e0cab23635d1ac2
-      folder_name: ref
-      compile_opts: -DKYBER_K=3 -DKYBER_90S
-      signature_keypair: pqcrystals_kyber768_90s_ref_keypair
-      signature_enc: pqcrystals_kyber768_90s_ref_enc
-      signature_dec: pqcrystals_kyber768_90s_ref_dec
-      sources: LICENSE kem.c indcpa.c polyvec.c poly.c reduce.c ntt.c cbd.c verify.c kem.h params.h api.h indcpa.h polyvec.h poly.h reduce.h ntt.h cbd.h verify.h symmetric.h fips202.h aes256ctr.h symmetric-aes.c
-    - name: avx2
-      version: https://github.com/pq-crystals/kyber/commit/36414d64fc1890ed58d1ca8b1e0cab23635d1ac2
-      compile_opts: -DKYBER_K=3 -DKYBER_90S
-      signature_keypair: pqcrystals_kyber768_90s_avx2_keypair
-      signature_enc: pqcrystals_kyber768_90s_avx2_enc
-      signature_dec: pqcrystals_kyber768_90s_avx2_dec
-      sources: LICENSE kem.c indcpa.c polyvec.c poly.c fq.S shuffle.S ntt.S invntt.S basemul.S consts.c rejsample.c cbd.c verify.c kem.h params.h api.h indcpa.h polyvec.h poly.h reduce.h fq.inc shuffle.inc ntt.h consts.h rejsample.h cbd.h verify.h symmetric.h fips202.h fips202x4.h aes256ctr.h 
-      supported_platforms:
-        - architecture: x86_64
-          operating_systems:
-            - Linux
-            - Darwin
-          required_flags:
-            - avx2
-            - bmi2
+  - name: ref
+    version: https://github.com/pq-crystals/kyber/commit/afa4b9bfb7266e32829502ebaa9e20ca0551e1bd
+    folder_name: ref
+    compile_opts: -DKYBER_K=3 -DKYBER_90S
+    signature_keypair: pqcrystals_kyber768_90s_ref_keypair
+    signature_enc: pqcrystals_kyber768_90s_ref_enc
+    signature_dec: pqcrystals_kyber768_90s_ref_dec
+    sources: api.h params.h kem.c kem.h indcpa.c indcpa.h polyvec.c polyvec.h poly.c poly.h ntt.c ntt.h cbd.c cbd.h reduce.c reduce.h verify.c verify.h symmetric-aes.c symmetric.h
+
+  - name: avx2
+    version: https://github.com/pq-crystals/kyber/commit/afa4b9bfb7266e32829502ebaa9e20ca0551e1bd
+    compile_opts: -DKYBER_K=3 -DKYBER_90S
+    signature_keypair: pqcrystals_kyber768_90s_avx2_keypair
+    signature_enc: pqcrystals_kyber768_90s_avx2_enc
+    signature_dec: pqcrystals_kyber768_90s_avx2_dec
+    sources: api.h params.h align.h kem.c kem.h indcpa.c indcpa.h polyvec.c polyvec.h poly.c poly.h ntt.S invntt.S basemul.S ntt.h fq.S fq.inc reduce.h shuffle.S shuffle.inc consts.c consts.h rejsample.c rejsample.h cbd.c cbd.h verify.c verify.h symmetric-aes.c symmetric.h
+    supported_platforms:
+      - architecture: x86_64
+        operating_systems:
+          - Linux
+          - Darwin
+        required_flags:
+          - avx2
+          - aes
+          - bmi2
+          - popcnt
