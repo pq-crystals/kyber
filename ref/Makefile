@@ -151,8 +151,23 @@ test_speed768-90s: $(SOURCESNINETIES) $(HEADERSNINETIES) cpucycles.h cpucycles.c
 test_speed1024-90s: $(SOURCESNINETIES) $(HEADERSNINETIES) cpucycles.h cpucycles.c speed_print.h speed_print.c test_speed.c randombytes.c
 	$(CC) $(CFLAGS) -D KYBER_90S -DKYBER_K=4 $(SOURCESNINETIES) randombytes.c cpucycles.c speed_print.c test_speed.c -o test_speed1024-90s
 
-PQCgenKAT_kem: $(SOURCESKECCAK) $(HEADERSKECCAK) PQCgenKAT_kem.c rng.c rng.h
-	$(CC) $(NISTFLAGS) -o $@ $(SOURCESKECCAK) rng.c PQCgenKAT_kem.c $(LDFLAGS) -lcrypto
+PQCgenKAT_kem512: $(SOURCESKECCAK) $(HEADERSKECCAK) PQCgenKAT_kem.c rng.c rng.h
+	$(CC) $(NISTFLAGS) -DKYBER_K=2 -o $@ $(SOURCESKECCAK) rng.c PQCgenKAT_kem.c $(LDFLAGS) -lcrypto
+
+PQCgenKAT_kem768: $(SOURCESKECCAK) $(HEADERSKECCAK) PQCgenKAT_kem.c rng.c rng.h
+	$(CC) $(NISTFLAGS) -DKYBER_K=3 -o $@ $(SOURCESKECCAK) rng.c PQCgenKAT_kem.c $(LDFLAGS) -lcrypto
+
+PQCgenKAT_kem1024: $(SOURCESKECCAK) $(HEADERSKECCAK) PQCgenKAT_kem.c rng.c rng.h
+	$(CC) $(NISTFLAGS) -DKYBER_K=4 -o $@ $(SOURCESKECCAK) rng.c PQCgenKAT_kem.c $(LDFLAGS) -lcrypto
+
+PQCgenKAT_kem512-90s: $(SOURCESNINETIES) $(HEADERSNINETIES) PQCgenKAT_kem.c rng.c rng.h
+	$(CC) $(NISTFLAGS) -DKYBER_K=2 -DKYBER_90S -o $@ $(SOURCESNINETIES) rng.c PQCgenKAT_kem.c $(LDFLAGS) -lcrypto
+
+PQCgenKAT_kem768-90s: $(SOURCESNINETIES) $(HEADERSNINETIES) PQCgenKAT_kem.c rng.c rng.h
+	$(CC) $(NISTFLAGS) -DKYBER_K=3 -DKYBER_90S -o $@ $(SOURCESNINETIES) rng.c PQCgenKAT_kem.c $(LDFLAGS) -lcrypto
+
+PQCgenKAT_kem1024-90s: $(SOURCESNINETIES) $(HEADERSNINETIES) PQCgenKAT_kem.c rng.c rng.h
+	$(CC) $(NISTFLAGS) -DKYBER_K=4 -DKYBER_90S -o $@ $(SOURCESNINETIES) rng.c PQCgenKAT_kem.c $(LDFLAGS) -lcrypto
 
 clean:
 	-$(RM) -rf *.gcno *.gcda *.lcov *.o *.so
@@ -180,4 +195,9 @@ clean:
 	-$(RM) -rf test_speed512-90s
 	-$(RM) -rf test_speed768-90s
 	-$(RM) -rf test_speed1024-90s
-	-$(RM) -rf PQCgenKAT_kem
+	-$(RM) -rf PQCgenKAT_kem512
+	-$(RM) -rf PQCgenKAT_kem768
+	-$(RM) -rf PQCgenKAT_kem1024
+	-$(RM) -rf PQCgenKAT_kem512-90s
+	-$(RM) -rf PQCgenKAT_kem768-90s
+	-$(RM) -rf PQCgenKAT_kem1024-90s

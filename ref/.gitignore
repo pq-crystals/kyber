@@ -24,4 +24,9 @@ test_vectors512
 test_vectors512-90s
 test_vectors768
 test_vectors768-90s
-PQCgenKAT_kem
+PQCgenKAT_kem512
+PQCgenKAT_kem768
+PQCgenKAT_kem1024
+PQCgenKAT_kem512-90s
+PQCgenKAT_kem768-90s
+PQCgenKAT_kem1024-90s

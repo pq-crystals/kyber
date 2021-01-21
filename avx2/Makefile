@@ -1,9 +1,9 @@
 CC ?= /usr/bin/cc
 CFLAGS += -Wall -Wextra -Wpedantic -Wmissing-prototypes -Wredundant-decls \
   -Wshadow -Wpointer-arith -mavx2 -mbmi2 -mpopcnt -maes \
-  -march=native -mtune=native -O3 -fomit-frame-pointer -fwrapv
+  -march=native -mtune=native -O3 -fomit-frame-pointer
 NISTFLAGS += -Wno-unused-result -mavx2 -mbmi2 -mpopcnt -maes \
-  -march=native -mtune=native -O3 -fwrapv
+  -march=native -mtune=native -O3 -fomit-frame-pointer
 RM = /bin/rm
 
 SOURCES = kem.c indcpa.c polyvec.c poly.c fq.S shuffle.S ntt.S invntt.S \
@@ -175,9 +175,6 @@ test_speed768-90s: $(SOURCESNINETIES) $(HEADERSNINETIES) cpucycles.h cpucycles.c
 test_speed1024-90s: $(SOURCESNINETIES) $(HEADERSNINETIES) cpucycles.h cpucycles.c speed_print.h speed_print.c test_speed.c kex.c kex.h fips202.c fips202.h
 	$(CC) $(CFLAGS) -D KYBER_90S -DKYBER_K=4 $(SOURCESNINETIES) cpucycles.c kex.c fips202.c speed_print.c test_speed.c -o test_speed1024-90s $(LDFLAGS) -lcrypto
 
-PQCgenKAT_kem: $(SOURCESKECCAK) $(HEADERSKECCAK) PQCgenKAT_kem.c rng.c rng.h
-	$(CC) $(NISTFLAGS) -o $@ $(SOURCESKECCAK) -I. rng.c PQCgenKAT_kem.c $(LDFLAGS) -lcrypto
-
 clean:
 	-$(RM) -rf *.o *.a *.so
 	-$(RM) -rf test_kyber512
@@ -204,5 +201,4 @@ clean:
 	-$(RM) -rf test_speed512-90s
 	-$(RM) -rf test_speed768-90s
 	-$(RM) -rf test_speed1024-90s
-	-$(RM) -rf PQCgenKAT_kem
 	-$(RM) -rf keccak4x/KeccakP-1600-times4-SIMD256.o

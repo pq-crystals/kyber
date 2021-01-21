@@ -14,7 +14,7 @@ if(MSVC)
 else()
   add_compile_options(-Wall -Wextra -Wpedantic -Werror)
   add_compile_options(-Wmissing-prototypes -Wredundant-decls -Wshadow -Wpointer-arith)
-  add_compile_options(-O2 -fwrapv)
+  add_compile_options(-O3 -fomit-frame-pointer)
 endif()
 
 add_library(fips202_ref ${FIPS202_SRCS})
