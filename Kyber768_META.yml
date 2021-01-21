@@ -1,0 +1,49 @@
+name: Kyber768
+type: kem
+claimed-nist-level: 1
+claimed-security: IND-CCA2
+length-public-key: 1184
+length-ciphertext: 1088
+length-secret-key: 2400
+length-shared-secret: 32
+nistkat-sha256: a1e122cad3c24bc51622e4c242d8b8acbcd3f618fee4220400605ca8f9ea02c2
+testvectors-sha256: 667c8ca2ca93729c0df6ff24588460bad1bbdbfb64ece0fe8563852a7ff348c6
+principal-submitters:
+  - Peter Schwabe
+auxiliary-submitters:
+  - Roberto Avanzi
+  - Joppe Bos
+  - Léo Ducas
+  - Eike Kiltz
+  - Tancrède Lepoint
+  - Vadim Lyubashevsky
+  - John M. Schanck
+  - Gregor Seiler
+  - Damien Stehlé
+implementations:
+  - name: ref
+    version: https://github.com/pq-crystals/kyber/commit/afa4b9bfb7266e32829502ebaa9e20ca0551e1bd
+    folder_name: ref
+    compile_opts: -DKYBER_K=3
+    signature_keypair: pqcrystals_kyber768_ref_keypair
+    signature_enc: pqcrystals_kyber768_ref_enc
+    signature_dec: pqcrystals_kyber768_ref_dec
+    sources: api.h params.h kem.c kem.h indcpa.c indcpa.h polyvec.c polyvec.h poly.c poly.h ntt.c ntt.h cbd.c cbd.h reduce.c reduce.h verify.c verify.h symmetric-shake.c symmetric.h
+
+  - name: avx2
+    version: https://github.com/pq-crystals/kyber/commit/afa4b9bfb7266e32829502ebaa9e20ca0551e1bd
+    compile_opts: -DKYBER_K=3
+    signature_keypair: pqcrystals_kyber768_avx2_keypair
+    signature_enc: pqcrystals_kyber768_avx2_enc
+    signature_dec: pqcrystals_kyber768_avx2_dec
+    sources: api.h params.h align.h kem.c kem.h indcpa.c indcpa.h polyvec.c polyvec.h poly.c poly.h ntt.S invntt.S basemul.S ntt.h fq.S fq.inc reduce.h shuffle.S shuffle.inc consts.c consts.h rejsample.c rejsample.h cbd.c cbd.h verify.c verify.h symmetric-shake.c symmetric.h
+    supported_platforms:
+      - architecture: x86_64
+        operating_systems:
+          - Linux
+          - Darwin
+        required_flags:
+          - avx2
+          - aes
+          - bmi2
+          - popcnt
