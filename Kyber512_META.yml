@@ -6,7 +6,7 @@ length-public-key: 800
 length-ciphertext: 768
 length-secret-key: 1632
 length-shared-secret: 32
-nistkat-sha256: e9c2bd37133fcb40772f81559f14b1f58dccd1c816701be9ba6214d43baf4547
+nistkat-sha256: bb0481d3325d828817900b709d23917cefbc10026fc857f098979451f67bb0ca
 testvectors-sha256: 6730bb552c22d9d2176ffb5568e48eb30952cf1f065073ec5f9724f6a3c6ea85
 principal-submitters:
   - Peter Schwabe
@@ -21,29 +21,27 @@ auxiliary-submitters:
   - Gregor Seiler
   - Damien Stehlé
 implementations:
-  - name: ref
-    version: https://github.com/pq-crystals/kyber/commit/afa4b9bfb7266e32829502ebaa9e20ca0551e1bd
-    folder_name: ref
-    compile_opts: -DKYBER_K=2
-    signature_keypair: pqcrystals_kyber512_ref_keypair
-    signature_enc: pqcrystals_kyber512_ref_enc
-    signature_dec: pqcrystals_kyber512_ref_dec
-    sources: api.h params.h kem.c kem.h indcpa.c indcpa.h polyvec.c polyvec.h poly.c poly.h ntt.c ntt.h cbd.c cbd.h reduce.c reduce.h verify.c verify.h symmetric-shake.c symmetric.h
-
-  - name: avx2
-    version: https://github.com/pq-crystals/kyber/commit/afa4b9bfb7266e32829502ebaa9e20ca0551e1bd
-    compile_opts: -DKYBER_K=2
-    signature_keypair: pqcrystals_kyber512_avx2_keypair
-    signature_enc: pqcrystals_kyber512_avx2_enc
-    signature_dec: pqcrystals_kyber512_avx2_dec
-    sources: api.h params.h align.h kem.c kem.h indcpa.c indcpa.h polyvec.c polyvec.h poly.c poly.h ntt.S invntt.S basemul.S ntt.h fq.S fq.inc reduce.h shuffle.S shuffle.inc consts.c consts.h rejsample.c rejsample.h cbd.c cbd.h verify.c verify.h symmetric-shake.c symmetric.h
-    supported_platforms:
-      - architecture: x86_64
-        operating_systems:
-          - Linux
-          - Darwin
-        required_flags:
-          - avx2
-          - aes
-          - bmi2
-          - popcnt
+    - name: ref
+      version: https://github.com/pq-crystals/kyber/commit/74cad307858b61e434490c75f812cb9b9ef7279b
+      folder_name: ref
+      compile_opts: -DKYBER_K=2 
+      signature_keypair: pqcrystals_kyber512_ref_keypair
+      signature_enc: pqcrystals_kyber512_ref_enc
+      signature_dec: pqcrystals_kyber512_ref_dec
+      sources: LICENSE kem.c indcpa.c polyvec.c poly.c reduce.c ntt.c cbd.c verify.c kem.h params.h api.h indcpa.h polyvec.h poly.h reduce.h ntt.h cbd.h verify.h symmetric.h fips202.h symmetric-shake.c
+    - name: avx2
+      version: https://github.com/pq-crystals/kyber/commit/36414d64fc1890ed58d1ca8b1e0cab23635d1ac2
+      compile_opts: -DKYBER_K=2 
+      signature_keypair: pqcrystals_kyber512_avx2_keypair
+      signature_enc: pqcrystals_kyber512_avx2_enc
+      signature_dec: pqcrystals_kyber512_avx2_dec
+      sources: LICENSE kem.c indcpa.c polyvec.c poly.c fq.S shuffle.S ntt.S invntt.S basemul.S consts.c rejsample.c cbd.c verify.c align.h kem.h params.h api.h indcpa.h polyvec.h poly.h reduce.h fq.inc shuffle.inc ntt.h consts.h rejsample.h cbd.h verify.h symmetric.h fips202.h fips202x4.h fips202x4.c keccak4x symmetric-shake.c
+      supported_platforms:
+        - architecture: x86_64
+          operating_systems:
+            - Linux
+            - Darwin
+          required_flags:
+            - avx2
+            - bmi2
+            - popcnt

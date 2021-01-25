@@ -7,7 +7,7 @@
 
 #ifdef KYBER_90S
 
-#include <openssl/sha.h>
+#include "sha2.h"
 #include "aes256ctr.h"
 
 #if (KYBER_SSBYTES != 32)
@@ -18,15 +18,15 @@ typedef aes256ctr_ctx xof_state;
 
 #define XOF_BLOCKBYTES AES256CTR_BLOCKBYTES
 
-#define hash_h(OUT, IN, INBYTES) SHA256(IN, INBYTES, OUT)
-#define hash_g(OUT, IN, INBYTES) SHA512(IN, INBYTES, OUT)
+#define hash_h(OUT, IN, INBYTES) sha256(OUT, IN, INBYTES)
+#define hash_g(OUT, IN, INBYTES) sha512(OUT, IN, INBYTES)
 #define xof_absorb(STATE, SEED, X, Y) \
         aes256ctr_init(STATE, SEED, (X) | ((uint16_t)(Y) << 8))
 #define xof_squeezeblocks(OUT, OUTBLOCKS, STATE) \
         aes256ctr_squeezeblocks(OUT, OUTBLOCKS, STATE)
 #define prf(OUT, OUTBYTES, KEY, NONCE) \
         aes256ctr_prf(OUT, OUTBYTES, KEY, NONCE)
-#define kdf(OUT, IN, INBYTES) SHA256(IN, INBYTES, OUT)
+#define kdf(OUT, IN, INBYTES) sha256(OUT, IN, INBYTES)
 
 #else
 
