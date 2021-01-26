@@ -14,7 +14,7 @@ SOURCESNINETIES = $(SOURCES) aes256ctr.c
 HEADERS = params.h align.h kem.h indcpa.h polyvec.h poly.h reduce.h fq.inc shuffle.inc \
   ntt.h consts.h rejsample.h cbd.h verify.h symmetric.h randombytes.h
 HEADERSKECCAK   = $(HEADERS) fips202.h fips202x4.h
-HEADERSNINETIES = $(HEADERS) aes256ctr.h
+HEADERSNINETIES = $(HEADERS) sha2.h aes256ctr.h
 
 .PHONY: all shared clean
 
