@@ -5,7 +5,7 @@
 #include <stdint.h>
 #include <immintrin.h>
 
-#define AES256CTR_NAMESPACE(s) pqcrystals_aes256ctr_avx2_##s
+#define AES256CTR_NAMESPACE(s) pqcrystals_kyber_aes256ctr_avx2_##s
 
 #define AES256CTR_BLOCKBYTES 64
 

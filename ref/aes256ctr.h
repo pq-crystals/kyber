@@ -6,7 +6,7 @@
 
 #define AES256CTR_BLOCKBYTES 64
 
-#define AES256CTR_NAMESPACE(s) pqcrystals_aes256ctr_ref_##s
+#define AES256CTR_NAMESPACE(s) pqcrystals_kyber_aes256ctr_ref_##s
 
 typedef struct {
   uint64_t sk_exp[120];

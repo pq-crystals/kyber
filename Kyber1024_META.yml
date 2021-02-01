@@ -29,13 +29,15 @@ implementations:
     signature_enc: pqcrystals_kyber1024_ref_enc
     signature_dec: pqcrystals_kyber1024_ref_dec
     sources: ../LICENSE kem.c indcpa.c polyvec.c poly.c reduce.c ntt.c cbd.c verify.c kem.h params.h api.h indcpa.h polyvec.h poly.h reduce.h ntt.h cbd.h verify.h symmetric.h fips202.h symmetric-shake.c
+    common_dep: common_ref
   - name: avx2
     version: https://github.com/pq-crystals/kyber/commit/36414d64fc1890ed58d1ca8b1e0cab23635d1ac2
     compile_opts: -DKYBER_K=4
     signature_keypair: pqcrystals_kyber1024_avx2_keypair
     signature_enc: pqcrystals_kyber1024_avx2_enc
     signature_dec: pqcrystals_kyber1024_avx2_dec
-    sources: ../LICENSE kem.c indcpa.c polyvec.c poly.c fq.S shuffle.S ntt.S invntt.S basemul.S consts.c rejsample.c cbd.c verify.c align.h kem.h params.h api.h indcpa.h polyvec.h poly.h reduce.h fq.inc shuffle.inc ntt.h consts.h rejsample.h cbd.h verify.h symmetric.h fips202.h fips202x4.h fips202x4.c keccak4x symmetric-shake.c
+    sources: ../LICENSE kem.c indcpa.c polyvec.c poly.c fq.S shuffle.S ntt.S invntt.S basemul.S consts.c rejsample.c cbd.c verify.c align.h kem.h params.h api.h indcpa.h polyvec.h poly.h reduce.h fq.inc shuffle.inc ntt.h consts.h rejsample.h cbd.h verify.h symmetric.h fips202.h fips202x4.h symmetric-shake.c
+    common_dep: common_avx2 common_keccak4x_avx2
     supported_platforms:
       - architecture: x86_64
         operating_systems:
