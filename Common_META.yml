@@ -1,0 +1,36 @@
+commons:
+  - name: common_ref
+    folder_name: ref
+    sources: aes256ctr.c aes256ctr.h fips202.c fips202.h
+  - name: common_aes
+    folder_name: avx2
+    sources: aes256ctr.c aes256ctr.h
+    supported_platforms:
+      - architecture: x86_64
+        operating_systems:
+          - Darwin
+          - Linux
+        required_flags:
+          - aes
+          - sse2
+          - ssse3
+  - name: common_avx2
+    folder_name: avx2
+    sources: fips202.c fips202.h fips202x4.c fips202x4.h
+    supported_platforms:
+      - architecture: x86_64
+        operating_systems:
+          - Darwin
+          - Linux
+        required_flags:
+          - avx2
+  - name: common_keccak4x_avx2
+    folder_name: avx2
+    sources: fips202x4.h keccak4x/KeccakP-1600-times4-SIMD256.c keccak4x/KeccakP-1600-times4-SnP.h keccak4x/KeccakP-1600-unrolling.macros keccak4x/KeccakP-SIMD256-config.h keccak4x/KeccakP-align.h keccak4x/KeccakP-brg_endian.h
+    supported_platforms:
+      - architecture: x86_64
+        operating_systems:
+          - Darwin
+          - Linux
+        required_flags:
+          - avx2
