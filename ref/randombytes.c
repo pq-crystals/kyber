@@ -12,7 +12,7 @@
 #ifdef __linux__
 #define _GNU_SOURCE
 #include <unistd.h>
-#include <sys/syscall.h>
+#include <sys/random.h>
 #else
 #include <unistd.h>
 #endif
@@ -38,12 +38,12 @@ void randombytes(uint8_t *out, size_t outlen) {
   if(!CryptReleaseContext(ctx, 0))
     abort();
 }
-#elif defined(__linux__) && defined(SYS_getrandom)
+#elif defined(__linux__) && defined(__GLIBC__) && ((__GLIBC__ > 2) || (__GLIBC_MINOR__ > 24))
 void randombytes(uint8_t *out, size_t outlen) {
   ssize_t ret;
 
   while(outlen > 0) {
-    ret = syscall(SYS_getrandom, out, outlen, 0);
+    ret = getrandom (out, outlen, 0);
     if(ret == -1 && errno == EINTR)
       continue;
     else if(ret == -1)

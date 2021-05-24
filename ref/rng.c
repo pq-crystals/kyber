@@ -137,8 +137,7 @@ AES256_ECB(unsigned char *key, unsigned char *ctr, unsigned char *buffer)
 
 void
 randombytes_init(unsigned char *entropy_input,
-                 unsigned char *personalization_string,
-                 int security_strength)
+                 unsigned char *personalization_string)
 {
     unsigned char   seed_material[48];
 
