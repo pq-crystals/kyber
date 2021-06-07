@@ -1,6 +1,6 @@
 name: Kyber768-90s
 type: kem
-claimed-nist-level: 1
+claimed-nist-level: 3
 claimed-security: IND-CCA2
 length-public-key: 1184
 length-ciphertext: 1088
