@@ -50,7 +50,7 @@ main()
     for (int i=0; i<48; i++)
         entropy_input[i] = i;
 
-    randombytes_init(entropy_input, NULL, 256);
+    randombytes_init(entropy_input, NULL);
     for (int i=0; i<100; i++) {
         fprintf(fp_req, "count = %d\n", i);
         randombytes(seed, 48);
@@ -85,7 +85,7 @@ main()
         }
         fprintBstr(fp_rsp, "seed = ", seed, 48);
 
-        randombytes_init(seed, NULL, 256);
+        randombytes_init(seed, NULL);
 
         // Generate the public/private keypair
         if ( (ret_val = crypto_kem_keypair(pk, sk)) != 0) {
