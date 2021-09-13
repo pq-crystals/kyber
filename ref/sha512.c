@@ -255,7 +255,7 @@ static const uint8_t iv[64] = {
   0x5b,0xe0,0xcd,0x19,0x13,0x7e,0x21,0x79
 } ;
 
-void sha512(uint8_t *out,const uint8_t *in,size_t inlen)
+void sha512(uint8_t out[64],const uint8_t *in,size_t inlen)
 {
   uint8_t h[64];
   uint8_t padded[256];
