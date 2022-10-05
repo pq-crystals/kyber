@@ -1,4 +1,4 @@
-CC ?= /usr/bin/clang
+CC = /usr/bin/clang
 CFLAGS += -Wall -Wextra -Wpedantic -Wmissing-prototypes -Wredundant-decls \
   -Wshadow -Wpointer-arith -fsanitize=address -fsanitize=undefined \
 	-mavx2 -mbmi2 -mpopcnt -march=native -mtune=native -O3 -fomit-frame-pointer
