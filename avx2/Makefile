@@ -16,7 +16,7 @@ HEADERS = params.h align.h kem.h indcpa.h polyvec.h poly.h reduce.h fq.inc shuff
 HEADERSKECCAK   = $(HEADERS) fips202.h fips202x4.h
 HEADERSNINETIES = $(HEADERS) sha2.h aes256ctr.h
 
-.PHONY: all shared clean
+.PHONY: all shared clean bench speed
 
 all: \
   test_kyber512 \
@@ -37,7 +37,8 @@ all: \
   test_vectors512-90s \
   test_vectors768-90s \
   test_vectors1024-90s \
-  speed
+  speed \
+	bench
 
 speed: \
   test_speed512 \
@@ -46,6 +47,11 @@ speed: \
   test_speed512-90s \
   test_speed768-90s \
   test_speed1024-90s
+  
+bench: \
+	bench512 \
+  bench768 \
+  bench1024
 
 shared: \
   libpqcrystals_kyber512_avx2.so \
@@ -130,6 +136,16 @@ test_speed768: $(SOURCESKECCAK) $(HEADERSKECCAK) cpucycles.h cpucycles.c speed_p
 test_speed1024: $(SOURCESKECCAK) $(HEADERSKECCAK) cpucycles.h cpucycles.c speed_print.h speed_print.c test_speed.c kex.c kex.h
 	$(CC) $(CFLAGS) -DKYBER_K=4 $(SOURCESKECCAK) cpucycles.c speed_print.c kex.c test_speed.c -o test_speed1024
 
+bench512: $(SOURCESKECCAK) $(HEADERSKECCAK) cpucycles.h cpucycles.c randombytes.c bench.c kex.c kex.h 
+	$(CC) $(CFLAGS) -DKYBER_K=2 $(SOURCESKECCAK) cpucycles.c randombytes.c bench.c -o $@
+
+bench768: $(SOURCESKECCAK) $(HEADERSKECCAK) cpucycles.h cpucycles.c randombytes.c bench.c kex.c kex.h
+	$(CC) $(CFLAGS) -DKYBER_K=3 $(SOURCESKECCAK) cpucycles.c randombytes.c bench.c -o $@
+
+bench1024: $(SOURCESKECCAK) $(HEADERSKECCAK) cpucycles.h cpucycles.c randombytes.c bench.c kex.c kex.h
+	$(CC) $(CFLAGS) -DKYBER_K=4 $(SOURCESKECCAK) cpucycles.c randombytes.c bench.c -o $@
+
+
 libpqcrystals_kyber512-90s_avx2.so: $(SOURCES) $(HEADERS)
 	$(CC) -shared -fpic $(CFLAGS) -DKYBER_K=2 -DKYBER_90S $(SOURCES) -o libpqcrystals_kyber512-90s_avx2.so
 
@@ -189,6 +205,9 @@ clean:
 	-$(RM) -rf test_speed512
 	-$(RM) -rf test_speed768
 	-$(RM) -rf test_speed1024
+	-$(RM) -rf bench512
+	-$(RM) -rf bench768
+	-$(RM) -rf bench1024
 	-$(RM) -rf test_kyber512-90s
 	-$(RM) -rf test_kyber768-90s
 	-$(RM) -rf test_kyber1024-90s
