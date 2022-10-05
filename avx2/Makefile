@@ -1,7 +1,7 @@
-CC ?= /usr/bin/cc
+CC ?= /usr/bin/clang
 CFLAGS += -Wall -Wextra -Wpedantic -Wmissing-prototypes -Wredundant-decls \
-  -Wshadow -Wpointer-arith -mavx2 -mbmi2 -mpopcnt -maes \
-  -march=native -mtune=native -O3 -fomit-frame-pointer
+  -Wshadow -Wpointer-arith -fsanitize=address -fsanitize=undefined \
+	-mavx2 -mbmi2 -mpopcnt -march=native -mtune=native -O3 -fomit-frame-pointer
 NISTFLAGS += -Wno-unused-result -mavx2 -mbmi2 -mpopcnt -maes \
   -march=native -mtune=native -O3 -fomit-frame-pointer
 RM = /bin/rm
@@ -136,13 +136,13 @@ test_speed768: $(SOURCESKECCAK) $(HEADERSKECCAK) cpucycles.h cpucycles.c speed_p
 test_speed1024: $(SOURCESKECCAK) $(HEADERSKECCAK) cpucycles.h cpucycles.c speed_print.h speed_print.c test_speed.c kex.c kex.h
 	$(CC) $(CFLAGS) -DKYBER_K=4 $(SOURCESKECCAK) cpucycles.c speed_print.c kex.c test_speed.c -o test_speed1024
 
-bench512: $(SOURCESKECCAK) $(HEADERSKECCAK) cpucycles.h cpucycles.c randombytes.c bench.c kex.c kex.h 
+bench512: $(SOURCESKECCAK) $(HEADERSKECCAK) cpucycles.h cpucycles.c randombytes.c bench.c
 	$(CC) $(CFLAGS) -DKYBER_K=2 $(SOURCESKECCAK) cpucycles.c randombytes.c bench.c -o $@
 
-bench768: $(SOURCESKECCAK) $(HEADERSKECCAK) cpucycles.h cpucycles.c randombytes.c bench.c kex.c kex.h
+bench768: $(SOURCESKECCAK) $(HEADERSKECCAK) cpucycles.h cpucycles.c randombytes.c bench.c
 	$(CC) $(CFLAGS) -DKYBER_K=3 $(SOURCESKECCAK) cpucycles.c randombytes.c bench.c -o $@
 
-bench1024: $(SOURCESKECCAK) $(HEADERSKECCAK) cpucycles.h cpucycles.c randombytes.c bench.c kex.c kex.h
+bench1024: $(SOURCESKECCAK) $(HEADERSKECCAK) cpucycles.h cpucycles.c randombytes.c bench.c
 	$(CC) $(CFLAGS) -DKYBER_K=4 $(SOURCESKECCAK) cpucycles.c randombytes.c bench.c -o $@
 
 

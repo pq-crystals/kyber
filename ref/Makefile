@@ -1,6 +1,7 @@
-CC ?= /usr/bin/cc
+CC ?= /usr/bin/clang
 CFLAGS += -Wall -Wextra -Wpedantic -Wmissing-prototypes -Wredundant-decls \
-  -Wshadow -Wpointer-arith -O3 -fomit-frame-pointer
+  -Wshadow -Wpointer-arith -fsanitize=address -fsanitize=undefined \
+	-mavx2 -mbmi2 -mpopcnt -march=native -mtune=native -O3 -fomit-frame-pointer
 NISTFLAGS += -Wno-unused-result -O3 -fomit-frame-pointer
 RM = /bin/rm
 
@@ -11,7 +12,7 @@ HEADERS = params.h kex.h kem.h indcpa.h polyvec.h poly.h ntt.h cbd.h reduce.c ve
 HEADERSKECCAK = $(HEADERS) fips202.h
 HEADERSNINETIES = $(HEADERS) aes256ctr.h sha2.h
 
-.PHONY: all speed shared clean
+.PHONY: all speed shared clean bench
 
 all: \
   test_kyber512 \
@@ -31,7 +32,9 @@ all: \
   test_kex1024-90s \
   test_vectors512-90s \
   test_vectors768-90s \
-  test_vectors1024-90s
+  test_vectors1024-90s \
+	speed \
+	bench
 
 speed: \
   test_speed512 \
@@ -40,6 +43,11 @@ speed: \
   test_speed512-90s \
   test_speed768-90s \
   test_speed1024-90s
+
+bench: \
+	bench512 \
+  bench768 \
+  bench1024
 
 shared: \
   libpqcrystals_kyber512_ref.so \
@@ -105,6 +113,16 @@ test_speed768: $(SOURCESKECCAK) $(HEADERSKECCAK) cpucycles.h cpucycles.c speed_p
 
 test_speed1024: $(SOURCESKECCAK) $(HEADERSKECCAK) cpucycles.h cpucycles.c speed_print.h speed_print.c test_speed.c randombytes.c
 	$(CC) $(CFLAGS) -DKYBER_K=4 $(SOURCESKECCAK) randombytes.c cpucycles.c speed_print.c test_speed.c -o test_speed1024
+
+bench512: $(SOURCESKECCAK) $(HEADERSKECCAK) cpucycles.h cpucycles.c randombytes.c bench.c
+	$(CC) $(CFLAGS) -DKYBER_K=2 $(SOURCESKECCAK) cpucycles.c randombytes.c bench.c -o $@
+
+bench768: $(SOURCESKECCAK) $(HEADERSKECCAK) cpucycles.h cpucycles.c randombytes.c bench.c
+	$(CC) $(CFLAGS) -DKYBER_K=3 $(SOURCESKECCAK) cpucycles.c randombytes.c bench.c -o $@
+
+bench1024: $(SOURCESKECCAK) $(HEADERSKECCAK) cpucycles.h cpucycles.c randombytes.c bench.c
+	$(CC) $(CFLAGS) -DKYBER_K=4 $(SOURCESKECCAK) cpucycles.c randombytes.c bench.c -o $@
+
 
 libpqcrystals_kyber512-90s_ref.so: $(SOURCES) $(HEADERS) symmetric-aes.c
 	$(CC) -shared -fPIC $(CFLAGS) -DKYBER_K=2 -DKYBER_90S $(SOURCES) symmetric-aes.c -o libpqcrystals_kyber512-90s_ref.so
@@ -183,6 +201,9 @@ clean:
 	-$(RM) -rf test_speed512
 	-$(RM) -rf test_speed768
 	-$(RM) -rf test_speed1024
+	-$(RM) -rf bench512
+	-$(RM) -rf bench768
+	-$(RM) -rf bench1024
 	-$(RM) -rf test_kyber512-90s
 	-$(RM) -rf test_kyber768-90s
 	-$(RM) -rf test_kyber1024-90s

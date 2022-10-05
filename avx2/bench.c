@@ -74,27 +74,27 @@ static void print_bench(char *s, int k, uint64_t *t, size_t tlen, int enc)
     if(k==2) printf("low");
     if(k==3) printf("mid");
     if(k==4) printf("high");
-    printf("oneref}{$%lu$}\n",median(t, tlen));
+    printf("oneavx}{$%lu$}\n",median(t, tlen));
     printf("\\newcommand{%s", s);
     if(k==2) printf("low");
     if(k==3) printf("mid");
     if(k==4) printf("high");
-    printf("tworef}{$%lu$}\n",2*median(t, tlen));
+    printf("twoavx}{$%lu$}\n",2*median(t, tlen));
     printf("\\newcommand{%s", s);
     if(k==2) printf("low");
     if(k==3) printf("mid");
     if(k==4) printf("high");
-    printf("Xref}{$%lu$}\n",10*median(t, tlen));
+    printf("Xavx}{$%lu$}\n",10*median(t, tlen));
     printf("\\newcommand{%s", s);
     if(k==2) printf("low");
     if(k==3) printf("mid");
     if(k==4) printf("high");
-    printf("Cref}{$%lu$}\n",100*median(t, tlen));
+    printf("Cavx}{$%lu$}\n",100*median(t, tlen));
     printf("\\newcommand{%s", s);
     if(k==2) printf("low");
     if(k==3) printf("mid");
     if(k==4) printf("high");
-    printf("Mref}{$%lu$}\n",1000*median(t, tlen));
+    printf("Mavx}{$%lu$}\n",1000*median(t, tlen));
   }
   else
   {
@@ -102,7 +102,7 @@ static void print_bench(char *s, int k, uint64_t *t, size_t tlen, int enc)
     if(k==2) printf("low");
     if(k==3) printf("mid");
     if(k==4) printf("high");
-    printf("ref}{$%lu$}\n",median(t, tlen));
+    printf("avx}{$%lu$}\n",median(t, tlen));
   }
 }
 
@@ -119,19 +119,19 @@ int main()
     t[i] = cpucycles();
     crypto_kem_keypair(pk, sk);
   }
-  print_bench("gen", KYBER_K, t, NTESTS, 0);
+  print_bench("\\gencyc", KYBER_K, t, NTESTS, 0);
 
   for(i=0;i<NTESTS;i++) {
     t[i] = cpucycles();
     crypto_kem_enc(ct, key, pk);
   }
-  print_bench("enc", KYBER_K, t, NTESTS, 1);
+  print_bench("\\enccyc", KYBER_K, t, NTESTS, 1);
 
   for(i=0;i<NTESTS;i++) {
     t[i] = cpucycles();
     crypto_kem_dec(key, ct, sk);
   }
-  print_bench("dec", KYBER_K, t, NTESTS, 0);
+  print_bench("\\deccyc", KYBER_K, t, NTESTS, 0);
 
   return 0;
 }
