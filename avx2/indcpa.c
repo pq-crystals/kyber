@@ -447,7 +447,7 @@ void gen_matrix(polyvec *a, const uint8_t seed[32], int transposed)
 #endif
 
 /*************************************************
-* Name:        indcpa_keypair
+* Name:        indcpa_keypair_derand
 *
 * Description: Generates public and private key for the CPA-secure
 *              public-key encryption scheme underlying Kyber
@@ -455,10 +455,13 @@ void gen_matrix(polyvec *a, const uint8_t seed[32], int transposed)
 * Arguments:   - uint8_t *pk: pointer to output public key
 *                             (of length KYBER_INDCPA_PUBLICKEYBYTES bytes)
 *              - uint8_t *sk: pointer to output private key
-                              (of length KYBER_INDCPA_SECRETKEYBYTES bytes)
+*                             (of length KYBER_INDCPA_SECRETKEYBYTES bytes)
+*              - const uint8_t *coins: pointer to input randomness
+*                             (of length KYBER_SYMBYTES bytes)
 **************************************************/
-void indcpa_keypair(uint8_t pk[KYBER_INDCPA_PUBLICKEYBYTES],
-                    uint8_t sk[KYBER_INDCPA_SECRETKEYBYTES])
+void indcpa_keypair_derand(uint8_t pk[KYBER_INDCPA_PUBLICKEYBYTES],
+                           uint8_t sk[KYBER_INDCPA_SECRETKEYBYTES],
+                           const uint8_t coins[KYBER_SYMBYTES])
 {
   unsigned int i;
   uint8_t buf[2*KYBER_SYMBYTES];
@@ -466,28 +469,27 @@ void indcpa_keypair(uint8_t pk[KYBER_INDCPA_PUBLICKEYBYTES],
   const uint8_t *noiseseed = buf + KYBER_SYMBYTES;
   polyvec a[KYBER_K], e, pkpv, skpv;
 
-  randombytes(buf, KYBER_SYMBYTES);
-  hash_g(buf, buf, KYBER_SYMBYTES);
+  hash_g(buf, coins, KYBER_SYMBYTES);
 
   gen_a(a, publicseed);
 
 #ifdef KYBER_90S
 #define NOISE_NBLOCKS ((KYBER_ETA1*KYBER_N/4)/AES256CTR_BLOCKBYTES) /* Assumes divisibility */
   uint64_t nonce = 0;
-  ALIGNED_UINT8(NOISE_NBLOCKS*AES256CTR_BLOCKBYTES+32) coins; // +32 bytes as required by poly_cbd_eta1
+  ALIGNED_UINT8(NOISE_NBLOCKS*AES256CTR_BLOCKBYTES+32) rand; // +32 bytes as required by poly_cbd_eta1
   aes256ctr_ctx state;
   aes256ctr_init(&state, noiseseed, nonce++);
   for(i=0;i<KYBER_K;i++) {
-    aes256ctr_squeezeblocks(coins.coeffs, NOISE_NBLOCKS, &state);
+    aes256ctr_squeezeblocks(rand.coeffs, NOISE_NBLOCKS, &state);
     state.n = _mm_loadl_epi64((__m128i *)&nonce);
     nonce += 1;
-    poly_cbd_eta1(&skpv.vec[i], coins.vec);
+    poly_cbd_eta1(&skpv.vec[i], rand.vec);
   }
   for(i=0;i<KYBER_K;i++) {
-    aes256ctr_squeezeblocks(coins.coeffs, NOISE_NBLOCKS, &state);
+    aes256ctr_squeezeblocks(rand.coeffs, NOISE_NBLOCKS, &state);
     state.n = _mm_loadl_epi64((__m128i *)&nonce);
     nonce += 1;
-    poly_cbd_eta1(&e.vec[i], coins.vec);
+    poly_cbd_eta1(&e.vec[i], rand.vec);
   }
 #else
 #if KYBER_K == 2

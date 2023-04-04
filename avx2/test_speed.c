@@ -30,6 +30,7 @@ int main()
   uint8_t sk[CRYPTO_SECRETKEYBYTES];
   uint8_t ct[CRYPTO_CIPHERTEXTBYTES];
   uint8_t key[CRYPTO_BYTES];
+  uint8_t coins[KYBER_SYMBYTES];
   uint8_t kexsenda[KEX_AKE_SENDABYTES];
   uint8_t kexsendb[KEX_AKE_SENDBBYTES];
   uint8_t kexkey[KEX_SSBYTES];
@@ -38,6 +39,8 @@ int main()
 #ifndef KYBER_90S
   poly bp, cp, dp;
 #endif
+  
+  randombytes(coins, KYBER_SYMBYTES);
 
   for(i=0;i<NTESTS;i++) {
     t[i] = cpucycles();
@@ -121,9 +124,9 @@ int main()
 
   for(i=0;i<NTESTS;i++) {
     t[i] = cpucycles();
-    indcpa_keypair(pk, sk);
+    indcpa_keypair_derand(pk, sk, coins);
   }
-  print_results("indcpa_keypair: ", t, NTESTS);
+  print_results("indcpa_keypair_derand: ", t, NTESTS);
 
   for(i=0;i<NTESTS;i++) {
     t[i] = cpucycles();
