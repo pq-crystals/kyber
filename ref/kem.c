@@ -7,6 +7,35 @@
 #include "verify.h"
 #include "symmetric.h"
 #include "randombytes.h"
+/*************************************************
+* Name:        crypto_kem_keypair_derand
+*
+* Description: Generates public and private key
+*              for CCA-secure Kyber key encapsulation mechanism
+*
+* Arguments:   - uint8_t *pk: pointer to output public key
+*                (an already allocated array of KYBER_PUBLICKEYBYTES bytes)
+*              - uint8_t *sk: pointer to output private key
+*                (an already allocated array of KYBER_SECRETKEYBYTES bytes)
+*              - uint8_t *coins: pointer to input randomness
+*                (an already allocated array filled with 2*KYBER_SYMBYTES random bytes)
+**
+* Returns 0 (success)
+**************************************************/
+int crypto_kem_keypair_derand(uint8_t *pk,
+                              uint8_t *sk,
+                              const uint8_t *coins)
+{
+  size_t i;
+  indcpa_keypair_derand(pk, sk, coins);
+  for(i=0;i<KYBER_INDCPA_PUBLICKEYBYTES;i++)
+    sk[i+KYBER_INDCPA_SECRETKEYBYTES] = pk[i];
+  hash_h(sk+KYBER_SECRETKEYBYTES-2*KYBER_SYMBYTES, pk, KYBER_PUBLICKEYBYTES);
+  /* Value z for pseudo-random output on reject */
+  for(i=0;i<KYBER_SYMBYTES;i++)
+    sk[KYBER_SECRETKEYBYTES-KYBER_SYMBYTES+i] = coins[KYBER_SYMBYTES+i];
+  return 0;
+}
 
 /*************************************************
 * Name:        crypto_kem_keypair
@@ -24,13 +53,50 @@
 int crypto_kem_keypair(uint8_t *pk,
                        uint8_t *sk)
 {
-  size_t i;
-  indcpa_keypair(pk, sk);
-  for(i=0;i<KYBER_INDCPA_PUBLICKEYBYTES;i++)
-    sk[i+KYBER_INDCPA_SECRETKEYBYTES] = pk[i];
-  hash_h(sk+KYBER_SECRETKEYBYTES-2*KYBER_SYMBYTES, pk, KYBER_PUBLICKEYBYTES);
-  /* Value z for pseudo-random output on reject */
-  randombytes(sk+KYBER_SECRETKEYBYTES-KYBER_SYMBYTES, KYBER_SYMBYTES);
+  uint8_t coins[2*KYBER_SYMBYTES];
+  randombytes(coins, KYBER_SYMBYTES);
+  randombytes(coins+KYBER_SYMBYTES, KYBER_SYMBYTES);
+  crypto_kem_keypair_derand(pk, sk, coins);
+  return 0;
+}
+
+/*************************************************
+* Name:        crypto_kem_enc_derand
+*
+* Description: Generates cipher text and shared
+*              secret for given public key
+*
+* Arguments:   - uint8_t *ct: pointer to output cipher text
+*                (an already allocated array of KYBER_CIPHERTEXTBYTES bytes)
+*              - uint8_t *ss: pointer to output shared secret
+*                (an already allocated array of KYBER_SSBYTES bytes)
+*              - const uint8_t *pk: pointer to input public key
+*                (an already allocated array of KYBER_PUBLICKEYBYTES bytes)
+*              - const uint8_t *coins: pointer to input randomness
+*                (an already allocated array filled with KYBER_SYMBYTES random bytes)
+**
+* Returns 0 (success)
+**************************************************/
+int crypto_kem_enc_derand(uint8_t *ct,
+                          uint8_t *ss,
+                          const uint8_t *pk,
+                          const uint8_t *coins)
+{
+  uint8_t buf[2*KYBER_SYMBYTES];
+  /* Will contain key, coins */
+  uint8_t kr[2*KYBER_SYMBYTES];
+
+  /* Hash of shame */
+  hash_h(buf, coins, KYBER_SYMBYTES);
+
+  /* Multitarget countermeasure for coins + contributory KEM */
+  hash_h(buf+KYBER_SYMBYTES, pk, KYBER_PUBLICKEYBYTES);
+  hash_g(kr, buf, 2*KYBER_SYMBYTES);
+
+  /* coins are in kr+KYBER_SYMBYTES */
+  indcpa_enc(ct, buf, pk, kr+KYBER_SYMBYTES);
+
+  memcpy(ss,kr,KYBER_SYMBYTES);
   return 0;
 }
 
@@ -53,22 +119,9 @@ int crypto_kem_enc(uint8_t *ct,
                    uint8_t *ss,
                    const uint8_t *pk)
 {
-  uint8_t buf[2*KYBER_SYMBYTES];
-  /* Will contain key, coins */
-  uint8_t kr[2*KYBER_SYMBYTES];
-
-  randombytes(buf, KYBER_SYMBYTES);
-  /* Hash of shame */
-  hash_h(buf, buf, KYBER_SYMBYTES);
-
-  /* Multitarget countermeasure for coins + contributory KEM */
-  hash_h(buf+KYBER_SYMBYTES, pk, KYBER_PUBLICKEYBYTES);
-  hash_g(kr, buf, 2*KYBER_SYMBYTES);
-
-  /* coins are in kr+KYBER_SYMBYTES */
-  indcpa_enc(ct, buf, pk, kr+KYBER_SYMBYTES);
-
-  memcpy(ss,kr,KYBER_SYMBYTES);
+  uint8_t coins[KYBER_SYMBYTES];
+  randombytes(coins, KYBER_SYMBYTES);
+  crypto_kem_enc_derand(ct, ss, pk, coins);
   return 0;
 }
 
