@@ -240,54 +240,6 @@ void indcpa_keypair_derand(uint8_t pk[KYBER_INDCPA_PUBLICKEYBYTES],
   pack_pk(pk, &pkpv, publicseed);
 }
 
-#if 0
-/*************************************************
-* Name:        indcpa_keypair
-*
-* Description: Generates public and private key for the CPA-secure
-*              public-key encryption scheme underlying Kyber
-*
-* Arguments:   - uint8_t *pk: pointer to output public key
-*                             (of length KYBER_INDCPA_PUBLICKEYBYTES bytes)
-*              - uint8_t *sk: pointer to output private key
-                              (of length KYBER_INDCPA_SECRETKEYBYTES bytes)
-**************************************************/
-void indcpa_keypair(uint8_t pk[KYBER_INDCPA_PUBLICKEYBYTES],
-                    uint8_t sk[KYBER_INDCPA_SECRETKEYBYTES])
-{
-  unsigned int i;
-  uint8_t buf[2*KYBER_SYMBYTES];
-  const uint8_t *publicseed = buf;
-  const uint8_t *noiseseed = buf+KYBER_SYMBYTES;
-  uint8_t nonce = 0;
-  polyvec a[KYBER_K], e, pkpv, skpv;
-
-  randombytes(buf, KYBER_SYMBYTES);
-  hash_g(buf, buf, KYBER_SYMBYTES);
-
-  gen_a(a, publicseed);
-
-  for(i=0;i<KYBER_K;i++)
-    poly_getnoise_eta1(&skpv.vec[i], noiseseed, nonce++);
-  for(i=0;i<KYBER_K;i++)
-    poly_getnoise_eta1(&e.vec[i], noiseseed, nonce++);
-
-  polyvec_ntt(&skpv);
-  polyvec_ntt(&e);
-
-  // matrix-vector multiplication
-  for(i=0;i<KYBER_K;i++) {
-    polyvec_basemul_acc_montgomery(&pkpv.vec[i], &a[i], &skpv);
-    poly_tomont(&pkpv.vec[i]);
-  }
-
-  polyvec_add(&pkpv, &pkpv, &e);
-  polyvec_reduce(&pkpv);
-
-  pack_sk(sk, &skpv);
-  pack_pk(pk, &pkpv, publicseed);
-}
-#endif
 
 /*************************************************
 * Name:        indcpa_enc
