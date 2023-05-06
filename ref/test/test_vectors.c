@@ -11,7 +11,7 @@
 #define NTESTS 10000
 
 static uint64_t shake128_state[25] = {0x1F};
-static uint64_t shake128_offset = 0;
+static uint64_t shake128_offset = SHAKE128_RATE;
 static uint64_t is_init = 0;
 
 void randombytes(uint8_t *x,size_t xlen)
