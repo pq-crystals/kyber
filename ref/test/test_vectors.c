@@ -12,12 +12,14 @@
 
 // first 25 words are Keccak state, 
 // last one is output counter
-static uint64_t shake128_state[25] = {0};
+static uint64_t shake128_state[25] = {0x1F};
 static uint64_t shake128_offset = 0;
+static uint64_t is_init = 0;
 
 void randombytes(uint8_t *x,size_t xlen)
 {
   size_t i;
+
   while(xlen>0) {
     for(i=shake128_offset;i<SHAKE128_RATE && xlen>0;i++) {
       *x++ = shake128_state[i/8] >> 8*(i%8);
