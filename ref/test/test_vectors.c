@@ -19,12 +19,12 @@ void randombytes(uint8_t *x,size_t xlen)
   size_t i;
 
   while(xlen>0) {
-    for(i=shake128_offset;i<SHAKE128_RATE && xlen>0;i++) {
+    while(shake128_offset<SHAKE128_RATE && xlen>0){
       *x++ = shake128_state[i/8] >> 8*(i%8);
+      shake128_offset++;
       xlen--;
     }
-    if(i==SHAKE128_RATE)
-    {
+    if(shake128_offset==SHAKE128_RATE) {
       KeccakF1600_StatePermute(shake128_state);
       shake128_offset = 0;
     }
