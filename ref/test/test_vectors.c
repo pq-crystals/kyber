@@ -99,6 +99,14 @@ int main(void)
         return -1;
       }
     }
+
+    // Decapsulation of invalid (random) ciphertexts
+    randombytes(ct, KYBER_CIPHERTEXTBYTES); 
+    crypto_kem_dec(key_a, ct, sk);
+    printf("Pseudorandom shared Secret A: ");
+    for(j=0;j<CRYPTO_BYTES;j++)
+      printf("%02x",key_a[j]);
+    printf("\n");
   }
 
   return 0;
