@@ -10,7 +10,7 @@
 
 #define NTESTS 10000
 
-static uint64_t shake128_state[25] = {0x1F, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
+static uint64_t shake128_state[25] = {0x1F, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                                          0, 0, 0, 0, 0, 0, 0, 0, 0, (1ULL << 63)};
 static uint64_t shake128_offset = SHAKE128_RATE;
 
