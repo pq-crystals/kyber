@@ -12,15 +12,12 @@
 
 static uint64_t shake128_state[25] = {0x1F};
 static uint64_t shake128_offset = SHAKE128_RATE;
-static uint64_t is_init = 0;
 
 void randombytes(uint8_t *x,size_t xlen)
 {
-  size_t i;
-
   while(xlen>0) {
     while(shake128_offset<SHAKE128_RATE && xlen>0){
-      *x++ = shake128_state[i/8] >> 8*(i%8);
+      *x++ = shake128_state[shake128_offset/8] >> 8*(shake128_offset%8);
       shake128_offset++;
       xlen--;
     }
