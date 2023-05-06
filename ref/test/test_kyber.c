@@ -1,8 +1,8 @@
 #include <stddef.h>
 #include <stdio.h>
 #include <string.h>
-#include "kem.h"
-#include "randombytes.h"
+#include "../kem.h"
+#include "../randombytes.h"
 
 #define NTESTS 1000
 
