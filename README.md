@@ -34,14 +34,15 @@ make
 This produces the executables
 ```sh
 test/test_kyber$ALG
-test/test_kex$ALG
+test/test_speed$ALG
 test/test_vectors$ALG
 ```
-where `$ALG` ranges over the parameter sets 512, 768, 1024, 512-90s, 768-90s, 1024-90s.
+where `$ALG` ranges over the parameter sets 512, 768, 1024.
 
 * `test_kyber$ALG` tests 1000 times to generate keys, encapsulate a random key and correctly decapsulate it again. Also, the program tests that the keys cannot correctly be decapsulated using a random secret key or a ciphertext where a single random byte was randomly distorted in order to test for trivial failures of the CCA security. The program will abort with an error message and return 1 if there was an error. Otherwise it will output the key and ciphertext sizes and return 0.
 * `test_kex$ALG` tests the authenticated key exchange schemes derived from the Kyber KEM
-* `test_vectors$ALG` generates 10000 sets of test vectors containing keys, ciphertexts and shared secrets whose byte-strings are output in hexadecimal. The required random bytes come from a simple deterministic expansion of a fixed seed defined in `test_vectors.c`.
+* `test_vectors$ALG` generates 10000 sets of test vectors containing keys, ciphertexts and shared secrets whose byte-strings are output in hexadecimal. 
+The required random bytes come from a simple deterministic expansion of a fixed seed defined in `test_vectors.c`.
 
 ### Benchmarking programs
 
