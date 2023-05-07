@@ -100,13 +100,13 @@ test/test_speed1024: $(SOURCESKECCAK) $(HEADERSKECCAK) test/cpucycles.h test/cpu
 
 clean:
 	-$(RM) -rf *.o *.a *.so
-	-$(RM) -rf test_kyber512
-	-$(RM) -rf test_kyber768
-	-$(RM) -rf test_kyber1024
-	-$(RM) -rf test_vectors512
-	-$(RM) -rf test_vectors768
-	-$(RM) -rf test_vectors1024
-	-$(RM) -rf test_speed512
-	-$(RM) -rf test_speed768
-	-$(RM) -rf test_speed1024
+	-$(RM) -rf test/test_kyber512
+	-$(RM) -rf test/test_kyber768
+	-$(RM) -rf test/test_kyber1024
+	-$(RM) -rf test/test_vectors512
+	-$(RM) -rf test/test_vectors768
+	-$(RM) -rf test/test_vectors1024
+	-$(RM) -rf test/test_speed512
+	-$(RM) -rf test/test_speed768
+	-$(RM) -rf test/test_speed1024
 	-$(RM) -rf keccak4x/KeccakP-1600-times4-SIMD256.o

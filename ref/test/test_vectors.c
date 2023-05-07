@@ -10,23 +10,14 @@
 
 #define NTESTS 10000
 
-static uint64_t shake128_state[25] = {0x1F, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                                         0, 0, 0, 0, 0, 0, 0, 0, 0, (1ULL << 63)};
-static uint64_t shake128_offset = SHAKE128_RATE;
+
+/* Initital state after absorbing empty string 
+ * Permute before squeeze is achieved by setting pos to SHAKE128_RATE */
+static keccak_state rngstate = {{0x1F, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, (1ULL << 63), 0, 0, 0, 0}, SHAKE128_RATE};
 
 void randombytes(uint8_t *x,size_t xlen)
 {
-  while(xlen>0) {
-    while(shake128_offset<SHAKE128_RATE && xlen>0){
-      *x++ = shake128_state[shake128_offset/8] >> 8*(shake128_offset%8);
-      shake128_offset++;
-      xlen--;
-    }
-    if(shake128_offset==SHAKE128_RATE) {
-      KeccakF1600_StatePermute(shake128_state);
-      shake128_offset = 0;
-    }
-  }
+  shake128_squeeze(x, xlen, &rngstate);
 }
 
 int main(void)

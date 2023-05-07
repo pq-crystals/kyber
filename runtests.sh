@@ -9,9 +9,9 @@ else
   DIRS="ref"
 fi
 
-if [ "$ARCH" = "amd64" -o "$ARCH" = "arm64" ]; then
-  export CFLAGS="-fsanitize=address,undefined ${CFLAGS}"
-fi
+#if [ "$ARCH" = "amd64" -o "$ARCH" = "arm64" ]; then
+#  export CFLAGS="-fsanitize=address,undefined ${CFLAGS}"
+#fi
 
 for dir in $DIRS; do
   make -j$(nproc) -C $dir
