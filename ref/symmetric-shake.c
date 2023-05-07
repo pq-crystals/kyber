@@ -63,11 +63,11 @@ void kyber_shake256_prf(uint8_t *out, size_t outlen, const uint8_t key[KYBER_SYM
 **************************************************/
 void kyber_shake256_rkprf(uint8_t out[KYBER_SSBYTES], const uint8_t key[KYBER_SYMBYTES], const uint8_t input[KYBER_CIPHERTEXTBYTES])
 {
-  uint8_t buf[KYBER_SYMBYTES+KYBER_CIPHERTEXTBYTES];
+  keccak_state s;
 
-  /* XXX: Instead of memcpy, use incremental API here */
-  memcpy(buf, key, KYBER_SYMBYTES);
-  memcpy(buf+KYBER_SYMBYTES, input, KYBER_CIPHERTEXTBYTES);
-
-  shake256(out, KYBER_SSBYTES, buf, sizeof(buf));
+  shake256_init(&s);
+  shake256_absorb(&s, key, KYBER_SYMBYTES);
+  shake256_absorb(&s, input, KYBER_CIPHERTEXTBYTES);
+  shake256_finalize(&s);
+  shake256_squeeze(out, KYBER_SSBYTES, &s);
 }
