@@ -97,11 +97,13 @@ int main()
   }
   print_results("polyvec_decompress: ", t, NTESTS);
 
+  /* XXX: put back with derand version
   for(i=0;i<NTESTS;i++) {
     t[i] = cpucycles();
     indcpa_keypair(pk, sk);
   }
   print_results("indcpa_keypair: ", t, NTESTS);
+  */
 
   for(i=0;i<NTESTS;i++) {
     t[i] = cpucycles();
