@@ -772,3 +772,17 @@ void sha3_512(uint8_t h[64], const uint8_t *in, size_t inlen)
   for(i=0;i<8;i++)
     store64(h+8*i,s[i]);
 }
+
+
+/*
+void sha3_512_init(keccak_state *s) {
+}
+
+void sha3_512_update(keccak_state *s, const uint8_t *in, size_t inlen) {
+  state->pos = keccak_absorb(state->s, state->pos, SHA3_RATE, in, inlen);
+}
+
+void sha3_512_finalize(uint8_t h[64], const keccak_state *s) {
+  state->pos = keccak_squeeze(out, outlen, state->s, state->pos, SHAKE128_RATE);
+}
+*/

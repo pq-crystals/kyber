@@ -104,5 +104,7 @@ clean:
 	-$(RM) -f nistkat/PQCgenKAT_kem512
 	-$(RM) -f nistkat/PQCgenKAT_kem768
 	-$(RM) -f nistkat/PQCgenKAT_kem1024
+	-$(RM) -f nistkat/*.req
+	-$(RM) -f nistkat/*.rsp
 	-$(RM) -rf lib/
 

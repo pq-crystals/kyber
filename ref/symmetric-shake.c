@@ -49,3 +49,25 @@ void kyber_shake256_prf(uint8_t *out, size_t outlen, const uint8_t key[KYBER_SYM
 
   shake256(out, outlen, extkey, sizeof(extkey));
 }
+
+/*************************************************
+* Name:        kyber_shake256_prf
+*
+* Description: Usage of SHAKE256 as a PRF, concatenates secret and public input
+*              and then generates outlen bytes of SHAKE256 output
+*
+* Arguments:   - uint8_t *out: pointer to output
+*              - size_t outlen: number of requested output bytes
+*              - const uint8_t *key: pointer to the key (of length KYBER_SYMBYTES)
+*              - uint8_t nonce: single-byte nonce (public PRF input)
+**************************************************/
+void kyber_shake256_rkprf(uint8_t out[KYBER_SSBYTES], const uint8_t key[KYBER_SYMBYTES], const uint8_t input[KYBER_CIPHERTEXTBYTES])
+{
+  uint8_t buf[KYBER_SYMBYTES+KYBER_CIPHERTEXTBYTES];
+
+  /* XXX: Instead of memcpy, use incremental API here */
+  memcpy(buf, key, KYBER_SYMBYTES);
+  memcpy(buf+KYBER_SYMBYTES, input, KYBER_CIPHERTEXTBYTES);
+
+  shake256(out, KYBER_SSBYTES, buf, sizeof(buf));
+}

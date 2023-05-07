@@ -113,16 +113,11 @@ int crypto_kem_dec(uint8_t *ss,
 
   fail = verify(ct, cmp, KYBER_CIPHERTEXTBYTES);
 
-  /* copy z into cmp for hashing */
-  memcpy(cmp,sk+KYBER_SECRETKEYBYTES-KYBER_SYMBYTES,KYBER_SYMBYTES);
-  /* copy ciphertext into cmp for hashing */
-  memcpy(cmp+KYBER_SYMBYTES,ct,KYBER_CIPHERTEXTBYTES);
+  /* Compute rejection key */
+  rkprf(ss,sk+KYBER_SECRETKEYBYTES-KYBER_SYMBYTES,ct);
 
-  hash_g(buf,cmp,KYBER_CIPHERTEXTBYTES+KYBER_SYMBYTES);
-
-  cmov(kr,buf,KYBER_SYMBYTES,fail);
-
-  memcpy(ss, kr,KYBER_SYMBYTES);
+  /* Copy true key to return buffer if fail is false */
+  cmov(ss,kr,KYBER_SYMBYTES,!fail);
 
   return 0;
 }
