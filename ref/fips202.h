@@ -16,8 +16,6 @@ typedef struct {
   unsigned int pos;
 } keccak_state;
 
-#define KeccakF1600_StatePermute FIPS202_NAMESPACE(KeccakF1600_StatePermute)
-void KeccakF1600_StatePermute(uint64_t state[25]);
 #define shake128_init FIPS202_NAMESPACE(shake128_init)
 void shake128_init(keccak_state *state);
 #define shake128_absorb FIPS202_NAMESPACE(shake128_absorb)
