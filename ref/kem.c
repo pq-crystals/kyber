@@ -82,8 +82,7 @@ int crypto_kem_enc_derand(uint8_t *ct,
   /* Will contain key, coins */
   uint8_t kr[2*KYBER_SYMBYTES];
 
-  /* Hash of shame */
-  hash_h(buf, coins, KYBER_SYMBYTES);
+  memcpy(buf, coins, KYBER_SYMBYTES);
 
   /* Multitarget countermeasure for coins + contributory KEM */
   hash_h(buf+KYBER_SYMBYTES, pk, KYBER_PUBLICKEYBYTES);
