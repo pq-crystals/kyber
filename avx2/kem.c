@@ -7,6 +7,7 @@
 #include "verify.h"
 #include "symmetric.h"
 #include "randombytes.h"
+#include "util.h"
 
 /*************************************************
 * Name:        crypto_kem_keypair
@@ -70,6 +71,11 @@ int crypto_kem_enc(uint8_t *ct,
   hash_h(kr+KYBER_SYMBYTES, ct, KYBER_CIPHERTEXTBYTES);
   /* hash concatenation of pre-k and H(c) to k */
   kdf(ss, kr, 2*KYBER_SYMBYTES);
+
+  /* zerorize `buf` and `kr` which are key generating materials */
+  zeroize(buf, sizeof(buf));
+  zeroize(kr, sizeof(kr));
+
   return 0;
 }
 
@@ -120,5 +126,10 @@ int crypto_kem_dec(uint8_t *ss,
 
   /* hash concatenation of pre-k and H(c) to k */
   kdf(ss, kr, 2*KYBER_SYMBYTES);
+
+  /* zerorize `buf` and `kr` which are key generating materials */
+  zeroize(buf, sizeof(buf));
+  zeroize(kr, sizeof(kr));
+
   return 0;
 }
