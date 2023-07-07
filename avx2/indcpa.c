@@ -516,6 +516,7 @@ void indcpa_keypair(uint8_t pk[KYBER_INDCPA_PUBLICKEYBYTES],
   polyvec_reduce(&pkpv);
 
   pack_sk(sk, &skpv);
+  zeroize(&skpv, sizeof(polyvec));
   pack_pk(pk, &pkpv, publicseed);
   zeroize(buf, sizeof(buf));
 }
