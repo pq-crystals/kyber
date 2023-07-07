@@ -7,6 +7,7 @@
 #include "ntt.h"
 #include "symmetric.h"
 #include "randombytes.h"
+#include "util.h"
 
 /*************************************************
 * Name:        pack_pk
@@ -236,6 +237,7 @@ void indcpa_keypair(uint8_t pk[KYBER_INDCPA_PUBLICKEYBYTES],
 
   pack_sk(sk, &skpv);
   pack_pk(pk, &pkpv, publicseed);
+  zeroize(buf, sizeof(buf));
 }
 
 /*************************************************
