@@ -630,6 +630,7 @@ void indcpa_dec(uint8_t m[KYBER_INDCPA_MSGBYTES],
 
   polyvec_ntt(&b);
   polyvec_basemul_acc_montgomery(&mp, &skpv, &b);
+  zeroize(&skpv, sizeof(polyvec));
   poly_invntt_tomont(&mp);
 
   poly_sub(&mp, &v, &mp);
