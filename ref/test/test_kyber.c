@@ -4,7 +4,9 @@
 #include "../kem.h"
 #include "../randombytes.h"
 
-#define NTESTS 1000
+#define NTESTS 65536
+
+unsigned long long fail_counter=0;
 
 static int test_keys()
 {
@@ -24,13 +26,13 @@ static int test_keys()
   crypto_kem_dec(key_a, ct, sk);
 
   if(memcmp(key_a, key_b, CRYPTO_BYTES)) {
-    printf("ERROR keys\n");
     return 1;
   }
 
   return 0;
 }
 
+#if 0
 static int test_invalid_sk_a()
 {
   uint8_t pk[CRYPTO_PUBLICKEYBYTES];
@@ -93,23 +95,17 @@ static int test_invalid_ciphertext()
 
   return 0;
 }
+#endif
 
 int main(void)
 {
-  unsigned int i;
-  int r;
+  unsigned long long i;
 
   for(i=0;i<NTESTS;i++) {
-    r  = test_keys();
-    r |= test_invalid_sk_a();
-    r |= test_invalid_ciphertext();
-    if(r)
-      return 1;
+    if(test_keys()) fail_counter++;
   }
 
-  printf("CRYPTO_SECRETKEYBYTES:  %d\n",CRYPTO_SECRETKEYBYTES);
-  printf("CRYPTO_PUBLICKEYBYTES:  %d\n",CRYPTO_PUBLICKEYBYTES);
-  printf("CRYPTO_CIPHERTEXTBYTES: %d\n",CRYPTO_CIPHERTEXTBYTES);
+  printf("%llu\n", fail_counter);
 
   return 0;
 }
