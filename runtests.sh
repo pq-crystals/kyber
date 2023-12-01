@@ -10,6 +10,7 @@ else
 fi
 
 if [ "$ARCH" = "amd64" -o "$ARCH" = "arm64" ]; then
+  export CC="clang"
   export CFLAGS="-fsanitize=address,undefined ${CFLAGS}"
 fi
 
