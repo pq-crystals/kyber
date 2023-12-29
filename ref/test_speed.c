@@ -16,7 +16,7 @@
 uint64_t t[NTESTS];
 uint8_t seed[KYBER_SYMBYTES] = {0};
 
-int main()
+int main(void)
 {
   unsigned int i;
   uint8_t pk[CRYPTO_PUBLICKEYBYTES];
