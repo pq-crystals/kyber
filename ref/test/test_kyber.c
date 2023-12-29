@@ -6,7 +6,7 @@
 
 #define NTESTS 1000
 
-static int test_keys()
+static int test_keys(void)
 {
   uint8_t pk[CRYPTO_PUBLICKEYBYTES];
   uint8_t sk[CRYPTO_SECRETKEYBYTES];
@@ -31,7 +31,7 @@ static int test_keys()
   return 0;
 }
 
-static int test_invalid_sk_a()
+static int test_invalid_sk_a(void)
 {
   uint8_t pk[CRYPTO_PUBLICKEYBYTES];
   uint8_t sk[CRYPTO_SECRETKEYBYTES];
@@ -59,7 +59,7 @@ static int test_invalid_sk_a()
   return 0;
 }
 
-static int test_invalid_ciphertext()
+static int test_invalid_ciphertext(void)
 {
   uint8_t pk[CRYPTO_PUBLICKEYBYTES];
   uint8_t sk[CRYPTO_SECRETKEYBYTES];
