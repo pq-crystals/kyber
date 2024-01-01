@@ -7,6 +7,7 @@
 #include "ntt.h"
 #include "symmetric.h"
 #include "randombytes.h"
+#include "util.h"
 
 /*************************************************
 * Name:        pack_pk
@@ -235,7 +236,9 @@ void indcpa_keypair(uint8_t pk[KYBER_INDCPA_PUBLICKEYBYTES],
   polyvec_reduce(&pkpv);
 
   pack_sk(sk, &skpv);
+  zeroize(&skpv, sizeof(skpv));
   pack_pk(pk, &pkpv, publicseed);
+  zeroize(buf, sizeof(buf));
 }
 
 /*************************************************
@@ -320,6 +323,7 @@ void indcpa_dec(uint8_t m[KYBER_INDCPA_MSGBYTES],
 
   polyvec_ntt(&b);
   polyvec_basemul_acc_montgomery(&mp, &skpv, &b);
+  zeroize(&skpv, sizeof(skpv));
   poly_invntt_tomont(&mp);
 
   poly_sub(&mp, &v, &mp);
