@@ -6,8 +6,8 @@ length-public-key: 800
 length-ciphertext: 768
 length-secret-key: 1632
 length-shared-secret: 32
-nistkat-sha256: bb0481d3325d828817900b709d23917cefbc10026fc857f098979451f67bb0ca
-testvectors-sha256: 6730bb552c22d9d2176ffb5568e48eb30952cf1f065073ec5f9724f6a3c6ea85
+nistkat-sha256: 76aae1fa3f8367522700b22da635a5bc4ced4298edb0eb9947aa3ba60d62676f
+testvectors-sha256: e1ac6fb45e2511f4170a3527c0c50dcd61336f47113df7a299a61ef8394bd669
 principal-submitters:
   - Peter Schwabe
 auxiliary-submitters:
@@ -22,7 +22,7 @@ auxiliary-submitters:
   - Damien Stehlé
 implementations:
   - name: ref
-    version: https://github.com/pq-crystals/kyber/commit/74cad307858b61e434490c75f812cb9b9ef7279b
+    version: https://github.com/pq-crystals/kyber/tree/standard
     folder_name: ref
     compile_opts: -DKYBER_K=2 
     signature_keypair: pqcrystals_kyber512_ref_keypair
@@ -31,7 +31,7 @@ implementations:
     sources: ../LICENSE kem.c indcpa.c polyvec.c poly.c reduce.c ntt.c cbd.c verify.c kem.h params.h api.h indcpa.h polyvec.h poly.h reduce.h ntt.h cbd.h verify.h symmetric.h fips202.h symmetric-shake.c
     common_dep: common_ref
   - name: avx2
-    version: https://github.com/pq-crystals/kyber/commit/36414d64fc1890ed58d1ca8b1e0cab23635d1ac2
+    version: https://github.com/pq-crystals/kyber/tree/standard
     compile_opts: -DKYBER_K=2 
     signature_keypair: pqcrystals_kyber512_avx2_keypair
     signature_enc: pqcrystals_kyber512_avx2_enc
