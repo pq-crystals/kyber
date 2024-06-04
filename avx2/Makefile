@@ -7,12 +7,12 @@ NISTFLAGS += -Wno-unused-result -mavx2 -mbmi2 -mpopcnt -maes \
 RM = /bin/rm
 
 SOURCES = kem.c indcpa.c polyvec.c poly.c fq.S shuffle.S ntt.S invntt.S \
-  basemul.S consts.c rejsample.c cbd.c verify.c
+  basemul.S consts.c rejsample.c cbd.c verify.c util.c
 SOURCESKECCAK   = $(SOURCES) fips202.c fips202x4.c symmetric-shake.c \
   keccak4x/KeccakP-1600-times4-SIMD256.o
 SOURCESNINETIES = $(SOURCES) aes256ctr.c
 HEADERS = params.h align.h kem.h indcpa.h polyvec.h poly.h reduce.h fq.inc shuffle.inc \
-  ntt.h consts.h rejsample.h cbd.h verify.h symmetric.h randombytes.h
+  ntt.h consts.h rejsample.h cbd.h verify.h symmetric.h randombytes.h util.h
 HEADERSKECCAK   = $(HEADERS) fips202.h fips202x4.h
 HEADERSNINETIES = $(HEADERS) sha2.h aes256ctr.h
 
@@ -37,6 +37,7 @@ all: \
   test_vectors512-90s \
   test_vectors768-90s \
   test_vectors1024-90s \
+  test_util \
   speed
 
 speed: \
@@ -175,6 +176,9 @@ test_speed768-90s: $(SOURCESNINETIES) $(HEADERSNINETIES) cpucycles.h cpucycles.c
 test_speed1024-90s: $(SOURCESNINETIES) $(HEADERSNINETIES) cpucycles.h cpucycles.c speed_print.h speed_print.c test_speed.c kex.c kex.h fips202.c fips202.h
 	$(CC) $(CFLAGS) -D KYBER_90S -DKYBER_K=4 $(SOURCESNINETIES) cpucycles.c kex.c fips202.c speed_print.c test_speed.c -o test_speed1024-90s $(LDFLAGS) -lcrypto
 
+test_util: util.h util.c randombytes.c test_util.c
+	$(CC) $(CFLAGS) util.h util.c randombytes.c test_util.c -o test_util
+
 clean:
 	-$(RM) -rf *.o *.a *.so
 	-$(RM) -rf test_kyber512
@@ -201,4 +205,5 @@ clean:
 	-$(RM) -rf test_speed512-90s
 	-$(RM) -rf test_speed768-90s
 	-$(RM) -rf test_speed1024-90s
+	-$(RM) -rf test_util
 	-$(RM) -rf keccak4x/KeccakP-1600-times4-SIMD256.o
