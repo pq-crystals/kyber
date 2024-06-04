@@ -84,7 +84,9 @@ vmovdqa		%ymm11,(64*\off+48)*2(%rdi)
 
 .text
 .global cdecl(basemul_avx)
+.type cdecl(basemul_avx), @function
 cdecl(basemul_avx):
+.cfi_startproc
 mov		%rsp,%r8
 and		$-32,%rsp
 sub		$32,%rsp
@@ -103,3 +105,5 @@ schoolbook	3
 
 mov		%r8,%rsp
 ret
+.cfi_endproc
+.size cdecl(basemul_avx), .-cdecl(basemul_avx)
