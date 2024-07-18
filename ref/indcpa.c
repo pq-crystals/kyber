@@ -156,13 +156,17 @@ static unsigned int rej_uniform(int16_t *r,
 *              - const uint8_t *seed: pointer to input seed
 *              - int transposed: boolean deciding whether A or A^T is generated
 **************************************************/
+#if(XOF_BLOCKBYTES % 3)
+#error "Implementation of gen_matrix assumes that XOF_BLOCKBYTES is a multiple of 3"
+#endif
+
 #define GEN_MATRIX_NBLOCKS ((12*KYBER_N/8*(1 << 12)/KYBER_Q + XOF_BLOCKBYTES)/XOF_BLOCKBYTES)
 // Not static for benchmarking
 void gen_matrix(polyvec *a, const uint8_t seed[KYBER_SYMBYTES], int transposed)
 {
-  unsigned int ctr, i, j, k;
-  unsigned int buflen, off;
-  uint8_t buf[GEN_MATRIX_NBLOCKS*XOF_BLOCKBYTES+2];
+  unsigned int ctr, i, j;
+  unsigned int buflen;
+  uint8_t buf[GEN_MATRIX_NBLOCKS*XOF_BLOCKBYTES];
   xof_state state;
 
   for(i=0;i<KYBER_K;i++) {
@@ -177,11 +181,8 @@ void gen_matrix(polyvec *a, const uint8_t seed[KYBER_SYMBYTES], int transposed)
       ctr = rej_uniform(a[i].vec[j].coeffs, KYBER_N, buf, buflen);
 
       while(ctr < KYBER_N) {
-        off = buflen % 3;
-        for(k = 0; k < off; k++)
-          buf[k] = buf[buflen - off + k];
-        xof_squeezeblocks(buf + off, 1, &state);
-        buflen = off + XOF_BLOCKBYTES;
+        xof_squeezeblocks(buf, 1, &state);
+        buflen = XOF_BLOCKBYTES;
         ctr += rej_uniform(a[i].vec[j].coeffs + ctr, KYBER_N - ctr, buf, buflen);
       }
     }
