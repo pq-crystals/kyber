@@ -1,3 +1,5 @@
+.section .note.GNU-stack,"",@progbits
+
 #include "consts.h"
 
 .macro schoolbook off
