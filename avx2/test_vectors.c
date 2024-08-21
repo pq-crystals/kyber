@@ -1,1 +1,0 @@
-../ref/test_vectors.c

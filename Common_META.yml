@@ -1,7 +1,7 @@
 commons:
   - name: common_ref
     folder_name: ref
-    sources: aes256ctr.c aes256ctr.h fips202.c fips202.h
+    sources: fips202.c fips202.h
   - name: common_aes
     folder_name: avx2
     sources: aes256ctr.c aes256ctr.h
@@ -11,7 +11,6 @@ commons:
           - Darwin
           - Linux
         required_flags:
-          - aes
           - sse2
           - ssse3
   - name: common_avx2
