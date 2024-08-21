@@ -56,6 +56,7 @@ void cmov(uint8_t *r, const uint8_t *x, size_t len, uint8_t b)
     r[i] ^= b & (r[i] ^ x[i]);
 }
 
+
 /*************************************************
 * Name:        cmov_int16
 *
