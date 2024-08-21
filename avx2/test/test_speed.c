@@ -1,1 +1,0 @@
-../../ref/test/test_speed.c

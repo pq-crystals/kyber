@@ -19,12 +19,11 @@
 void poly_compress(uint8_t r[KYBER_POLYCOMPRESSEDBYTES], const poly *a)
 {
   unsigned int i,j;
-  int32_t u;
+  int16_t u;
   uint32_t d0;
   uint8_t t[8];
 
 #if (KYBER_POLYCOMPRESSEDBYTES == 128)
-
   for(i=0;i<KYBER_N/8;i++) {
     for(j=0;j<8;j++) {
       // map to positive standard representatives
@@ -50,7 +49,7 @@ void poly_compress(uint8_t r[KYBER_POLYCOMPRESSEDBYTES], const poly *a)
       // map to positive standard representatives
       u  = a->coeffs[8*i+j];
       u += (u >> 15) & KYBER_Q;
-/*    t[j] = ((((uint32_t)u << 5) + KYBER_Q/2)/KYBER_Q) & 31; */
+/*      t[j] = ((((uint32_t)u << 5) + KYBER_Q/2)/KYBER_Q) & 31; */
       d0 = u << 5;
       d0 += 1664;
       d0 *= 40318;

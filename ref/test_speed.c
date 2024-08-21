@@ -2,12 +2,12 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include "../kem.h"
-#include "../params.h"
-#include "../indcpa.h"
-#include "../polyvec.h"
-#include "../poly.h"
-#include "../randombytes.h"
+#include "kem.h"
+#include "kex.h"
+#include "params.h"
+#include "indcpa.h"
+#include "polyvec.h"
+#include "poly.h"
 #include "cpucycles.h"
 #include "speed_print.h"
 
@@ -23,13 +23,11 @@ int main(void)
   uint8_t sk[CRYPTO_SECRETKEYBYTES];
   uint8_t ct[CRYPTO_CIPHERTEXTBYTES];
   uint8_t key[CRYPTO_BYTES];
-  uint8_t coins32[KYBER_SYMBYTES];
-  uint8_t coins64[2*KYBER_SYMBYTES];
+  uint8_t kexsenda[KEX_AKE_SENDABYTES];
+  uint8_t kexsendb[KEX_AKE_SENDBBYTES];
+  uint8_t kexkey[KEX_SSBYTES];
   polyvec matrix[KYBER_K];
   poly ap;
-
-  randombytes(coins32, KYBER_SYMBYTES);
-  randombytes(coins64, 2*KYBER_SYMBYTES);
 
   for(i=0;i<NTESTS;i++) {
     t[i] = cpucycles();
@@ -105,7 +103,7 @@ int main(void)
 
   for(i=0;i<NTESTS;i++) {
     t[i] = cpucycles();
-    indcpa_keypair_derand(pk, sk, coins32);
+    indcpa_keypair(pk, sk);
   }
   print_results("indcpa_keypair: ", t, NTESTS);
 
@@ -123,21 +121,9 @@ int main(void)
 
   for(i=0;i<NTESTS;i++) {
     t[i] = cpucycles();
-    crypto_kem_keypair_derand(pk, sk, coins64);
-  }
-  print_results("kyber_keypair_derand: ", t, NTESTS);
-
-  for(i=0;i<NTESTS;i++) {
-    t[i] = cpucycles();
     crypto_kem_keypair(pk, sk);
   }
   print_results("kyber_keypair: ", t, NTESTS);
-
-  for(i=0;i<NTESTS;i++) {
-    t[i] = cpucycles();
-    crypto_kem_enc_derand(ct, key, pk, coins32);
-  }
-  print_results("kyber_encaps_derand: ", t, NTESTS);
 
   for(i=0;i<NTESTS;i++) {
     t[i] = cpucycles();
@@ -150,6 +136,42 @@ int main(void)
     crypto_kem_dec(key, ct, sk);
   }
   print_results("kyber_decaps: ", t, NTESTS);
+
+  for(i=0;i<NTESTS;i++) {
+    t[i] = cpucycles();
+    kex_uake_initA(kexsenda, key, sk, pk);
+  }
+  print_results("kex_uake_initA: ", t, NTESTS);
+
+  for(i=0;i<NTESTS;i++) {
+    t[i] = cpucycles();
+    kex_uake_sharedB(kexsendb, kexkey, kexsenda, sk);
+  }
+  print_results("kex_uake_sharedB: ", t, NTESTS);
+
+  for(i=0;i<NTESTS;i++) {
+    t[i] = cpucycles();
+    kex_uake_sharedA(kexkey, kexsendb, key, sk);
+  }
+  print_results("kex_uake_sharedA: ", t, NTESTS);
+
+  for(i=0;i<NTESTS;i++) {
+    t[i] = cpucycles();
+    kex_ake_initA(kexsenda, key, sk, pk);
+  }
+  print_results("kex_ake_initA: ", t, NTESTS);
+
+  for(i=0;i<NTESTS;i++) {
+    t[i] = cpucycles();
+    kex_ake_sharedB(kexsendb, kexkey, kexsenda, sk, pk);
+  }
+  print_results("kex_ake_sharedB: ", t, NTESTS);
+
+  for(i=0;i<NTESTS;i++) {
+    t[i] = cpucycles();
+    kex_ake_sharedA(kexkey, kexsendb, key, sk, sk);
+  }
+  print_results("kex_ake_sharedA: ", t, NTESTS);
 
   return 0;
 }

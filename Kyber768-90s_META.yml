@@ -1,0 +1,50 @@
+name: Kyber768-90s
+type: kem
+claimed-nist-level: 3
+claimed-security: IND-CCA2
+length-public-key: 1184
+length-ciphertext: 1088
+length-secret-key: 2400
+length-shared-secret: 32
+nistkat-sha256: 68bf2e3914c0b4e053cefc67dd9f10f567946da5720f0b453b347610c3cc2c0a
+testvectors-sha256: a1b8fe37e3fc58a8511c63a7187d3626a1a98c5d3bb67000fe9a02be7199d952
+principal-submitters:
+  - Peter Schwabe
+auxiliary-submitters:
+  - Roberto Avanzi
+  - Joppe Bos
+  - Léo Ducas
+  - Eike Kiltz
+  - Tancrède Lepoint
+  - Vadim Lyubashevsky
+  - John M. Schanck
+  - Gregor Seiler
+  - Damien Stehlé
+implementations:
+  - name: ref
+    version: https://github.com/pq-crystals/kyber/commit/74cad307858b61e434490c75f812cb9b9ef7279b
+    folder_name: ref
+    compile_opts: -DKYBER_K=3 -DKYBER_90S
+    signature_keypair: pqcrystals_kyber768_90s_ref_keypair
+    signature_enc: pqcrystals_kyber768_90s_ref_enc
+    signature_dec: pqcrystals_kyber768_90s_ref_dec
+    sources: ../LICENSE kem.c indcpa.c polyvec.c poly.c reduce.c ntt.c cbd.c verify.c kem.h params.h api.h indcpa.h polyvec.h poly.h reduce.h ntt.h cbd.h verify.h symmetric.h fips202.h aes256ctr.h symmetric-aes.c
+    common_dep: common_ref
+  - name: avx2
+    version: https://github.com/pq-crystals/kyber/commit/36414d64fc1890ed58d1ca8b1e0cab23635d1ac2
+    compile_opts: -DKYBER_K=3 -DKYBER_90S
+    signature_keypair: pqcrystals_kyber768_90s_avx2_keypair
+    signature_enc: pqcrystals_kyber768_90s_avx2_enc
+    signature_dec: pqcrystals_kyber768_90s_avx2_dec
+    sources: ../LICENSE kem.c indcpa.c polyvec.c poly.c fq.S shuffle.S ntt.S invntt.S basemul.S consts.c rejsample.c cbd.c verify.c align.h kem.h params.h api.h indcpa.h polyvec.h poly.h reduce.h fq.inc shuffle.inc ntt.h consts.h rejsample.h cbd.h verify.h symmetric.h fips202.h fips202x4.h aes256ctr.h
+    common_dep: common_avx2 common_aes
+    supported_platforms:
+      - architecture: x86_64
+        operating_systems:
+          - Linux
+          - Darwin
+        required_flags:
+          - aes
+          - avx2
+          - bmi2
+          - popcnt
