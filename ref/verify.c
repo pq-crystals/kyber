@@ -1,6 +1,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include "verify.h"
+#include "compat.h"
 
 /*************************************************
 * Name:        verify
@@ -60,16 +61,19 @@ void cmov(uint8_t *r, const uint8_t *x, size_t len, uint8_t b)
 /*************************************************
 * Name:        cmov_int16
 *
-* Description: Copy input v to *r if b is 1, don't modify *r if b is 0. 
-*              Requires b to be in {0,1};
+* Description: Returns a if select == 1, or b if select == 0.
+*              Requires select to be in {0,1}.
 *              Runs in constant time.
 *
-* Arguments:   int16_t *r:       pointer to output int16_t
-*              int16_t v:        input int16_t 
-*              uint8_t b:        Condition bit; has to be in {0,1}
+* Arguments:   int16_t a:        first int16_t input
+*              int16_t b:        second int16_t input
+*              uint8_t select:   Condition bit; has to be in {0,1}
+*
+* Returns a if select == 1 or b if select == 0, or
+* an undefined value otherwise.
 **************************************************/
-void cmov_int16(int16_t *r, int16_t v, uint16_t b)
+KYBER_NOINLINE int16_t cmov_int16(int16_t a, int16_t b, uint16_t select)
 {
-  b = -b;
-  *r ^= b & ((*r) ^ v);
+  const uint16_t mask = -select;
+  return a ^ (mask & (a ^ b));
 }
