@@ -138,9 +138,6 @@ void invntt(int16_t r[256]) {
 **************************************************/
 void basemul(int16_t r[2], const int16_t a[2], const int16_t b[2], int16_t zeta)
 {
-  r[0]  = fqmul(a[1], b[1]);
-  r[0]  = fqmul(r[0], zeta);
-  r[0] += fqmul(a[0], b[0]);
-  r[1]  = fqmul(a[0], b[1]);
-  r[1] += fqmul(a[1], b[0]);
+r[0] = montgomery_reduce(a[0]*b[0]+montgomery_reduce(a[1]*b[1])*zeta);
+r[1] = montgomery_reduce(a[0]*b[1]+a[1]*b[0]);
 }
