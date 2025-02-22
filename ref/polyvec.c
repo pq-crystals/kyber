@@ -15,22 +15,24 @@
 void polyvec_compress(uint8_t r[KYBER_POLYVECCOMPRESSEDBYTES], const polyvec *a)
 {
   unsigned int i,j,k;
-  uint64_t d0;
+  int16_t u;
 
 #if (KYBER_POLYVECCOMPRESSEDBYTES == (KYBER_K * 352))
   uint16_t t[8];
   for(i=0;i<KYBER_K;i++) {
     for(j=0;j<KYBER_N/8;j++) {
       for(k=0;k<8;k++) {
-        t[k]  = a->vec[i].coeffs[8*j+k];
-        t[k] += ((int16_t)t[k] >> 15) & KYBER_Q;
-/*      t[k]  = ((((uint32_t)t[k] << 11) + KYBER_Q/2)/KYBER_Q) & 0x7ff; */
-        d0 = t[k];
-        d0 <<= 11;
-        d0 += 1664;
-        d0 *= 645084;
-        d0 >>= 31;
-        t[k] = d0 & 0x7ff;
+        u  = a->vec[i].coeffs[8*j+k];
+
+        // 21-bit suffices for round(2048 x / q)
+        // inputs are in [-q/2, ..., q/2]
+        // 1290167 = round(2048 * 2^21 / q)
+        t[k] = ((int16_t)(((int32_t)u * 1290167 + (1 << 20)) >> 21)) & 0x7ff;
+
+        // this is equivalent to first mapping to positive
+        // standard representatives followed by
+        // t[k]  = ((((uint32_t)u << 11) + KYBER_Q/2)/KYBER_Q) & 0x7ff;
+
       }
 
       r[ 0] = (t[0] >>  0);
@@ -52,15 +54,17 @@ void polyvec_compress(uint8_t r[KYBER_POLYVECCOMPRESSEDBYTES], const polyvec *a)
   for(i=0;i<KYBER_K;i++) {
     for(j=0;j<KYBER_N/4;j++) {
       for(k=0;k<4;k++) {
-        t[k]  = a->vec[i].coeffs[4*j+k];
-        t[k] += ((int16_t)t[k] >> 15) & KYBER_Q;
-/*      t[k]  = ((((uint32_t)t[k] << 10) + KYBER_Q/2)/ KYBER_Q) & 0x3ff; */
-        d0 = t[k];
-        d0 <<= 10;
-        d0 += 1665;
-        d0 *= 1290167;
-        d0 >>= 32;
-        t[k] = d0 & 0x3ff;
+        u  = a->vec[i].coeffs[4*j+k];
+
+        // 22-bit suffices for round(1024 x / q)
+        // inputs are in [-q/2, ..., q/2]
+        // 1290167 = round(1024 * 2^22 / q)
+        t[k] = ((int16_t)(((int32_t)u * 1290167 + (1 << 21)) >> 22)) & 0x3ff;
+
+        // this is equivalent to first mapping to positive
+        // standard representatives followed by
+        // t[k]  = ((((uint32_t)u << 10) + KYBER_Q/2)/ KYBER_Q) & 0x3ff;
+
       }
 
       r[0] = (t[0] >> 0);
