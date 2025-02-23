@@ -1,3 +1,7 @@
+/* SPDX-License-Identifier: Apache-2.0 OR CC0-1.0
+ * Copyright: Joppe Bos, Léo Ducas, Eike Kiltz, Tancrède Lepoint, Vadim Lyubashevsky, John Schanck, Peter Schwabe, Gregor Seiler, Damien Stehlé
+ * */
+
 #include <stdint.h>
 #include "params.h"
 #include "poly.h"
