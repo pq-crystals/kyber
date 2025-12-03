@@ -244,3 +244,19 @@ void polyvec_add(polyvec *r, const polyvec *a, const polyvec *b)
   for(i=0;i<KYBER_K;i++)
     poly_add(&r->vec[i], &a->vec[i], &b->vec[i]);
 }
+
+/*************************************************
+* Name:        polyvec_sub
+*
+* Description: Add vectors of polynomials
+*
+* Arguments: - polyvec *r: pointer to output vector of polynomials
+*            - const polyvec *a: pointer to first input vector of polynomials
+*            - const polyvec *b: pointer to second input vector of polynomials
+**************************************************/
+void polyvec_sub(polyvec *r, const polyvec *a, const polyvec *b)
+{
+  unsigned int i;
+  for(i=0;i<KYBER_K;i++)
+    poly_sub(&r->vec[i], &a->vec[i], &b->vec[i]);
+}
