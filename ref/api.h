@@ -3,6 +3,10 @@
 
 #include <stdint.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define pqcrystals_kyber512_SECRETKEYBYTES 1632
 #define pqcrystals_kyber512_PUBLICKEYBYTES 800
 #define pqcrystals_kyber512_CIPHERTEXTBYTES 768
@@ -62,5 +66,9 @@ int pqcrystals_kyber1024_ref_keypair(uint8_t *pk, uint8_t *sk);
 int pqcrystals_kyber1024_ref_enc_derand(uint8_t *ct, uint8_t *ss, const uint8_t *pk, const uint8_t *coins);
 int pqcrystals_kyber1024_ref_enc(uint8_t *ct, uint8_t *ss, const uint8_t *pk);
 int pqcrystals_kyber1024_ref_dec(uint8_t *ss, const uint8_t *ct, const uint8_t *sk);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

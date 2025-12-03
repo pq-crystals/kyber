@@ -4,6 +4,10 @@
 #include <stdint.h>
 #include "params.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /*
  * Elements of R_q = Z_q[X]/(X^n + 1). Represents polynomial
  * coeffs[0] + X*coeffs[1] + X^2*coeffs[2] + ... + X^{n-1}*coeffs[n-1]
@@ -49,5 +53,9 @@ void poly_reduce(poly *r);
 void poly_add(poly *r, const poly *a, const poly *b);
 #define poly_sub KYBER_NAMESPACE(poly_sub)
 void poly_sub(poly *r, const poly *a, const poly *b);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

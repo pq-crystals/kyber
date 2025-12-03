@@ -4,6 +4,10 @@
 #include <stdint.h>
 #include "params.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define MONT -1044 // 2^16 mod q
 #define QINV -3327 // q^-1 mod 2^16
 
@@ -12,5 +16,9 @@ int16_t montgomery_reduce(int32_t a);
 
 #define barrett_reduce KYBER_NAMESPACE(barrett_reduce)
 int16_t barrett_reduce(int16_t a);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

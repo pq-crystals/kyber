@@ -7,6 +7,10 @@
 
 #include "fips202.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef keccak_state xof_state;
 
 #define kyber_shake128_absorb KYBER_NAMESPACE(kyber_shake128_absorb)
@@ -29,5 +33,9 @@ void kyber_shake256_rkprf(uint8_t out[KYBER_SSBYTES], const uint8_t key[KYBER_SY
 #define xof_squeezeblocks(OUT, OUTBLOCKS, STATE) shake128_squeezeblocks(OUT, OUTBLOCKS, STATE)
 #define prf(OUT, OUTBYTES, KEY, NONCE) kyber_shake256_prf(OUT, OUTBYTES, KEY, NONCE)
 #define rkprf(OUT, KEY, INPUT) kyber_shake256_rkprf(OUT, KEY, INPUT)
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* SYMMETRIC_H */

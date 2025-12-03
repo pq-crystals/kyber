@@ -4,6 +4,10 @@
 #include <stdint.h>
 #include "params.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define zetas KYBER_NAMESPACE(zetas)
 extern const int16_t zetas[128];
 
@@ -15,5 +19,9 @@ void invntt(int16_t poly[256]);
 
 #define basemul KYBER_NAMESPACE(basemul)
 void basemul(int16_t r[2], const int16_t a[2], const int16_t b[2], int16_t zeta);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
