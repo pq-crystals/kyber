@@ -1,6 +1,7 @@
 #ifndef KEM_H
 #define KEM_H
 
+#include <stdio.h>
 #include <stdint.h>
 #include "params.h"
 
@@ -31,5 +32,21 @@ int crypto_kem_enc(uint8_t *ct, uint8_t *ss, const uint8_t *pk);
 
 #define crypto_kem_dec KYBER_NAMESPACE(dec)
 int crypto_kem_dec(uint8_t *ss, const uint8_t *ct, const uint8_t *sk);
+
+// Timing struct for testing
+typedef struct {
+    double keygen;
+    double encap;
+    double decap;
+    double all;
+} timing_info_t;
+
+// Expose global timing variable for test aggregation
+extern timing_info_t g_time;
+
+timing_info_t print_timing_info(void);
+
+// add prototypes for testing
+void run_test(int test_idx);
 
 #endif

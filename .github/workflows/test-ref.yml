@@ -1,0 +1,45 @@
+name: Tests for ref implementation
+
+on:
+  - push
+  - pull_request
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        size:
+          - 512
+          - 768
+          - 1024
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run make
+        run: |
+          make -C ref clean
+          make -C ref nistkat
+      - name: Copy req file
+        run: |
+          if [ ${{ matrix.size }} -eq 512 ]; then
+            req=1632
+          elif [ ${{ matrix.size }} -eq 768 ]; then
+            req=2400
+          else
+            req=3168
+          fi
+          cp Kyber_KAT/Kyber${{ matrix.size }}/PQCkemKAT_${req}.req ref/
+      - name: Run PQCgenKAT_kem
+        run: |
+          cd ref
+          chmod +x ./nistkat/PQCgenKAT_kem${{ matrix.size }}
+          ./nistkat/PQCgenKAT_kem${{ matrix.size }}
+      - name: Verify KAT output
+        run: |
+          if [ ${{ matrix.size }} -eq 512 ]; then
+            diff ref/PQCkemKAT_1632.rsp Kyber_KAT/Kyber512/PQCkemKAT_1632.rsp
+          elif [ ${{ matrix.size }} -eq 768 ]; then
+            diff ref/PQCkemKAT_2400.rsp Kyber_KAT/Kyber768/PQCkemKAT_2400.rsp
+          else
+            diff ref/PQCkemKAT_3168.rsp Kyber_KAT/Kyber1024/PQCkemKAT_3168.rsp
+          fi

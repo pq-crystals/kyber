@@ -8,6 +8,7 @@
 #include "ntt.h"
 #include "symmetric.h"
 #include "randombytes.h"
+#include "stdio.h"
 
 /*************************************************
 * Name:        pack_pk
@@ -213,21 +214,29 @@ void indcpa_keypair_derand(uint8_t pk[KYBER_INDCPA_PUBLICKEYBYTES],
   uint8_t nonce = 0;
   polyvec a[KYBER_K], e, pkpv, skpv;
 
-  memcpy(buf, coins, KYBER_SYMBYTES);
+  memcpy(buf, coins, KYBER_SYMBYTES); // Copy seed from coins to buf (Step 1)
+
+  // Hash buf(seed) to generate publicseed and noiseseed
   buf[KYBER_SYMBYTES] = KYBER_K;
-  hash_g(buf, buf, KYBER_SYMBYTES+1);
+  hash_g(buf, buf, KYBER_SYMBYTES+1); // publicseed = buf (first half), noiseseed = buf+KYBER_SYMBYTES (second half)
+  //printf("[Step 2] Public seed and noise seed generated.\n");
 
+  // Generate matrix A from public seed
   gen_a(a, publicseed);
+  //printf("[Step 3] Matrix A generated.\n");
 
+  // Generate secret vectors s, e from noiseseed
   for(i=0;i<KYBER_K;i++)
     poly_getnoise_eta1(&skpv.vec[i], noiseseed, nonce++);
   for(i=0;i<KYBER_K;i++)
     poly_getnoise_eta1(&e.vec[i], noiseseed, nonce++);
+  //printf("[Step 4] Secret vectors s, e generated.\n");
 
   polyvec_ntt(&skpv);
   polyvec_ntt(&e);
 
-  // matrix-vector multiplication
+  // Compute pk = A*s + e
+  //printf("[Step 5] Compute pk = A*s + e\n");
   for(i=0;i<KYBER_K;i++) {
     polyvec_basemul_acc_montgomery(&pkpv.vec[i], &a[i], &skpv);
     poly_tomont(&pkpv.vec[i]);
@@ -236,6 +245,8 @@ void indcpa_keypair_derand(uint8_t pk[KYBER_INDCPA_PUBLICKEYBYTES],
   polyvec_add(&pkpv, &pkpv, &e);
   polyvec_reduce(&pkpv);
 
+  // Pack components into pk and sk
+  //printf("[Step 6] Pack components into pk and sk\n");
   pack_sk(sk, &skpv);
   pack_pk(pk, &pkpv, publicseed);
 }
@@ -272,29 +283,34 @@ void indcpa_enc(uint8_t c[KYBER_INDCPA_BYTES],
   poly_frommsg(&k, m);
   gen_at(at, seed);
 
+  // Generate random vectors r, ep, epp
+  //printf("[Step 4] Generate random vectors sp (r), ep (e1), epp (e2) from coins'\n");
   for(i=0;i<KYBER_K;i++)
-    poly_getnoise_eta1(sp.vec+i, coins, nonce++);
+    poly_getnoise_eta1(sp.vec+i, coins, nonce++); // sp: secret vector
   for(i=0;i<KYBER_K;i++)
-    poly_getnoise_eta2(ep.vec+i, coins, nonce++);
-  poly_getnoise_eta2(&epp, coins, nonce++);
+    poly_getnoise_eta2(ep.vec+i, coins, nonce++); // ep: error vector e1
+  poly_getnoise_eta2(&epp, coins, nonce++);      // epp: error vector e2
 
   polyvec_ntt(&sp);
 
-  // matrix-vector multiplication
+  // Compute ciphertext components
+  //printf("[Step 5] Compute u = A*r + e1\n");
   for(i=0;i<KYBER_K;i++)
     polyvec_basemul_acc_montgomery(&b.vec[i], &at[i], &sp);
-
+  //printf("[Step 6] Compute v = pk^T * r + e2 + encode(m)\n");
   polyvec_basemul_acc_montgomery(&v, &pkpv, &sp);
-
+  
   polyvec_invntt_tomont(&b);
   poly_invntt_tomont(&v);
 
   polyvec_add(&b, &b, &ep);
   poly_add(&v, &v, &epp);
-  poly_add(&v, &v, &k);
+  poly_add(&v, &v, &k); // k = encode(m)
   polyvec_reduce(&b);
   poly_reduce(&v);
 
+  // Pack u(b) and v into ciphertext c(ct)
+  //printf("[Step 7] Pack u and v into ciphertext ct\n");
   pack_ciphertext(c, &b, &v);
 }
 
@@ -317,10 +333,16 @@ void indcpa_dec(uint8_t m[KYBER_INDCPA_MSGBYTES],
 {
   polyvec b, skpv;
   poly v, mp;
-
+  //printf("[Step 1] Unpack ciphertext to get u and v\n");
   unpack_ciphertext(&b, &v, c);
+  /*printf("[Step 1] Ciphertext ct (first 8 bytes) = ");
+  for (int i = 0; i < 8; i++) printf("%02x", c[i]);
+  printf("...\n");*/
+
+  //printf("[Step 2] Unpack secret key\n");
   unpack_sk(&skpv, sk);
 
+  //printf("[Step 3] Compute m' = decode(v - u^T * s)\n");
   polyvec_ntt(&b);
   polyvec_basemul_acc_montgomery(&mp, &skpv, &b);
   poly_invntt_tomont(&mp);
@@ -329,4 +351,7 @@ void indcpa_dec(uint8_t m[KYBER_INDCPA_MSGBYTES],
   poly_reduce(&mp);
 
   poly_tomsg(m, &mp);
+  /*printf("[Step 3] m' (first 8 bytes) = ");
+  for (int i = 0; i < 8; i++) printf("%02x", m[i]);
+  printf("...\n");*/
 }
