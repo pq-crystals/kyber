@@ -4,6 +4,10 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define SHAKE128_RATE 168
 #define SHAKE256_RATE 136
 #define SHA3_256_RATE 136
@@ -50,5 +54,9 @@ void shake256(uint8_t *out, size_t outlen, const uint8_t *in, size_t inlen);
 void sha3_256(uint8_t h[32], const uint8_t *in, size_t inlen);
 #define sha3_512 FIPS202_NAMESPACE(sha3_512)
 void sha3_512(uint8_t h[64], const uint8_t *in, size_t inlen);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

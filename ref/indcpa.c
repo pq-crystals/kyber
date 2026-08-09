@@ -330,3 +330,19 @@ void indcpa_dec(uint8_t m[KYBER_INDCPA_MSGBYTES],
 
   poly_tomsg(m, &mp);
 }
+
+/* FUNCIÓN PARA REALIZAR LA DIFERENCIA EN EL DOMINIO CIFRADO*/
+
+void compareCiphertexts(uint8_t c1[KYBER_INDCPA_BYTES], uint8_t c2[KYBER_INDCPA_BYTES], uint8_t cDiff[KYBER_INDCPA_BYTES]) {
+    polyvec b1, b2, b;
+    poly v1, v2, v;
+
+    // Primero de desempaquetan
+    unpack_ciphertext(&b1, &v1, c1);
+    unpack_ciphertext(&b2, &v2, c2);
+
+    poly_sub(&v, &v1, &v2); 
+    polyvec_sub(&b, &b1, &b2);
+
+    pack_ciphertext(cDiff, &b, &v);
+}

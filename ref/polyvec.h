@@ -5,6 +5,10 @@
 #include "params.h"
 #include "poly.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct{
   poly vec[KYBER_K];
 } polyvec;
@@ -32,5 +36,9 @@ void polyvec_reduce(polyvec *r);
 
 #define polyvec_add KYBER_NAMESPACE(polyvec_add)
 void polyvec_add(polyvec *r, const polyvec *a, const polyvec *b);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
