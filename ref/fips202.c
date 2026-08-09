@@ -1,3 +1,9 @@
+/* SPDX-License-Identifier: Apache-2.0 OR CC0-1.0
+ * Copyright: Léo Ducas, Eike Kiltz, Tancrède Lepoint, Vadim Lyubashevsky, Gregor Seiler, Peter Schwabe, Damien Stehlé,
+ *            Ronny Van Keer (crypto_hash/keccakc512/simple/ from http://bench.cr.yp.to/supercop.html),
+ *            Gilles Van Assche, Daniel J. Bernstein, Peter Schwabe (TweetFips202)
+ * */
+
 /* Based on the public domain implementation in crypto_hash/keccakc512/simple/ from
  * http://bench.cr.yp.to/supercop.html by Ronny Van Keer and the public domain "TweetFips202"
  * implementation from https://twitter.com/tweetfips202 by Gilles Van Assche, Daniel J. Bernstein,
